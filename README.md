@@ -28,16 +28,26 @@ Environment:
 History of modifications (in reverse order):
 
 17.01.14  WYSIWYG -editor together with WIkiEditor extension
+
 10.01.14  <Ref> dialog: translations
           image -dialog: width ja height values from image, resize image in edit mode
+
 10.01.14  <category> button and dialog
+
 09.01.14  Positions of [edit] link with headers
+
 03.01.14  <ref>, <references> buttons
+
 16.12.13  WYSIWYG_MV_v1.22.0.zip
+
           WYSIWYG / IE11:n "numbered and bulleted" list
+
           WYSIWYG / IE 11: Category -definition
+
           IE11 html format 'IE=9' /opt/lampp/htdocs/mediawiki/includes/OutputPage.php
+
 05.12.13  MW 1.21.2 => 1.22.0
+
 10.11.13  MW 1.21.2, WYSIWYG_MW_v1.20.2.zip + manual fixes based on talk page of extension:wysiwyg
 
 ------------------------------------------------------------------------------
