@@ -1,9 +1,9 @@
 WYSIWYG-CKeditor
 ================
 
-Mediawiki extension: WYSIWYG. Includes extension and other components required by it.
+Mediawiki extension: WYSIWYG. Includes extension and other related modifed components.
 
-These files are based on extension:WYSIWYG from MediaWiki site www.mediawiki.org
+These files are originally based on extension:WYSIWYG from MediaWiki site www.mediawiki.org
 
 Environment:
   MediaWiki 1.22
@@ -18,9 +18,10 @@ Environment:
    https://drive.google.com/file/d/0B-aiZzKTmWI2Q0wyd3FMRVpuZWM/view?pli=1
    (WYSIWYG_MV_v1.22.0.zip).
 
-3. Additional modification like: reference by Varlin taken from here
+3. Further modifications where added on top of these.
+   They include f.ex <reference> by Varlin taken from here
    http://wikirouge.net/nowiki/mediawiki/WYSIWYG/
-   and some modifications made by me: category, image etc...
+   and some additional modifications made by me: category, image etc...
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
