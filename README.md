@@ -24,14 +24,14 @@ Environment:
    and some additional modifications made by me: category, image etc...
 
 Versions of WYSIWYG sources [they all have CKEditor 3.6 (revision 6902)]:
-1.5.6_0 [B551]  Version of WYSIWYG_MW_v1.20.2.zip and WYSIWYG_MV_v1.22.0.zip
-1.7.0_2_PSA     Version of http://github.com/Ciges/CKEditor_in_MediaWiki (by Ciges IE10+MW.122)
-1.7.2           Version of https://git.wikimedia.org/git/mediawiki/extensions/WYSIWYG.git (MediaWiki master)
-                           (same as https://github.com/wikimedia/mediawiki-extensions-WYSIWYG)
+  1.5.6_0 [B551]  Version of WYSIWYG_MW_v1.20.2.zip and WYSIWYG_MV_v1.22.0.zip
+  1.7.0_2_PSA     Version of http://github.com/Ciges/CKEditor_in_MediaWiki (by Ciges IE10+MW.122)
+  1.7.2           Version of https://git.wikimedia.org/git/mediawiki/extensions/WYSIWYG.git (MediaWiki master)
+                             (same as https://github.com/wikimedia/mediawiki-extensions-WYSIWYG)
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-History of modifications (in reverse order):
+History of modifications on top of abowe "1.5.6_0 [B551]" (in reverse order):
 
 17.01.14  WYSIWYG -editor together with WIkiEditor extension
 
