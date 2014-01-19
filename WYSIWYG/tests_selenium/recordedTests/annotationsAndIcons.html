@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost/" />
+<title>intermediateResultView</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">intermediateResultView</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=MyNewTestPage&amp;action=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>//*[@id='wpTextbox1']</td>
+	<td>This is Berlin located in [[located in::Germany]]. The city is also is [[is capital::Germany]] of Germany and has [[Inhabitants::3524000|3.5 Mio]].<br /><br />== Heading 2 ==<br /><br />Here follows a nowiki part &lt;nowiki&gt;'''Note the bold'''&lt;/nowiki&gt;. It ends here.<br /><br />=== Heading 2.2 ===<br /><br />*List item1<br />**List item11<br />*List item2<br /><br />=== Heading 2.3 ===<br /><br />This wiki contains {{#ask:[[Category:Person]]|format=list}} as a person. {{Copyright}}<br /><br />[[Category:City]]</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>runScript</td>
+	<td>jQuery('iframe').attr('id', 'mytestiframe')</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>id=mytestiframe</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='located in'][text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='is capital'][text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='Inhabitants::3524000'][text()='3.5 Mio']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Facts about MyNewTestPage</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Inhabitants</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>3524000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Is capital</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Germany</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Located in</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=MyNewTestPage&amp;action=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>*List item1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>This is Berlin located in [[located in::Germany]]. The city is also is [[is capital::Germany]] of Germany and has [[Inhabitants::3524000|3.5 Mio]].</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>== Heading 2 ==</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Here follows a nowiki part &lt;nowiki&gt;'''Note the bold'''&lt;/nowiki&gt;. It ends here.</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>=== Heading 2.2 ===</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>*List item1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>**List item11</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>*List item2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>=== Heading 2.3 ===</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>This wiki contains {{#ask:[[Category:Person]]|format=list}} as a person. {{Copyright}}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>[[Category:City]]</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

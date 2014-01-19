@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost/" />
+<title>wikiMarkup</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">wikiMarkup</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=Mynewtestpagss&amp;action=edit&amp;mode=wysiwyg</td>
+	<td></td>
+</tr>
+<tr>
+	<td>runScript</td>
+	<td>CKEDITOR.instances.wpTextbox1.setData(&quot;This page is called: {{{PAGENAME}}}&lt;br/&gt;&lt;br/&gt;Template Call: 2 &lt; 3&lt;br/&gt;{{template|sdf|param=2|pagea2={{Some Other template}}}} and a nowiki part&amp;lt;nowiki&amp;gt;bla&lt;br/&gt;blub done&lt;br/&gt;&amp;lt;/nowiki&amp;gt;&lt;br/&gt;&lt;br/&gt;Tepmplates like this {{TempLateBlub|param1={{{arg_x}}}}} can also use parameters.&lt;br/&gt;&lt;br/&gt;Here we have magic words like __SGDGfsar__ and __NOTOC__ and __SOFOR__ that should be&lt;br/&gt;replaced.&lt;br/&gt;&lt;br/&gt;We have {{#ask:[[Category:Person]]|format=ol}} in the wiki.&quot;)</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>//a[@title='Paragraph Format']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[@title='Paragraph Format']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>//a/p[text()='Normal']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a/p[text()='Normal']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>This page is called: {{{PAGENAME}}}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Template Call: 2 &lt; 3</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>{{template|sdf|param=2|pagea2={{Some Other template}}}} and a nowiki part&lt;nowiki&gt;bla</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>blub done</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>&lt;/nowiki&gt;</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Tepmplates like this {{TempLateBlub|param1={{{arg_x}}}}} can also use parameters.</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Here we have magic words like __SGDGfsar__ and __NOTOC__ and __SOFOR__ that should be</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>replaced.</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>We have {{#ask:[[Category:Person]]|format=ol}} in the wiki.</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='ca-edit']/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>//a[contains(@class, 'cke_button_source')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[contains(@class, 'cke_button_source')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td></td>
+	<td>This page is called: &amp;#x7B;&amp;#x7B;&amp;#x7B;PAGENAME&amp;#x7D;&amp;#x7D;&amp;#x7D;&lt;br/&gt;&lt;br/&gt;Template Call: 2 &lt; 3&lt;br/&gt;&amp;#x7B;&amp;#x7B;template|sdf|param=2|pagea2=&amp;#x7B;&amp;#x7B;Some Other template&amp;#x7D;&amp;#x7D;&amp;#x7D;&amp;#x7D; and a nowiki part&amp;lt;nowiki&amp;gt;bla&lt;br/&gt;blub done&lt;br/&gt;&amp;lt;/nowiki&amp;gt;&lt;br/&gt;&lt;br/&gt;Tepmplates like this &amp;#x7B;&amp;#x7B;TempLateBlub|param1=&amp;#x7B;&amp;#x7B;&amp;#x7B;arg_x&amp;#x7D;&amp;#x7D;&amp;#x7D;&amp;#x7D;&amp;#x7D; can also use parameters.&lt;br/&gt;&lt;br/&gt;Here we have magic words like __SGDGfsar__ and &amp;#95;&amp;#95;NOTOC&amp;#95;&amp;#95; and __SOFOR__ that should be&lt;br/&gt;replaced.&lt;br/&gt;&lt;br/&gt;We have &amp;#x7B;&amp;#x7B;#ask:&amp;#x5B;&amp;#x5B;Category:Person&amp;#x5D;&amp;#x5D;|format=ol&amp;#x7D;&amp;#x7D; in the wiki.</td>
+</tr>
+</tbody></table>
+</body>
+</html>

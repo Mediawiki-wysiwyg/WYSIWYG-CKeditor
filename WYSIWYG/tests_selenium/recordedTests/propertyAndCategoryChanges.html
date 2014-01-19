@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost/" />
+<title>propertyAndCategoryChanges</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">propertyAndCategoryChanges</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=Mynewtestpage&amp;action=edit&amp;redlink=1&amp;mode=wysiwyg</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//a/img[@id='editimage']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>toggle_wpTextbox1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>wpTextbox1</td>
+	<td>This is Berlin located in [[located in::Germany]]. The city is also is [[is capital::Germany]] of Germany and has [[Inhabitants::3524000|3.5 Mio]]. [[Category:City]]</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>toggle_wpTextbox1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='located in'][@class='fck_mw_property'][text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='is capital'][@class='fck_mw_property'][text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='Inhabitants::3524000'][@class='fck_mw_property'][text()='3.5 Mio']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@class='fck_mw_category'][@sort='City'][@_fcknotitle='true'][text()='City']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>toggle_wpTextbox1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>wpTextbox1</td>
+	<td>This is Berlin located in [[located in::Germany]]. The city is also is Germany of Germany and has [[Inhabitants::3524000]]. [[Category:Person]]</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>toggle_wpTextbox1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='located in'][@class='fck_mw_property'][text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='Inhabitants'][@class='fck_mw_property'][text()='3524000']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@class='fck_mw_category'][@sort='Person'][@_fcknotitle='true'][text()='Person']</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

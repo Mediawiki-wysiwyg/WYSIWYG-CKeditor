@@ -1,0 +1,17 @@
+Index: includes/Linker.php
+===================================================================
+--- includes/Linker.php	(revision 9464)
++++ includes/Linker.php	(working copy)
+@@ -239,6 +239,12 @@
+ 		and $target->getNamespace() != NS_SPECIAL ) {
+ 			$query['action'] = 'edit';
+ 			$query['redlink'] = '1';
++			/*op-patch|SR|2009-09-17|MW|red link with mode wysiwyg|start*/
++			/*op-patch|SR|2009-09-17|MW|red link with mode wysiwyg|doc|http://dmwiki.ontoprise.com:8888/dmwiki/index.php?title=Redlink_with_wysiwyg*/
++			global $IP;
++			if ( defined('WYSIWYG_EDITOR_VERSION') && empty( $query['mode']))
++				$query['mode']= 'wysiwyg';
++			/*op-patch|SR|2009-09-17|MW|red link with mode wysiwyg|doc|end*/
+ 		}
+ 		$ret = $target->getLinkUrl( $query );
+ 		wfProfileOut( __METHOD__ );

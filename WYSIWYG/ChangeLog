@@ -1,0 +1,115 @@
+WYSIWYG extension ChangeLog
+===========================
+
+
+VERSION 1.4.1
+
+
+  FEATURES:
+    * Any wiki markup that is inserted by the user in the wysiwyg mode of the
+      Richtext editor will be escaped when saving the page. Therefore the input
+      is not rendered in the wiki page but displayed as it was entered in the
+      editor. To use wiki markup and html tags in a wiki page, the user can do
+      this in the source mode of the Richtext editor or use the default wiki
+      text editor.
+    * new button to add the signature into the edited document.
+    * Treat the special tags of the Semantic Forms extension not as templates
+      but as a "Special Tag" like magic words or variables. The SF special tags
+      are 'info', 'for template', 'field', 'end template', 'standard input'. The
+      parsing is done only on pages that are in the form namespace and when
+      Semantic Forms is installed.
+      See also http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13021
+
+  CHANGES:
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13271
+      Buttons for Halo features are not hidden when these are not available.
+      Instead in the popup dialog an informative text is displayed where the
+      user can get the extension to enable the requested feature.
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=10987
+      Provide halo autocompletion in the image-picker - if there is no input
+      for selecting an image, an image list with the maximum number of results
+      as defined in the search limit is returned.
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13792
+      External images are handled correcly now. These are rendered in wysiwyg
+      mode and the image dialog inserts the correct html element.
+
+  BUGFIXES:
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14465
+      WYSIWYG changes % to ükLR
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14447
+      Wysiwyg editor looses category annotations with empty labels
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13693
+      The link attribute in images got lost
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13400
+      Links are broken after edition
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13908
+      {{{para|}}} is rendered wrong in WYSIWYG
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13894
+      IE8: Cannot enter a link, image, table, query, template: popups are not
+      displayed (improved bugfix that was done for #13511)
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13795
+      Some formating styles like huge fonts are not supported in the wiki
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13852
+      Some features of "Numbered lists" in the WYSIWYG editor malfunctioned
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13539
+      Language of UI in CKeditor
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13797
+      Remove unwanted <style> elements from WYSIWYG text.
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13579
+      Edit sections: no wysiwyg-editor appears
+      This bug occurred only if $wgCKEditorUrlparamMode was set.
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13775
+      Queries are not saved when using WYSIWYG and IE8
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13580
+      User-interface of wysiwyg-editor: two languages
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13521
+      Creating a template using Special:Createtemplate generates wrong code
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13194
+      IE 8 page error (transformation into wikitext didn't work in IE 8)
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13507
+      Parse error leads to empty wiki page
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13511
+      Query Interface (and other tools) do not open from Wysiwyg in IE8
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13523
+      Reopening a query in QI from Wysiwyg shows an empty query
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13540
+      Editor changes [[]] into <a href
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13591
+      Interwiki links break in WYSIWYG
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14268
+      Open QI from Wysiwyg with query using comparators yields illegal syntax
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14317
+      Edit text box disappears when switching between the two text editors
+
+
+VERSION 1.4.0
+
+
+  FEATURES:
+    * Update from the FCKeditor to the new CKEditor 3.4
+    * Applying changes from the official FCKeditor extension (see
+      http://www.mediawiki.org/wiki/Extension:FCKeditor_(Official) for details)
+
+  CHANGES:
+    * New installation directory is <mw_install_dir>/extensions/WYSIWYG
+
+  BUGFIXES:
+
+
+
+VERSION 1.3.2
+
+
+  FEATURES:
+
+  CHANGES:
+    * Query Interface popup has not tabs anymore because in the SMWHalo
+      extension 1.5.1 the query interface will support modifying the query
+      source directly.
+      Use this version only if you have the SMWHalo extension 1.5.1 installed.
+    * A define has been added so that other extensions may easily check whether
+      the WYSIWYG extension is available or not.
+
+  BUGFIXES:
+
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost/" />
+<title>semanticToolbar</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">semanticToolbar</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=MyNewTestPage&amp;action=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>wpTextbox1</td>
+	<td>This is Berlin located in [[located in::Germany|Germany]]. The city is also a capital of [[is capital::Germany]] and has [[Inhabitants::3524000|3.5 Millions]] of inhabitants.<br /><br />[[Category:City]] &lt;br/&gt;[[Category:Template]]<br /></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>runScript</td>
+	<td>jQuery('iframe').attr('id', 'mynewtestiframe')</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=mynewtestiframe</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>id=mynewtestiframe</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='located in::Germany' and @class='fck_mw_property' and text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='is capital' and @class='fck_mw_property' and text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@sort='City' and @class='fck_mw_category' and&nbsp;&nbsp;@_fcknotitle='true' and text()='City']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@property='Inhabitants::3524000' and @class='fck_mw_property' and text()='3.5 Millions']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//span[@sort='Template' and @class='fck_mw_category' and @_fcknotitle='true' and text()='Template']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>null</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[@id='cke_40']/span[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=semtoolbar</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>id=semtoolbar</td>
+	<td></td>
+</tr>
+<tr>
+	<td>mouseDown</td>
+	<td>//span[@property='located in::Germany' and @class='fck_mw_property' and text()='Germany']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>mouseMoveAt</td>
+	<td>//span[@property='located in::Germany' and @class='fck_mw_property' and text()='Germany']</td>
+	<td>5, 0</td>
+</tr>
+<tr>
+	<td>runScript</td>
+	<td>jQuery(&quot;//span[text()='Germany']&quot;).focus().select();</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

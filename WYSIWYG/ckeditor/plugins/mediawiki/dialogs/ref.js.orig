@@ -1,0 +1,86 @@
+CKEDITOR.dialog.add( 'MWRef', function( editor ) {
+ var loadElements = function( editor, selection, element )
+       {
+          var content = null;
+
+          element.editMode = true;
+          content = element.getText();
+
+        if ( content.length > 0 )
+         this.setValueOf( 'info','footnote', content );
+        else
+         this.setValueOf( 'info','footnote', "" );
+       };
+        return {
+          title : 'Ajouter/modifier une référence',
+          minWidth : 500,
+          minHeight : 50,
+          contents : [
+            {
+              id : 'info',
+              label : 'Ajouter une référence',
+              title : 'Ajouter une référence',
+              elements :
+              [
+                {
+                  id : 'footnote',
+                  type : 'text',
+                  label : 'Texte de la référence :',
+				  setup: function(element){
+                      this.setValue(element.getAttribute('data-cke-realelement'));
+                  }
+                },
+                {
+                  id : 'value',
+                  type : 'text',
+                  label : 'Nom de référence :',
+                  // labelLayout : 'horizontal',
+                  // style : 'float:left;width:100px;',
+                  setup: function(element){
+                      this.setValue(element.getAttribute('value'));
+                  }
+                }
+              ]
+            }
+          ],
+        onShow : function()
+        {
+         this.editObj = false;
+         this.fakeObj = false;
+         this.editMode = false;
+
+         var selection = editor.getSelection();
+         var ranges = selection.getRanges();
+         var element = selection.getSelectedElement();
+         var seltype = selection.getType();
+         
+         if ( seltype == CKEDITOR.SELECTION_ELEMENT && element.getAttribute( 'class' ) == 'FCK__MWRef' )
+         {
+          this.fakeObj = element;
+          element = editor.restoreRealElement( this.fakeObj );
+          loadElements.apply( this, [ editor, selection, element ] );
+          selection.selectElement( this.fakeObj );
+         }
+         else if ( seltype == CKEDITOR.SELECTION_TEXT )
+         {
+           this.setValueOf( 'info','footnote', selection.getNative() );
+         }
+         this.getContentElement( 'info', 'footnote' ).focus();
+        },
+          onOk : function()
+          {
+            var editor = this.getParentEditor();
+            var content = this.getValueOf( 'info', 'footnote' );
+            var value = this.getValueOf( 'info', 'value' );
+            if ( content.length > 0 || value.length > 0 ) {
+              var realElement = CKEDITOR.dom.element.createFromHtml('<ref></ref>');
+              if ( content.length > 0 )
+                realElement.setText(content);
+              if ( value.length > 0 )
+                realElement.setAttribute('value',value);
+              var fakeElement = editor.createFakeElement( realElement , 'FCK__MWRef', 'span', false );
+              editor.insertElement(fakeElement);
+            }
+          }
+        };
+} );

@@ -1,0 +1,44 @@
+== Installation ==
+
+Information about the extension can be found at:
+http://smwforum.ontoprise.com/smwforum/index.php/Help:WYSIWYG_extension
+
+To install the extension please:
+* unzip the ZIP archive into your Mediawiki installation directory.
+* edit your LocalSettings.php and add:
+  require_once('extensions/WYSIWYG/WYSIWYG.php');
+
+== Apply Patches ==
+
+There are two patches included in the WYSIWYG extension. These patches are optional.
+
+If you use the Semantic Forms extension please apply the patch file:
+patch_for_SF_2.0.8.txt
+Currently only Semantic Forms version 2.0.8 is supported.
+Please find more detailed information about the Semantic Forms patches at: 
+http://smwforum.ontoprise.com/smwforum/index.php/Help:Installing_the_WYSIWYG_extension_manually_on_top_of_SMW_%28v.1.5.6%29
+
+If you use Mediawiki 1.16.x and want the WYSIWYG editor show up only when the URL
+parameter mode=wysiwyg is set, then apply the patch file:
+patch_for_MW_1.16.x.txt
+Please find more detailed information about the MediaWiki patches at: 
+http://smwforum.ontoprise.com/smwforum/index.php/Help:Installing_the_WYSIWYG_extension_manually_on_top_of_MediaWiki_(v_1.16)
+
+
+Applying the patch can be done with the script patch.php. Open a command line 
+in the root folder of the WYSIWYG extension and enter:
+
+php patch.php -d <install_dir of mediawiki> -p <patchfile>
+
+Replace <install_dir of mediawiki> and <patchfile> by appropriate values.
+
+== About the project ==
+
+This extension is developed from the official FCK extension for Mediawiki:
+http://www.mediawiki.org/wiki/Extension:FCKeditor_%28Official%29
+
+The FCK editor has been replaced with the new CKEditor.
+
+In addition to the official FCK extension, the WYSIWYG extensions supports
+wikitext used in Semantic Mediawiki and also contains various other improvements
+for parsing wikitext.

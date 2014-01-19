@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploydescriptor>
+	<global>
+		<version>156</version>
+		<id>wysiwyg</id>
+        <license>GPL-v2</license>
+		<vendor>ontoprise GmbH</vendor>
+		<maintainer>ontoprise GmbH</maintainer>
+		<instdir>extensions/WYSIWYG</instdir>
+		<description>
+			Use the popular CKEditor for editing Wiki pages in WYSIWYYG mode.
+		</description>
+		<helpurl>http://smwforum.ontoprise.com/smwforum/index.php/Help:WYSIWYG_Extension</helpurl>
+		<dependencies>
+            <dependency from="1160" to="1169">mw</dependency>
+			<dependency from="150" optional="true">smwhalo</dependency>
+		</dependencies>
+	</global>
+	<codefiles>
+
+		<file loc="deploy.xml" />
+		<!-- TODO: add all others -->
+	</codefiles>
+	<wikidumps>
+		<!-- empty -->
+	</wikidumps>
+	<resources>
+		<!-- empty -->
+	</resources>
+
+	<configs>
+		<new>
+            <patch file="patch_for_MW_1.16.x.txt" ext="mw" from="1160" to="1164"/>
+            <patch file="patch_for_SF_2.0.8.txt" ext="semanticforms" from="208" to="208"/>
+            <patch file="patch_for_SF_2.1.2.txt" ext="semanticforms" from="212" to="212"/>
+            <require name="wysiwygtab" file="extensions/WYSIWYG/WYSIWYG.php"/>
+		</new>
+		<update from="132" removeAll="true">
+          <require name="wysiwygtab" file="extensions/WYSIWYG/WYSIWYG.php"/>
+        </update>
+	</configs>
+</deploydescriptor>

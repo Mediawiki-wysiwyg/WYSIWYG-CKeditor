@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost/" />
+<title>queryInterfaceInWysiwyg</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">queryInterfaceInWysiwyg</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=France&amp;action=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>wpTextbox1</td>
+	<td>[[HasCitizen::33333333]]<br />[[HasCapital::Paris]]<br />[[Category:State]]</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=Portugal&amp;action=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>wpTextbox1</td>
+	<td>[[HasCitizen::44444444444]]<br />[[HasCapital::Lissabon]]<br />[[Category:State]]</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=Germany&amp;action=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>wpTextbox1</td>
+	<td>[[HasCitizen::55555555]]&nbsp;&nbsp;[[HasCapital::Berlin]] [[Category:State]]</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/mediawiki/index.php?title=WYSIWYGTest&amp;action=edit&amp;mode=wysiwyg</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>//a[contains(@class, 'SMWqi')]/span[contains(text(), 'Query Interface')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>runScript</td>
+	<td>CKEDITOR.instances.wpTextbox1.setData(&quot;&quot;)</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>5000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[contains(@class, 'SMWqi')]/span[contains(text(), 'Query Interface')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>CKeditorQueryInterface</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setSpeed</td>
+	<td>0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>qiDefTab3</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>fullAskText</td>
+	<td>{{#ask: [[Category:State]]<br />| ?HasCitizen <br />| format=table<br />| merge=false<br />|}}</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//button[@onclick='qihelper.loadFromSource(true)']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>link=33333333</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=33333333</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=France</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=55555555</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=Germany</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=44444444444</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=Portugal</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=HasCitizen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>null</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[contains(@class, 'cke_dialog_ui_button_ok')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//img[@class='FCK__SMWquery'][@align=''][@src='http://localhost/mediawiki/extensions/WYSIWYG/ckeditor/images/spacer.gif?t=AA4E4NT'][@_cke_realelement='%3Cspan%20class%3D%22fck_smw_query%22%3E%7B%7B%23ask%3A%20%5B%5BCategory%3AState%5D%5DfckLRfckLR%7C%20%3FHasCitizen%20fckLRfckLR%7C%20format%3DtablefckLRfckLR%7C%20merge%3DfalsefckLRfckLR%7C%7D%7D%3C%2Fspan%3E'][@_cke_real_node_type='1'][@alt='Unknown Object'][@_cke_real_element_type='span']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>wpSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=HasCitizen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=33333333</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=France</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=55555555</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=Germany</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=44444444444</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>link=Portugal</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>
