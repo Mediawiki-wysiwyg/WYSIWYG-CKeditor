@@ -32,11 +32,11 @@ History of modifications (in reverse order):
 10.01.14  <Ref> dialog: translations
           image -dialog: width ja height values from image, resize image in edit mode
 
-10.01.14  <category> button and dialog
+10.01.14  Category -button and dialog
 
 09.01.14  Positions of [edit] link with headers
 
-03.01.14  <ref>, <references> buttons
+03.01.14  Ref, References -buttons
 
 16.12.13  WYSIWYG_MV_v1.22.0.zip
 
