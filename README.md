@@ -2,13 +2,16 @@ WYSIWYG-CKeditor
 ================
 
 Mediawiki extension: WYSIWYG. Includes extension and other related modifed components.
-
 These files are originally based on extension:WYSIWYG from MediaWiki site www.mediawiki.org
+
+If you plan to use this bundle in your enviroment, requirement is that you will give feedback and description of your environment here:
+https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
+
 
 Environment:
   MediaWiki 1.22
   PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
-  Browsers: IE11 and FireFox v26.0, Chrome
+  Browsers: IE11 and FireFox v26.0, Chrome 32.0.1700.102 m
 
 1. Version of WYSIWYG files were taken intially for MW 1.21 from here:
    https://docs.google.com/file/d/0B-aiZzKTmWI2bG8yVzBCOWNLamM/view?pli=1
@@ -23,14 +26,8 @@ Environment:
    http://wikirouge.net/nowiki/mediawiki/WYSIWYG/
    and some additional modifications made by me: category, image etc...
 
-Versions of WYSIWYG sources [they all have CKEditor 3.6 (revision 6902)]:
-
-  1.5.6_0 [B551]  Version of WYSIWYG_MW_v1.20.2.zip and WYSIWYG_MV_v1.22.0.zip
-
-  1.7.0_2_PSA     Version of http://github.com/Ciges/CKEditor_in_MediaWiki (by Ciges IE10+MW.122)
-
-  1.7.2           Version of https://git.wikimedia.org/git/mediawiki/extensions/WYSIWYG.git (MediaWiki master)
-                             (same as https://github.com/wikimedia/mediawiki-extensions-WYSIWYG)
+For more information of source bundle and their versions, see:
+https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
