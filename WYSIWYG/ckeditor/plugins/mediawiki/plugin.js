@@ -494,14 +494,26 @@ CKEDITOR.plugins.add( 'mediawiki',
 		editor.on( 'doubleclick', function( evt )
 			{
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
-		
+
 				if ( element.is( 'img' ) &&                             //07.01.14 RL->
-				    ( element.getAttribute( 'class' ) == 'FCK__MWReferences' || element.getAttribute( 'class' ) == 'FCK__MWMath')
+				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
+					 element.getAttribute( 'class' ).InArray( [         //03.02.14 RL Modified to use InArray(..)  
+								'FCK__MWReferences',
+								'FCK__MWMath'
+								])				   
 				   ) { 
 				  /*Do nothing, because otherwise doubleclick of math or reference object  
 				    will open dialog for linking image to page.
 				  */
 				} 
+				//03.02.14 RL-> Dialog to edit template definitions is defined in ckeditor/plugins/mwtemplate/dialogs/teplate.js.
+				//              ckeditor/plugins/mwtemplate/plugins.js has following code but for some reason it is not
+				//              activated there on doubleclick of icon_template.gif, placing code here seems to solve the case.
+				else if ( element.is( 'img' ) &&   
+                     element.getAttribute( 'class' ) &&
+                     element.getAttribute( 'class' ) == 'FCK__MWTemplate' ) 
+					evt.data.dialog = 'MWTemplate'; 
+				//03.02.14 RL<-
 				else
                 {                                                        //07.01.14 RL<-			          	
 					if ( element.is( 'a' ) || ( element.is( 'img' ) && element.getAttribute( '_cke_real_element_type' ) == 'anchor' ) )
