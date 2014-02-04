@@ -296,7 +296,7 @@ class CKeditor_MediaWiki {
 	 * @param $vars Array: array of JS global variables
 	 * @return true
 	 */
-	public static function onMakeGlobalVariablesScript( $vars ){
+	public static function onMakeGlobalVariablesScript( &$vars ){  //03.02.14 RL Added &
 		global $wgFCKEditorDir, $wgFCKEditorExtDir, $wgFCKEditorToolbarSet, $wgFCKEditorHeight,
                $wgAllowExternalImages, $wgAllowExternalImagesFrom, $wgCKEditorHideDisabledTbutton;
 
