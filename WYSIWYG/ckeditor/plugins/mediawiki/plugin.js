@@ -1499,13 +1499,16 @@ CKEDITOR.customprocessor.prototype =
     // in FF htmlNode.textContent is set, while IE needs htmlNode.text;
     _GetNodeText : function( htmlNode ) {
         var text = '';
-        /*16.12.13 RL->*To make category work with IE11***
+        /*06.02.14 RL->*To make category work with IE11 and maintaining backwards compatibility***
         if (CKEDITOR.env.ie)
             text = htmlNode.text;
         else
-        *16.12.13 RL<-*/ 
             text = htmlNode.textContent;
-        return (typeof text == 'undefined') ? '' : text;
+        *******/ 
+        if (typeof htmlNode.textContent != 'undefined') text = htmlNode.textContent;
+        else text = htmlNode.text;		
+        /*06.02.14 RL<-*/ 
+		return (typeof text == 'undefined') ? '' : text;
     },
 
 	// Property and Category values must be of a certain format. Otherwise this will break
