@@ -13,6 +13,11 @@ Environment:
   PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
   Browsers: IE8, IE11 and FireFox (v26.0, v27.0), Chrome (32.0.1700.102 m)
 
+  NOTE! IE11 requires that on page "Tools=>Compatibility View settings" option "Display intranet sites in compatibility view"
+        is selected (in case your wiki is internal or add site name to the list if it is external).
+        With this setting on wysiwyg works ok with IE11. If setting is deselected that setting in IE11,
+        wysiwyg editor won't start and it reverts to wikieditor.
+
 Origin of source bundle:
 1. Version of WYSIWYG files were taken intially for MW 1.21 from here:
    https://docs.google.com/file/d/0B-aiZzKTmWI2bG8yVzBCOWNLamM/view?pli=1
