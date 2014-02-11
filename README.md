@@ -9,10 +9,11 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 
 
 Environment:
-  MediaWiki 1.22
+  MediaWiki: 1.22.0, 1.22.1, 1.22.2
   PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
-  Browsers: IE11 and FireFox v26.0, Chrome 32.0.1700.102 m
+  Browsers: IE8, IE11 and FireFox (v26.0, v27.0), Chrome (32.0.1700.102 m)
 
+Origin of source bundle:
 1. Version of WYSIWYG files were taken intially for MW 1.21 from here:
    https://docs.google.com/file/d/0B-aiZzKTmWI2bG8yVzBCOWNLamM/view?pli=1
    (WYSIWYG_MW_v1.20.2.zip)
@@ -27,11 +28,24 @@ Environment:
    and some additional modifications made by me: category, image etc...
 
 For more information of source bundle and their versions, see:
-https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
+  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
+  https://www.mediawiki.org/wiki/Extension:WYSIWYG
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 History of modifications on top of abowe "1.5.6_0 [B551]" (in reverse order):
+
+10.02.14  Fixed two IE8 compatibility issues:
+
+          -tagged/numbered list emptied the page when saving page or changing into wikitext mode
+
+          -ref.js dialog crashed, unable to save definition
+
+06.02.14  Korjattu muutosta: 5.3 WYSIWYG / IE 11: Category -m‰‰ritys
+
+04.02.14  WYSIWYG: Tag -dialogin (special.js) k‰ytt‰m‰t MW:n muuttujat
+
+03.02.14  WYSIWYG: template elementin tuplaklikkauksen avaama dialogi (template.js)
 
 17.01.14  WYSIWYG -editor together with WIkiEditor extension
 

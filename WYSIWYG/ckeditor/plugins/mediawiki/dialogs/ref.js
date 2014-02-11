@@ -1,10 +1,10 @@
 CKEDITOR.dialog.add( 'MWRef', function( editor ) {
  var loadElements = function( editor, selection, element )
        {
-          var content = null;
+         var content = null;
 
-          element.editMode = true;
-          content = element.getText();
+         element.editMode = true;
+         content = element.getText();
 
         if ( content.length > 0 )
          this.setValueOf( 'info','footnote', content );
@@ -72,17 +72,17 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
          var ranges = selection.getRanges();
          var element = selection.getSelectedElement();
          var seltype = selection.getType();
-         
+                  
          if ( seltype == CKEDITOR.SELECTION_ELEMENT && element.getAttribute( 'class' ) == 'FCK__MWRef' )
          {
           this.fakeObj = element;
           element = editor.restoreRealElement( this.fakeObj );
           loadElements.apply( this, [ editor, selection, element ] );
-          selection.selectElement( this.fakeObj );
+          selection.selectElement( this.fakeObj );         
          }
          else if ( seltype == CKEDITOR.SELECTION_TEXT )
-         {
-           this.setValueOf( 'info','footnote', selection.getNative() );
+         {           
+           this.setValueOf( 'info','footnote', selection.getNative() );              
          }
          this.getContentElement( 'info', 'footnote' ).focus();
         },
@@ -91,11 +91,14 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
             var editor = this.getParentEditor();
             var content = this.getValueOf( 'info', 'footnote' );
             var value = this.getValueOf( 'info', 'value' );
-
+            var ref = '<ref>_</ref>'; 
+            
             //We have reference text or name of reference or both:
             if ( content.length > 0 || value.length > 0 ) {
-              var realElement = CKEDITOR.dom.element.createFromHtml('<ref></ref>');
-
+            
+              //var realElement = CKEDITOR.dom.element.createFromHtml('<ref></ref>'); //For some reason this fails with IE8 even when content is not empty
+              var realElement = new CKEDITOR.dom.element('ref');  //10.02.14 RL: This works with IE8, IE11, FF v26.0
+             
               //03.01.14 RL->CKEditor with FireFox v26.0 removes references from page in case text
               //of reference is empty (when using reference names) => convert empty value to '_'
               if (content.length == 0 && value.length > 0)
@@ -106,6 +109,7 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
                 realElement.setText(content);
               if ( value.length > 0 )
                 realElement.setAttribute('name',value); //03.01.14 RL Was 'value'
+
               var fakeElement = editor.createFakeElement( realElement , 'FCK__MWRef', 'span', false );
               editor.insertElement(fakeElement);
             }

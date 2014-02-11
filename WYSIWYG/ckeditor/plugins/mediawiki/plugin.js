@@ -1624,6 +1624,7 @@ CKEDITOR.customprocessor.prototype =
 	
 	ieFixHTML: function(html, convertToLowerCase){
 		var zz = html;
+        zz = zz.replace( /\s+data-cke-expando=".*?"/g, '' ); //09.02.14 RL: In IE8, we need to remove the expando attributes.
 		var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
 		
 		if (z) {
