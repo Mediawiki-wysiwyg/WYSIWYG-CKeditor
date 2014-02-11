@@ -41,11 +41,11 @@ History of modifications on top of abowe "1.5.6_0 [B551]" (in reverse order):
 
           -ref.js dialog crashed, unable to save definition
 
-06.02.14  Korjattu muutosta: 5.3 WYSIWYG / IE 11: Category -m‰‰ritys
+06.02.14  Modified fix for IE 11 with Category.js
 
-04.02.14  WYSIWYG: Tag -dialogin (special.js) k‰ytt‰m‰t MW:n muuttujat
+04.02.14  Tag -dialog (special.js) with variables of MW
 
-03.02.14  WYSIWYG: template elementin tuplaklikkauksen avaama dialogi (template.js)
+03.02.14  Double clicking template image dialog (template.js)
 
 17.01.14  WYSIWYG -editor together with WIkiEditor extension
 
