@@ -13,12 +13,15 @@ Environment:
   PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
   Browsers: IE8, IE11 and FireFox (v26.0, v27.0), Chrome (32.0.1700.102 m)
 
-  NOTE! IE11 requires that on page "Tools=>Compatibility View settings" option "Display intranet sites in compatibility view"
-        is selected (in case your wiki is internal or add site name to the list if it is external).
-        With this setting on wysiwyg works ok with IE11. If setting is deselected that setting in IE11,
-        wysiwyg editor won't start and it reverts to wikieditor.
+  NOTE! This wysiwyg bundle should work with IE11 native mode.
+        If you have problems with IE11 and this extension, you can try to modify "Tools=>Compatibility View settings"
+        setting "Display intranet sites in compatibility view" in case your wiki is internal or add site name to
+        the list if it is external. In case wysiwyg thinks that browser is incompatible, editing mode will
+        revert to wikieditor.
 
-Origin of source bundle:
+------------------------------------------------------------------------------
+
+Origin of source bundles combined into this version:
 1. Version of WYSIWYG files were taken intially for MW 1.21 from here:
    https://docs.google.com/file/d/0B-aiZzKTmWI2bG8yVzBCOWNLamM/view?pli=1
    (WYSIWYG_MW_v1.20.2.zip)
@@ -27,18 +30,19 @@ Origin of source bundle:
    https://drive.google.com/file/d/0B-aiZzKTmWI2Q0wyd3FMRVpuZWM/view?pli=1
    (WYSIWYG_MV_v1.22.0.zip).
 
-3. Further modifications where added on top of these.
-   They include f.ex <reference> by Varlin taken from here
+3. Some additinal features were developed based on this bundle
    http://wikirouge.net/nowiki/mediawiki/WYSIWYG/
-   and some additional modifications made by me: category, image etc...
 
-For more information of source bundle and their versions, see:
-  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
+4. Additional features and modifications where applied on top of abowe bundles.
+
+For more information about WYSIWYG extension and different source bundles, see:
   https://www.mediawiki.org/wiki/Extension:WYSIWYG
+  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
+
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-History of modifications on top of abowe "1.5.6_0 [B551]" (in reverse order):
+History of modifications (in reverse order):
 
 12.02.14  Wysiwyg worked earlier with IE11 only in compatibility mode. Added code to enable wysiwyg mode in IE11 native mode.
 
