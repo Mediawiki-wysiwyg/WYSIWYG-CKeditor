@@ -40,8 +40,6 @@ For more information of source bundle and their versions, see:
 
 History of modifications on top of abowe "1.5.6_0 [B551]" (in reverse order):
 
-12.02.14  Added code to make wysiwyg start in native mode of IE11.
-
 10.02.14  Fixed two IE8 compatibility issues:
 
           -tagged/numbered list emptied the page when saving page or changing into wikitext mode
