@@ -592,11 +592,17 @@ function CKEditor_IsCompatibleBrowser()
 
         if ( strpos($sAgent, 'MSIE') !== false && strpos($sAgent, 'mac') === false && strpos($sAgent, 'Opera') === false )
         {
+                /*F.ex IE11 in compatibility view (only beginning of string):
+                  Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727;....
+                */ 
                 $iVersion = (float)substr($sAgent, strpos($sAgent, 'MSIE') + 5, 3) ;
                 return ($iVersion >= 5.5) ;
         }
         else if ( strpos($sAgent, 'Gecko/') !== false )
         {
+                /*F.ex FireFox v27.0: 
+                  Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0 
+                */
                 $iVersion = (int)substr($sAgent, strpos($sAgent, 'Gecko/') + 6, 8) ;
                 return ($iVersion >= 20030210) ;
         }
@@ -609,7 +615,21 @@ function CKEditor_IsCompatibleBrowser()
         {
                 $iVersion = $matches[1] ;
                 return ( $matches[1] >= 522 ) ;
-        }
+        } 
+        //12.02.14 RL->
+        else if ( strpos($sAgent, 'like Gecko') !== false &&  strpos($sAgent, 'Trident/7.0; rv:') !== false  )
+        {       
+                /*IE11 in normal mode:  
+                  Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko 
+                */     
+                $fVersion = (float)substr($sAgent, strpos($sAgent, 'rv:') + 3, 4) ; 
+
+                //Note! Wysiwyg editor will not start when following debug message is printed on screen.  
+                //printf('Test of version, $sAgent:%s versio: %0.2f %s', $sAgent,  $fVersion, $fVersion >= 10.0);
+
+                return ($fVersion >= 10.0) ;
+        } 
+        //12.02.14 RL<-
         else
                 return false ;
 }
