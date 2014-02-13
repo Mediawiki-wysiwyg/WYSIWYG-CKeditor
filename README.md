@@ -7,6 +7,7 @@ These files are originally based on extension:WYSIWYG from MediaWiki site www.me
 If you plan to use this bundle in your enviroment, requirement is that you will give feedback and description of your environment here:
 https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
 
+================
 
 Environment:
   MediaWiki: 1.22.0, 1.22.1, 1.22.2
@@ -19,19 +20,19 @@ Environment:
         the list if it is external. In case wysiwyg thinks that browser is incompatible, editing mode will
         revert to wikieditor.
 
-------------------------------------------------------------------------------
+================
 
 Origin of source bundles combined into this version:
 1. Version of WYSIWYG files were taken intially for MW 1.21 from here:
    https://docs.google.com/file/d/0B-aiZzKTmWI2bG8yVzBCOWNLamM/view?pli=1
-   (WYSIWYG_MW_v1.20.2.zip)
+   WYSIWYG_MW_v1.20.2.zip
 
 2. Some modifications have been adapted into it from here:
    https://drive.google.com/file/d/0B-aiZzKTmWI2Q0wyd3FMRVpuZWM/view?pli=1
-   (WYSIWYG_MV_v1.22.0.zip).
+   WYSIWYG_MV_v1.22.0.zip.
 
 3. Some additinal features were developed based on this bundle
-   http://wikirouge.net/nowiki/mediawiki/WYSIWYG/
+   http://wikirouge.net/nowiki/mediawiki/WYSIWYG
 
 4. Additional features and modifications where applied on top of abowe bundles.
 
@@ -39,10 +40,11 @@ For more information about WYSIWYG extension and different source bundles, see:
   https://www.mediawiki.org/wiki/Extension:WYSIWYG
   https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
 
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+================
 
 History of modifications (in reverse order):
+
+13.02.14  Added comment about last possible place of wysiwyg specific IE compatibility setting. Active definition of IE compatibility is still done outside wysiwyg in file includes/OutputPage.php.
 
 12.02.14  Wysiwyg worked earlier with IE11 only in compatibility mode. Added code to enable wysiwyg mode in IE11 native mode.
 

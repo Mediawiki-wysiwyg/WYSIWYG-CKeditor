@@ -206,6 +206,12 @@ class CKeditor_MediaWiki {
         foreach($inlineStyles as $media => $css ) {
             $out->addInlineStyle( $css );
         }
+
+        //13.02.14 RL: This will be the last place to define compatibility mode of browser.
+        //             Disadvantage is that definition will be the last of all meta's.
+        //             Active definition is currenlty in includes/OutputPage.php. 
+        //$out->addMeta( 'http:X-UA-Compatible', 'IE=9' );
+
         return $out;
     }
 
