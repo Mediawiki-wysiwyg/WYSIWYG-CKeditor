@@ -14,11 +14,8 @@ Environment:
   PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
   Browsers: IE8, IE11 and FireFox (v26.0, v27.0), Chrome (32.0.1700.102 m)
 
-  NOTE! This wysiwyg bundle should work with IE11 native mode.
-        If you have problems with IE11 and this extension, you can try to modify "Tools=>Compatibility View settings"
-        setting "Display intranet sites in compatibility view" in case your wiki is internal or add site name to
-        the list if it is external. In case wysiwyg thinks that browser is incompatible, editing mode will
-        revert to wikieditor.
+  NOTE! This wysiwyg bundle should work with IE11 native mode ("Edge").
+        Compatibility view mode should not be selected with IE11 for your wiki site.
 
 ================
 
@@ -31,7 +28,7 @@ Origin of source bundles combined into this version:
    https://drive.google.com/file/d/0B-aiZzKTmWI2Q0wyd3FMRVpuZWM/view?pli=1
    WYSIWYG_MV_v1.22.0.zip.
 
-3. Some additinal features were developed based on this bundle
+3. Some additinal features were developed based on this bundles
    http://wikirouge.net/nowiki/mediawiki/WYSIWYG
 
 4. Additional features and modifications where applied on top of abowe bundles.
@@ -44,7 +41,7 @@ For more information about WYSIWYG extension and different source bundles, see:
 
 History of modifications (in reverse order):
 
-13.02.14  Added comment about last possible place of wysiwyg specific IE compatibility setting. Active definition of IE compatibility is still done outside wysiwyg in file includes/OutputPage.php.
+14.02.14  IE11 works with wysiwyg in native mode (="Edge") as long as your wiki site IS NOT set to be viewed in compatibility mode with IE11.
 
 12.02.14  Wysiwyg worked earlier with IE11 only in compatibility mode. Added code to enable wysiwyg mode in IE11 native mode.
 
