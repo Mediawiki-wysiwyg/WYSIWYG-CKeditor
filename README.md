@@ -15,31 +15,33 @@ Environment:
   Browsers: IE8, IE11 and FireFox (v26.0, v27.0), Chrome (32.0.1700.102 m)
 
   NOTE! This wysiwyg bundle should work with IE11 native mode ("Edge").
-        Compatibility view mode should not be selected with IE11 for your wiki site.
+        Compatibility view mode of IE11 should not be selected with IE11 for your wiki site.
 
 ================
 
 Origin of source bundles combined into this version:
 1. Version of WYSIWYG files were taken intially for MW 1.21 from here:
    https://docs.google.com/file/d/0B-aiZzKTmWI2bG8yVzBCOWNLamM/view?pli=1
-   WYSIWYG_MW_v1.20.2.zip
+   WYSIWYG_MW_v1.20.2.zip _
 
 2. Some modifications have been adapted into it from here:
    https://drive.google.com/file/d/0B-aiZzKTmWI2Q0wyd3FMRVpuZWM/view?pli=1
-   WYSIWYG_MV_v1.22.0.zip.
+   WYSIWYG_MV_v1.22.0.zip _
 
-3. Some additinal features were developed based on this bundles
-   http://wikirouge.net/nowiki/mediawiki/WYSIWYG
+3. Some additinal features were developed based on this bundle
+   http://wikirouge.net/nowiki/mediawiki/WYSIWYG _
 
 4. Additional features and modifications where applied on top of abowe bundles.
 
 For more information about WYSIWYG extension and different source bundles, see:
-  https://www.mediawiki.org/wiki/Extension:WYSIWYG
-  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
+  https://www.mediawiki.org/wiki/Extension:WYSIWYG _
+  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239 _
 
 ================
 
 History of modifications (in reverse order):
+
+17.02.14  Fixed Tag -dialog (special.js) to support <source lang="xxx">. .<source> definition as "fck_mw_source" element (requires extension SyntaxHighlight_GeSHi). Errors found with IE11 native mode in wysiwyg editor: all dialogs work but they had focus problems with their respective elements on page, to fix this forced compatibility mode IE=9 with wysiwyg editing mode only. (WYSIWYG/CKeditor.body.php vs. includes/OutputPage.php)
 
 14.02.14  IE11 works with wysiwyg in native mode (="Edge") as long as your wiki site IS NOT set to be viewed in compatibility mode with IE11.
 

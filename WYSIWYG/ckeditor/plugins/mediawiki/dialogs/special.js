@@ -3,7 +3,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
         return {
             title : editor.lang.mwplugin.specialTagTitle,
             minWidth : 350,
-            minHeight : 140,
+            minHeight : 150,
             resizable: CKEDITOR.DIALOG_RESIZE_BOTH,
 			contents : [
 				{
@@ -33,11 +33,27 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     ],
                     wgCKeditorMagicWords = window.parent.wgCKeditorMagicWords || window.parent.parent.wgCKeditorMagicWords;
 
-
                 content.Trim();
-                content = content.replace(/\r?\n/g, 'fckLR');
+				content = content.replace(/\r?\n/g, 'fckLR');			
                 // check for a tag
-                if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {
+				//17.02.14 RL-> <source lang="xx">....</source>
+                if (el = content.match(/^<source/)) { 					
+					if (! (el = content.match(/^<(source).*?lang="([\w_-]+)">(.*?)<\/([\w_-]+)>$/))) {
+						alert (editor.lang.mwplugin.invalidContent);
+						return false;					
+					}
+					var inner = el[3] || '_',
+                        spanClass = 'fck_mw_special';
+                    className = 'FCK__MWSpecial';
+
+                    if (el[1].InArray(wgImgWikitags)) {
+                        spanClass = 'fck_mw_' + el[1];
+                        className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
+                    }					
+                    tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" lang="' + el[2] + '" _fck_mw_tagtype="t">'
+                        + inner + '</span>';
+                } //17.02.14 RL<-
+                else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {
                     var inner = el[2] || '_',
                         spanClass = 'fck_mw_special';
                     className = 'FCK__MWSpecial';
@@ -45,7 +61,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     if (el[1].InArray(wgImgWikitags)) {
                         spanClass = 'fck_mw_' + el[1];
                         className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
-                    }
+                    }					
                     tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" _fck_mw_tagtype="t">'
                         + inner + '</span>';
                 }
@@ -111,7 +127,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 
        		onShow : function() {
     			this.fakeObj = false;
-
+				
         		var editor = this.getParentEditor(),
             		selection = editor.getSelection(),
                 	element = null;
@@ -124,7 +140,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                             'FCK__MWNowiki',
                             'FCK__MWIncludeonly',
                             'FCK__MWNoinclude',
-                            'FCK__MWOnlyinclude'
+                            'FCK__MWOnlyinclude',
+							'FCK__MWSource'                                           //17.02.14 RL
                          ])
                     )
                 {
@@ -133,11 +150,25 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
         			selection.selectElement( this.fakeObj );
                     var content = '',
                         inner = element.getHtml().replace(/_$/, '').replace(/fckLR/g, '\r\n');
-                    if ( element.getAttribute( 'class' ) == 'fck_mw_special' ) {
+						
+					if ( element.getAttribute( 'class' ).InArray(['fck_mw_special',
+					                                              'fck_mw_source'     //17.02.14 RL
+																 ])
+                       ) 
+					{         
                         var tagName = element.getAttribute('_fck_mw_tagname') || '',
+						    tagLang = element.getAttribute( 'lang' ) || '',           //17.02.14 RL
                             tagType = element.getAttribute('_fck_mw_tagtype') || '';
-                            
-                        if ( tagType == 't' ) {
+
+						if ( tagName == 'source' ) {                                  //17.02.14 RL->
+                            content += '<' + tagName;
+							//For tag <source lang="xxxx">:
+							if (tagLang != '') {                         
+							  content += ' lang="' + tagLang + '"';      
+							}                                              
+							content += '>' + inner + '</' + tagName + '>';
+                        }                                                             //17.02.14 RL<-
+                        else if ( tagType == 't' ) {
                             content += '<' + tagName + '>' + inner + '</' + tagName + '>';
                         }
                         else if ( tagType == 'sf') {

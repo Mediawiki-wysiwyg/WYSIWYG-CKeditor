@@ -99,6 +99,15 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
+			'img.FCK__MWSource' +  //17.02.14 RL
+			'{' +
+				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_source.gif' ) + ');' +
+				'background-position: center center;' +
+				'background-repeat: no-repeat;' +
+				'border: 1px solid #a9a9a9;' +
+				'width: 66px !important;' +
+				'height: 15px !important;' +
+			'}\n' +			
 			'img.FCK__MWNowiki' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_nowiki.gif' ) + ');' +
@@ -486,7 +495,8 @@ CKEDITOR.plugins.add( 'mediawiki',
                         'FCK__MWNowiki',
                         'FCK__MWIncludeonly',
                         'FCK__MWNoinclude',
-                        'FCK__MWOnlyinclude'
+                        'FCK__MWOnlyinclude',
+						'FCK__MWSource'                                 //17.02.14 RL
                      ])
                    ) return {MWSpecialTags: CKEDITOR.TRISTATE_ON};
             });
@@ -530,11 +540,12 @@ CKEDITOR.plugins.add( 'mediawiki',
 								'FCK__MWNowiki',
 								'FCK__MWIncludeonly',
 								'FCK__MWNoinclude',
-								'FCK__MWOnlyinclude'
+								'FCK__MWOnlyinclude',
+								'FCK__MWSource'                                          //17.02.14 RL
 							])
 						)
 							evt.data.dialog = 'MWSpecialTags';		
-						else if ( !element.getAttribute( '_cke_real_element_type' ) )  //07.01.14 RL This was earlier one step abowe
+						else if ( !element.getAttribute( '_cke_real_element_type' ) )    //07.01.14 RL This was earlier one step abowe
 							evt.data.dialog = 'MWImage';
 					}
                 }  //07.01.14 RL
