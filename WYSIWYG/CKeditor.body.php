@@ -539,12 +539,13 @@ HEREDOC;
 		/*13.11.13 RL**
 		wfLoadExtensionMessages( 'CKeditor' );
 		***/
-   
+
 		$script .= '
 var showFCKEditor = ' . $this->showFCKEditor . ';
 var loadSTBonStartup = '. $this->loadSTBonStartup . ';
 var popup = false; // pointer to popup document
 var firstLoad = true;
+var isConflict = ' . ( $form->isConflict ?  1 : 0 ) . ';		                          //21.02.14 RL                                           
 var editorMsgOn = "[' . Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) . ']";        //17.01.14 RL Added []
 var editorMsgOff = "[' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) . ']";  //17.01.14 RL Added []
 var editorLink = "[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']";  //17.01.14 RL Added []
@@ -556,7 +557,6 @@ var wgCKeditorInstance = null;
 var wgCKeditorCurrentMode = "wysiwyg";
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 CKEDITOR.ready=true;
-
 ';
 		$script .= '</script>';
 
@@ -668,6 +668,27 @@ function checkSelected(){
 function initEditor(){
 	var toolbar = document.getElementById( 'toolbar' );
 	// show popup or toogle link
+
+	//21.02.14 RL-> In case other author had saved our page earlier than us, we get conflict when we try to save our page 
+	//              =>mediawiki displays original page in wikitext mode => if we are in wysiwyg mode at that time,
+	//              do not show wysiwyg, instead revert back to WikiEditor mode. 
+	if ( showFCKEditor & RTE_VISIBLE & isConflict ) { 
+
+		showFCKEditor -= RTE_VISIBLE;  
+		
+		if ( $('#wikiEditor-ui-toolbar') ) {
+			$('#wikiEditor-ui-toolbar').show(); 
+
+			//Pressing this button will destroy conflict page, because wysiwyg has not been initialized at this point.
+            //if ($('#ckTools').length == 0) {
+            //    $("<div id='ckTools' style='float: right; display: block;'> <a id='toggleAnchor' class='fckToogle' href=''>[Show RichTextEditor]</a> </div>").insertBefore("#editform");			
+			//	$( '#toggleAnchor' ).css('font-size','0.8em');
+			//}
+		}
+		
+		return true	;
+	}	
+	
 	if( showFCKEditor & ( RTE_POPUP|RTE_TOGGLE_LINK ) ){
 		// add new toolbar before wiki toolbar
 		var ckTools = document.createElement( 'div' );

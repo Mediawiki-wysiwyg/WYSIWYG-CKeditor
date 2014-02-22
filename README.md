@@ -10,36 +10,41 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 ================
 
 Environment:
-  MediaWiki: 1.22.0, 1.22.1, 1.22.2
-  PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
+
+MediaWiki: 1.22.0, 1.22.1, 1.22.2
+
+  PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 
+  (XAMPP for Linux 1.8.3-2)
+  
   Browsers: IE8, IE11 and FireFox (v26.0, v27.0), Chrome (32.0.1700.102 m)
 
-  NOTE! This wysiwyg bundle should work with IE11 native mode ("Edge").
-        Compatibility view mode of IE11 should not be selected with IE11 for your wiki site.
+  NOTE! This wysiwyg bundle should work with IE11 native mode ("Edge"). Compatibility view mode of IE11 should not be selected with IE11 for your wiki site.
 
 ================
 
 Origin of source bundles combined into this version:
 1. Version of WYSIWYG files were taken intially for MW 1.21 from here:
    https://docs.google.com/file/d/0B-aiZzKTmWI2bG8yVzBCOWNLamM/view?pli=1
-   WYSIWYG_MW_v1.20.2.zip _
+   WYSIWYG_MW_v1.20.2.zip
 
 2. Some modifications have been adapted into it from here:
    https://drive.google.com/file/d/0B-aiZzKTmWI2Q0wyd3FMRVpuZWM/view?pli=1
-   WYSIWYG_MV_v1.22.0.zip _
+   WYSIWYG_MV_v1.22.0.zip
 
 3. Some additinal features were developed based on this bundle
-   http://wikirouge.net/nowiki/mediawiki/WYSIWYG _
+   http://wikirouge.net/nowiki/mediawiki/WYSIWYG
 
 4. Additional features and modifications where applied on top of abowe bundles.
 
 For more information about WYSIWYG extension and different source bundles, see:
-  https://www.mediawiki.org/wiki/Extension:WYSIWYG _
-  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239 _
+  https://www.mediawiki.org/wiki/Extension:WYSIWYG
+  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239
 
 ================
 
 History of modifications (in reverse order):
+
+21.02.14  Problem with conflict page: section of "current contents of page" was using wysiwyg editor but text inside it was in wikitext mode => forced editor in wikitext mode (WikiEditor) in case of conflict (=two authors editing same page at same time, the one saving page as latest will get indication of conflict) 
 
 17.02.14  Fixed Tag -dialog (special.js) to support <source lang="xxx">. .<source> definition as "fck_mw_source" element (requires extension SyntaxHighlight_GeSHi). Errors found with IE11 native mode in wysiwyg editor: all dialogs work but they had focus problems with their respective elements on page, to fix this forced compatibility mode IE=9 with wysiwyg editing mode only. (WYSIWYG/CKeditor.body.php vs. includes/OutputPage.php)
 
@@ -81,5 +86,3 @@ History of modifications (in reverse order):
 05.12.13  MW 1.21.2 => 1.22.0
 
 10.11.13  MW 1.21.2, WYSIWYG_MW_v1.20.2.zip + manual fixes based on talk page of extension:wysiwyg
-
-------------------------------------------------------------------------------
