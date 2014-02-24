@@ -44,7 +44,7 @@ For more information about WYSIWYG extension and different source bundles, see:
 
 History of modifications (in reverse order):
 
-24.02.14  Problem with conflict page: show "current page content" in wysiwyg editor. NOTE! Do not use refresh button of browser, it corrupts contents of wysiwyg editor page.
+24.02.14  Problem with conflict page: changed "current page content" editing mode from wikieditor to wysiwyg. NOTE! Do not use refresh button of browser on conflict page, it corrupts contents of page in editor.
 
 21.02.14  Problem with conflict page: section of "current contents of page" was using wysiwyg editor but text inside it was in wikitext mode => forced editor in wikitext mode (WikiEditor) in case of conflict (=two authors editing same page at same time, the one saving page as latest will get indication of conflict)
 
