@@ -13,9 +13,9 @@ Environment:
 
 MediaWiki: 1.22.0, 1.22.1, 1.22.2
 
-  PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 
+  PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7
   (XAMPP for Linux 1.8.3-2)
-  
+
   Browsers: IE8, IE11 and FireFox (v26.0, v27.0), Chrome (32.0.1700.102 m)
 
   NOTE! This wysiwyg bundle should work with IE11 native mode ("Edge"). Compatibility view mode of IE11 should not be selected with IE11 for your wiki site.
@@ -34,7 +34,7 @@ Origin of source bundles combined into this version:
 3. Some additinal features were developed based on this bundle
    http://wikirouge.net/nowiki/mediawiki/WYSIWYG
 
-4. Additional features and modifications where applied on top of abowe bundles.
+4. Additional features and modifications where applied on top of abowe bundles
 
 For more information about WYSIWYG extension and different source bundles, see:
   https://www.mediawiki.org/wiki/Extension:WYSIWYG
@@ -44,7 +44,9 @@ For more information about WYSIWYG extension and different source bundles, see:
 
 History of modifications (in reverse order):
 
-21.02.14  Problem with conflict page: section of "current contents of page" was using wysiwyg editor but text inside it was in wikitext mode => forced editor in wikitext mode (WikiEditor) in case of conflict (=two authors editing same page at same time, the one saving page as latest will get indication of conflict) 
+24.02.14  Problem with conflict page: show "current page content" in wysiwyg editor. NOTE! Do not use refresh button of browser, it corrupts contents of wysiwyg editor page.
+
+21.02.14  Problem with conflict page: section of "current contents of page" was using wysiwyg editor but text inside it was in wikitext mode => forced editor in wikitext mode (WikiEditor) in case of conflict (=two authors editing same page at same time, the one saving page as latest will get indication of conflict)
 
 17.02.14  Fixed Tag -dialog (special.js) to support <source lang="xxx">. .<source> definition as "fck_mw_source" element (requires extension SyntaxHighlight_GeSHi). Errors found with IE11 native mode in wysiwyg editor: all dialogs work but they had focus problems with their respective elements on page, to fix this forced compatibility mode IE=9 with wysiwyg editing mode only. (WYSIWYG/CKeditor.body.php vs. includes/OutputPage.php)
 

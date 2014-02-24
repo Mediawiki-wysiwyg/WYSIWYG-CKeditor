@@ -665,29 +665,38 @@ function checkSelected(){
 		tagClose += ' '
 	}
 }
-function initEditor(){
+
+function initEditor(){	
 	var toolbar = document.getElementById( 'toolbar' );
 	// show popup or toogle link
 
-	//21.02.14 RL-> In case other author had saved our page earlier than us, we get conflict when we try to save our page 
-	//              =>mediawiki displays original page in wikitext mode => if we are in wysiwyg mode at that time,
-	//              do not show wysiwyg, instead revert back to WikiEditor mode. 
+	//21.02.14 RL-> In case of conflict page, revert back to WikiEditor mode. 
+    /*******
 	if ( showFCKEditor & RTE_VISIBLE & isConflict ) { 
-
 		showFCKEditor -= RTE_VISIBLE;  
-		
 		if ( $('#wikiEditor-ui-toolbar') ) {
 			$('#wikiEditor-ui-toolbar').show(); 
-
-			//Pressing this button will destroy conflict page, because wysiwyg has not been initialized at this point.
-            //if ($('#ckTools').length == 0) {
-            //    $("<div id='ckTools' style='float: right; display: block;'> <a id='toggleAnchor' class='fckToogle' href=''>[Show RichTextEditor]</a> </div>").insertBefore("#editform");			
-			//	$( '#toggleAnchor' ).css('font-size','0.8em');
-			//}
-		}
-		
+		}		
 		return true	;
 	}	
+    ****/
+    //24.02.14 RL-> In case of conflict, convert wikitext to html and open wysiwyg editor.
+	//              Page will be corrupted in case user does refresh of page in wysiwyg mode.
+	if ( showFCKEditor & RTE_VISIBLE & isConflict & firstLoad ) {
+		var SRCtextarea = document.getElementById( '$textfield' );
+		sajax_request_type = 'POST';
+		CKEDITOR.ready = false;
+		sajax_do_call('wfSajaxWikiToHTML', [SRCtextarea.value], function( result ){
+			if ( firstLoad ){ //still
+				SRCtextarea.value = result.responseText; // insert parsed text
+				onLoadCKeditor();
+				CKEDITOR.ready = true;
+			}
+		});
+		return true;
+	}
+
+	//24.02.14 RL<-
 	
 	if( showFCKEditor & ( RTE_POPUP|RTE_TOGGLE_LINK ) ){
 		// add new toolbar before wiki toolbar
@@ -723,6 +732,7 @@ function initEditor(){
 		ckTools.innerHTML+='<span ' + style + ' id="popup_$textfield">[<a class="fckPopup" href="javascript:void(0)" onclick="ToggleCKEditor(\'popup\',\'$textfield\')">{$newWinMsg}</a>]</span>';
 	}
     */
+
 	if( showFCKEditor & RTE_VISIBLE ){
 		if ( toolbar ){	// insert wiki buttons
 			for( var i = 0; i < mwEditButtons.length; i++ ) {
@@ -734,6 +744,7 @@ function initEditor(){
 		}
 		onLoadCKeditor();
 	}
+	
 	return true;
 }
 addOnloadHook( initEditor );
