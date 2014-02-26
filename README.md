@@ -1,9 +1,9 @@
 WYSIWYG-CKeditor
 ===
-Mediawiki modified extension: WYSIWYG. Includes extension and other related modifed components.
-files of this bundle are originally taken from extension:WYSIWYG from MediaWiki site www.mediawiki.org.
+Modified extension of MediaWiki: WYSIWYG. Includes extension and other related modifed components.
+Files of this bundle were originally taken from diffeent source bundles of extension WYSIWYG from MediaWiki site www.mediawiki.org.
 
-More information about MediaWiki extension WYSIWYG can be found here:
+You can find more information about MediaWiki extension WYSIWYG here:
 
   https://www.mediawiki.org/wiki/Extension:WYSIWYG
   https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
@@ -17,16 +17,15 @@ More information about MediaWiki extension WYSIWYG can be found here:
 **NOTE!**
 
 >If you plan to use this bundle in your enviroment, requirement is that  you will give feedback and description of your environment and purpose  of your wiki here:
-https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239. If you are not willing to obey abowe humble request, then you may not use this bundle for any purposes.
+https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239. If you are not willing to obey this humble request, then you may not use this bundle for any purposes.
 
 
 ----------
-**You can find infromation about following issues below:**
-- History of modifications (in reverse order)
-- Compatible Mediawiki environment
-- Short installation instructions
-- Compatible browsers
-- Browser settings
+**You can find information about following issues below:**
+- history of modifications (in reverse order)
+- compatible Mediawiki environment
+- short installation instructions
+- compatible browsers and browser settings
 
 ================
 
@@ -162,9 +161,9 @@ About browser compatibility
 **About versions of IE:**
 - IE versions 7 or below will not work with this bundle.
 
-- With IE8, IE9, IE10, IE11 browsers, DO NOT SET browsers compatibility settings on for your wiki site, if you do have them enabled then wysiwyg will not work!
+- With IE8, IE9, IE10, IE11 browsers, DO NOT SET browsers compatibility settings on for your wiki site, if you do have them enabled then wysiwyg will not work.
 
-**Browser versions know to work with this bundle of WYSIWYG:**
+**Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
 - FireFox (v26.0, v27.0)
