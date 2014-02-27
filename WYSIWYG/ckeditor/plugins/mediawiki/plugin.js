@@ -349,7 +349,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             // special tags                                                   
             specialTags     : 'Tag',                                          //'Special Tags',
             specialTagTitle : 'Tag -dialogi',                                 //'Special Tags Dialogue',
-            specialTagDef   : 'Märitä tag, magic word tai parser funktio',    //'Define any special tag, magic word or parser function:',
+            specialTagDef   : 'Määritä tag, magic word tai parser funktio',   //'Define any special tag, magic word or parser function:',
             // link                                                           
             linkTitle       : 'Mediawikin linkki',                            //'Mediawiki Link',
             noPageFound     : 'sivuja ei löytynyt',                           //'no article found',

@@ -33,6 +33,8 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 History of modifications:
 ===
 
+- 27.02.14  Fixed finnish translation for header text of Tag -dialog.
+
 - 24.02.14  Problem with conflict page: changed "current page content" editing mode from wikieditor to wysiwyg. NOTE! Do not use refresh button of browser on conflict page, it corrupts contents of page in editor.
 
 - 21.02.14  Problem with conflict page: section of "current contents of page" was using wysiwyg editor but text inside it was in wikitext mode => forced editor in wikitext mode (WikiEditor) in case of conflict (=two authors editing same page at same time, the one saving page as latest will get indication of conflict)
