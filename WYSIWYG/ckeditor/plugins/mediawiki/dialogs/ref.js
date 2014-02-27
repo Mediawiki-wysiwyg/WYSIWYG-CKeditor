@@ -10,7 +10,7 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
          this.setValueOf( 'info','footnote', content );
         else
          this.setValueOf( 'info','footnote', "" );
-    
+
         //03.01.14-> Parse also possible name of reference  
         var rname = null;
         rname = element.getAttribute('name');
@@ -81,8 +81,11 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
           selection.selectElement( this.fakeObj );         
          }
          else if ( seltype == CKEDITOR.SELECTION_TEXT )
-         {           
-           this.setValueOf( 'info','footnote', selection.getNative() );              
+         {     
+			if ( CKEDITOR.env.ie )  //27.02.14 RL->                                                                         
+				this.setValueOf( 'info','footnote', selection.document.$.selection.createRange().text ); 
+			else                    //27.02.14 RL<- 
+				this.setValueOf( 'info','footnote', selection.getNative() );              
          }
          this.getContentElement( 'info', 'footnote' ).focus();
         },

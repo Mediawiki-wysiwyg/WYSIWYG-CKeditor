@@ -279,7 +279,10 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				}
 				else if ( seltype == CKEDITOR.SELECTION_TEXT )
 				{
-					this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() );
+					if ( CKEDITOR.env.ie ) //27.02.14 RL->				
+						this.setValueOf( 'mwCategoryTab1','categoryValue', selection.document.$.selection.createRange().text ); 
+					else                   //27.02.14 RL<- 
+						this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() ); 
 				}
 				this.getContentElement( 'mwCategoryTab1', 'categoryValue' ).focus();
         	}
