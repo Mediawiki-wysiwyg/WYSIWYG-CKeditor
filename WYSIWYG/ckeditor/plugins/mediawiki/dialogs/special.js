@@ -2,7 +2,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 {
         return {
             title : editor.lang.mwplugin.specialTagTitle,
-            minWidth : 350,
+            minWidth  : 600,
             minHeight : 150,
             resizable: CKEDITOR.DIALOG_RESIZE_BOTH,
 			contents : [
@@ -13,8 +13,9 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 					elements :
 					[
                         {
-                            id: 'tagDefinition',
-                            type: 'textarea',
+                            id:    'tagDefinition',
+                            type:  'textarea',
+                            rows:  16,
                             label: editor.lang.mwplugin.specialTagDef,
                             title: 'Special Tag definition',
                             className: 'swmf_class',

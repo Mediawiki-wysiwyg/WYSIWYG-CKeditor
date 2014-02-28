@@ -33,6 +33,8 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 History of modifications:
 ===
 
+- 28.02.14  Fixed height of texarea element in dialogs Tag, Template and Reference, because height of textarea does not grow when dialog is made higher.
+
 - 27.02.14  Fixed finnish translation for header text of Tag -dialog. Fixed passing selection as text with IE in dialogs ref.js and category.js.
 
 - 24.02.14  Problem with conflict page: changed "current page content" editing mode from wikieditor to wysiwyg. NOTE! Do not use refresh button of browser on conflict page, it corrupts contents of page in editor.

@@ -30,8 +30,9 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
        };
         return {
 		  title : editor.lang.mwplugin.referenceTitle,  //'Add/modify reference (citation)'  //10.01.14 RL
-          minWidth : 500,
+          minWidth  : 600,                                                                   //28.02.14 RL 
           minHeight : 50,
+          resizable: CKEDITOR.DIALOG_RESIZE_BOTH,                                            //28.02.14 RL
           contents : [
             {
               id : 'info',
@@ -40,8 +41,9 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
               elements :
               [
                 {
-                  id : 'footnote',
-                  type : 'text',
+                  id    : 'footnote',
+                  type  : 'textarea',
+                  rows  : 16,                                                                //28.02.14 RL 
                   label : editor.lang.mwplugin.refDefTxt, //'Text of reference'              //10.01.14 RL
 				  title : 'Text of reference',
 				  setup: function(element){
