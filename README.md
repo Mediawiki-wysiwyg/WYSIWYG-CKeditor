@@ -95,7 +95,7 @@ Short installation instructions:
 ----------------
 **About MediaWiki environment:**
 
-- MediaWiki:  1.21.2, 1.22.0, 1.22.1, 1.22.2
+- MediaWiki:  1.21.2, 1.22.0, 1.22.1, 1.22.2, 1.22.3
 - PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
 
 -----------------
