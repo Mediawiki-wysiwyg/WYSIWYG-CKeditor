@@ -112,7 +112,8 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             label: editor.lang.mwplugin.defineTarget,
                             title: 'Link target',
                             style: 'border: 1px;',
-                            onKeyUp: OnUrlChange
+							onKeyUp: OnUrlChange,
+                            onChange: OnUrlChange  //01.03.14 RL
                         },
                         {
                             id: 'searchMsg',
@@ -130,15 +131,25 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             style: 'border: 1px; width:100%;',
                             onChange: WikiPageSelected,
                             items: [  ]
-                        }
+                        },
+                        { //01.03.14 RL
+                            id : 'linkAsRedirect',
+                            type : 'checkbox',
+                            label : editor.lang.mwplugin.linkAsRedirect,
+                            title : 'Use only one #REDIRECT to linked page as first element on page.',
+                            'default' : false
+                        }                        
 		            ]
                 }
             ],
 
             onOk : function() {
                 var e = this.getContentElement( 'mwLinkTab1', 'linkTarget'),
+                    redir = this.getContentElement( 'mwLinkTab1', 'linkAsRedirect').getValue(), //01.03.14 RL
                     link = e.getValue().Trim().replace(/ /g, '_'),
                     attributes = {href : link, _cke_saved_href : link};
+
+                if ( redir == true ) editor.insertHtml( '#REDIRECT ' );  //01.03.14 RL
 
                 if ( !this._.selectedElement ) {
                     // Create element if current selection is collapsed.
@@ -234,6 +245,13 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                     var e = this.getContentElement( 'mwLinkTab1', 'linkTarget');
                     e.setValue(href);
                 }
+				//else { //01.03.14 RL->Added as commented because in most cases selected text has nothing to do with name of page.
+				//	if ( CKEDITOR.env.ie )                                   
+				//		this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().document.$.selection.createRange().text);                                        
+				//	else
+				//		this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().getNative()); 
+				//}      //01.03.14 RL<-
+
                 this._.selectedElement = element;
         	}
 
