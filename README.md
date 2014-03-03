@@ -33,6 +33,8 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 History of modifications:
 ===
 
+- 03.03.14  Updated CKeditor version 3.6 to version 4.3.3 (full version).
+
 - 01.03.14  Added checkbox for #REDIRECT option when creating link in dialog link.js.
 
 - 28.02.14  Fixed height of texarea element in dialogs Tag, Template and Reference, because height of textarea does not grow when dialog is made higher.
