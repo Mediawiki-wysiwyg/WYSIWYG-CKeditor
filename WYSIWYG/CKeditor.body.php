@@ -757,6 +757,7 @@ HEREDOC;
         $script = <<<HEREDOC
 
 function ToggleCKEditor( mode, objId ){
+
   if (typeof window.toggleRTESemaphore !== 'undefined') {
     if (window.toggleRTESemaphore === true) {
       return false;
@@ -764,6 +765,7 @@ function ToggleCKEditor( mode, objId ){
   } 
   window.toggleRTESemaphore = true;
   document.getElementById('ckTools').style.display='none';
+
   
   setTimeout(function() {
       window.toggleRTESemaphore = false;
@@ -802,10 +804,13 @@ function ToggleCKEditor( mode, objId ){
 	if( ! CKEDITOR.ready ) {
     return false; // sajax_do_call in action
   }
-	if( ! (CKEDITOR.status == 'basic_ready') ) {
+
+    //01.03.14 RL: In CKeditor 3.6 'basic_ready', in 4.3.3 'loaded'
+	if( ! ((CKEDITOR.status == 'basic_ready') || (CKEDITOR.status == 'loaded')) ) {
     return false; // not loaded yet
   }
-	var oEditorIns = CKEDITOR.instances[objId];
+
+    var oEditorIns = CKEDITOR.instances[objId];
 	var oEditorIframe  = document.getElementById( 'cke_' + objId );
 	var toolbar = document.getElementById( 'toolbar' );
 	var bIsWysiwyg = ( oEditorIns.mode == 'wysiwyg' );
