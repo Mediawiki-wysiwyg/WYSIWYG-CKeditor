@@ -10,12 +10,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 CKEDITOR.plugins.add( 'mediawiki',
 {
+    
 	requires : [ 'fakeobjects', 'htmlwriter', 'dialog' ],
-
-	init : function( editor )
-	{
-        // add the CSS for general styles of Mediawiki elements
-        editor.addCss(
+    
+    getMWElementCss : function() {  //01.03.14 RL Because of CKeditor 3.x and 4.x differences
+       var str = 
+            // add the CSS for general styles of Mediawiki elements
             'img.fck_mw_frame' +
             '{' +
                 'background-color: #F9F9F9;' +
@@ -49,10 +49,9 @@ CKEDITOR.plugins.add( 'mediawiki',
             'img.fck_mw_border' +
             '{' +
                 'border: 1px solid #dddddd;' +
-            '}\n'
-        );
-		// Add the CSS styles for special wiki placeholders.
-		editor.addCss(
+            '}\n' +  
+
+            // Add the CSS styles for special wiki placeholders.
 			'img.FCK__MWRef' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_ref.gif' ) + ');' +
@@ -170,8 +169,21 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'background-color: #94b0f3;' +
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
-			'}\n'
-		);
+			'}\n';
+
+        return str;               
+    },
+    
+    onLoad: function () {   //01.03 RL: For CKeditor 4.x
+        if (CKEDITOR.addCss)
+            CKEDITOR.addCss( this.getMWElementCss() );
+    },
+
+	init : function( editor )
+	{
+        if (editor.addCss)  //01.03 RL: For CKeditor 3.x
+            editor.addCss( this.getMWElementCss() );
+     
 		var wikiFilterRules =
 			{
 				elements :
@@ -262,7 +274,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                 var sig = '<span class="fck_mw_signature">_</span>',
                     element = CKEDITOR.dom.element.createFromHtml(sig, editor.document),
                     newFakeObj = editor.createFakeElement( element, 'FCK__MWSignature', 'span' );
-                editor.insertElement( newFakeObj );
+                editor.insertElement( newFakeObj );                
             }
         };
 
@@ -303,6 +315,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             manyPageFound   : ' articles found',
             emailLink       : 'e-mail link... no search for it',
             anchorLink      : 'anchor link... no search for it',
+            linkAsRedirect  : 'Redirect to target page (#REDIRECT)',              //01.03.14 RL 
             defineTarget    : 'Define the wiki page for the link target:',
             chooseTarget    : 'Choose an existing wikipage for the link target:',
 			// references (citation)
@@ -357,6 +370,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             manyPageFound   : ' kpl',                                         //' articles found',
             emailLink       : 'sposti linkki... ei etsintää',                 //'e-mail link... no search for it',
             anchorLink      : 'ankkuri linkki... ei etsintää',                //'anchor link... no search for it',
+            linkAsRedirect  : 'Pakko-ohjaus kohdesivulle (#REDIRECT)',        //'Redirect to target page',          //01.03.14 RL  
             defineTarget    : 'Määritä wikin sivu linkin kohteeksi',          //'Define the wiki page for the link target:',
             chooseTarget    : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
 			// references (citation)                                          
