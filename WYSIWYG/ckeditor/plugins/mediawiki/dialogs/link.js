@@ -151,10 +151,15 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
 
                 if ( redir == true ) editor.insertHtml( '#REDIRECT ' );  //01.03.14 RL
 
+				//Related to CKeditor Ticket #8493, 8719.patch: IE needs focus sent back to the parent document if a dialog is launched.
+				if ( CKEDITOR.env.ie ) editor.focus(); //05.03.14 RL Needed with IE to merge link text with selected text of page.				
+				
                 if ( !this._.selectedElement ) {
+					
                     // Create element if current selection is collapsed.
                     var selection = editor.getSelection(),
-                        ranges = selection.getRanges( true );
+                        ranges = selection.getRanges( true );  //In CK 4.3.3: ranges = selection.getRanges()[ 0 ];
+						
                     if ( ranges.length == 1 ) {
                         if ( ranges[0].collapsed ) {
                             var text = new CKEDITOR.dom.text( attributes.href, editor.document );
