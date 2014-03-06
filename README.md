@@ -33,6 +33,8 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 History of modifications:
 ===
 
+- 05.03.14  Fixed focus problem with IE and link.js dialog: related to CKeditor Ticket #8493, 8719.patch: IE needs focus sent back to the parent document if a dialog is launched. Needed with IE to merge link text with selected text of page.
+
 - 03.03.14  Updated CKeditor version 3.6 to version 4.3.3 (full version).
 
 - 01.03.14  Added checkbox for #REDIRECT option when creating link in dialog link.js.
