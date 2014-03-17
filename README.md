@@ -33,6 +33,8 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 History of modifications:
 ===
 
+- 17.03.14  Fixed version info which is visible at wiki page 'Special:Version': WYSIWYG extension (Versio 1.5.6_0 [B551] based on this version, modified further, using CKEditor 4.3.3 (revision 7841b02)).
+
 - 05.03.14  Fixed focus problem with IE and link.js dialog: related to CKeditor Ticket #8493, 8719.patch: IE needs focus sent back to the parent document if a dialog is launched. Needed with IE to merge link text with selected text of page.
 
 - 03.03.14  Updated CKeditor version 3.6 to version 4.3.3 (full version).
