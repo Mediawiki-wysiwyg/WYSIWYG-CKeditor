@@ -1,9 +1,10 @@
 WYSIWYG-CKeditor
 ===
-Modified extension of MediaWiki: WYSIWYG. Includes extension and other related modifed components.
-Files of this bundle were originally taken from diffeent source bundles of extension WYSIWYG from MediaWiki site www.mediawiki.org.
+This is modified extension of MediaWiki: WYSIWYG -editor. This bundle includes WYSIWYG extension and other related modifed components.
+Files of this bundle were originally taken from diffrent source bundles of extension WYSIWYG from MediaWiki site www.mediawiki.org.
+You can find results of this work here (http://github.com/Mediawiki-wysiwyg).
 
-You can find more information about MediaWiki extension WYSIWYG here:
+More information about MediaWiki extension WYSIWYG can be found here:
 
   https://www.mediawiki.org/wiki/Extension:WYSIWYG
   https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
@@ -11,20 +12,20 @@ You can find more information about MediaWiki extension WYSIWYG here:
 -----------
 **NOTE!**
 
->  You will use this bundle in your environment at your own risk.  The authors of this package can not be held responsible for any issues this bundle may cause in your system.
+> You will use this bundle in your environment at your own risk.  The authors of this package can not be held responsible for any issues this bundle may cause in your system.
 
 -----------
 **NOTE!**
 
->If you plan to use this bundle in your enviroment, requirement is that  you will give feedback and description of your environment and purpose  of your wiki here:
-https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239. If you are not willing to obey this humble request, then you may not use this bundle for any purposes.
+> It is always nice to hear postive comments about use of this extension. You can leave them here:
+http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239.
 
 
 ----------
 **You can find information about following issues below:**
 - history of modifications (in reverse order)
 - compatible Mediawiki environment
-- short installation instructions
+- short installation instructions (MediaWiki, WYSIWYG, WikiEditor, SemanticForms)
 - compatible browsers and browser settings
 
 ================
@@ -32,6 +33,8 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 ------------
 History of modifications:
 ===
+
+- 27.03.14  Integration of WYSIWYG with SemanticForms 2.7 (SF) (and SemanticMediaWiki (SMW)) as editor of free text block for SF (experimental version).
 
 - 17.03.14  Fixed version info which is visible at wiki page 'Special:Version': WYSIWYG extension (Versio 1.5.6_0 [B551] based on this version, modified further, using CKEditor 4.3.3 (revision 7841b02)).
 
@@ -93,7 +96,7 @@ History of modifications:
 3. Some additinal features were developed based on this bundle
 >http://wikirouge.net/nowiki/mediawiki/WYSIWYG
 
-4. Additional features and modifications where applied on top of abowe bundles
+4. Additional features, modifications and fixes where applied on top of bundles abowe.
 
 ========================
 
@@ -101,9 +104,10 @@ Short installation instructions:
 ===
 
 ----------------
-**About MediaWiki environment:**
+**Compatible MediaWiki environment:**
 
-- MediaWiki:  1.21.2, 1.22.0, 1.22.1, 1.22.2, 1.22.3
+- MediaWiki: 1.21.2, 1.22.0, 1.22.1, 1.22.2, 1.22.3, 1.22.4
+- SemanticForms: 2.7
 - PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
 
 -----------------
@@ -144,12 +148,37 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     $wgDefaultUserOptions['wikieditor-publish'] = 0;
     #17.01.14<-
 
+    #27.03.14->
+    #This was required by SemanticMediaWiki extension in MW 1.22.4 to prevent startup error:
+    $wgLocalisationUpdateDirectory = "$IP/cache";
+
+    #These are for SemanticForms:
+    enableSemantics( );
+    include_once( "$IP/extensions/SemanticForms/SemanticForms.php" );
+
+    #Optional excludes of wysiwyg in case SemanticForms and SemanticMediawiki are installed:
+    $wgFCKEditorExcludedNamespaces[] = SF_NS_FORM;
+    $wgFCKEditorExcludedNamespaces[] = SMW_NS_PROPERTY;
+    #27.03.14<-
 
 --------------
 **WikiEditor:**
 
 You should replace at least one file of WikiEditor extension of MW 1.22 with modified file of this bundle:
-- WikiEditor/modules/ext.wikiEditor.toolbar.js.
+- WikiEditor/modules/ext.wikiEditor.toolbar.js
+
+--------------
+**SemanticForms:**
+
+You should replace at least following files in SemanticForms extension of MW 1.22 with modified files of this bundle:
+- SF_FormUtils.php
+- SF_FormPrinter.php
+- SF_Utils.php
+
+Known bugs with WYSIWYG -extensions and SemanticForms free text block:
+- preview of page is not displayed properly
+- switching editing mode with "aource" -button to wikitext works, but swithing back to wysiwyg mode fails (text stays in wikitext format)
+- refreshing page in editor mode always activates wysiwyg mode
 
 --------------
 **Preferences=>Editing (your account settings of MediWiki):**
@@ -178,7 +207,7 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.0, v27.0)
-- Chrome (v.32.0.1700.76 m, v.33.0.1750.117 m)
+- FireFox (v26.0, v27.0, v28.0)
+- Chrome (v.32.0.1700.76 m, v.33.0.1750.117 m, 33.0.1750.154 m)
 
     
