@@ -1,6 +1,6 @@
 WYSIWYG-CKeditor
 ===
-This is modified extension of MediaWiki: WYSIWYG -editor. This bundle includes WYSIWYG extension and other related modifed components.
+This is modified extension of MediaWiki: WYSIWYG -editor. This bundle includes WYSIWYG extension and other modifed components related to it.
 Files of this bundle were originally taken from diffrent source bundles of extension WYSIWYG from MediaWiki site www.mediawiki.org.
 You can find results of this work here (http://github.com/Mediawiki-wysiwyg).
 
@@ -33,6 +33,8 @@ http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_3
 ------------
 History of modifications:
 ===
+
+- 27.03.14  WYSIWYG extension is compatible with MW 1.22.0 - 1.22.4
 
 - 27.03.14  Integration of WYSIWYG with SemanticForms 2.7 (SF) (and SemanticMediaWiki (SMW)) as editor of free text block for SF (experimental version).
 
@@ -164,7 +166,7 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 --------------
 **WikiEditor:**
 
-You should replace at least one file of WikiEditor extension of MW 1.22 with modified file of this bundle:
+You should replace at least one file in WikiEditor extension of MW 1.22 with modified file of this bundle:
 - WikiEditor/modules/ext.wikiEditor.toolbar.js
 
 --------------
@@ -177,7 +179,7 @@ You should replace at least following files in SemanticForms extension of MW 1.2
 
 Known bugs with WYSIWYG -extensions and SemanticForms free text block:
 - preview of page is not displayed properly
-- switching editing mode with "aource" -button to wikitext works, but swithing back to wysiwyg mode fails (text stays in wikitext format)
+- switching editing mode with "source" -button to wikitext works, but switching back to wysiwyg mode fails (text stays in wikitext format)
 - refreshing page in editor mode always activates wysiwyg mode
 
 --------------
@@ -202,7 +204,7 @@ About browser compatibility
 **About versions of IE:**
 - IE versions 7 or below will not work with this bundle.
 
-- With IE8, IE9, IE10, IE11 browsers, DO NOT SET browsers compatibility settings on for your wiki site, if you do have them enabled then wysiwyg will not work.
+- With IE8, IE9, IE10, IE11 browsers, DO NOT ENABLE browsers compatibility settings for your wiki site, if you do have them enabled then wysiwyg will not work.
 
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
@@ -210,4 +212,5 @@ About browser compatibility
 - FireFox (v26.0, v27.0, v28.0)
 - Chrome (v.32.0.1700.76 m, v.33.0.1750.117 m, 33.0.1750.154 m)
 
+- Recommended browser: FireFox
     
