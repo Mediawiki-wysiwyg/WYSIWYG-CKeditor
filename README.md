@@ -34,6 +34,8 @@ http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_3
 History of modifications:
 ===
 
+- 28.03.14  Fixed enable / disable of unlink button (link plugin behaves differently in CKeditor 4.3.3).
+
 - 27.03.14  WYSIWYG extension is compatible with MW 1.22.0 - 1.22.4
 
 - 27.03.14  Integration of WYSIWYG with SemanticForms 2.7 (SF) (and SemanticMediaWiki (SMW)) as editor of free text block for SF (experimental version).

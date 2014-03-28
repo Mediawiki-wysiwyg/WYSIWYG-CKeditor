@@ -254,6 +254,34 @@ CKEDITOR.plugins.add( 'mediawiki',
         var dataProcessor = editor.dataProcessor = new CKEDITOR.customprocessor( editor );
         dataProcessor.dataFilter.addRules( wikiFilterRules );
 
+		//28.03.14 RL->
+		var unlinkCommand =
+    	{	//To override unlink function of CKeditor, taken from 
+			//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
+        	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
+            exec : function( editor ) {
+					var selection = editor.getSelection(),
+						bookmarks = selection.createBookmarks(),
+						ranges = selection.getRanges(),
+						rangeRoot,
+						element;
+ 
+					for ( var i = 0 ; i < ranges.length ; i++ )
+					{
+						rangeRoot = ranges[i].getCommonAncestor( true );
+						element = rangeRoot.getAscendant( 'a', true );
+						if ( !element )
+							continue;
+						ranges[i].selectNodeContents( element );
+					}
+ 
+					selection.selectRanges( ranges );
+					editor.document.$.execCommand( 'unlink', false, null );
+					selection.selectBookmarks( bookmarks );
+            }
+        };
+        //28.03.14 RL<-		
+		
         //03.01.14 RL->For references (citation)
 		var referencesCommand =
     	{
@@ -431,8 +459,18 @@ CKEDITOR.plugins.add( 'mediawiki',
             editor.lang.mwplugin = MWpluginLang['en'];
 
         // define commands and dialogues
+		
+		//This overrides 'link' function of CKeditor, button is already on screen drawn by CKeditor
+		//Works with CKeditor 3.6 and 4.3.3
         editor.addCommand( 'link', new CKEDITOR.dialogCommand( 'MWLink' ) );
         CKEDITOR.dialog.add( 'MWLink', this.path + 'dialogs/link.js' );
+		
+		//28.03.14 RL 'unlink' worked with CKeditor 3.6 without this override function,
+		//             which is needed in CKeditor 4.3.3, otherwise button was grey all the time
+		//             because link plugin was not activated for some reason (propabley because of
+		//             overridden 'link' function abowe.
+		editor.addCommand( 'unlink', unlinkCommand );    //28.03.14 RL
+		
         editor.addCommand( 'image', new CKEDITOR.dialogCommand( 'MWImage' ) );
         CKEDITOR.dialog.add( 'MWImage', this.path + 'dialogs/image.js' );
         editor.addCommand( 'MWSpecialTags', new CKEDITOR.dialogCommand( 'MWSpecialTags' ) );
@@ -515,6 +553,24 @@ CKEDITOR.plugins.add( 'mediawiki',
                    ) return {MWSpecialTags: CKEDITOR.TRISTATE_ON};
             });
         }
+		editor.on( 'selectionChange', function( evt )                   //28.03.14 RL For overridden 'unlink' button
+  			{
+				//To enable / disable unlink button, taken from 
+				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
+  				if ( editor.readOnly )
+  					return;
+  
+  				/*
+  				 * Despite our initial hope, document.queryCommandEnabled() does not work
+  				 * for this in Firefox. So we must detect the state by element paths.
+  				 */
+  				var command = editor.getCommand( 'unlink' ),
+  					element = evt.data.path.lastElement && evt.data.path.lastElement.getAscendant( 'a', true );
+  				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() )
+  					command.setState( CKEDITOR.TRISTATE_OFF );
+  				else
+  					command.setState( CKEDITOR.TRISTATE_DISABLED );
+  			} );		
 		editor.on( 'doubleclick', function( evt )
 			{
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
