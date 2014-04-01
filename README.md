@@ -34,6 +34,8 @@ http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_3
 History of modifications:
 ===
 
+- 01.04.14  Updated CKeditor version 4.3.3 to version 4.3.4 (revision 40ccd20).
+
 - 28.03.14  Fixed enable / disable of unlink button (link plugin behaves differently in CKeditor 4.3.3).
 
 - 27.03.14  WYSIWYG extension is compatible with MW 1.22.0 - 1.22.4
