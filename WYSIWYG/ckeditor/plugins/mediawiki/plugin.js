@@ -390,6 +390,61 @@ CKEDITOR.plugins.add( 'mediawiki',
             selfromCategoryList : 'Valitse luokka listasta:'				     //'Select from list of categories  //09.01.14 RL
 		} //07.01.14 RL<-
 		
+	
+	MWpluginLang['fr'] = {
+            invalidContent  : 'invalid content',
+            searching       : 'recherche...',
+            externalLink    : 'lien externe... no search for it',
+            startTyping     : 'tapez dans le champ ci-dessus',
+            stopTyping      : 'arrêtez de taper pour lancer la recherche',
+            tooManyResults  : 'trop de résultats correspondants...',
+            // image
+            imgTitle        : 'Ajouter/modifier une image',
+            fileName        : 'Nom de fichier image',
+            fileNameExtUrl  : 'Image file name or URL',
+            searchLabel     : 'Résultats de recherche (%s)',
+            noImgFound      : 'aucune image trouvée',
+            oneImgFound     : 'une image trouvée',
+            manyImgFound    : ' images trouvées',
+            caption         : 'Légende',
+            imgType         : 'Encradement',
+			imgTypeThumb    : 'Miniature',                                 
+			imgTypeFrame    : 'Cadre',                                     
+			imgTypeFrameless: 'Sans cadre',                                 
+			imgTypeBorder   : 'Bordure',
+            alignCenter     : 'Center',
+            // signature
+            signature       : 'Signature',
+            // special tags
+            specialTags     : 'Special Tags',
+            specialTagTitle : 'Special Tags Dialogue',
+            specialTagDef   : 'Define any special tag, magic word or parser function:',
+            // link
+            linkTitle       : 'Créer/éditer un lien', 
+            noPageFound     : 'pas d’article trouvé',
+            onePageFound    : 'un article trouvé',
+            manyPageFound   : ' articles trouvés',
+            emailLink       : 'e-mail... pas de recherche',
+            anchorLink      : 'ancre... pas de recherche',
+            linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',               
+			defineTarget    : 'Entrer la page cible:',
+            chooseTarget    : 'Choisissez la page :',
+			// references (citation) 
+			referenceTitle 	: 'Ajouter/modifier une référence',
+			refDefTxt    	: 'Texte de la référence',
+			refDefName      : 'Nom de la référence :',
+			ref				: 'Ajouter une référence',
+			references		: 'Ajouter le bloc des références',
+			// category 			                                          
+			categorybtn		: 'Ajouter/modifier les catégories',
+			categoryTitle	: 'Ajouter/modifier une catégorie',
+			category		: 'Catégorie:',
+			categorySort	: 'categorySort',
+			noCategoryFound     : 'Not found, category is new',                  
+            oneCategoryFound    : 'Une catégorie trouvée',						      
+            manyCategoryFound   : ' catégories trouvées',						      
+            selfromCategoryList : 'Sélectionner dans la liste:'	
+	}
 		
         MWpluginLang['de'] = {
             invalidContent  : 'invalid content',
