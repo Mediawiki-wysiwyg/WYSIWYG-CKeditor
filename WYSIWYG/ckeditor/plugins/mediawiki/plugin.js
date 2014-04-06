@@ -723,6 +723,8 @@ CKEDITOR.customprocessor.prototype =
         data = data.replace(/alt=([^\"].*?)\s/gi, 'alt="$1" ');
         // when inserting data with Excel an unmatched <col> element exists, thus remove it
         data = data.replace(/<col[^>]*>/gi, '' );
+        // remove <wbr> tags that causes parser to crash
+        data = data.replace(/<wbr>/gi, '' );
 		
 
         var rootNode = this._getNodeFromHtml( data );
