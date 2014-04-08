@@ -92,7 +92,11 @@ CKEDITOR.plugins.add( 'mwtemplate',
         MWpluginLang['fi'] = {     //01.03.14 RL
             title      : 'Mediawikin template -dialogi',
             defineTmpl : 'Määritä template -kutsu'
-        }        
+        }
+        MWpluginLang['fr'] = {     
+            title      : 'Modèles Mediawiki',
+            defineTmpl : 'Utiliser un modèle'
+        } 
 
         if (typeof MWpluginLang[editor.langCode] != 'undefined' )
             editor.lang.mwtemplateplugin = MWpluginLang[editor.langCode];
