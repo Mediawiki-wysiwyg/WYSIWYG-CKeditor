@@ -34,6 +34,8 @@ http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_3
 History of modifications:
 ===
 
+- 08.04.14  Updated installation of CKeditor 4.3.4 (revision 40ccd20) to include all possible languages provided by CKeditor web site.
+
 - 08.04.14  Merged some of the "French" language modifications made by Varlin.
 
 - 08.04.14  Merged modification "remove <wbr> tags that causes parser to crash" made by Varlin.
