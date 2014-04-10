@@ -715,9 +715,12 @@ function initEditor(){
 		//              instead brackets has been set into variables editorLink, editorMsgOn and editorMsgOff directly.
 		ckTools.innerHTML='<a class="fckToogle" id="toggle_$textfield" href="javascript:void(0)" onclick="ToggleCKEditor(\'toggle\',\'$textfield\')">'+ editorLink +'</a> ';
 
-		if ( $('#wikiEditor-ui-toolbar') ) {  //Hide WikiEditor toolbar
-			$('#wikiEditor-ui-toolbar').hide(); 
-		}	
+		//Do not hide WikiEditor toolbar if preferences told us to start with it.
+		if (showFCKEditor & RTE_VISIBLE) { //10.04.14 RL 
+			if ( $('#wikiEditor-ui-toolbar') ) {  //Hide WikiEditor toolbar
+				$('#wikiEditor-ui-toolbar').hide(); 
+			}	
+		}	                               //10.04.14 RL
 		
 		//F.ex: $("#toggle_$textfield") equals to $('#toggle_wpTextbox1') 
 		//$( "#toggle_$textfield" ).insertBefore('#ckTools');  //This worked with FireFox v26.0 but not with IE11
@@ -786,6 +789,12 @@ function ToggleCKEditor( mode, objId ){
 	var oPopupLink = document.getElementById( 'popup_' + objId );
 
 	if ( firstLoad ){
+
+		if ( $('#wikiEditor-ui-toolbar') ) {  //10.04.14 RL->
+			//Hide WikiEditor toolbar (in case preferences told us to start with it).
+			$('#wikiEditor-ui-toolbar').hide(); 
+		}                                     //10.04.14 RL<-
+		
 		// firstLoad = true => FCKeditor start invisible
 		if( oToggleLink ) oToggleLink.innerHTML = 'Loading...';
 		sajax_request_type = 'POST';
