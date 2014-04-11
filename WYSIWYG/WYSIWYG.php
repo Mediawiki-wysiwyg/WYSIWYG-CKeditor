@@ -41,7 +41,7 @@ if ((!array_key_exists('SERVER_NAME', $_SERVER) || $_SERVER['SERVER_NAME'] == NU
     (strpos($_SERVER['PHP_SELF'], 'run-test.php') === false) )
 	return;
 
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551] based on this version, modified further');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551], based on this version, modified further');
 
 // define to check with {{#isExtensionInstalled:wysiwyg}} if extension is installed
 // the parser function comes in the SMWHalo extension
@@ -89,7 +89,7 @@ $wgExtensionCredits['other'][] = array(
 	'path' => __FILE__,
 	'name' => 'WYSIWYG extension',
 	'author' => array( 'Frederico Caldeira Knabben', 'Wiktor Walc', 'others', 'Jack Phoenix', 'ontoprise GmbH', 'MediaWiki community'),
-	'version' => WYSIWYG_EDITOR_VERSION.', using CKEditor 4.3.3 (revision 7841b02)',
+	'version' => WYSIWYG_EDITOR_VERSION.', using CKEditor 4.3.4 (revision 40ccd20)',
 	//'url' => 'http://smwforum.ontoprise.com/smwforum/index.php/Help:WYSIWYG_Extension',
 	'url' => 'http://www.mediawiki.org/wiki/Extension:WYSIWYG',
 	'descriptionmsg' => 'fckeditor-desc',

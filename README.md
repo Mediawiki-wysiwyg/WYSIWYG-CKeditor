@@ -34,6 +34,8 @@ http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_3
 History of modifications:
 ===
 
+- 11.04.14  Fixed version info 'Special:Version': WYSIWYG extension 1.5.6_0 [B551], based on this version, modified further, using CKEditor 4.3.4 (revision 40ccd20)
+
 - 10.04.14  Fixed toolbar visibility of WikiEditor in case user preferences defines to start editing with WikiEditor (=wikitext mode).
 
 - 08.04.14  Updated installation of CKeditor 4.3.4 (revision 40ccd20) to include all possible languages provided by CKeditor web site.
@@ -50,7 +52,7 @@ History of modifications:
 
 - 27.03.14  Integration of WYSIWYG with SemanticForms 2.7 (SF) (and SemanticMediaWiki (SMW)) as editor of free text block for SF (experimental version).
 
-- 17.03.14  Fixed version info which is visible at wiki page 'Special:Version': WYSIWYG extension (Versio 1.5.6_0 [B551] based on this version, modified further, using CKEditor 4.3.3 (revision 7841b02)).
+- 17.03.14  Fixed version info which is visible at wiki page 'Special:Version': WYSIWYG extension (1.5.6_0 [B551] based on this version, modified further, using CKEditor 4.3.3 (revision 7841b02)).
 
 - 05.03.14  Fixed focus problem with IE and link.js dialog: related to CKeditor Ticket #8493, 8719.patch: IE needs focus sent back to the parent document if a dialog is launched. Needed with IE to merge link text with selected text of page.
 
