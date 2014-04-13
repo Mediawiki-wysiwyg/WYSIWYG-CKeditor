@@ -34,6 +34,8 @@ http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_3
 History of modifications:
 ===
 
+- 13.04.14  Fixed popup warning of unsaved page (=cancelling edit of page when setting "Warn me when I leave an edit page with unsaved changes" in users preferences has been enabled). Dialog appears only with Cancel- button and is disabled with Save-, Preview- and Diff- buttons. IE required fix also with togglelink.
+
 - 11.04.14  Fixed version info 'Special:Version': WYSIWYG extension 1.5.6_0 [B551], based on this version, modified further, using CKEditor 4.3.4 (revision 40ccd20)
 
 - 10.04.14  Fixed toolbar visibility of WikiEditor in case user preferences defines to start editing with WikiEditor (=wikitext mode).
@@ -202,12 +204,12 @@ Known bugs with WYSIWYG -extensions and SemanticForms free text block:
 Make sure that settings in your Preferences=>Editing are valid.
 >DO NOT select these:
 - Show WikiTextEditor
-- Start with rich editor disabled
 - Open rich editor in a popup
 
 >These may be selected:
 - Use toggle to switch between wikitext and rich editor
 - Remember last toggle state
+- Start with rich editor disabled
 
 ====================
 
