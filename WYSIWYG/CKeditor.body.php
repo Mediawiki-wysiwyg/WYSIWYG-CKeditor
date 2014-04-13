@@ -414,6 +414,31 @@ class CKeditor_MediaWiki {
 	}
 
 	/**
+     * EditPageBeforeEditButtons
+     * $editpage: the current EditPage object
+     * $buttons:  the edit buttons found below the editing box ("Save", "Preview", "Live", and "Diff")
+     * $tabindex: HTML tabindex of the last edit check/button
+    **/
+    public static function onEditPageBeforeEditButtons( &$editpage, &$buttons, &$tabindex ) { //13.04.14 RL
+   
+        $buttons['save'] = str_replace(
+            '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['save']    //Disable onbeforeunload event
+        );
+
+        $buttons['preview'] = str_replace(
+            '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['preview'] //Disable onbeforeunload event
+        );
+
+        $buttons['diff'] = str_replace(
+            '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['diff']    //Disable onbeforeunload event
+        );
+        
+        
+        // Continue
+        return true;
+    }  
+  
+	/**
 	 * Add FCK script
 	 *
 	 * @param $form EditPage object
@@ -550,6 +575,8 @@ var editorMsgOn = "[' . Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) . ']
 var editorMsgOff = "[' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) . ']";  //17.01.14 RL Added []
 var editorLink = "[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']";  //17.01.14 RL Added []
 var saveSetting = ' . ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state']  ) ?  1 : 0 ) . ';
+var useEditwarning = ' . ( $wgUser->getOption( 'useeditwarning' ) ?  1 : 0 ) . ';         //13.04.14 RL
+var EnabledUseEditWarning = false;                                                        //13.04.14 RL Because IE fires onbeforeunload with ToggleCKEditor  
 var RTE_VISIBLE = ' . RTE_VISIBLE . ';
 var RTE_TOGGLE_LINK = ' . RTE_TOGGLE_LINK . ';
 var RTE_POPUP = ' . RTE_POPUP . ';
@@ -667,6 +694,22 @@ function checkSelected(){
 }
 
 function initEditor(){	
+
+    EnabledUseEditWarning = true;              //Enable onbeforeunload event. 13.04.14 RL->  
+    window.onbeforeunload = null;              //Clear and unbind current "unload resources" event
+    if (useEditwarning) {
+        window.onbeforeunload = function(e) {  //To activate warning with Cancel -button on wysiwyg page
+            //EnabledUseEditWarning is used to disable onbeforeunload event with:
+            //  -ToggleCKEditor link with IE
+            //  -save, preview and diff buttons with all browsers
+            if ( EnabledUseEditWarning ) {     
+                var confirmationMessage = ' '; //Returned string is not displayed with FF, it is displayed with IE,Chrome..=>use empty string
+                (e || window.event).returnValue = confirmationMessage;
+                return confirmationMessage;
+            }
+        };      
+    }                                          //13.04.14 RL<-
+
 	var toolbar = document.getElementById( 'toolbar' );
 	// show popup or toogle link
 
@@ -769,8 +812,9 @@ function ToggleCKEditor( mode, objId ){
   window.toggleRTESemaphore = true;
   document.getElementById('ckTools').style.display='none';
 
-  
+  EnabledUseEditWarning = false;     //13.04.14 RL This is needed because IE fires "unload resources" event when toggle link is pressed.
   setTimeout(function() {
+      EnabledUseEditWarning = true;  //13.04.14 RL Enable "unload resources" event after timeout, because event fires after this procedure is finished
       window.toggleRTESemaphore = false;
       document.getElementById('ckTools').style.display='block';
     }, 2000);

@@ -1,9 +1,10 @@
 WYSIWYG-CKeditor
 ===
-Modified extension of MediaWiki: WYSIWYG. Includes extension and other related modifed components.
-Files of this bundle were originally taken from diffeent source bundles of extension WYSIWYG from MediaWiki site www.mediawiki.org.
+This is modified extension of MediaWiki: WYSIWYG -editor. This bundle includes WYSIWYG extension and other modifed components related to it.
+Files of this bundle were originally taken from diffrent source bundles of extension WYSIWYG from MediaWiki site www.mediawiki.org.
+You can find results of this work here (http://github.com/Mediawiki-wysiwyg).
 
-You can find more information about MediaWiki extension WYSIWYG here:
+More information about MediaWiki extension WYSIWYG can be found here:
 
   https://www.mediawiki.org/wiki/Extension:WYSIWYG
   https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
@@ -11,20 +12,19 @@ You can find more information about MediaWiki extension WYSIWYG here:
 -----------
 **NOTE!**
 
->  You will use this bundle in your environment at your own risk.  The authors of this package can not be held responsible for any issues this bundle may cause in your system.
+> You will use this bundle in your environment at your own risk.  The authors of this package can not be held responsible for any issues this bundle may cause in your system.
 
 -----------
 **NOTE!**
 
->If you plan to use this bundle in your enviroment, requirement is that  you will give feedback and description of your environment and purpose  of your wiki here:
-https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239. If you are not willing to obey this humble request, then you may not use this bundle for any purposes.
-
+> It is always nice to hear postive comments about use of this extension. You can leave them here:
+http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239.
 
 ----------
 **You can find information about following issues below:**
-- history of modifications (in reverse order)
+- history of modifications (in reverse order)- compatible Mediawiki environment
 - compatible Mediawiki environment
-- short installation instructions
+- short installation instructions (MediaWiki, WYSIWYG, WikiEditor)
 - compatible browsers and browser settings
 
 ================
@@ -32,6 +32,8 @@ https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_
 ------------
 History of modifications:
 ===
+
+- 13.04.14  Fixed popup warning of unsaved page (=cancelling edit of page when setting "Warn me when I leave an edit page with unsaved changes" in users preferences has been enabled). Dialog appears only with Cancel- button and is disabled with Save-, Preview- and Diff- buttons. IE required fix also with togglelink.
 
 - 10.04.14  Fixed toolbar visibility of WikiEditor in case user preferences defines to start editing with WikiEditor (=wikitext mode).
 
@@ -155,12 +157,12 @@ You should replace at least one file of WikiEditor extension of MW 1.22 with mod
 Make sure that settings in your Preferences=>Editing are valid.
 >DO NOT select these:
 - Show WikiTextEditor
-- Start with rich editor disabled
 - Open rich editor in a popup
 
 >These may be selected:
 - Use toggle to switch between wikitext and rich editor
 - Remember last toggle state
+- Start with rich editor disabled
 
 ====================
 

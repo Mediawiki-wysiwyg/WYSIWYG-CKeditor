@@ -134,6 +134,7 @@ $wgHooks['DoEditSectionLink'][]					= 'CKeditor_MediaWiki::onDoEditSectionLink';
 // bugfix for http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13511
 $wgHooks['OutputPageParserOutput'][]            = 'CKeditor_MediaWiki::onOutputPageParserOutput';
 $wgHooks['BeforePageDisplay'][]                 = 'CKeditor_MediaWiki::onBeforePageDisplay';
+$wgHooks['EditPageBeforeEditButtons'][]         = 'CKeditor_MediaWiki::onEditPageBeforeEditButtons'; //13.04.14 RL
 
 // Defaults for new preferences options
 global $wgDefaultUserOptions;
