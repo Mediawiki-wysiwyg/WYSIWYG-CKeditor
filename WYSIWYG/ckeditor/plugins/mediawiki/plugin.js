@@ -505,7 +505,22 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail link... es wird nicht danach gesucht',
             anchorLink      : 'anchor link... es wird nicht danach gesucht',
             defineTarget    : 'Definiere eine Wikiseite als Linkziel:',
-            chooseTarget    : 'Wähle eine existierende Wikiseite als Linkziel:'
+            chooseTarget    : 'Wähle eine existierende Wikiseite als Linkziel:',
+            // references (citation)
+            referenceTitle      : 'Referenz hinzufügen/bearbeiten',
+            refDefTxt           : 'Text für Referenz',
+            refDefName          : 'Name der Referenz',
+            ref                 : 'Referenz hinzufügen',
+            references          : 'Referenzblock hinzufügen',
+            // category
+            categorybtn         : 'Kategorien hinzufügen/bearbeiten',
+            categoryTitle       : 'Kategorie hinzufügen/bearbeiten',
+            category            : 'Kategorie:',
+            categorySort        : 'Sortierungsschlüssel innerhalb Kategorie',
+            noCategoryFound     : 'Nicht gefunden, neue Kategorie',
+            oneCategoryFound    : 'Eine Kategorie gefunden',
+            manyCategoryFound   : ' Kategorien gefunden',
+            selfromCategoryList : 'Aus Liste von Kategorien auswählen:'
         }
         if (typeof MWpluginLang[editor.langCode] != 'undefined' )
             editor.lang.mwplugin = MWpluginLang[editor.langCode];
