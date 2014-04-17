@@ -6,8 +6,8 @@ You can find results of this work here (http://github.com/Mediawiki-wysiwyg).
 
 More information about MediaWiki extension WYSIWYG can be found here:
 
-  https://www.mediawiki.org/wiki/Extension:WYSIWYG
-  https://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
+  http://www.mediawiki.org/wiki/Extension:WYSIWYG
+  http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
 
 -----------
 **NOTE!**
@@ -15,15 +15,17 @@ More information about MediaWiki extension WYSIWYG can be found here:
 > You will use this bundle in your environment at your own risk.  The authors of this package can not be held responsible for any issues this bundle may cause in your system.
 
 -----------
-**NOTE!**
 
-> It is always nice to hear postive comments about use of this extension. You can leave them here:
-http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_38239.
+> It is always nice to hear comments about use of this extension. You can leave your comments here:
 
+>http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
+
+Supported languages: english, french, german, finnish
 
 ----------
 **You can find information about following issues below:**
 - history of modifications (in reverse order)
+- supported languages
 - compatible Mediawiki environment
 - short installation instructions (MediaWiki, WYSIWYG, WikiEditor, SemanticForms)
 - compatible browsers and browser settings
@@ -33,6 +35,8 @@ http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG#Version_of_source_bundles_3
 ------------
 History of modifications:
 ===
+
+- 17.04.14  Add german translation for category and reference buttons/dialogs. Merge pull request #11 from stepping-stone/german-translation-updates.
 
 - 13.04.14  Fixed popup warning of unsaved page (=cancelling edit of page when setting "Warn me when I leave an edit page with unsaved changes" in users preferences has been enabled). Dialog appears only with Cancel- button and is disabled with Save-, Preview- and Diff- buttons. IE required fix also with togglelink.
 
@@ -120,6 +124,12 @@ History of modifications:
 
 Short installation instructions:
 ===
+
+----------------
+**Supported languages:** 
+* finnish, french, german, english
+
+More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js; for details see git issues "French added")
 
 ----------------
 **Compatible MediaWiki environment:**
