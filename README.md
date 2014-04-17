@@ -6,7 +6,8 @@ You can find results of this work here (http://github.com/Mediawiki-wysiwyg).
 
 More information about MediaWiki extension WYSIWYG can be found here:
 
-  http://www.mediawiki.org/wiki/Extension:WYSIWYG
+  http://www.mediawiki.org/wiki/Extension:WYSIWYG 
+  
   http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
 
 -----------
@@ -19,8 +20,6 @@ More information about MediaWiki extension WYSIWYG can be found here:
 > It is always nice to hear comments about use of this extension. You can leave your comments here:
 
 >http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
-
-Supported languages: english, french, german, finnish
 
 ----------
 **You can find information about following issues below:**
