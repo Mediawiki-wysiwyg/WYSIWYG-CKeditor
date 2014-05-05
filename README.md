@@ -6,8 +6,8 @@ You can find results of this work here (http://github.com/Mediawiki-wysiwyg).
 
 More information about MediaWiki extension WYSIWYG can be found here:
 
-  http://www.mediawiki.org/wiki/Extension:WYSIWYG 
-  
+  http://www.mediawiki.org/wiki/Extension:WYSIWYG
+
   http://www.mediawiki.org/wiki/Extension_talk:WYSIWYG
 
 -----------
@@ -34,6 +34,12 @@ More information about MediaWiki extension WYSIWYG can be found here:
 ------------
 History of modifications:
 ===
+
+- 05.05.14  Fixed focus problem with IE and reference dialog (ref.js) after Ckeditor 4.4.0 upgrade: IE lost focus of ref -element and could not get text of reference into dialog.
+
+- 05.05.14  Updated CKeditor from version 4.3.4 (revision 40ccd20) to version 4.4.0 (revision 98daef5).
+
+- 05.05.14  WYSIWYG extension is compatible with MW 1.22.0 - 1.22.6
 
 - 17.04.14  Add german translation for category and reference buttons/dialogs. Merge pull request #11 from stepping-stone/german-translation-updates.
 
@@ -125,7 +131,7 @@ Short installation instructions:
 ===
 
 ----------------
-**Supported languages:** 
+**Supported languages:**
 * finnish, french, german, english
 
 More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js; for details see git issues "French added")

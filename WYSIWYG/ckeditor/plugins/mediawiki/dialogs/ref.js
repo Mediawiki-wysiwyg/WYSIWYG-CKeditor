@@ -70,6 +70,10 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
          this.fakeObj = false;
          this.editMode = false;
 
+         //Related to CKeditor Ticket #8493, 8719.patch: IE needs focus sent back to the parent document if a dialog is launched.
+         //After CKeditor 4.4.0 upgrade, IE lost focus of element, restore focus back to selected element to get attribute data.
+         if ( CKEDITOR.env.ie ) editor.focus();                                              //05.05.14 RL 
+
          var selection = editor.getSelection();
          var ranges = selection.getRanges();
          var element = selection.getSelectedElement();

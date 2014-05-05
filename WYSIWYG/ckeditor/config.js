@@ -66,4 +66,6 @@ CKEDITOR.editorConfig = function( config )
     // use fontsizes only that do not harm the skin
     config.fontSize_sizes = 'smaller;larger;xx-small;x-small;small;medium;large;x-large;xx-large';
 
+    //config.image2_captionedClass = 'caption';  //05.05.14 RL Possible CKeditor 4.4.0 backwards compatibility setting.
+ 
 };
