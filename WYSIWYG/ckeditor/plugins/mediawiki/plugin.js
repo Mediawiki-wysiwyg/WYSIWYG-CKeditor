@@ -344,7 +344,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail link... no search for it',
             anchorLink      : 'anchor link... no search for it',
             linkAsRedirect  : 'Redirect to target page (#REDIRECT)',              //01.03.14 RL
-            defineTarget    : 'Define the wiki page for the link target:',
+			linkAsMedia     : 'Internal link to an image or a file of other types, [[Media:<link>]]', //09.05.14 RL
+            defineTarget    : 'Define the wiki page for the link target:',        
             chooseTarget    : 'Choose an existing wikipage for the link target:',
 			// references (citation)
 			referenceTitle 	    : 'Add/edit reference (citation)',                //03.01.14 RL
@@ -399,6 +400,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'sposti linkki... ei etsintää',                 //'e-mail link... no search for it',
             anchorLink      : 'ankkuri linkki... ei etsintää',                //'anchor link... no search for it',
             linkAsRedirect  : 'Pakko-ohjaus kohdesivulle (#REDIRECT)',        //'Redirect to target page',          //01.03.14 RL
+			linkAsMedia     : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',            //09.05.14 RL
             defineTarget    : 'Määritä wikin sivu linkin kohteeksi',          //'Define the wiki page for the link target:',
             chooseTarget    : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
 			// references (citation)
@@ -454,6 +456,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail... pas de recherche',
             anchorLink      : 'ancre... pas de recherche',
             linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',
+			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
 			defineTarget    : 'Entrer la page cible:',
             chooseTarget    : 'Choisissez la page :',
 			// references (citation)
@@ -499,6 +502,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             specialTagDef   : 'Definiere einen Spezialtag, ein magisches Wort oder eine Parserfunktion:',
             // link
             linkTitle       : 'Mediawiki Link',
+			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
             noPageFound     : 'keinen Artikel gefunden',
             onePageFound    : '1 Artikel gefunden',
             manyPageFound   : ' Artikel gefunden',

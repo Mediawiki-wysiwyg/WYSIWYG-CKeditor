@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 11.05.14  Fixed [[Media:<link>|<text>]] internal link to an image or a file of other types. Added checkbox in link.js dialog for 'Media:' -prefix.
+
 - 05.05.14  Fixed focus problem with IE and reference dialog (ref.js) after Ckeditor 4.4.0 upgrade: IE lost focus of ref -element and could not get text of reference into dialog.
 
 - 05.05.14  Updated CKeditor from version 4.3.4 (revision 40ccd20) to version 4.4.0 (revision 98daef5).
@@ -139,7 +141,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 ----------------
 **Compatible MediaWiki environment:**
 
-- MediaWiki: 1.21.2, 1.22.0, 1.22.1, 1.22.2, 1.22.3, 1.22.4
+- MediaWiki: 1.21.2, 1.22.0 - 1.22.6
 - SemanticForms: 2.7
 - PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
 
@@ -240,8 +242,8 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.0, v27.0, v28.0)
-- Chrome (v.32.0.1700.76 m, v.33.0.1750.117 m, 33.0.1750.154 m)
+- FireFox (v26.0, v27.0, v28.0, v29.0, v29.0.1)
+- Chrome  (v.32.0.1700.76 m, v.33.0.1750.117 m, 33.0.1750.154 m)
 
 - Recommended browser: FireFox
     

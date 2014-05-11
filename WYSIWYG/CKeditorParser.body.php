@@ -717,6 +717,10 @@ class CKeditorParser extends CKeditorParserWrapper {
             $text = preg_replace("/^#REDIRECT/", '<!--FCK_REDIRECT-->', $text);
             $text = preg_replace("/\<(noinclude|includeonly|onlyinclude)\>/i", '%%%start-$1%%%', $text);
             $text = preg_replace("/\<\/(noinclude|includeonly|onlyinclude)\>/i", '%%%end-$1%%%', $text);
+
+			//[[Media:xxx|yyy]] => [[:Media:xxx|yyy]] Extra ':' prevents parser to locate media-links and convert them into wrong format
+			$text = preg_replace("/(\[\[)([mM]edia:.*?\]\])/", '$1:$2', $text); //09.05.14 RL Adds first ':' => [[:Media:xxx|yyy]]
+			
             $parserOutput = parent::parse($text, $title, $options, $linestart, $clearState, $revid);
   
             $parserOutput->setText(strtr($parserOutput->getText(), array('FCKLR_fcklr_FCKLR' => '<br fcklr="true"/>')));
@@ -796,7 +800,10 @@ class CKeditorParser extends CKeditorParserWrapper {
             $parserOutput->setText(str_replace('<!--FCK_REDIRECT-->', '#REDIRECT', $parserOutput->getText()));
             $parserOutput->setText(preg_replace('/%%%start\-(noinclude|includeonly|onlyinclude)%%%/i', '<span class="fck_mw_$1" _fck_mw_tagname="$1" startTag="true"></span>', $parserOutput->getText()));
             $parserOutput->setText(preg_replace('/%%%end\-(noinclude|includeonly|onlyinclude)%%%/i', 'fckLR<span class="fck_mw_$1" _fck_mw_tagname="$1" endTag="true"></span>', $parserOutput->getText()));
- 
+
+			//Restore media -links:  [[:Media:xxx|yyy]] => [[Media:xxx|yyy]]
+			$parserOutput->setText(preg_replace('/(a href="):([mM]edia)(.*?")/', '$1Media$3', $parserOutput->getText())); //09.05.14 RL Removes first ':' => [[Media:xxx|yyy]]
+			
             CKeditorLinker::removeHooks();
             return $parserOutput;
     } catch (Exception $e) {
