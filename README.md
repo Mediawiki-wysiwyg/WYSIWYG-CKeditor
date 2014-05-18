@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 18.05.14  Update CKEditor parser to manager calendar tag by oliviermaridat: <calendar></calendar> tags from the Calender extension (http://www.mediawiki.org/wiki/Extension:Calendar_%28Kenyu73%29) are displayed as nowiki balise, and didn't break anymore when the page is saved.
+
 - 11.05.14  Fixed [[Media:<link>|<text>]] internal link to an image or a file of other types. Added checkbox in link.js dialog for 'Media:' -prefix.
 
 - 05.05.14  Fixed focus problem with IE and reference dialog (ref.js) after Ckeditor 4.4.0 upgrade: IE lost focus of ref -element and could not get text of reference into dialog.
