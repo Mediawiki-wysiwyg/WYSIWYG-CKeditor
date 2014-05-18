@@ -241,10 +241,15 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	function fck_wikiTag( $tagName, $str, $argv = array() ) {
-        if( empty( $argv ) ) {
-			$ret = '<span class="fck_mw_' . $tagName . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '">';
+        	$className = $tagName;
+		if ('calendar' == $tagName) {
+		   $className = 'nowiki';
+	    	}
+	    
+	        if( empty( $argv ) ) {
+			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '">';
 		} else {
-			$ret = '<span class="fck_mw_' . $tagName . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '"';
+			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '"';
 			foreach( $argv as $key => $value ) {
 				$ret .= " " . $key . "=\"" . $value . "\"";
 			}
@@ -360,6 +365,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 						$output = $this->fck_wikiTag( 'gallery', $content, $params ); // required by FCKeditor
 						//$output = $this->renderImageGallery( $content, $params );
 						break;
+					case 'calendar':
+					    	$output = $this->fck_wikiTag( 'calendar', $content, $params ); // required by FCKeditor
+					    	break;
 					default:
 						if( isset( $this->mTagHooks[$tagName] ) ) {
 							$this->fck_mw_taghook = $tagName; // required by FCKeditor
