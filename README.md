@@ -34,6 +34,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 ------------
 History of modifications:
 ===
+- 23.08.14  Merged modifications made by Varlin: integration of texselection plugin which enables to keep selection when switching from WYSIWIG view to source view; changed default table properties; fixed unwanted caps with simple links.
 
 - 18.05.14  Update CKEditor parser to manager calendar tag by oliviermaridat: <calendar></calendar> tags from the Calender extension (http://www.mediawiki.org/wiki/Extension:Calendar_%28Kenyu73%29) are displayed as nowiki balise, and didn't break anymore when the page is saved.
 
