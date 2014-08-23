@@ -457,7 +457,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	}
 
 	function replaceInternalLinks( $text ) {
-		$text = preg_replace( "/\[\[([^|\[\]]*?)\]\]/", "[[$1|RTENOTITLE]]", $text ); // #2223: [[()]]	=>	[[%1|RTENOTITLE]]
+		$text = preg_replace( "/\[\[([^|\[\]]*?)\]\]/", "[[$1|$1]]", $text ); // #2223: [[()]]	=>	[[%1|RTENOTITLE]]
 		$text = preg_replace( "/\[\[:(.*?)\]\]/", "[[RTECOLON$1]]", $text ); // change ':' => 'RTECOLON' in links
 		$text = parent::replaceInternalLinks( $text );
 		$text = preg_replace( "/\|RTENOTITLE\]\]/", "]]", $text ); // remove unused RTENOTITLE
