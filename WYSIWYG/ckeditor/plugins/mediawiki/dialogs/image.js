@@ -479,7 +479,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												else if ( !value && this.isChanged( ) )
 													element.removeStyle( 'width' );
                                                 
-												!internalCommit && element.removeAttribute( 'width' );
+												if ( !internalCommit )				// 26.08.14 
+													{ element.removeAttribute( 'width' ); element.removeAttribute( '_fck_mw_width' ); } // 26.08.14 remove also _fck_mw_width
 											}
 											else if ( type == PREVIEW )
 											{
@@ -532,8 +533,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												else if ( !value && this.isChanged( ) )
 													element.removeStyle( 'height' );
 
-												if ( !internalCommit && type == IMAGE )
-													element.removeAttribute( 'height' );
+												if ( !internalCommit )				// 26.08.14 
+													{ element.removeAttribute( 'height' ); element.removeAttribute( '_fck_mw_height' ); }  // 26.08.14  remove also _fck_mw_height
 											}
 											else if ( type == PREVIEW )
 											{
