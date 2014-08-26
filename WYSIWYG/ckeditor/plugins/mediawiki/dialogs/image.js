@@ -464,7 +464,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												
 											if ( imgStyleWidth.length > 0 )										  //10.01.14 RL->
 												imgWidth = imgStyleWidth;                                        
-											else if ( imgWidth.length > 0 && imgRealWidth.length > 0 )
+											else if ( imgRealWidth.length > 0 )   //26.08.14  Was else if ( imgWidth.length > 0 && imgRealWidth.length > 0 )
 												imgWidth = imgRealWidth;										  //10.01.14 RL<-
 											
                                             if ( type == IMAGE && imgWidth )    //10.01.14 RL Was imgStyleWidth
@@ -516,7 +516,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
 											if ( imgStyleHeight.length > 0 )										//10.01.14 RL->
 												imgHeight = imgStyleHeight;
-											else if ( imgHeight.length > 0 && imgRealHeight.length > 0 )
+											else if ( imgRealHeight.length > 0 )   // 26.08.14 Was else if ( imgHeight.length > 0 && imgRealHeight.length > 0 )
 												imgHeight = imgRealHeight;											//10.01.14 RL<-
 								
                                             if ( type == IMAGE && imgHeight )	//10.01.14 RL Was imgStyleHight
