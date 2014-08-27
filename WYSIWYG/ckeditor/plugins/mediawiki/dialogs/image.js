@@ -464,7 +464,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												
 											if ( imgStyleWidth.length > 0 )										  //10.01.14 RL->
 												imgWidth = imgStyleWidth;                                        
-											else if ( imgWidth.length > 0 && imgRealWidth.length > 0 )
+											else if ( imgRealWidth.length > 0 )   //26.08.14  Was else if ( imgWidth.length > 0 && imgRealWidth.length > 0 )
 												imgWidth = imgRealWidth;										  //10.01.14 RL<-
 											
                                             if ( type == IMAGE && imgWidth )    //10.01.14 RL Was imgStyleWidth
@@ -479,7 +479,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												else if ( !value && this.isChanged( ) )
 													element.removeStyle( 'width' );
                                                 
-												!internalCommit && element.removeAttribute( 'width' );
+												if ( !internalCommit )				// 26.08.14 
+													{ element.removeAttribute( 'width' ); element.removeAttribute( '_fck_mw_width' ); } // 26.08.14 remove also _fck_mw_width
 											}
 											else if ( type == PREVIEW )
 											{
@@ -516,7 +517,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
 											if ( imgStyleHeight.length > 0 )										//10.01.14 RL->
 												imgHeight = imgStyleHeight;
-											else if ( imgHeight.length > 0 && imgRealHeight.length > 0 )
+											else if ( imgRealHeight.length > 0 )   // 26.08.14 Was else if ( imgHeight.length > 0 && imgRealHeight.length > 0 )
 												imgHeight = imgRealHeight;											//10.01.14 RL<-
 								
                                             if ( type == IMAGE && imgHeight )	//10.01.14 RL Was imgStyleHight
@@ -532,8 +533,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												else if ( !value && this.isChanged( ) )
 													element.removeStyle( 'height' );
 
-												if ( !internalCommit && type == IMAGE )
-													element.removeAttribute( 'height' );
+												if ( !internalCommit )				// 26.08.14 
+													{ element.removeAttribute( 'height' ); element.removeAttribute( '_fck_mw_height' ); }  // 26.08.14  remove also _fck_mw_height
 											}
 											else if ( type == PREVIEW )
 											{
