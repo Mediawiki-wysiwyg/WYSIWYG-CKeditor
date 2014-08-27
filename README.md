@@ -34,6 +34,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 ------------
 History of modifications:
 ===
+- 27.08.14  Merged modifications made by Varlin: Fix resizing problem in Firefox. Fix "size reset" problem: when an image has a defined size, and when you clear the height and width fields, the removal of height and width tags is not remembered (because tags like "_fck_mw_width" are not removed).
+
 - 23.08.14  Merged modifications made by Varlin: integration of texselection plugin which enables to keep selection when switching from WYSIWIG view to source view; changed default table properties; fixed unwanted caps with simple links.
 
 - 18.05.14  Update CKEditor parser to manager calendar tag by oliviermaridat: <calendar></calendar> tags from the Calender extension (http://www.mediawiki.org/wiki/Extension:Calendar_%28Kenyu73%29) are displayed as nowiki balise, and didn't break anymore when the page is saved.
@@ -245,7 +247,7 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.0, v27.0, v28.0, v29.0, v29.0.1)
+- FireFox (v26.0, v27.0, v28.0, v29.0, v29.0.1, v30.0, v31.0)
 - Chrome  (v.32.0.1700.76 m, v.33.0.1750.117 m, 33.0.1750.154 m)
 
 - Recommended browser: FireFox
