@@ -135,8 +135,8 @@ function wfSajaxSearchImageCKeditor( $term ) {
     		array(
         		'page_namespace IN (' . NS_IMAGE . ',' . NS_FILE . ')',
             	"page_title LIKE '%". $dbr->strencode( $term1 ) ."%'".
-                "OR (LOWER(CONVERT(page_title, CHAR)) LIKE '%". $dbr->strencode( $term2 ) ."%') ".
-    			"OR (UPPER(CONVERT(page_title, CHAR)) LIKE '%". $dbr->strencode( $term3 ) ."%') ".
+				"OR (LOWER(CAST(page_title AS CHAR)) LIKE '%". $dbr->strencode( $term2 ) ."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
+    			"OR (UPPER(CAST(page_title AS CHAR)) LIKE '%". $dbr->strencode( $term3 ) ."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
         		"OR (page_title LIKE '%". $dbr->strencode( $term4 ) ."%') "
             ),
             __METHOD__,
@@ -217,8 +217,8 @@ function wfSajaxSearchArticleCKeditor( $term ) {
         array(
 			'page_namespace in ('.implode(',', $ns).') and '.
 			"( page_title LIKE '%". $dbr->strencode( $term1 ) ."%' ".
-			"OR (LOWER(CONVERT(page_title, CHAR)) LIKE '%". $dbr->strencode( $term2 ) ."%') ".
-			"OR (UPPER(CONVERT(page_title, CHAR)) LIKE '%". $dbr->strencode( $term3 ) ."%') ".
+			"OR (LOWER(CAST(page_title AS CHAR)) LIKE '%". $dbr->strencode( $term2 ) ."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
+			"OR (UPPER(CAST(page_title AS CHAR)) LIKE '%". $dbr->strencode( $term3 ) ."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
 			"OR (page_title LIKE '%". $dbr->strencode( $term4 ) ."%') )"
 		),
 		__METHOD__,
@@ -268,8 +268,8 @@ function wfSajaxSearchCategoryCKeditor( $term ){  //09.01.14 RL $term added
 	if( $term != "" ) {
 		// $search will be added to mysql query string below
 		$searchr = 	"AND ( tmpSelectCat1.cl_to LIKE '%".$dbr->strencode( $term1 )."%' ".
-							"OR (LOWER(CONVERT(tmpSelectCat1.cl_to, CHAR)) LIKE '%".$dbr->strencode( $term2 )."%') ".
-							"OR (UPPER(CONVERT(tmpSelectCat1.cl_to, CHAR)) LIKE '%".$dbr->strencode( $term3 )."%') ".
+							"OR (LOWER(CAST(tmpSelectCat1.cl_to AS CHAR)) LIKE '%".$dbr->strencode( $term2 )."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
+							"OR (UPPER(CAST(tmpSelectCat1.cl_to AS CHAR)) LIKE '%".$dbr->strencode( $term3 )."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
 							"OR (tmpSelectCat1.cl_to LIKE '%".$dbr->strencode( $term4 )."%') ".
 						") ";
 	} else {

@@ -34,6 +34,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 ------------
 History of modifications:
 ===
+- 29.08.14  With search function used in dialogs for adding images, articles or categories: based on Vidarsk suggestion modified SQL queries to use CAST(.AS.) instead of CONVERT(.,.) so that same code will work with MySQL and Postgres databases.
+
 - 27.08.14  Merged modifications made by Varlin: Fix resizing problem in Firefox. Fix "size reset" problem: when an image has a defined size, and when you clear the height and width fields, the removal of height and width tags is not remembered (because tags like "_fck_mw_width" are not removed).
 
 - 23.08.14  Merged modifications made by Varlin: integration of texselection plugin which enables to keep selection when switching from WYSIWIG view to source view; changed default table properties; fixed unwanted caps with simple links.
