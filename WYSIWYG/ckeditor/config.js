@@ -38,12 +38,12 @@ CKEDITOR.editorConfig = function( config )
         ['PasteText','PasteFromWord', '-','Find','Replace'],
         ['SelectAll','RemoveFormat'],
         ['Subscript','Superscript'],
-        ['Link','Unlink'],
+        ['Link','MWSimpleLink','Unlink'], //05.09.14 RL
         ['Undo','Redo'],
         ['Image', 'Table', 'HorizontalRule', 'SpecialChar'],
         ['MWSpecialTags', 'MWTemplate', 'MWSignature', 'qiButton', 'wsButton', 'rmButton' ],
         [ 'stbButton' ],
-		['MWCategory'],            //07.01.14 RL  
+        ['MWCategory'],            //07.01.14 RL  
         ['MWRef', 'MWReferences'], //03.01.14 RL For references (citation)
         ['About'], 
         '/',

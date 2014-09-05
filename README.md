@@ -34,6 +34,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 ------------
 History of modifications:
 ===
+
+- 05.09.14  Added one button to convert plain text to simple link (based on Varlin's work "patch-11" but modifed to work with IE, new icon for button of simple link, fixed enable/disable of link buttons): config.js, plugin.js, tb_icon_simplelink.gif. Due to user error earlier, some language files of ckeditor have not been included, files were added now.
+
 - 29.08.14  With search function used in dialogs for adding images, articles or categories: based on Vidarsk suggestion modified SQL queries to use CAST(.AS.) instead of CONVERT(.,.) so that same code will work with MySQL and Postgres databases.
 
 - 27.08.14  Merged modifications made by Varlin: Fix resizing problem in Firefox. Fix "size reset" problem: when an image has a defined size, and when you clear the height and width fields, the removal of height and width tags is not remembered (because tags like "_fck_mw_width" are not removed).
@@ -249,8 +252,8 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.0, v27.0, v28.0, v29.0, v29.0.1, v30.0, v31.0)
-- Chrome  (v.32.0.1700.76 m, v.33.0.1750.117 m, 33.0.1750.154 m)
+- FireFox (v26.0 - 32.0)
+- Chrome  (v.32.*, v.37.*)
 
 - Recommended browser: FireFox
     

@@ -306,6 +306,23 @@ CKEDITOR.plugins.add( 'mediawiki',
             }
         };
 
+        var simplelinkCommand =                                                    //27.08.14 Varlin 
+        { 
+            exec : function( editor ) { 
+			    var link; 
+				if ( CKEDITOR.env.ie )                                             //05.09.14 RL->  
+				    link = editor.getSelection().document.$.selection.createRange().text; 
+				else                                                                      
+				    link = editor.getSelection().getNative();  
+
+                if ( link && link != '' ) {                                        //05.09.14 RL<-
+                    var style = new CKEDITOR.style( {element : 'a', attributes : {href : link}} ); 
+                        style.type = CKEDITOR.STYLE_INLINE;		// need to override... dunno why. 
+                        style.apply( editor.document ); 
+				}		
+            } 
+        }; 
+		
         // language logic for additional messages
         var MWpluginLang = []
         MWpluginLang['en'] = {
@@ -338,6 +355,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             specialTagDef   : 'Define any special tag, magic word or parser function:',
             // link
             linkTitle       : 'Mediawiki Link',
+			simplelink	    : 'Convert text to link',                             //05.09.14 RL 
             noPageFound     : 'no article found',
             onePageFound    : 'one article found',
             manyPageFound   : ' articles found',
@@ -394,6 +412,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             specialTagDef   : 'Määritä tag, magic word tai parser funktio',   //'Define any special tag, magic word or parser function:',
             // link
             linkTitle       : 'Mediawikin linkki',                            //'Mediawiki Link',
+			simplelink	    : 'Teksti linkiksi',                              //'Simple link',                      //09.05.14 RL
             noPageFound     : 'sivuja ei löytynyt',                           //'no article found',
             onePageFound    : 'yksi sivu löytyi',                             //'one article found',
             manyPageFound   : ' kpl',                                         //' articles found',
@@ -450,6 +469,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             specialTagDef   : 'Define any special tag, magic word or parser function:',
             // link
             linkTitle       : 'Créer/éditer un lien',
+			simplelink	    : 'Lien rapide',                                                         //27.08.14 Varlin
             noPageFound     : 'pas d’article trouvé',
             onePageFound    : 'un article trouvé',
             manyPageFound   : ' articles trouvés',
@@ -502,6 +522,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             specialTagDef   : 'Definiere einen Spezialtag, ein magisches Wort oder eine Parserfunktion:',
             // link
             linkTitle       : 'Mediawiki Link',
+			simplelink	    : 'Convert text to link',                                                //27.08.14 Varlin 
 			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
             noPageFound     : 'keinen Artikel gefunden',
             onePageFound    : '1 Artikel gefunden',
@@ -557,6 +578,9 @@ CKEDITOR.plugins.add( 'mediawiki',
         CKEDITOR.dialog.add( 'MWCategory', this.path + 'dialogs/category.js' );        //07.01.14 RL
 
         editor.addCommand( 'MWSignature', signatureCommand);
+
+		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
+	
         if (editor.addMenuItem) {
             // A group menu is required
             // order, as second parameter, is not required
@@ -605,6 +629,13 @@ CKEDITOR.plugins.add( 'mediawiki',
 					command : 'MWCategory',
                     icon: this.path + 'images/icon_category.gif'
 				});
+
+			editor.ui.addButton( 'MWSimpleLink',  //27.08.14 Varlin 
+                { 
+                    label : editor.lang.mwplugin.simplelink, 
+                    command : 'MWSimpleLink', 
+                    icon: this.path + 'images/tb_icon_simplelink.gif' 
+                }); 
 		}
 
         // context menu
@@ -626,6 +657,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                    ) return {MWSpecialTags: CKEDITOR.TRISTATE_ON};
             });
         }
+
 		editor.on( 'selectionChange', function( evt )                   //28.03.14 RL For overridden 'unlink' button
   			{
 				//To enable / disable unlink button, taken from
@@ -637,14 +669,23 @@ CKEDITOR.plugins.add( 'mediawiki',
   				 * Despite our initial hope, document.queryCommandEnabled() does not work
   				 * for this in Firefox. So we must detect the state by element paths.
   				 */
-  				var command = editor.getCommand( 'unlink' ),
+  				var cmd_unlink = editor.getCommand( 'unlink' ),
+                    cmd_link = editor.getCommand( 'link' ),                  //05.09.14 RL  
+                    cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' ),  //05.09.14 RL
   					element = evt.data.path.lastElement && evt.data.path.lastElement.getAscendant( 'a', true );
-  				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() )
-  					command.setState( CKEDITOR.TRISTATE_OFF );
-  				else
-  					command.setState( CKEDITOR.TRISTATE_DISABLED );
+  				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() ) {
+  					cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable
+                    cmd_link.setState( CKEDITOR.TRISTATE_DISABLED );         //05.09.14 RL
+                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED ); //05.09.14 RL
+                }    
+  				else {
+  					cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED );       //Disable 
+                    cmd_link.setState( CKEDITOR.TRISTATE_OFF );              //05.09.14 RL
+                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //05.09.14 RL  
+                }    
   			} );
-		editor.on( 'doubleclick', function( evt )
+
+        editor.on( 'doubleclick', function( evt )
 			{
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
