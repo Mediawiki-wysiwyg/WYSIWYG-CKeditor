@@ -36,6 +36,7 @@ $messages['en'] = array(
 	'tog-riched_use_toggle' => 'Use toggle to switch between wikitext and rich editor (replace textarea with rich editor)',
 	'tog-riched_toggle_remember_state' => 'Remember last toggle state',
     'load-stb-on-startup' => 'Open Semantic Toolbar automatically',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog', 
 );
 
 /** Message documentation (Message documentation)
@@ -78,6 +79,7 @@ $messages['ar'] = array(
 	'tog-riched_use_popup' => 'افتح المحرر الغني في نافذة منبثقة',
 	'tog-riched_use_toggle' => 'استخدم التبديل للتغيير بين نص الويكي والمحرر الغني (استبدل مساحة النص بالمحرر الغني)',
 	'tog-riched_toggle_remember_state' => 'تذكر آخر حالة تبديل',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',  
 );
 
 /** Belarusian (Taraškievica orthography) (Беларуская (тарашкевіца))
@@ -110,6 +112,7 @@ $messages['be-tarask'] = array(
 	'tog-riched_use_popup' => 'Адчыніць палепшаны рэдактар ў дадатковым акенцы',
 	'tog-riched_use_toggle' => 'Выкарыстоўваць пераключальнік паміж звычайным і палепшаным рэдактарам (замяняе тэкставае поле на палепшаны рэдактар)',
 	'tog-riched_toggle_remember_state' => 'Памятаць апошні стан пераключальніка',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Bulgarian (Български)
@@ -134,6 +137,7 @@ $messages['bg'] = array(
 	'tog-riched_disable_ns_help_talk' => 'Изключване на разширения редактор в именно пространство „{{ns:Help_talk}}“',
 	'tog-riched_disable_ns_category' => 'Изключване на разширения редактор в именно пространство „{{ns:Category}}“',
 	'tog-riched_disable_ns_category_talk' => 'Изключване на разширения редактор в именно пространство „{{ns:Category_talk}}“',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Breton (Brezhoneg)
@@ -165,6 +169,7 @@ $messages['br'] = array(
 	'tog-riched_use_popup' => 'Digeriñ ar skridaozer pinvidikaet en ur popup',
 	'tog-riched_use_toggle' => "Ober gant un diuzer evit mont eus ar skidaozer orin WikiText d'ar skridaozer pinvidikaet",
 	'tog-riched_toggle_remember_state' => "Derc'hel soñj eus diuzadenn ziwezhañ ar skridaozer",
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Bosnian (Bosanski)
@@ -196,6 +201,7 @@ $messages['bs'] = array(
 	'tog-riched_use_popup' => 'Otvori vizuelni uređivač kao popup',
 	'tog-riched_use_toggle' => 'Koristi prekidač za prebacivanje između wikiteksta i vizuelnog uređivača (zamjenjuje područje teksta sa vizuelnim uređivačem)',
 	'tog-riched_toggle_remember_state' => 'Zapamti zadnje stanje uključivanja',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Catalan (Català)
@@ -220,6 +226,7 @@ $messages['ca'] = array(
 	'tog-riched_disable_ns_help_talk' => 'Deshabilita l\'editor enriquit dins de l\'espai de noms "{{ns:help_talk}}"',
 	'tog-riched_disable_ns_category' => 'Deshabilita l\'editor enriquit dins de l\'espai de noms "{{ns:category}}"',
 	'tog-riched_disable_ns_category_talk' => 'Deshabilita l\'editor enriquit dins de l\'espai de noms "{{ns:category_talk}}"',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** German (Deutsch)
@@ -253,6 +260,7 @@ $messages['de'] = array(
 	'tog-riched_use_toggle' => 'Schalter zum Wechseln zwischen Wikitext und Texteditor benutzen (ersetzt den Textbereich mit dem Texteditor)',
 	'tog-riched_toggle_remember_state' => 'Letzten Umschaltzustand merken',
     'load-stb-on-startup' => 'Öffne die Semantic Toolbar automatisch',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Lower Sorbian (Dolnoserbski)
@@ -284,6 +292,7 @@ $messages['dsb'] = array(
 	'tog-riched_use_popup' => 'Rich editor we wuskokujucem woknje wócyniś',
 	'tog-riched_use_toggle' => 'Mjazy wikitekstom a rich editorom pśešaltowaś (tekstowe pólo pśez rich editor wuměniś)',
 	'tog-riched_toggle_remember_state' => 'Šaltowańsku poziciju se spomnjeś',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Greek (Ελληνικά)
@@ -332,6 +341,7 @@ $messages['es'] = array(
 	'tog-riched_use_toggle' => 'Utilizar un selector para cambiar entre wikitext y editor enriquecido',
 	'tog-riched_toggle_remember_state' => 'Recordar la última selección del editor',
     'load-stb-on-startup' => 'Abrir Semantic Toolbar automático',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Basque (Euskara)
@@ -364,6 +374,7 @@ $messages['eu'] = array(
 	'tog-riched_use_popup' => 'Editore aberastua laster-leiho batean ireki',
 	'tog-riched_use_toggle' => 'Erabili testu eremu gainean dagoen esteka wikitext edo editore aberastua hautatzeko (testu eremua editore aberastuarekin erabiltzeko)',
 	'tog-riched_toggle_remember_state' => 'Gogoratu erabilitako azken editore hautua',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Persian (فارسی) */
@@ -386,6 +397,7 @@ $messages['fa'] = array(
 	'tog-riched_disable_ns_help_talk' => 'غيرفعال کردن ويرايشگر پيشرفته در فضاي نام "{{ns:help_talk}}"',
 	'tog-riched_disable_ns_category' => 'غيرفعال کردن ويرايشگر پيشرفته در فضاي نام "{{ns:category}}"',
 	'tog-riched_disable_ns_category_talk' => 'غيرفعال کردن ويرايشگر پيشرفته در فضاي نام "{{ns:category_talk}}"',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Finnish (Suomi)
@@ -419,6 +431,7 @@ $messages['fi'] = array(
 	'tog-riched_use_popup' => 'Avaa rikas editori popup-ikkunassa',
 	'tog-riched_use_toggle' => 'Käytä nappulaa vaihtaaksesi wikitekstin ja rikkaan editorin välillä (korvaa tekstialue rikkaalla editorilla)',
 	'tog-riched_toggle_remember_state' => 'Muista viimeisin nappulan asento',
+    'tog-riched_link_paste_text' => 'Valittu teksti linkin luontiin siirryttäessä tarkoittaa wikin sivua, etsi sivu',  //08.09.14 RL
 );
 
 /** French (Français)
@@ -452,6 +465,7 @@ $messages['fr'] = array(
 	'tog-riched_use_popup' => "Ouvrir l'éditeur enrichi dans une popup",
 	'tog-riched_use_toggle' => "Donner la possibilité de changer entre l'éditeur original WikiText et l'éditeur enrichi",
 	'tog-riched_toggle_remember_state' => "Se souvenir de la dernière selection de l'éditeur",
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Galician (Galego)
@@ -483,6 +497,7 @@ $messages['gl'] = array(
 	'tog-riched_use_popup' => 'Abrir o editor enriquecido nunha ventá emerxente',
 	'tog-riched_use_toggle' => 'Utilizar un selector para cambiar entre texto wiki e o editor enriquecido (substitúe a área de texto polo editor enriquecido)',
 	'tog-riched_toggle_remember_state' => 'Recordar a última selección do editor',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Swiss German (Alemannisch)
@@ -514,6 +529,7 @@ $messages['gsw'] = array(
 	'tog-riched_use_popup' => 'Rich editor in eme Popup ufmache',
 	'tog-riched_use_toggle' => 'Schaltchnopf verwände zum zwischem Wikitekscht un em Rich editor hii- un härzgumpe (s Tekschtfäld dur Rich editor ersetze)',
 	'tog-riched_toggle_remember_state' => 'Di letscht Stellig vum Schaltchnopf bhalte',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Hebrew (עברית)
@@ -546,6 +562,7 @@ $messages['he'] = array(
 	'tog-riched_use_popup' => 'פתח את העורך העשיר בחלון קופץ',
 	'tog-riched_use_toggle' => 'השתמש במתג כדי להחליף בין ויקיטקסט והעורך העשיר (החלף את אזור הטקסט עם העורך העשיר)',
 	'tog-riched_toggle_remember_state' => 'זכור את מצב המתג האחרון',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Upper Sorbian (Hornjoserbsce)
@@ -577,6 +594,7 @@ $messages['hsb'] = array(
 	'tog-riched_use_popup' => 'Rich editor we wuskakowanskim woknje wočinić',
 	'tog-riched_use_toggle' => 'Mjez wikitekstom a rich editorom přepinać (tekstowe polo přez rich editor wuměnić)',
 	'tog-riched_toggle_remember_state' => 'Poslednje přepinanske staće sej spomjatkować',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Hungarian (Magyar)
@@ -608,6 +626,7 @@ $messages['hu'] = array(
 	'tog-riched_use_popup' => 'Vizuális szerkesztő megnyitása felugró ablakban',
 	'tog-riched_use_toggle' => 'Váltás a wikiszöveg és a vizuális szerkesztő között (lecseréli a szövegbeviteli mezőt a vizuális szerkesztőre)',
 	'tog-riched_toggle_remember_state' => 'Emlékezzen az utolsó állapotra',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Interlingua (Interlingua)
@@ -639,6 +658,7 @@ $messages['ia'] = array(
 	'tog-riched_use_popup' => 'Aperir le editor typographic in un pop-up',
 	'tog-riched_use_toggle' => 'Presentar un button pro cambiar inter wikitexto e editor typographic (in loco del area de texto)',
 	'tog-riched_toggle_remember_state' => 'Memorar le ultime selection de editor',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Indonesian (Bahasa Indonesia)
@@ -670,6 +690,7 @@ $messages['id'] = array(
 	'tog-riched_use_popup' => 'Buka penyunting kaya lewat pop-up',
 	'tog-riched_use_toggle' => 'Gunakan tuas untuk mengganti antara wikiteks dan penyunting kaya (ganti textarea dengan penyunting kaya)',
 	'tog-riched_toggle_remember_state' => 'Ingat keadaan tuas terakhir',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Italian (Italiano)
@@ -701,6 +722,7 @@ $messages['it'] = array(
 	'tog-riched_use_popup' => 'Apri editor avanzato in una finestra popup',
 	'tog-riched_use_toggle' => "Usa il pulsante per passare dal normale wikitext all'editor avanzato e viceversa (sostituisce la textarea con l'editor avanzato)",
 	'tog-riched_toggle_remember_state' => "Ricorda l'ultima modalità di editing utilizzata (avanzata o normale)",
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Japanese (日本語)
@@ -732,6 +754,7 @@ $messages['ja'] = array(
 	'tog-riched_use_popup' => 'リッチエディタをポップアップ・ウィンドウで開く',
 	'tog-riched_use_toggle' => 'ウィキテキストとリッチエディタを切り替えるトグルスイッチを利用する (テキストエリアをリッチエディタで置き換える)',
 	'tog-riched_toggle_remember_state' => '最後のトグル状態を記憶する',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Korean (한국어)
@@ -764,6 +787,7 @@ $messages['ko'] = array(
 	'tog-riched_use_popup' => '팝업 창에 리치 에디터 열기',
 	'tog-riched_use_toggle' => '토글을 이용해 위키텍스트와 리치 에디터를 오가기 (텍스트영역을 리치 에디터로 대체하기)',
 	'tog-riched_toggle_remember_state' => '마지막 토글 상태를 기억하기',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Colognian (Ripoarisch)
@@ -795,6 +819,7 @@ $messages['ksh'] = array(
 	'tog-riched_use_popup' => 'Donn dä „<i lang="en">Rich Editor</i>“ als ene <i lang="en">popup</i> loufe lohße',
 	'tog-riched_use_toggle' => 'Donn zwesche däm nomaale Ändere (Wikitäx Beärbeide) un däm „<i lang="en">Rich Editor</i>“ aam sellve Plaz ömschallde',
 	'tog-riched_toggle_remember_state' => 'Donn dä letzte Zohschtand vum Ömschallde zwesche däm Wikitäx Beärbeide un däm „<i lang="en">Rich Editor</i>“ faßhallde',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Luxembourgish (Lëtzebuergesch)
@@ -826,6 +851,7 @@ $messages['lb'] = array(
 	'tog-riched_use_popup' => 'Editeur mat erweiderte Fonctiounen an engem Popup opmaachen',
 	'tog-riched_use_toggle' => "Schalter benotze fir tëschen dem Benotze vu Wikitext an engem 'rich editor' ze wiesselen (den Textberäich gëtt duerch e 'rich editor' ersat)",
 	'tog-riched_toggle_remember_state' => 'De leschten Ëmschaltzoustand verhalen',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Macedonian (Македонски)
@@ -857,6 +883,7 @@ $messages['mk'] = array(
 	'tog-riched_use_popup' => 'Отвори го визуелниот уредувач во скокачки прозорец',
 	'tog-riched_use_toggle' => 'Користи превклучувач за преод помеѓу викитекст и визуелниот уредувач (ја заменува текстуалното поле со визуелен уредувач)',
 	'tog-riched_toggle_remember_state' => 'Запомни ја последната состојба на превклучувачот',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Marathi (मराठी)
@@ -881,6 +908,7 @@ $messages['mr'] = array(
 	'tog-riched_disable_ns_help_talk' => '"{{ns:Help_talk}}" नामविश्वात वाढीव संपादक रद्द करा',
 	'tog-riched_disable_ns_category' => '"{{ns:Category}}" नामविश्वात वाढीव संपादक रद्द करा',
 	'tog-riched_disable_ns_category_talk' => '"{{ns:Category_talk}}" नामविश्वात वाढीव संपादक रद्द करा',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Dutch (Nederlands)
@@ -912,6 +940,7 @@ $messages['nl'] = array(
 	'tog-riched_use_popup' => 'Uitgebreide editor in een pop-up weergeven',
 	'tog-riched_use_toggle' => 'Knop gebruiken om te wisselen tussen wikitext en uitgebreide editor (het tekstgedeelte wordt vervangen door de uitgebreide editor)',
 	'tog-riched_toggle_remember_state' => 'Laatste status onthouden',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Norwegian Nynorsk (‪Norsk (nynorsk)‬)
@@ -952,6 +981,7 @@ $messages['no'] = array(
 	'tog-riched_use_popup' => 'Åpne rik editor i et sprettoppvindu',
 	'tog-riched_use_toggle' => 'Bruk bytt for å bytte mellom wikitekst og grafisk redigering (bytter ut tekstrute med grafisk redigering)',
 	'tog-riched_toggle_remember_state' => 'Husk siste valg',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Occitan (Occitan)
@@ -983,6 +1013,7 @@ $messages['oc'] = array(
 	'tog-riched_use_popup' => "Dobrir l'editor enriquit dins una popup",
 	'tog-riched_use_toggle' => "Balhar la possibilitat de cambiar entre l'editor original WikiTèxte e l'editor enriquit",
 	'tog-riched_toggle_remember_state' => "Se remembrar de la darrièra seleccion de l'editor",
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Polish (Polski)
@@ -1014,6 +1045,7 @@ $messages['pl'] = array(
 	'tog-riched_use_popup' => 'Otwieraj rozbudowany edytor w okienku popup',
 	'tog-riched_use_toggle' => 'Używaj rozbudowanego edytora zamiennie ze standardowym (umieści rozbudowany edytor w polu „textarea“)',
 	'tog-riched_toggle_remember_state' => 'Zapamiętuj ostatni używany edytor',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Piedmontese (Piemontèis)
@@ -1046,6 +1078,7 @@ $messages['pms'] = array(
 	'tog-riched_use_popup' => "deurb l'Editor rich ant un popup",
 	'tog-riched_use_toggle' => "Dòvra un toggle për cambié da wikitext a Editor rich (cambia la textarea con l'Editor rich)",
 	'tog-riched_toggle_remember_state' => "Arcòrda l'ùltim toggle stat",
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Portuguese (Português)
@@ -1079,6 +1112,7 @@ $messages['pt'] = array(
 	'tog-riched_use_popup' => 'Abrir editor rico numa janela flutuante',
 	'tog-riched_use_toggle' => 'Use selector para alternar entre texto wiki e editor rico na área de texto',
 	'tog-riched_toggle_remember_state' => 'Memorizar último estado do selector',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Brazilian Portuguese (Português do Brasil)
@@ -1110,6 +1144,7 @@ $messages['pt-br'] = array(
 	'tog-riched_use_popup' => 'Abrir editor rico em uma janela flutuante',
 	'tog-riched_use_toggle' => 'Use alterar para alternar entre textowiki e um editor rico (substitui a área de texto com um editor rico)',
 	'tog-riched_toggle_remember_state' => 'Lembrar último estado alterado',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Russian (Русский)
@@ -1141,6 +1176,7 @@ $messages['ru'] = array(
 	'tog-riched_use_popup' => 'Открывать визуальный редактор во всплывающем окне',
 	'tog-riched_use_toggle' => 'Использовать переключатель для переключений между викитекстом и визуальным редактором (замена текстового поля на визуальный редактор)',
 	'tog-riched_toggle_remember_state' => 'Запоминать последнее состояние переключателя',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Slovak (Slovenčina)
@@ -1172,6 +1208,7 @@ $messages['sk'] = array(
 	'tog-riched_use_popup' => 'Otvoriť Editor obohateného textu vo vyskakovacom okne',
 	'tog-riched_use_toggle' => 'Použiť prepínač na prepnutie medzi wikitextom a editorom obohateného textu (nahrádza oblasť s textom editorom obohateného textu)',
 	'tog-riched_toggle_remember_state' => 'Pamätať si posledný stav prepínača',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Swedish (Svenska)
@@ -1203,6 +1240,7 @@ $messages['sv'] = array(
 	'tog-riched_use_popup' => 'Öppna det grafiska läget i ett popupfönster',
 	'tog-riched_use_toggle' => 'Använd växla mellan wikitext och det grafiska läget (byter textruta mot grafiskt läge)',
 	'tog-riched_toggle_remember_state' => 'Kom ihåg senaste val (i den grafiska editorn)',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Telugu (తెలుగు)
@@ -1243,6 +1281,7 @@ $messages['tl'] = array(
 	'tog-riched_use_popup' => 'Buksan ang mayamang patnugot sa loob ng isang biglang-litaw',
 	'tog-riched_use_toggle' => 'Gamitin ang panglipat-lipat upang magpalipat-lipat sa pagitan ng wikiteksto at mayamang patnugot (palitan ang lugar ng teksto ng mayamang patnugot)',
 	'tog-riched_toggle_remember_state' => 'Tandaan ang huling katayuan ng panglipat-lipat',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Turkish (Türkçe)
@@ -1257,6 +1296,7 @@ $messages['tr'] = array(
 	'tog-riched_disable_ns_user' => 'Zengin editörü "{{ns:user}}" isim alanında devre dışı bırak',
 	'tog-riched_start_disabled' => 'Zengin editör devre dışı bırakılmış şekilde başla',
 	'tog-riched_use_popup' => 'Zengin editörü açılır pencerede aç',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Ukrainian (Українська)
@@ -1268,6 +1308,7 @@ $messages['uk'] = array(
 	'prefs-fckeditor' => 'Візуальний редактор',
 	'tog-riched_disable' => 'Вимкнути візуальний редактор',
 	'tog-riched_disable_ns_main' => 'Вимкнути візуальний редактор, в головному просторі імен',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Vietnamese (Tiếng Việt)
@@ -1300,6 +1341,7 @@ $messages['vi'] = array(
 	'tog-riched_use_popup' => 'Mở trình soạn thảo phong phú trong cửa sổ popup',
 	'tog-riched_use_toggle' => 'Dùng nút bật tắt để chuyển giữa trình soạn thảo văn bản wiki và trình soạn thảo phong phú (thay thế ô soạn thảo bằng trình soạn thảo phong phú)',
 	'tog-riched_toggle_remember_state' => 'Ghi nhớ tình trạng chuyển đổi cuối cùng',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Simplified Chinese (‪中文(简体)‬)
@@ -1331,6 +1373,7 @@ $messages['zh-hans'] = array(
 	'tog-riched_use_popup' => '在弹出窗口中使用富文本编辑器',
 	'tog-riched_use_toggle' => '使用开关在wiki文本和富文本编辑器间切换（用富文本编辑器替换textarea）',
 	'tog-riched_toggle_remember_state' => '记住上次切换状态',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Traditional Chinese (‪中文(繁體)‬)
@@ -1362,6 +1405,7 @@ $messages['zh-hant'] = array(
 	'tog-riched_use_popup' => '在彈出窗口中使用富文本編輯器',
 	'tog-riched_use_toggle' => '使用開關在wiki文本和富文本編輯器間切換（用富文本編輯器替換textarea）',
 	'tog-riched_toggle_remember_state' => '記住上次切換狀態',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 
 /** Chinese (Taiwan) (‪中文(台灣)‬)
@@ -1392,5 +1436,6 @@ $messages['zh-tw'] = array(
 	'tog-riched_use_popup' => '於彈出視窗(popup)中使用視覺化編輯器(Rich Editor)',
 	'tog-riched_use_toggle' => '在「維基文字」與「視覺化編輯器」之間以開關作切換(以視覺化編輯器取代文字編輯區)',
 	'tog-riched_toggle_remember_state' => '記住最後的切換設定',
+    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
 );
 

@@ -268,12 +268,12 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                     var e = this.getContentElement( 'mwLinkTab1', 'linkTarget');
                     e.setValue(href);
                 }
-				//else { //01.03.14 RL->Added as commented because in most cases selected text has nothing to do with name of linked page.
-				//	if ( CKEDITOR.env.ie )                                   
-				//		this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().document.$.selection.createRange().text);                                        
-				//	else
-				//		this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().getNative()); 
-				//}      //01.03.14 RL<-
+				else if ( linkPasteText ) {  //08.09.14 RL-> Preferences->Editing->"Paste selected text as link text into link -dialog"
+                    if ( CKEDITOR.env.ie )                                   
+                        this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().document.$.selection.createRange().text);                                        
+					else
+					    this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().getNative()); 
+                }                            //08.09.14 RL<-
 
                 this._.selectedElement = element;
         	}

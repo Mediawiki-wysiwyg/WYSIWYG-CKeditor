@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 05.09.14  Added one button to convert plain text to simple link (based on Varlin's work "patch-11" but modifed to work with IE, new icon for button of simple link, fixed enable/disable of link buttons): config.js, plugin.js, tb_icon_simplelink.gif. Due to user error earlier, some language files of ckeditor have not been included, files were added now.
+- 06.09.14  Fixed enable/disable of "create link" -button. Added parameter in user editing preferences "Paste selected text as link text into link -dialog", modified link -dialog to allow pasting selected text as name of link (based on Varlin's "patch-10", modified further).
+
+- 05.09.14  Added one button to convert plain text to simple link (based on Varlin's "patch-11", modifed to work with IE, new icon for button of simple link, fixed enable/disable of link buttons): config.js, plugin.js, tb_icon_simplelink.gif. Due to user error earlier, some language files of ckeditor have not been included, files were added now.
 
 - 29.08.14  With search function used in dialogs for adding images, articles or categories: based on Vidarsk suggestion modified SQL queries to use CAST(.AS.) instead of CONVERT(.,.) so that same code will work with MySQL and Postgres databases.
 
@@ -151,7 +153,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 ----------------
 **Compatible MediaWiki environment:**
 
-- MediaWiki: 1.21.2, 1.22.0 - 1.22.6
+- MediaWiki: 1.21.2, 1.22.0 - 1.22.10, 1.23.0-1.23.3
 - SemanticForms: 2.7
 - PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
 
@@ -253,7 +255,7 @@ About browser compatibility
 - IE8
 - IE11
 - FireFox (v26.0 - 32.0)
-- Chrome  (v.32.*, v.37.*)
+- Chrome  (v.32.x, v.37.x)
 
 - Recommended browser: FireFox
     

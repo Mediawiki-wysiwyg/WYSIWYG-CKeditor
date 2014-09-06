@@ -670,17 +670,14 @@ CKEDITOR.plugins.add( 'mediawiki',
   				 * for this in Firefox. So we must detect the state by element paths.
   				 */
   				var cmd_unlink = editor.getCommand( 'unlink' ),
-                    cmd_link = editor.getCommand( 'link' ),                  //05.09.14 RL  
                     cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' ),  //05.09.14 RL
   					element = evt.data.path.lastElement && evt.data.path.lastElement.getAscendant( 'a', true );
   				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() ) {
   					cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable
-                    cmd_link.setState( CKEDITOR.TRISTATE_DISABLED );         //05.09.14 RL
                     cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED ); //05.09.14 RL
                 }    
   				else {
   					cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED );       //Disable 
-                    cmd_link.setState( CKEDITOR.TRISTATE_OFF );              //05.09.14 RL
                     cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //05.09.14 RL  
                 }    
   			} );

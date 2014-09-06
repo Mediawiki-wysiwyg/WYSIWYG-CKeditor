@@ -381,6 +381,12 @@ class CKeditor_MediaWiki {
 			'label-message' => 'tog-riched_toggle_remember_state',
 		);
 
+		$preferences['riched_link_paste_text'] = array(      //08.09.14 RL
+			'type' => 'toggle',
+			'section' => 'editing/fckeditor',
+			'label-message' => 'tog-riched_link_paste_text',
+		);        
+        
         if (defined('SMW_HALO_VERSION')) {
             $preferences['riched_load_semantic_toolbar'] = array(
                 'type' => 'toggle',
@@ -400,7 +406,9 @@ class CKeditor_MediaWiki {
 			$user->setOption( 'riched_use_toggle', $wgDefaultUserOptions['riched_use_toggle'] );
 		if( !array_key_exists( 'riched_toggle_remember_state', $user->mOptions ) && !empty( $wgDefaultUserOptions['riched_toggle_remember_state'] ) )
 			$user->setOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state'] );
-
+		if( !array_key_exists( 'riched_link_paste_text', $user->mOptions ) && !empty( $wgDefaultUserOptions['riched_link_paste_text'] ) ) //08.09.14 RL
+			$user->setOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text'] );                                //08.09.14 RL 
+            
 		// Add the "disable rich editor on namespace X" toggles too
 		foreach( self::$nsToggles as $newToggle ){
 			$preferences[$newToggle] = array(
@@ -583,6 +591,8 @@ var RTE_POPUP = ' . RTE_POPUP . ';
 var wgCKeditorInstance = null;
 var wgCKeditorCurrentMode = "wysiwyg";
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
+var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
+
 CKEDITOR.ready=true;
 ';
 		$script .= '</script>';
