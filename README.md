@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 08.09.14  Updated CKeditor from version 4.4.0 (revision 98daef5) to version 4.4.4 (revision 1ba5105). Added ckeditor plugins: textransform, tableresize, and textselection. NOTES ABOUT PLUGINS! 1. Textransform works ok; 2. Tableresize works too but inserts html code when adjusting width of column; 3. Textselection plugin works with FF and Chrome, it has also been hacked to work only in wysiwyg->wikitext direction because other direction left bookmarks on page; 4. Default properties of table -plugin have been modified to no border - one row - width = 100%. It is not very good idea to hack plugins which are delivered by CKeditor distribution, because hacking makes upgrade of CKeditor difficult!
+
 - 06.09.14  Fixed enable/disable of "create link" -button. Added parameter in user editing preferences "Paste selected text as link text into link -dialog", modified link -dialog to allow pasting selected text as name of link (based on Varlin's "patch-10", modified further).
 
 - 05.09.14  Added one button to convert plain text to simple link (based on Varlin's "patch-11", modifed to work with IE, new icon for button of simple link, fixed enable/disable of link buttons): config.js, plugin.js, tb_icon_simplelink.gif. Due to user error earlier, some language files of ckeditor have not been included, files were added now.

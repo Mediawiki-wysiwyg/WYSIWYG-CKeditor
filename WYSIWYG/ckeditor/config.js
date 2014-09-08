@@ -25,7 +25,7 @@ CKEDITOR.editorConfig = function( config )
     
     // Remove the link plugin because it's replaced with the mediawiki plugin
     //CKEDITOR.config.plugins = CKEDITOR.config.plugins.replace( /(?:^|,)link(?=,|$)/, '' );
-	var extraPlugins = "mediawiki,mwtemplate";
+	var extraPlugins = "mediawiki,mwtemplate,tableresize,textselection,texttransform";   //08.09.14 RL
 
 	config.toolbar = 'Wiki';
     // var origToolbar = CKEDITOR.config.toolbar_Full
@@ -48,7 +48,8 @@ CKEDITOR.editorConfig = function( config )
         ['About'], 
         '/',
         ['Styles','Format','Font','FontSize'],
-        ['Bold','Italic','Underline','Strike'],
+        ['Bold','Italic','Underline','Strike','TransformTextSwitcher'],                                                   //08.09.14 RL
+        //[ 'TransformTextToUppercase', 'TransformTextToLowercase', 'TransformTextCapitalize', 'TransformTextSwitcher' ], //08.09.14 RL
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
         ['NumberedList','BulletedList', '-', 'Outdent','Indent', 'Blockquote'],
         ['TextColor','BGColor'],

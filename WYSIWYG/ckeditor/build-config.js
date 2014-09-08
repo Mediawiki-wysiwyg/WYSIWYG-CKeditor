@@ -13,10 +13,10 @@
  * (1) http://ckeditor.com/builder
  *     Visit online builder to build CKEditor from scratch.
  *
- * (2) http://ckeditor.com/builder/5707e1f659a7bb6182d94ad5f5cab954
+ * (2) http://ckeditor.com/builder/b9f5aa2409edc90a097d19858452f7ba
  *     Visit online builder to build CKEditor, starting with the same setup as before.
  *
- * (3) http://ckeditor.com/builder/download/5707e1f659a7bb6182d94ad5f5cab954
+ * (3) http://ckeditor.com/builder/download/b9f5aa2409edc90a097d19858452f7ba
  *     Straight download link to the latest version of CKEditor (Optimized) with the same setup as before.
  *
  * NOTE:
@@ -28,11 +28,20 @@ var CKBUILDER_CONFIG = {
 	skin: 'kama',
 	preset: 'full',
 	ignore: [
-		'dev',
+		'.bender',
+		'.DS_Store',
 		'.gitignore',
 		'.gitattributes',
+		'.idea',
+		'.mailmap',
+		'bender.js',
+		'bender-err.log',
+		'bender-out.log',
+		'dev',
+		'node_modules',
+		'package.json',
 		'README.md',
-		'.mailmap'
+		'tests'
 	],
 	plugins : {
 		'a11yhelp' : 1,
@@ -90,6 +99,7 @@ var CKBUILDER_CONFIG = {
 		'table' : 1,
 		'tabletools' : 1,
 		'templates' : 1,
+		'texttransform' : 1,
 		'toolbar' : 1,
 		'undo' : 1,
 		'wsc' : 1,
@@ -156,6 +166,7 @@ var CKBUILDER_CONFIG = {
 		'sv' : 1,
 		'th' : 1,
 		'tr' : 1,
+		'tt' : 1,
 		'ug' : 1,
 		'uk' : 1,
 		'vi' : 1,
