@@ -97,7 +97,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 		element.editMode = true;
 
 		//Get values of category and sort key 
-        category = element.getText();
+        category = element.getText().replace(/ /g, '_');  //08.09.14 RL Added replace
         sortkey = element.getAttribute('sort');
 
 		//Default sort key is category name => display only category	
@@ -283,6 +283,9 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 						this.setValueOf( 'mwCategoryTab1','categoryValue', selection.document.$.selection.createRange().text ); 
 					else                   //27.02.14 RL<- 
 						this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() ); 
+                   
+                   //08.09.14 RL Convert " " => "_"
+                   this.setValueOf( 'mwCategoryTab1','categoryValue',this.getValueOf( 'mwCategoryTab1','categoryValue').replace(/ /g, '_')); 
 				}
 				this.getContentElement( 'mwCategoryTab1', 'categoryValue' ).focus();
         	}
