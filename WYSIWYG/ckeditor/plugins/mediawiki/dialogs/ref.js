@@ -87,11 +87,12 @@ CKEDITOR.dialog.add( 'MWRef', function( editor ) {
           selection.selectElement( this.fakeObj );         
          }
          else if ( seltype == CKEDITOR.SELECTION_TEXT )
-         {     
-			if ( CKEDITOR.env.ie )  //27.02.14 RL->                                                                         
-				this.setValueOf( 'info','footnote', selection.document.$.selection.createRange().text ); 
-			else                    //27.02.14 RL<- 
-				this.setValueOf( 'info','footnote', selection.getNative() );              
+         {  
+            this.setValueOf( 'info','footnote', selection.getSelectedText());  //09.09.14 RL           
+			//if ( CKEDITOR.env.ie )  //27.02.14 RL->                                                                         
+			//	this.setValueOf( 'info','footnote', selection.document.$.selection.createRange().text ); 
+			//else                    //27.02.14 RL<- 
+			//	this.setValueOf( 'info','footnote', selection.getNative() );              
          }
          this.getContentElement( 'info', 'footnote' ).focus();
         },

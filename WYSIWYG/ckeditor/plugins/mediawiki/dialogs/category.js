@@ -269,7 +269,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				var ranges = selection.getRanges();
 				var element = selection.getSelectedElement();
 				var seltype = selection.getType();
-		
+	
 				if ( seltype == CKEDITOR.SELECTION_ELEMENT && element.getAttribute( 'class' ) == 'FCK__MWCategory' )
 				{
 					this.fakeObj = element;
@@ -279,14 +279,13 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				}
 				else if ( seltype == CKEDITOR.SELECTION_TEXT )
 				{
-					if ( CKEDITOR.env.ie ) //27.02.14 RL->				
-						this.setValueOf( 'mwCategoryTab1','categoryValue', selection.document.$.selection.createRange().text ); 
-					else                   //27.02.14 RL<- 
-						this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() ); 
-                   
-                   //08.09.14 RL Convert " " => "_"
-                   this.setValueOf( 'mwCategoryTab1','categoryValue',this.getValueOf( 'mwCategoryTab1','categoryValue').replace(/ /g, '_')); 
-				}
+                    //if ( CKEDITOR.env.ie ) //27.02.14 RL->				                                            //09.09.14 RL->   
+                    //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.document.$.selection.createRange().text ); 
+                    //else                   //27.02.14 RL<- 
+                    //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() );
+                    
+                    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getSelectedText().replace(/ /g,'_') ); //09.09.14 RL<-
+                }
 				this.getContentElement( 'mwCategoryTab1', 'categoryValue' ).focus();
         	}
 

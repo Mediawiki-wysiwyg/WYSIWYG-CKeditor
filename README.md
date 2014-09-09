@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 10.09.14  Problems in MW 1.23.3 with IE, FF and Chrome to pass selected text to functions SimpleLink, Category and Ref properly => use function getSelectedText() in order to avoid browser issues (works with IE8-IE11, FF, Chrome). Textselection plugin does not work with MW 1.23.3 and IE 11
+
 - 09.09.14  Fixed version info of CKeditor for page "Special:Version" (CKeditor 4.4.4 revision 1ba5105).
 
 - 08.09.14  Fixed dialog of categories: handling of spaces in category names.

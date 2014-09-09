@@ -310,10 +310,11 @@ CKEDITOR.plugins.add( 'mediawiki',
         { 
             exec : function( editor ) { 
 			    var link; 
-				if ( CKEDITOR.env.ie )                                             //05.09.14 RL->  
-				    link = editor.getSelection().document.$.selection.createRange().text; 
-				else                                                                      
-				    link = editor.getSelection().getNative();  
+				link = editor.getSelection().getSelectedText();                    //09.09.14 RL  
+                //if ( CKEDITOR.env.ie )                                           //05.09.14 RL->  
+				//    link = editor.getSelection().document.$.selection.createRange().text; 
+				//else                                                                      
+				//    link = editor.getSelection().getNative();  
 
                 if ( link && link != '' ) {                                        //05.09.14 RL<-
                     var style = new CKEDITOR.style( {element : 'a', attributes : {href : link}} ); 
