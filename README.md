@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 09.09.14  Fixed version info of CKeditor for page "Special:Version" (CKeditor 4.4.4 revision 1ba5105).
+
 - 08.09.14  Fixed dialog of categories: handling of spaces in category names.
 
 - 08.09.14  Updated CKeditor from version 4.4.0 (revision 98daef5) to version 4.4.4 (revision 1ba5105). Added ckeditor plugins: textransform, tableresize, and textselection. NOTES ABOUT PLUGINS! 1. Textransform works ok; 2. Tableresize works too but inserts html code when adjusting width of column; 3. Textselection plugin works with FF and Chrome, it has also been hacked to work only in wysiwyg->wikitext direction because other direction left bookmarks on page; 4. Default properties of table -plugin have been modified to no border - one row - width = 100%. It is not very good idea to hack plugins which are delivered by CKeditor distribution, because hacking makes upgrade of CKeditor difficult!
