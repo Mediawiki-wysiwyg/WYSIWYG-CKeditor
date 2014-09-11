@@ -37,7 +37,7 @@ History of modifications:
 
 - 11.09.14  Upgraded WikiEditor v0.3.1 (of MW 1.22.0) to v0.4.0 (of MW 1.23.3).
 
-- 11.09.14  In MW 1.22.10 + IE11 textselection plugin in wysiwyg->wikitext direction does not work. Because extension is enabled and wysiwyg->wikitext direction works with FF and Chrome, bookmarks are left in wikitext code with IE, so remove these: <span data-cke-bookmark="1" style="display: none;" id="cke_bm_190c">&nbsp;</span>. In case texselection plugin is fixed to work with MW and IE then this should be removed. MW1.23.3 + IE11 does not have this bookmark problem.
+- 11.09.14  In MW 1.22.10 + IE11 textselection plugin in wysiwyg->wikitext direction does not work. Because extension is enabled and wysiwyg->wikitext direction works with FF and Chrome, bookmarks are left in wikitext code with IE, so remove these: `<span data-cke-bookmark="1" style="display: none;" id="cke_bm_190c">&nbsp;</span>`. In case texselection plugin is fixed to work with MW and IE then this should be removed. MW1.23.3 + IE11 does not have this bookmark problem.
 
 - 10.09.14  Problems in MW 1.23.3 with IE, FF and Chrome to pass selected text to functions SimpleLink, Category and Ref properly => use function getSelectedText() in order to avoid browser issues (works with IE8-IE11, FF, Chrome). Textselection plugin does not work with MW 1.23.3 and IE 11
 
