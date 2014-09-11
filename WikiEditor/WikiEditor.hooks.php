@@ -66,36 +66,6 @@ class WikiEditorHooks {
 
 		/* Labs Features */
 
-		'templateEditor' => array(
-			'preferences' => array(
-				'wikieditor-template-editor' => array(
-					'type' => 'toggle',
-					'label-message' => 'wikieditor-template-editor-preference',
-					'section' => 'editing/labs',
-				),
-			),
-			'requirements' => array(
-				'wikieditor-template-editor' => true,
-			),
-			'modules' => array(
-				'ext.wikiEditor.templateEditor',
-			),
-		),
-		'templates' => array(
-			'preferences' => array(
-				'wikieditor-templates' => array(
-					'type' => 'toggle',
-					'label-message' => 'wikieditor-templates-preference',
-					'section' => 'editing/labs',
-				),
-			),
-			'requirements' => array(
-				'wikieditor-templates' => true,
-			),
-			'modules' => array(
-				'ext.wikiEditor.templates',
-			),
-		),
 		'preview' => array(
 			'preferences' => array(
 				'wikieditor-preview' => array(
@@ -140,23 +110,7 @@ class WikiEditorHooks {
 			'modules' => array(
 				'ext.wikiEditor.publish',
 			),
-		),
-		'toc' => array(
-			'preferences' => array(
-				// Ideally this key would be 'wikieditor-toc'
-			 	'usenavigabletoc' => array(
-					'type' => 'toggle',
-					'label-message' => 'wikieditor-toc-preference',
-					'section' => 'editing/labs',
-				),
-			),
-			'requirements' => array(
-				'usenavigabletoc' => true,
-			),
-			'modules' => array(
-				'ext.wikiEditor.toc',
-			),
-		),
+		)
 	);
 
 	/* Static Methods */

@@ -1,0 +1,30 @@
+{
+    "@metadata": {
+        "authors": [
+            "Nayvik"
+        ]
+    },
+    "wikieditor-preview-tab": "ಮುನ್ನೋಟ",
+    "wikieditor-previewDialog-tab": "ಮುನ್ನೋಟ",
+    "wikieditor-template-editor-dialog-cancel": "ರದ್ದು ಮಾಡು",
+    "wikieditor-toolbar-tool-reference-cancel": "ರದ್ದು ಮಾಡು",
+    "wikieditor-toolbar-tool-heading-1": "ದರ್ಜೆ ೧",
+    "wikieditor-toolbar-tool-heading-2": "ದರ್ಜೆ ೨",
+    "wikieditor-toolbar-tool-heading-3": "ದರ್ಜೆ ೩",
+    "wikieditor-toolbar-tool-heading-4": "ದರ್ಜೆ ೪",
+    "wikieditor-toolbar-tool-heading-5": "ದರ್ಜೆ ೫",
+    "wikieditor-toolbar-group-format": "ಪಟ್ಟಿ",
+    "wikieditor-toolbar-tool-big": "ದೊಡ್ದ",
+    "wikieditor-toolbar-tool-table": "ಪಟ್ಟಿ",
+    "wikieditor-toolbar-tool-table-example": "ಉದಾಹರಣೆ",
+    "wikieditor-toolbar-tool-table-preview": "ಮುನ್ನೋಟ",
+    "wikieditor-toolbar-characters-page-latin": "ಲ್ಯಾಟಿನ",
+    "wikieditor-toolbar-characters-page-greek": "ಗ್ರೀಕ್",
+    "wikieditor-toolbar-characters-page-arabic": "ಅರೇಬಿಕ್",
+    "wikieditor-toolbar-characters-page-hebrew": "ಹೀಬ್ರೂ",
+    "wikieditor-toolbar-characters-page-telugu": "ತೆಲುಗು",
+    "wikieditor-toolbar-characters-page-gujarati": "ಗುಜರಾತಿ",
+    "wikieditor-toolbar-help-page-list": "ಪಟ್ಟಿಗಳು",
+    "wikieditor-toolbar-help-content-heading2-syntax": "== ಶೀರ್ಷಿಕೆ ಪಠ್ಯ ==",
+    "wikieditor-toolbar-help-content-signature-description": "ಸಹಿ"
+}

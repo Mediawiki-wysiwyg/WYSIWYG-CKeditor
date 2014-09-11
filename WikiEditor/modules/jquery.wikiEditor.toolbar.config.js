@@ -44,6 +44,7 @@ getDefaultConfig: function() {
 								'eu': 'format-bold-L.png',
 								'he': 'format-bold-B.png',
 								'hu': 'format-bold-F.png',
+								'hy': 'format-bold-hy.png',
 								'it': 'format-bold-G.png',
 								'ka': 'format-bold-ka.png',
 								'ky': 'format-bold-ru.png',
@@ -99,6 +100,7 @@ getDefaultConfig: function() {
 								'eu': 'format-italic-E.png',
 								'he': 'format-italic-I.png',
 								'hu': 'format-italic-D.png',
+								'hy': 'format-italic-hy.png',
 								'it': 'format-italic-C.png',
 								'ka': 'format-italic-ka.png',
 								'ky': 'format-italic-K.png',
@@ -308,28 +310,6 @@ getDefaultConfig: function() {
 								'options': {
 									'pre': "# ",
 									'periMsg': 'wikieditor-toolbar-tool-olist-example',
-									'post': "",
-									'ownline': true,
-									'splitlines': true
-								}
-							}
-						},
-						'indent': {
-							'labelMsg': 'wikieditor-toolbar-tool-indent',
-							'type': 'button',
-							'icon': {
-								'default': 'format-indent.png',
-								'default-rtl': 'format-indent-rtl.png'
-							},
-							'offset': {
-								'default': [2, -646],
-								'default-rtl': [-70, -430]
-							},
-							'action': {
-								'type': 'encapsulate',
-								'options': {
-									'pre': ":",
-									'periMsg': 'wikieditor-toolbar-tool-indent-example',
 									'post': "",
 									'ownline': true,
 									'splitlines': true

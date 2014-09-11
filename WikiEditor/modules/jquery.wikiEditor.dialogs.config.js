@@ -1298,10 +1298,7 @@ $.wikiEditor.modules.dialogs.config = {
 							} );
 							$textarea.textSelection( 'scrollToCaretPosition' );
 							$( this ).data( 'offset', end );
-							var context = $( this ).data( 'context' );
-							var textbox = typeof context.$iframe !== 'undefined' ?
-									context.$iframe[0].contentWindow : $textarea[0];
-							textbox.focus();
+							$textarea[0].focus();
 						}
 					});
 				},
@@ -1352,8 +1349,7 @@ $.wikiEditor.modules.dialogs.config = {
 						var dialog = $(this).closest( '.ui-dialog' );
 						var that = this;
 						var context = $(this).data( 'context' );
-						var textbox = typeof context.$iframe !== 'undefined' ?
-							context.$iframe[0].contentWindow.document : context.$textarea;
+						var textbox = context.$textarea;
 
 						$( textbox )
 							.bind( 'keypress.srdialog', function ( e ) {
@@ -1370,8 +1366,7 @@ $.wikiEditor.modules.dialogs.config = {
 					},
 					close: function () {
 						var context = $(this).data( 'context' );
-						var textbox = typeof context.$iframe !== 'undefined' ?
-							context.$iframe[0].contentWindow.document : context.$textarea;
+						var textbox = context.$textarea;
 						$( textbox ).unbind( 'keypress.srdialog' );
 						$(this).closest( '.ui-dialog' ).data( 'dialogaction', false );
 					}

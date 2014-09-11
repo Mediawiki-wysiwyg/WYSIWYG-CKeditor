@@ -17,7 +17,7 @@
 	display: none;
 	float: left;
 	width: 100%;
-	border-top: solid 1px #DDDDDD;
+	border-top: 1px solid #DDDDDD;
 	background-color: #E0EEf7;
 }
 .wikiEditor-ui-toolbar {
@@ -54,7 +54,7 @@
 	float: left;
 	height: 26px;
 	padding-right: 6px;
-	border-right: solid 1px #DDDDDD;
+	border-right: 1px solid #DDDDDD;
 	margin: 3px;
 }
 .wikiEditor-ui-toolbar .group-search {
@@ -141,7 +141,7 @@
 	margin: 2px;
 	height: 22px;
 	cursor: pointer;
-	border: solid 1px silver;
+	border: 1px solid silver;
 	padding: 0;
 	margin-right: 0;
 	cursor: pointer;
@@ -166,7 +166,7 @@
 	display: none;
 	margin-left: -1px;
 	margin-top: 22px;
-	border: solid 1px silver;
+	border: 1px solid silver;
 	background-color: #ffffff;
 }
 .wikiEditor-ui-toolbar .group .tool-select .options .option {
@@ -231,13 +231,16 @@
 }
 .wikiEditor-ui-toolbar .page-table td {
 	color: black;
-	border-top: solid 1px #EEEEEE;
+	border-top: 1px solid #EEEEEE;
 }
 .wikiEditor-ui-toolbar .page-table th,
 .wikiEditor-ui-toolbar .page-table td {
 	text-align: left;
 	padding: 5px;
 	margin: 0;
+}
+.wikiEditor-ui-toolbar .section-help .page-table .cell {
+	vertical-align: top;
 }
 .wikiEditor-ui-toolbar .section-help .page-table td.cell-syntax,
 .wikiEditor-ui-toolbar .section-help .page-table td.syntax {
@@ -255,7 +258,7 @@
 }
 /* Characters Pages */
 .wikiEditor-ui-toolbar .page-characters div span {
-	border: solid 1px #DDDDDD;
+	border: 1px solid #DDDDDD;
 	padding: 5px;
 	padding-left: 8px;
 	padding-right: 8px;

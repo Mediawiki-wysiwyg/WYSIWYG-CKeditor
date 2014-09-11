@@ -127,10 +127,10 @@ fn: {
 										.revisions[0].diff['*'];
 									context.$changesTab.find( 'table.diff tbody' )
 										.html( diff );
-									context.$changesTab
-										.find( '.wikiEditor-preview-loading' ).hide();
 									context.modules.preview.changesText = wikitext;
 								} catch ( e ) { } // "blah is undefined" error, ignore
+								context.$changesTab
+									.find( '.wikiEditor-preview-loading' ).hide();
 							}, 'json'
 						);
 					} catch ( e ) { } // "blah is undefined" error, ignore

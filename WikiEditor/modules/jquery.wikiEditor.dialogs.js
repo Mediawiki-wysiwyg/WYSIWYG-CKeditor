@@ -77,7 +77,7 @@ $.wikiEditor.modules.dialogs = {
 		create: function ( context, config ) {
 			var mod, module, filtered, i, $existingDialog;
 
-			// Defer building of modules, but do check whether they need the iframe rightaway
+			// Defer building of modules, unless they require immediate creation
 			for ( mod in config ) {
 				module = config[mod];
 				// Only create the dialog if it's supported, isn't filtered and doesn't exist yet
@@ -99,10 +99,6 @@ $.wikiEditor.modules.dialogs = {
 				$existingDialog = $( '#' + module.id );
 				if ( !filtered && $.wikiEditor.isSupported( module ) && $existingDialog.length === 0 ) {
 					$.wikiEditor.modules.dialogs.modules[mod] = module;
-					// If this dialog requires the iframe, set it up
-					if ( typeof context.$iframe === 'undefined' && $.wikiEditor.isRequired( module, 'iframe' ) ) {
-						context.fn.setupIframe();
-					}
 					context.$textarea.trigger( 'wikiEditor-dialogs-setup-' + mod );
 					// If this dialog requires immediate creation, create it now
 					if ( typeof module.immediateCreate !== 'undefined' && module.immediateCreate ) {
