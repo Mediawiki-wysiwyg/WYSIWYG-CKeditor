@@ -838,6 +838,13 @@ CKEDITOR.customprocessor.prototype =
         // 06.04.14 Varlin: remove <wbr> tags that causes parser to crash
         data = data.replace(/<wbr>/gi, '' );
 
+        // 11.09.14 RL: MW1.23.3 + IE11 does not have this bookmark problem.
+        // In MW1.22.10 + IE11 textselection plugin in wysiwyg->wikitext direction does not work.
+        // Because extension is enabled and it works with FF and Chrome, bookmarks are left in wikitext code with IE,
+        // so remove these: <span data-cke-bookmark="1" style="display: none;" id="cke_bm_190c">&nbsp;</span>
+        // In case texselection plugin is fixed to work with MW and IE then this should be removed.
+        if ( CKEDITOR.env.ie ) data = data.replace(/<span[^>]+data-cke-bookmark.*?\/span>/gi ,'' );
+
 
         var rootNode = this._getNodeFromHtml( data );
 		// rootNode is <body>.
