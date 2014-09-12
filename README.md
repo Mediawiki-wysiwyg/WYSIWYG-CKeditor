@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 12.09.14  Textselection -plugin works in direction wysiwyg->wikitext with FF, Chrome and IE in MW 1.22.x. In MW 1.23.x it works too, but IE does not scroll to selected location automatically, you have to do it manually.
+
 - 11.09.14  Upgraded WikiEditor v0.3.1 (of MW 1.22.0) to v0.4.0 (of MW 1.23.3).
 
 - 11.09.14  In MW 1.22.10 + IE11 textselection plugin in wysiwyg->wikitext direction does not work. Because extension is enabled and wysiwyg->wikitext direction works with FF and Chrome, bookmarks are left in wikitext code with IE, so remove these: `<span data-cke-bookmark="1" style="display: none;" id="cke_bm_190c">&nbsp;</span>`. In case texselection plugin is fixed to work with MW and IE then this should be removed. MW1.23.3 + IE11 does not have this bookmark problem.
@@ -270,4 +272,4 @@ About browser compatibility
 - Chrome  (v.32.x, v.37.x)
 
 - Recommended browser: FireFox
-    
+
