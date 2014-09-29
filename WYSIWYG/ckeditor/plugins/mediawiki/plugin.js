@@ -514,6 +514,10 @@ CKEDITOR.plugins.add( 'mediawiki',
             manyImgFound    : ' Bilder gefunden',
             caption         : 'Beschreibung',
             imgType         : 'Bildtyp',
+            imgTypeThumb    : 'Miniatur',                                                            //29.09.14 RL
+            imgTypeFrame    : 'Rahmen',                                                              //29.09.14 RL 
+            imgTypeFrameless: 'Rahmenlos',                                                           //29.09.14 RL 
+            imgTypeBorder   : 'Linie',                                                               //29.09.14 RL
             alignCenter     : 'Mitte',
             // signature
             signature       : 'Signatur',

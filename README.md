@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 12.09.14  Textselection -plugin works in direction wysiwyg->wikitext with FF, Chrome and IE in MW 1.22.x. In MW 1.23.x it works too, but IE does not scroll to selected location automatically, you have to do it manually.
+- 29.09.14  Fixed missing German translations of image -dialog: imgTypeThumb, imgTypeFrame, imgTypeFrameless, imgTypeBorder.
+
+- 12.09.14  Textselection -plugin works in direction wysiwyg->wikitext with FF, Chrome and IE in MW 1.22.x. In MW 1.23.x it works too, but IE does not scroll to selected location automatically, you have to do it manually. Removed previous IE fix below dated 11.09.14.
 
 - 11.09.14  Upgraded WikiEditor v0.3.1 (of MW 1.22.0) to v0.4.0 (of MW 1.23.3).
 
