@@ -25,7 +25,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 **You can find information about following issues below:**
 - history of modifications (in reverse order)
 - supported languages
-- compatible Mediawiki environment
+- version info of compatible components required with this extension and Mediawiki
 - short installation instructions (MediaWiki, WYSIWYG, WikiEditor, SemanticForms)
 - compatible browsers and browser settings
 
@@ -34,6 +34,10 @@ More information about MediaWiki extension WYSIWYG can be found here:
 ------------
 History of modifications:
 ===
+
+- 08.10.14  Cancelled modification dated 23.08.14 below "Merge pull request #16 from Varlin/patch-8, Fix unwanted caps" (commit: 83b81d5ca2a6493a72f41c709f1dbdfd4bec5bb7 [83b81d5]) because it corrupted definitions of sortkey with existing category defintions on page.
+
+- 07.10.14  WYSIWYG extension is compatible with MW 1.22.0 - 1.22.12 and MW 1.23.0 - 1.23.5. Updated Preferences=>Editing section in this README.MD file.
 
 - 29.09.14  Fixed missing German translations of image -dialog: imgTypeThumb, imgTypeFrame, imgTypeFrameless, imgTypeBorder.
 
@@ -125,7 +129,7 @@ History of modifications:
 
 - 17.01.14  WYSIWYG -editor together with WIkiEditor extension
 
-- 10.01.14 <Ref> dialog: translations; image -dialog: width ja height values from image, resize image in edit mode
+- 10.01.14  <Ref> dialog: translations; image -dialog: width ja height values from image, resize image in edit mode
 
 - 10.01.14  Category -button and dialog
 
@@ -153,7 +157,7 @@ History of modifications:
 3. Some additinal features were developed based on this bundle
 >http://wikirouge.net/nowiki/mediawiki/WYSIWYG
 
-4. Additional features, modifications and fixes where applied on top of bundles abowe.
+4. Additional features, modifications and fixes where applied on top of bundles above.
 
 ========================
 
@@ -169,9 +173,10 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 ----------------
 **Compatible MediaWiki environment:**
 
-- MediaWiki: 1.21.2, 1.22.0 - 1.22.10, 1.23.0-1.23.3
+- MediaWiki: 1.21.2, 1.22.0 - 1.22.12, 1.23.0-1.23.5
 - SemanticForms: 2.7
-- PHP 5.5.6, MySQL 5.6.14, Apache 2.4.7 (XAMPP for Linux 1.8.3-2)
+- PHP 5.5.6,  MySQL 5.6.14, Apache 2.4.7  (=XAMPP for Linux 1.8.3-2)
+- PHP 5.5.15, MySQL 5.6.20, Apache 2.4.10 (=XAMPP for Linux 1.8.3-5)
 
 -----------------
 **File: LocalSettings.php**
@@ -227,13 +232,15 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 --------------
 **WikiEditor:**
 
-You should replace at least one file in WikiEditor extension of MW 1.22 with modified file of this bundle:
+You should replace at least this file in WikiEditor extension of MW with modified file of this bundle:
 - WikiEditor/modules/ext.wikiEditor.toolbar.js
 
 --------------
 **SemanticForms:**
 
-You should replace at least following files in SemanticForms extension of MW 1.22 with modified files of this bundle:
+NOTE! This extension has not been actively updated with wysiwyg extension.
+
+You should replace at least following files in SemanticForms extension of MW with modified files of this bundle:
 - SF_FormUtils.php
 - SF_FormPrinter.php
 - SF_Utils.php
@@ -251,10 +258,11 @@ Make sure that settings in your Preferences=>Editing are valid.
 - Show WikiTextEditor
 - Open rich editor in a popup
 
->These may be selected:
+>These may be selected or deselected as you wish:
 - Use toggle to switch between wikitext and rich editor
 - Remember last toggle state
 - Start with rich editor disabled
+- Paste selected text as link text into link -dialog (tog-riched_link_paste_text)
 
 ====================
 
@@ -270,7 +278,7 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.0 - 32.0)
+- FireFox (v26.x - 32.x)
 - Chrome  (v.32.x, v.37.x)
 
 - Recommended browser: FireFox
