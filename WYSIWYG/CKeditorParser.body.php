@@ -358,9 +358,17 @@ class CKeditorParser extends CKeditorParserWrapper {
 					case 'math':
 						if( $wgUseTeX ){ //normal render
 							$output = $wgContLang->armourMath( MathRenderer::renderMath( $content ) );
-						} else // show fakeimage
-							$output = '<img _fckfakelement="true" class="FCK__MWMath" _fck_mw_math="'.$content.'" src="'.$wgScriptPath.'/skins/common/images/button_math.png" />';
-						break;
+						} else {         //show fakeimage
+                              //17.10.14 RL->Location of "button_math.png" may vary: it can be in math extension or in skins/common/images 
+							if (file_exists(str_replace('//', '/',dirname(__FILE__).'/../../extensions/Math/images/button_math.png'))) { 
+                                $output = '<img _fckfakelement="true" class="FCK__MWMath" _fck_mw_math="'.$content.'" src="'.$wgScriptPath.'/extensions/Math/images/button_math.png" />';
+                            } 
+                            else { 
+                              //17.10.14 RL<- 
+                                $output = '<img _fckfakelement="true" class="FCK__MWMath" _fck_mw_math="'.$content.'" src="'.$wgScriptPath.'/skins/common/images/button_math.png" />';
+                            } //17.10.14 RL
+						}
+                        break;
 					case 'gallery':
 						$output = $this->fck_wikiTag( 'gallery', $content, $params ); // required by FCKeditor
 						//$output = $this->renderImageGallery( $content, $params );

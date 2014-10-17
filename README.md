@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 17.10.14  Image of math equations "button_math.png" may be in different locations, modified to test location of MW in skins/common/images and extensions/Math/images.
+
 - 08.10.14  Cancelled modification dated 23.08.14 below "Merge pull request #16 from Varlin/patch-8, Fix unwanted caps" (commit: 83b81d5ca2a6493a72f41c709f1dbdfd4bec5bb7 [83b81d5]) because it corrupted definitions of sortkey with existing category defintions on page.
 
 - 07.10.14  WYSIWYG extension is compatible with MW 1.22.0 - 1.22.12 and MW 1.23.0 - 1.23.5. Updated Preferences=>Editing section in this README.MD file.
