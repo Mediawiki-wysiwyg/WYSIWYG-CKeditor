@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 20.10.14  Fixed handling of external link in case it has format [//www.xx.yy].
+
 - 17.10.14  Image of math equations "button_math.png" may be in different locations, modified to test location of MW in skins/common/images and extensions/Math/images.
 
 - 08.10.14  Cancelled modification dated 23.08.14 below "Merge pull request #16 from Varlin/patch-8, Fix unwanted caps" (commit: 83b81d5ca2a6493a72f41c709f1dbdfd4bec5bb7 [83b81d5]) because it corrupted definitions of sortkey with existing category defintions on page.

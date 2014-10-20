@@ -1118,8 +1118,8 @@ CKEDITOR.customprocessor.prototype =
 							else if ( htmlNode.className == "extiw" ){
 								stringBuilder.push( '[[' );
 								isWikiUrl = true;
-							} else {
-								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /\{\{[^\}]*\}\}/.test( href ) );
+							} else { //20.10.14 RL Support external link [//www.x.y]
+								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /\{\{[^\}]*\}\}/.test( href ) || href.StartsWith( '//' ) );
 								stringBuilder.push( isWikiUrl ? '[[' : '[' );
 							}
 							// #2223
