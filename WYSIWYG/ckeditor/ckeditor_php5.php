@@ -616,11 +616,13 @@ function CKEditor_IsCompatibleBrowser()
                 $iVersion = $matches[1] ;
                 return ( $matches[1] >= 522 ) ;
         } 
-        //12.02.14 RL->
-        else if ( strpos($sAgent, 'like Gecko') !== false &&  strpos($sAgent, 'Trident/7.0; rv:') !== false  )
+        //12.02.14 RL->   21.10.14 RL: Was earlier "strpos($sAgent, 'Trident/7.0; rv:') !== false  )"
+        else if ( strpos($sAgent, 'like Gecko') !== false && preg_match( '#Trident/7\.0;.* rv:#', $sAgent ) ) //21.10.14 RL (by interjinn)        
         {       
                 /*IE11 in normal mode:  
-                  Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko 
+                    Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko 
+                  IE11 with extra stuff (f.ex MSI software)
+                    Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; MAMI; rv:11.0) like Gecko
                 */     
                 $fVersion = (float)substr($sAgent, strpos($sAgent, 'rv:') + 3, 4) ; 
 

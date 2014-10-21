@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 21.10.14  Modified test of compatible browser string for IE (code provided by interjinn).
+
 - 20.10.14  Fixed handling of external link in case it has format [//www.xx.yy].
 
 - 17.10.14  Image of math equations "button_math.png" may be in different locations, modified to test location of MW in skins/common/images and extensions/Math/images.
