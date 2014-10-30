@@ -1,5 +1,42 @@
 CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 {
+
+        function stripTags(html) {                                                       //30.10.14 RL->
+            return html.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, ''); 
+        } 
+
+        function htmlEncode(html) { //text=>html using browser
+            return document.createElement( 'a' ).appendChild( document.createTextNode( html ) ).parentNode.innerHTML;
+        } 
+
+        function htmlDecode(html) { //html=>text using browser
+            var tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
+        
+        function convToHTML(text2html) { 
+            if (htmlEncode('<\n>') == '&lt;\n&gt;') { 
+                //text to html using browser
+                return htmlEncode(text2html); 
+            }
+            else { //In case browser fails...
+                //text to html using replace
+                return text2html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            }    
+        }; 
+        
+        function convFromHTML(html) {    
+            if ( htmlDecode('&lt;\n&gt;') == '<\n>' ) {
+                //html=>text using browser
+                return (htmlDecode(html));
+            }
+            else { //In case browser fails...   
+                //html=>text using replace
+                return stripTags(html).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'); 
+            }    
+        };                                                                               //30.10.14 RL<-      
+
         return {
             title : editor.lang.mwplugin.specialTagTitle,
             minWidth  : 600,
@@ -34,11 +71,16 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     ],
                     wgCKeditorMagicWords = window.parent.wgCKeditorMagicWords || window.parent.parent.wgCKeditorMagicWords;
 
-                content.Trim();
-				content = content.replace(/\r?\n/g, 'fckLR');			
+				content.Trim();
+				content = content.replace(/\r?\n/g, 'fckLR');
+				content = content.replace(/\<syntaxhighlight/,'<source').replace(/syntaxhighlight\>/,'source>'); //30.10.14 RL
+
                 // check for a tag
 				//17.02.14 RL-> <source lang="xx">....</source>
-                if (el = content.match(/^<source/)) { 					
+				if (el = content.match(/^<source/)) {              //^<(source|syntaxhighlight)/
+
+					content = content.replace(/ /g,'fckSPACE');    //30.10.14 RL fckSPACE
+
 					if (! (el = content.match(/^<(source).*?lang="([\w_-]+)">(.*?)<\/([\w_-]+)>$/))) {
 						alert (editor.lang.mwplugin.invalidContent);
 						return false;					
@@ -52,7 +94,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                         className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
                     }					
                     tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" lang="' + el[2] + '" _fck_mw_tagtype="t">'
-                        + inner + '</span>';
+                          + convToHTML(inner) + '</span>';         //30.10.14 RL Added convToHTML()
                 } //17.02.14 RL<-
                 else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {
                     var inner = el[2] || '_',
@@ -127,8 +169,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 			},
 
        		onShow : function() {
-    			this.fakeObj = false;
-				
+				this.fakeObj = false;
         		var editor = this.getParentEditor(),
             		selection = editor.getSelection(),
                 	element = null;
@@ -150,7 +191,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
     				element = editor.restoreRealElement( this.fakeObj );
         			selection.selectElement( this.fakeObj );
                     var content = '',
-                        inner = element.getHtml().replace(/_$/, '').replace(/fckLR/g, '\r\n');
+                        inner = element.getHtml().replace(/_$/, '').replace(/fckLR/g, '\r\n').replace(/fckSPACE/g,' '); //30.10.14 RL fckSPACE
 						
 					if ( element.getAttribute( 'class' ).InArray(['fck_mw_special',
 					                                              'fck_mw_source'     //17.02.14 RL
@@ -167,7 +208,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 							if (tagLang != '') {                         
 							  content += ' lang="' + tagLang + '"';      
 							}                                              
-							content += '>' + inner + '</' + tagName + '>';
+							content += '>' + convFromHTML(inner) + '</' + tagName + '>';  //30.10.14 RL Added convFromHTML()
                         }                                                             //17.02.14 RL<-
                         else if ( tagType == 't' ) {
                             content += '<' + tagName + '>' + inner + '</' + tagName + '>';

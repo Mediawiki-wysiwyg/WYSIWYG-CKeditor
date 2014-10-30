@@ -243,10 +243,10 @@ class CKeditorParser extends CKeditorParserWrapper {
 	function fck_wikiTag( $tagName, $str, $argv = array() ) {
         	$className = $tagName;
 		if ('calendar' == $tagName) {
-		   $className = 'nowiki';
-	    	}
+			$className = 'nowiki';
+		}
 	    
-	        if( empty( $argv ) ) {
+		if( empty( $argv ) ) {
 			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '">';
 		} else {
 			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '"';
@@ -344,7 +344,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 					case 'ref':
 						$output = $this->fck_wikiTag( 'ref', $content, $params );
 						break;
+					case 'syntaxhighlight':                                          //30.10.14 RL (by Wingsofcourage)
 					case 'source':
+						$content = str_replace( ' ', 'fckSPACE', $content );         //30.10.14 RL
 						$output = $this->fck_wikiTag( 'source', $content, $params );
 						break;
 					case 'html':

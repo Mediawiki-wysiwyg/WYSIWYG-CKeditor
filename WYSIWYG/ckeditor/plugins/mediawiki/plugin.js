@@ -1295,7 +1295,7 @@ CKEDITOR.customprocessor.prototype =
 							}
                             // external image?
                             var src = htmlNode.getAttribute( 'src' );
-                            if (src.toLowerCase().match(/^https?:\/\//)) {
+                            if (src != null && src.toLowerCase().match(/^https?:\/\//)) { //30.10.14 RL Test null (by Wingsofcourage)
                                 stringBuilder.push( src );
                                 return;
                             }
@@ -1364,7 +1364,7 @@ CKEDITOR.customprocessor.prototype =
 									stringBuilder.push( '<source' );
 									stringBuilder.push( ' lang="' + refLang + '"' );
 									stringBuilder.push( '>' );
-									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
+									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //30.10.14 RL fckSPACE
 									stringBuilder.push( '</source>' );
 									return;
 

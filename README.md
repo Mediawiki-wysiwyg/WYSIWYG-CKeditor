@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 30.10.14  Fixed behaviour of source -object with syntaxhighlight extension: convert existing "old" <syntaxhighlight> tag on page (code by Wingsofcourage) or keyed in <syntaxhighlight> tag in dialog special.js to <source> tag; with code samples keep indents created by spaces (fckSPACE); convert html tags to text and vice versa when editing code samples (dialog special.js).
+
 - 21.10.14  Modified test of compatible browser string for IE (code provided by interjinn).
 
 - 20.10.14  Fixed handling of external link in case it has format [//www.xx.yy].
@@ -284,8 +286,8 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.x - 32.x)
-- Chrome  (v.32.x, v.37.x)
+- FireFox (v26.x - 33.x)
+- Chrome  (v.32.x, v.38.x)
 
 - Recommended browser: FireFox
 
