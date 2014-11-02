@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 02.11.14  With syntaxhighlight extension use tag syntaxhighlight by default, source tag is still supported (f.ex xml tag <source> works now). Convert existing "old" source -tag on page or keyed in source -tag in dialog special.js to syntaxhighlight -tag.
+
 - 30.10.14  With dialog special.js modified html-txt-html conversion, because it was too strict for the purpose of dialog.
 
 - 30.10.14  Fixed behaviour of source -object with syntaxhighlight extension: convert existing "old" syntaxhighlight -tag on page (code by Wingsofcourage) or keyed in syntaxhighlight -tag in dialog special.js to source -tag; with code samples keep line indents created by spaces (fckSPACE); convert some of the html tags to text and vice versa when editing code samples (dialog special.js).

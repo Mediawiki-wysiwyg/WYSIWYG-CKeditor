@@ -98,7 +98,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
-			'img.FCK__MWSource' +  //17.02.14 RL
+			'img.FCK__MWSyntaxhighlight' +  //17.02.14 RL, 02.11.14 RL For syntaxhighlight (earlier source)
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_source.gif' ) + ');' +
 				'background-position: center center;' +
@@ -193,8 +193,8 @@ CKEDITOR.plugins.add( 'mediawiki',
                         var eClassName = element.attributes['class'] || '';
                         var className = null;
                         switch ( eClassName ){
-                            case 'fck_mw_source' :
-                                className = 'FCK__MWSource';
+                            case 'fck_mw_syntaxhighlight' :          //02.11.14 RL Was source
+                                className = 'FCK__MWSyntaxhighlight';
                             case 'fck_mw_ref' :
                                 if (className == null)
                                     className = 'FCK__MWRef';
@@ -657,7 +657,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                         'FCK__MWIncludeonly',
                         'FCK__MWNoinclude',
                         'FCK__MWOnlyinclude',
-						'FCK__MWSource'                                 //17.02.14 RL
+						'FCK__MWSyntaxhighlight'                        //17.02.14 RL syntaxhighlight (earlier source)
                      ])
                    ) return {MWSpecialTags: CKEDITOR.TRISTATE_ON};
             });
@@ -727,7 +727,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 								'FCK__MWIncludeonly',
 								'FCK__MWNoinclude',
 								'FCK__MWOnlyinclude',
-								'FCK__MWSource'                                          //17.02.14 RL
+								'FCK__MWSyntaxhighlight'                                 //17.02.14 RL, 02.11.14 RL Earlier source
 							])
 						)
 							evt.data.dialog = 'MWSpecialTags';
@@ -1358,14 +1358,14 @@ CKEDITOR.customprocessor.prototype =
 						case 'span' :
                             var eClassName = htmlNode.getAttribute('class');
 							switch ( eClassName ){
-								case 'fck_mw_source' :
+								case 'fck_mw_syntaxhighlight' :                  //02.11.14 RL Was source
 									var refLang = htmlNode.getAttribute( 'lang' );
 
-									stringBuilder.push( '<source' );
+									stringBuilder.push( '<syntaxhighlight' );    //02.11.14 RL Was source
 									stringBuilder.push( ' lang="' + refLang + '"' );
 									stringBuilder.push( '>' );
 									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //30.10.14 RL fckSPACE
-									stringBuilder.push( '</source>' );
+									stringBuilder.push( '</syntaxhighlight>' );  //02.11.14 RL Was source
 									return;
 
 								case 'fck_mw_ref' :

@@ -204,7 +204,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	function fck_genericTagHook( $str, $argv, $parser ) {
-		if( in_array( $this->fck_mw_taghook, array( 'ref', 'math', 'references', 'source' ) ) ) {
+		if( in_array( $this->fck_mw_taghook, array( 'ref', 'math', 'references', 'syntaxhighlight' ) ) ) {  //02.11.14 RL Was source
 			$class = $this->fck_mw_taghook;
 		} else {
 			$class = 'special';
@@ -296,7 +296,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		$elements = array_merge( array( 'nowiki', 'gallery', 'math' ), array_keys( $this->mTagHooks ) );
 		if ( ( isset( $wgHooks['ParserFirstCallInit']) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgHooks['ParserFirstCallInit'] ) )
 			|| ( isset( $wgExtensionFunctions ) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgExtensionFunctions ) ) ) {
-			$elements = array_merge( $elements, array( 'source' ) );
+			$elements = array_merge( $elements, array( 'syntaxhighlight' ) );  //02.11.14 RL Was source
 		}
 		if ( ( isset( $wgHooks['ParserFirstCallInit'] ) && in_array( 'wfCite', $wgHooks['ParserFirstCallInit'] ) )
 			|| ( isset( $wgExtensionFunctions ) && in_array( 'wfCite', $wgExtensionFunctions ) ) ) {
@@ -344,10 +344,11 @@ class CKeditorParser extends CKeditorParserWrapper {
 					case 'ref':
 						$output = $this->fck_wikiTag( 'ref', $content, $params );
 						break;
-					case 'syntaxhighlight':                                          //30.10.14 RL (by Wingsofcourage)
-					case 'source':
-						$content = str_replace( ' ', 'fckSPACE', $content );         //30.10.14 RL
-						$output = $this->fck_wikiTag( 'source', $content, $params );
+					case 'source':                                                            //02.11.14 RL   
+						//Treat tag source equal to tag syntaxhighlight and continue below.   //30.10.14 Wingsofcourage
+					case 'syntaxhighlight':
+						$content = str_replace( ' ', 'fckSPACE', $content );                  //30.10.14 RL To preserve indents
+						$output = $this->fck_wikiTag( 'syntaxhighlight', $content, $params ); //02.11.14 RL Was source
 						break;
 					case 'html':
 						if( $wgRawHtml ) {

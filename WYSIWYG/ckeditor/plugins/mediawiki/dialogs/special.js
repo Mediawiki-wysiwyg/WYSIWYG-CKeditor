@@ -67,7 +67,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     className = null,
                     textarea = this.getContentElement( 'mwSpecialTagDef', 'tagDefinition'),
                     content = textarea.getValue(),
-                    wgImgWikitags = ['source', 'ref', 'nowiki', 'html',
+                    wgImgWikitags = ['syntaxhighlight', 'ref', 'nowiki', 'html',        //02.11.14 RL Was source
                         'includeonly', 'gallery', 'noinclude', 'onlyinclude'
                     ],
                     wgCKeditorMagicWords = window.parent.wgCKeditorMagicWords || window.parent.parent.wgCKeditorMagicWords;
@@ -75,26 +75,32 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 				content.Trim();
 				content = content.replace(/\r?\n/g, 'fckLR');
 
-                // check for a tag
-				//17.02.14 RL-> <source lang="xx">....</source>
-				if (el = content.match(/^<(source|syntaxhighlight)/)) { //  /^<source/
-					content = content.replace(/\<syntaxhighlight/,'<source').replace(/syntaxhighlight\>/,'source>'); //30.10.14 RL
-					content = content.replace(/ /g,'fckSPACE');    //30.10.14 RL fckSPACE
+                // check for a allowed tags
+				//17.02.14 RL->     
+				if (el = content.match(/^<(source|syntaxhighlight).*?lang=/)) { //02.11.14 RL 
+                    //<source lang="xx">... and <syntaxhighlight lang="xx">...
+					//Replace source -tag with syntaxhighlight -tag 
+					if ( content.match(/^<(source).*?lang="([\w_-]+)">(.*?)<\/(source)>$/) ) { //02.11.14 RL
+						content = content.replace(/^<(source).*?lang="([\w_-]+)">(.*?)<\/(source)>$/, '<syntaxhighlight lang="$2">$3</syntaxhighlight>');
+					}
 
-					if (! (el = content.match(/^<(source).*?lang="([\w_-]+)">(.*?)<\/([\w_-]+)>$/))) {
+					if (! (el = content.match(/^<(syntaxhighlight).*?lang="([\w_-]+)">(.*?)<\/(syntaxhighlight)>$/))) { //30.10.14 RL Was source
 						alert (editor.lang.mwplugin.invalidContent);
 						return false;					
 					}
+
 					var inner = el[3] || '_',
                         spanClass = 'fck_mw_special';
                     className = 'FCK__MWSpecial';
 
+					inner = inner.replace(/ /g,'fckSPACE');                     //02.11.14 RL				
+					
                     if (el[1].InArray(wgImgWikitags)) {
                         spanClass = 'fck_mw_' + el[1];
                         className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
                     }					
-                    tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" lang="' + el[2] + '" _fck_mw_tagtype="t">'
-                          + convToHTML(inner) + '</span>';         //30.10.14 RL Added convToHTML()
+                    tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" lang="' + el[2] + '" _fck_mw_tagtype="t">' 
+                          + convToHTML(inner) + '</span>';                      //30.10.14 RL Added convToHTML()
                 } //17.02.14 RL<-
                 else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {
                     var inner = el[2] || '_',
@@ -183,7 +189,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                             'FCK__MWIncludeonly',
                             'FCK__MWNoinclude',
                             'FCK__MWOnlyinclude',
-							'FCK__MWSource'                                           //17.02.14 RL
+							'FCK__MWSyntaxhighlight'                                           //17.02.14 RL, 02.11.14 RL Was source
                          ])
                     )
                 {
@@ -196,7 +202,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 					inner = convFromHTML(inner);		//30.10.14 RL Added convFromHTML()				
 						
 					if ( element.getAttribute( 'class' ).InArray(['fck_mw_special',
-					                                              'fck_mw_source'     //17.02.14 RL
+					                                              'fck_mw_syntaxhighlight'     //17.02.14 RL, 03.11.24 RL Was source
 																 ])
                        ) 
 					{         
@@ -204,10 +210,9 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 						    tagLang = element.getAttribute( 'lang' ) || '',           //17.02.14 RL
                             tagType = element.getAttribute('_fck_mw_tagtype') || '';
 
-						if ( tagName == 'source' ) {                                  //17.02.14 RL->
+						if ( tagName == 'syntaxhighlight' ) {                         //17.02.14 RL-> //02.11.14 RL Was source
                             content += '<' + tagName;
-							//For tag <source lang="xxxx">:
-							if (tagLang != '') {                         
+							if (tagLang != '') {  //<syntaxhighlight lang="xxxx">                       
 							  content += ' lang="' + tagLang + '"';      
 							}                                              
 							content += '>' + inner + '</' + tagName + '>';  
