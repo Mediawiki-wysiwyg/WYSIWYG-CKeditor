@@ -178,6 +178,12 @@ class CKeditor_MediaWiki {
     // The latter causes IE to hang when more than 31 style sheets are processed this way.
     public static function onBeforePageDisplay( &$out, &$text ) {
         global $wgRequest, $wgScriptPath;
+		
+		//04.11.14 RL: This will be the last place to define compatibility mode of browser.
+		//             Following definition will make it to be the first of all meta's and will 
+		//             produce string: <META content="IE=9.0000" http-equiv="X-UA-Compatible">
+		$wgRequest->response()->header("X-UA-Compatible: IE=9"); //forces IE to render in IE9 compatible mode
+		
         //var_dump($out->styles);
         $action = $wgRequest->getText( 'action' );
         if (! in_array($action, array('edit', 'submit'))) return $out;
@@ -208,9 +214,10 @@ class CKeditor_MediaWiki {
         }
 
         //17.02.14 RL: This will be the last place to define compatibility mode of browser.
-        //             Disadvantage is that definition will be the last of all meta's.
-        //             Active definition is here and not in includes/OutputPage.php. 
-        $out->addMeta( 'http:X-UA-Compatible', 'IE=9' );
+		//             Active definition is not anymore in includes/OutputPage.php. 
+        //             Disadvantage is that definition placed here will be the last of all meta's.
+		//             This will produce string: <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        //$out->addMeta( 'http:X-UA-Compatible', 'IE=9' ); //04.11.14 RL
 
         return $out;
     }

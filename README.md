@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 04.11.14  Modified IE compatibility mode setting "IE=9" to be the first of all metas (like it should be, related to mod. made at 17.02.13).
+
 - 02.11.14  With syntaxhighlight extension use tag syntaxhighlight by default, source tag is still supported (f.ex xml  tag source works now). Convert existing "old" source -tag on page or keyed in source -tag in dialog special.js to syntaxhighlight -tag.
 
 - 30.10.14  With dialog special.js modified html-txt-html conversion, because it was too strict for the purpose of dialog.
