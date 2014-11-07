@@ -1,119 +1,100 @@
-﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
-For licensing, see LICENSE.html or http://ckeditor.com/license
-*/
-
-CKEDITOR.plugins.add( 'panelbutton',
-{
-	requires : [ 'button' ],
-	beforeInit : function( editor )
-	{
-		editor.ui.addHandler( CKEDITOR.UI_PANELBUTTON, CKEDITOR.ui.panelButton.handler );
-	}
-});
-
-/**
- * Button UI element.
- * @constant
- * @example
+﻿/**
+ * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
-CKEDITOR.UI_PANELBUTTON = 'panelbutton';
 
-(function()
-{
-	var clickFn = function( editor )
-	{
-		var _ = this._;
+CKEDITOR.plugins.add( 'panelbutton', {
+	requires: 'button',
+	onLoad: function() {
+		function clickFn( editor ) {
+			var _ = this._;
 
-		if ( _.state == CKEDITOR.TRISTATE_DISABLED )
-			return;
+			if ( _.state == CKEDITOR.TRISTATE_DISABLED )
+				return;
 
-		this.createPanel( editor );
+			this.createPanel( editor );
 
-		if ( _.on )
-		{
-			_.panel.hide();
-			return;
+			if ( _.on ) {
+				_.panel.hide();
+				return;
+			}
+
+			_.panel.showBlock( this._.id, this.document.getById( this._.id ), 4 );
 		}
 
-		_.panel.showBlock( this._.id, this.document.getById( this._.id ), 4 );
-	};
+		/**
+		 * @class
+		 * @extends CKEDITOR.ui.button
+		 * @todo class and methods
+		 */
+		CKEDITOR.ui.panelButton = CKEDITOR.tools.createClass( {
+			base: CKEDITOR.ui.button,
 
+			/**
+			 * Creates a panelButton class instance.
+			 *
+			 * @constructor
+			 */
+			$: function( definition ) {
+				// We don't want the panel definition in this object.
+				var panelDefinition = definition.panel || {};
+				delete definition.panel;
 
-	CKEDITOR.ui.panelButton = CKEDITOR.tools.createClass(
-	{
-		base : CKEDITOR.ui.button,
+				this.base( definition );
 
-		$ : function( definition )
-		{
-			// We don't want the panel definition in this object.
-			var panelDefinition = definition.panel;
-			delete definition.panel;
+				this.document = ( panelDefinition.parent && panelDefinition.parent.getDocument() ) || CKEDITOR.document;
 
-			this.base( definition );
+				panelDefinition.block = {
+					attributes: panelDefinition.attributes
+				};
+				panelDefinition.toolbarRelated = true;
 
-			this.document = ( panelDefinition
-								&& panelDefinition.parent
-								&& panelDefinition.parent.getDocument() )
-							|| CKEDITOR.document;
+				this.hasArrow = true;
 
-			panelDefinition.block =
-			{
-				attributes : panelDefinition.attributes
-			};
+				this.click = clickFn;
 
-			this.hasArrow = true;
+				this._ = {
+					panelDefinition: panelDefinition
+				};
+			},
 
-			this.click = clickFn;
-
-			this._ =
-			{
-				panelDefinition : panelDefinition
-			};
-		},
-
-		statics :
-		{
-			handler :
-			{
-				create : function( definition )
-				{
-					return new CKEDITOR.ui.panelButton( definition );
+			statics: {
+				handler: {
+					create: function( definition ) {
+						return new CKEDITOR.ui.panelButton( definition );
+					}
 				}
-			}
-		},
+			},
 
-		proto :
-		{
-			createPanel : function( editor )
-			{
-				var _ = this._;
+			proto: {
+				createPanel: function( editor ) {
+					var _ = this._;
 
-				if ( _.panel )
-					return;
+					if ( _.panel )
+						return;
 
-				var panelDefinition = this._.panelDefinition || {},
-					panelBlockDefinition = this._.panelDefinition.block,
-					panelParentElement = panelDefinition.parent || CKEDITOR.document.getBody(),
-					panel = this._.panel = new CKEDITOR.ui.floatPanel( editor, panelParentElement, panelDefinition ),
-					block = panel.addBlock( _.id, panelBlockDefinition ),
-					me = this;
+					var panelDefinition = this._.panelDefinition,
+						panelBlockDefinition = this._.panelDefinition.block,
+						panelParentElement = panelDefinition.parent || CKEDITOR.document.getBody(),
+						panel = this._.panel = new CKEDITOR.ui.floatPanel( editor, panelParentElement, panelDefinition ),
+						block = panel.addBlock( _.id, panelBlockDefinition ),
+						me = this;
 
-				panel.onShow = function()
-					{
+					panel.onShow = function() {
 						if ( me.className )
-							this.element.getFirst().addClass( me.className + '_panel' );
+							this.element.addClass( me.className + '_panel' );
 
 						me.setState( CKEDITOR.TRISTATE_ON );
 
 						_.on = 1;
 
+						me.editorFocus && editor.focus();
+
 						if ( me.onOpen )
 							me.onOpen();
 					};
 
-				panel.onHide = function( preventOnClose )
-					{
+					panel.onHide = function( preventOnClose ) {
 						if ( me.className )
 							this.element.getFirst().removeClass( me.className + '_panel' );
 
@@ -125,22 +106,33 @@ CKEDITOR.UI_PANELBUTTON = 'panelbutton';
 							me.onClose();
 					};
 
-				panel.onEscape = function()
-					{
-						panel.hide();
+					panel.onEscape = function() {
+						panel.hide( 1 );
 						me.document.getById( _.id ).focus();
 					};
 
-				if ( this.onBlock )
-					this.onBlock( panel, block );
+					if ( this.onBlock )
+						this.onBlock( panel, block );
 
-				block.onHide = function()
-					{
+					block.onHide = function() {
 						_.on = 0;
 						me.setState( CKEDITOR.TRISTATE_OFF );
 					};
+				}
 			}
-		}
-	});
+		} );
 
-})();
+	},
+	beforeInit: function( editor ) {
+		editor.ui.addHandler( CKEDITOR.UI_PANELBUTTON, CKEDITOR.ui.panelButton.handler );
+	}
+} );
+
+/**
+ * Button UI element.
+ *
+ * @readonly
+ * @property {String} [='panelbutton']
+ * @member CKEDITOR
+ */
+CKEDITOR.UI_PANELBUTTON = 'panelbutton';

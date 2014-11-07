@@ -9,7 +9,10 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 		regexGetSize = /^\s*(\d+)((px)|\%)?\s*$/i,
 		regexGetSizeOrEmpty = /(^\s*(\d+)((px)|\%)?\s*$)|^$/i,
 		pxLengthRegex = /^\d+px$/,
-		SrcInWiki;
+		SrcInWiki,
+        imgLabelField = (window.parent.wgAllowExternalImages || window.parent.wgAllowExternalImagesFrom )
+            ? editor.lang.mwplugin.fileNameExtUrl
+            : editor.lang.mwplugin.fileName;
 
 	var onImgLoadEvent = function()	{
 		// Image is ready.
@@ -202,7 +205,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                         {
                                             id: 'imgFilename',
                                             type: 'text',
-                                            label: editor.lang.mwplugin.fileName,
+                                            label: imgLabelField,
                                             title: 'image file name',
                                             style: 'border: 1px;',
                                             onKeyUp: function () {
@@ -255,7 +258,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                         {
                                             id: 'imgList',
                                             type: 'select',
-                                            size: 5,
+                                            //size: 5,    //07.01.14 RL
+                                            size: 11,     //07.01.14 RL
                                             label: editor.lang.mwplugin.startSearch,
                                             title: 'image list',
                                             required: false,
@@ -344,17 +348,19 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                         type: 'select',
                                         label: editor.lang.mwplugin.imgType,
                                         items: [
-                                            [ ' ' ],
-                                            [ 'Thumbnail' ],
-                                            [ 'Frame' ],
-                                            [ 'Border' ]
+                                            [ editor.lang.common.notSet, ' ' ],                    //07.01.14 RL
+                                            [ editor.lang.mwplugin.imgTypeThumb,    'Thumbnail' ], //07.01.14 RL
+                                            [ editor.lang.mwplugin.imgTypeFrame,    'Frame' ],     //07.01.14 RL
+											[ editor.lang.mwplugin.imgTypeFrameless,'Frameless' ], //07.01.14 RL
+                                            [ editor.lang.mwplugin.imgTypeBorder,   'Border' ]     //07.01.14 RL
                                         ],
                                         setup : function( type, element ) {
                                             var imgType = element.getAttribute( '_fck_mw_type') || '',
                                                 typeName = {
-                                                    thumb : 'Thumbnail',
-                                                    frame : 'Frame',
-                                                    border : 'Border'
+                                                    thumb      : 'Thumbnail', 
+                                                    frame      : 'Frame',     
+													frameless  : 'Frameless',                      //07.01.14 RL
+                                                    border     : 'Border'
                                                 }
                                             if ( type == IMAGE && imgType )
                                                 this.setValue( typeName[imgType] );
@@ -373,7 +379,12 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                                             element.removeClass('fck_mw_border');
                                                             element.addClass('fck_mw_frame');
                                                             break;
-                                                        case 'Border' :
+                                                        case 'Frameless' :                         //07.01.14 RL->
+                                                            element.setAttribute('_fck_mw_type', 'frameless');
+                                                            element.removeClass('fck_mw_border');
+                                                            element.removeClass('fck_mw_frame');
+                                                            break;                                 //07.01.14 RL<-
+														case 'Border' :
                                                             element.setAttribute('_fck_mw_type', 'border');
                                                             element.removeClass('fck_mw_frame');
                                                             element.addClass('fck_mw_border');
@@ -392,26 +403,34 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                     {
                                         id: 'imgAlign',
                                         type: 'select',
-                                        label: editor.lang.image.align,
+                                        //07.01.14 RL  label: editor.lang.image.align,
+                                        label: editor.lang.common.align,        //07.01.14 RL
                                         items: [
+                                            /*07.01.14 RL->****
                                             [ ' ' ],
                                             [ editor.lang.image.alignRight, 'Right' ],
                                             [ editor.lang.image.alignLeft , 'Left' ],
                                             [ editor.lang.mwplugin.alignCenter, 'Center' ]
+                                            ****/
+											[ editor.lang.common.notSet,     ' '      ],          
+                                            [ editor.lang.common.alignRight, 'Right'  ], 
+                                            [ editor.lang.common.alignLeft,  'Left'   ],  
+                                            [ editor.lang.common.alignCenter,'Center' ]  
+                                            /*07.01.14 RL<-*/
                                         ],
                                         setup : function( type, element ) {
-                                            var className = element.getAttribute( 'class') || '',
-                                                align = className.replace(/fck_mw_(right|left|center)/, '$1');
-                                            if ( type == IMAGE && align )
-                                                this.setValue( align.FirstToUpper() );
+											//var className = element.getAttribute( 'class') || '',            //07.01.14 RL  
+                                            //  align = className.replace(/fck_mw_(right|left|center)/, '$1'); //07.01.14 RL
+											var align = element.getAttribute( '_fck_mw_location') || '';       //07.01.14 RL
+											if ( type == IMAGE && align )
+												this.setValue( align.FirstToUpper() );
                                         },
                                         commit : function( type, element ) {
                                             if ( type == IMAGE ) {
                                                 if ( this.getValue() || this.isChanged() ) {
                                                     var newVal = this.getValue().toLowerCase().Trim(),
                                                         classes = [ 'right', 'left', 'center' ];
-
-                                                    if ( newVal ) {
+                                            if ( newVal ) {
                                                         for (var i = 0; i < classes.length; i++ ) {
                                                             if ( newVal == classes[i] )
                                                                 element.addClass('fck_mw_' + classes[i]);
@@ -433,14 +452,23 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                     {
                                         id: 'imgWidth',
                                         type: 'text',
-                                        label: editor.lang.image.width,
+                                        //label: editor.lang.image.width,   //07.01.14 RL
+                                        label: editor.lang.common.width,    //07.01.14 RL
                                         size: '4',
                                         setup : function( type, element ) {
-                                            var imgStyle = element.getAttribute( 'style') || '',
+                                            var imgWidth = element.getAttribute( '_fck_mw_width') || '',          //10.01.14 RL	
+												imgStyle = element.getAttribute( 'style') || '',            
                                                 match = /(?:^|\s)width\s*:\s*(\d+)/i.exec( imgStyle ),
                                                 imgStyleWidth = match && match[1] || 0;
-                                            if ( type == IMAGE && imgStyleWidth )
-                                                this.setValue( imgStyleWidth );
+												imgRealWidth	= ( element.getAttribute( 'width' ) || '' ) + ''; //10.01.14 RL
+												
+											if ( imgStyleWidth.length > 0 )										  //10.01.14 RL->
+												imgWidth = imgStyleWidth;                                        
+											else if ( imgRealWidth.length > 0 )   //26.08.14  Was else if ( imgWidth.length > 0 && imgRealWidth.length > 0 )
+												imgWidth = imgRealWidth;										  //10.01.14 RL<-
+											
+                                            if ( type == IMAGE && imgWidth )    //10.01.14 RL Was imgStyleWidth
+                                                this.setValue( imgWidth );		//10.01.14 RL Was imgStyleWidth		
                                         },
                                         commit : function( type, element, internalCommit ) {
 											var value = this.getValue();
@@ -451,7 +479,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												else if ( !value && this.isChanged( ) )
 													element.removeStyle( 'width' );
                                                 
-												!internalCommit && element.removeAttribute( 'width' );
+												if ( !internalCommit )				// 26.08.14 
+													{ element.removeAttribute( 'width' ); element.removeAttribute( '_fck_mw_width' ); } // 26.08.14 remove also _fck_mw_width
 											}
 											else if ( type == PREVIEW )
 											{
@@ -476,14 +505,23 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                     {
                                         id: 'imgHeight',
                                         type: 'text',
-                                        label: editor.lang.image.height,
+                                        //label: editor.lang.image.height,   //07.01.14 RL
+                                        label: editor.lang.common.height,    //07.01.14 RL
                                         size: '4',
                                         setup : function( type, element ) {
-                                            var imgStyle = element.getAttribute( 'style') || '',
-                                                match = /(?:^|\s)height\s*:\s*(\d+)/i.exec( imgStyle ),
-                                                imgStyleWidth = match && match[1] || 0;
-                                            if ( type == IMAGE && imgStyleWidth )
-                                                this.setValue( imgStyleWidth );
+                                            var imgHeight = element.getAttribute( '_fck_mw_height') || '',			//10.01.14 RL
+												imgStyle = element.getAttribute( 'style') || '',             
+                                                match = /(?:^|\s)height\s*:\s*(\d+)/i.exec( imgStyle ),      
+                                                imgStyleHeight = match && match[1] || 0
+												imgRealHeight	= ( element.getAttribute( 'height' ) || '' ) + '';  //10.01.14 RL                      
+
+											if ( imgStyleHeight.length > 0 )										//10.01.14 RL->
+												imgHeight = imgStyleHeight;
+											else if ( imgRealHeight.length > 0 )   // 26.08.14 Was else if ( imgHeight.length > 0 && imgRealHeight.length > 0 )
+												imgHeight = imgRealHeight;											//10.01.14 RL<-
+								
+                                            if ( type == IMAGE && imgHeight )	//10.01.14 RL Was imgStyleHight
+                                                this.setValue( imgHeight ); 	//10.01.14 RL Was imgStyleHight
                                         },
 										commit : function( type, element, internalCommit )
 										{
@@ -495,8 +533,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												else if ( !value && this.isChanged( ) )
 													element.removeStyle( 'height' );
 
-												if ( !internalCommit && type == IMAGE )
-													element.removeAttribute( 'height' );
+												if ( !internalCommit )				// 26.08.14 
+													{ element.removeAttribute( 'height' ); element.removeAttribute( '_fck_mw_height' ); }  // 26.08.14  remove also _fck_mw_height
 											}
 											else if ( type == PREVIEW )
 											{
@@ -551,7 +589,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                 else {
                     // set some default classes for alignment and border if this is not defined
                     var attrClass = this.imageElement.getAttribute('class');
-                    if ( !( attrClass && attrClass.match(/fck_mw_(frame|border)/) ) )
+                    if ( !( attrClass && attrClass.match(/fck_mw_(frame|frameless|border)/) ) )  //07.01.14 Added frameless
                         this.imageElement.addClass('fck_mw_border');
                     if ( !( attrClass && attrClass.match(/fck_mw_(left|right|center)/) ) )
                         this.imageElement.addClass('fck_mw_right');

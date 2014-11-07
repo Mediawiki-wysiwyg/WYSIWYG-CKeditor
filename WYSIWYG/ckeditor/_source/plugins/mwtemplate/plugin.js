@@ -12,11 +12,9 @@ CKEDITOR.plugins.add( 'mwtemplate',
 {
 	requires : [ 'mediawiki', 'dialog' ],
 
-	init : function( editor )
-	{
-		// Add the CSS styles for special wiki placeholders.
-		editor.addCss(
-			'img.FCK__MWTemplate' +
+    getMWElementCss : function() {  //01.03.14 RL Because of CKeditor 3.x and 4.x differences
+        var str = 			
+            'img.FCK__MWTemplate' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_template.gif' ) + ');' +
 				'background-position: center center;' +
@@ -24,8 +22,19 @@ CKEDITOR.plugins.add( 'mwtemplate',
 				'border: 1px solid #a9a9a9;' +
 				'width: 18px !important;' +
 				'height: 18px !important;' +
-			'}\n'
-		);
+			'}\n';
+        return str;                           
+    },
+
+    onLoad: function () {   //01.03 RL: For CKeditor 4.x
+        if (CKEDITOR.addCss)
+            CKEDITOR.addCss( this.getMWElementCss() );
+    },
+    
+	init : function( editor )
+	{
+        if (editor.addCss)  //01.03 RL: For CKeditor 3.x
+            editor.addCss( this.getMWElementCss() );
 
         editor.addCommand( 'MWTemplate', new CKEDITOR.dialogCommand( 'MWTemplate' ) );
         CKEDITOR.dialog.add( 'MWTemplate', this.path + 'dialogs/template.js' );
@@ -80,6 +89,14 @@ CKEDITOR.plugins.add( 'mwtemplate',
             title      : 'Mediawiki Template Dialog',
             defineTmpl : 'Templateaufruf in Wikitext'
         }
+        MWpluginLang['fi'] = {     //01.03.14 RL
+            title      : 'Mediawikin template -dialogi',
+            defineTmpl : 'Määritä template -kutsu'
+        }
+        MWpluginLang['fr'] = {     
+            title      : 'Modèles Mediawiki',
+            defineTmpl : 'Utiliser un modèle'
+        } 
 
         if (typeof MWpluginLang[editor.langCode] != 'undefined' )
             editor.lang.mwtemplateplugin = MWpluginLang[editor.langCode];

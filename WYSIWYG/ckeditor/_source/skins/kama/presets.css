@@ -1,49 +1,37 @@
 /*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
-For licensing, see LICENSE.html or http://ckeditor.com/license
+Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 
 /* "Source" button label */
-.cke_skin_kama .cke_button_source .cke_label
+.cke_button__source_label,
+.cke_button__sourcedialog_label
 {
 	display: inline;
 }
 
-/* "Styles" panel size */
-.cke_skin_kama .cke_styles_panel
+/* "Font Size" combo width */
+.cke_combo__fontsize .cke_combo_text
 {
-	width: 150px;
-	height: 170px;
-}
-
-/* "Format" panel size */
-.cke_skin_kama .cke_format_panel
-{
-	width: 150px;
-	height: 170px;
-}
-
-/* "Font" panel size */
-.cke_skin_kama .cke_font_panel
-{
-	width: 150px;
-	height: 170px;
+	width: 30px;
 }
 
 /* "Font Size" panel size */
-.cke_skin_kama .cke_fontSize_panel
+.cke_combopanel__fontsize
 {
-	height: 170px;
+	width: 120px;
 }
 
-/* "Font Size" combo width */
-.cke_skin_kama .cke_fontSize .cke_text
+/* Editable regions */
+.cke_source
 {
-	width: 25px;
+	font-family: 'Courier New' , Monospace;
+	font-size: small;
+	background-color: #fff;
+	white-space: pre;
 }
 
-/* "Font Size" combo width (IE Quirks) */
-.cke_skin_kama .cke_browser_iequirks .cke_fontSize .cke_text
+.cke_wysiwyg_frame, .cke_wysiwyg_div
 {
-	width: 32px;
+	background-color: #fff;
 }

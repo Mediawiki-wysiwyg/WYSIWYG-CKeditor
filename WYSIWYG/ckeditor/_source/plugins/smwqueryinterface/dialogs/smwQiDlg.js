@@ -1,8 +1,9 @@
 CKEDITOR.dialog.add( 'SMWqi', function( editor ) {
     var wgScript = window.parent.wgScript;
-    var locationQi =  wgScript + '?action=ajax&rs=smwf_qi_getPage&rsargs[]=CKE';
+    var locationQi =  wgScript + window.parent.smwghQiLoadUrl;
     var querySource;
 	var height = (window.outerHeight == undefined) ? 400 : parseInt(window.outerHeight * 0.6);
+	var language = editor.lang;
     
 	return {
 		title: 'Query Interface',

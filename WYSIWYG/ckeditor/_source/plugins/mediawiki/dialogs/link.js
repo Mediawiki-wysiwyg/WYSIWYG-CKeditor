@@ -9,7 +9,7 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
 
         var StartSearch = function() {
             var	e = dialog.getContentElement( 'mwLinkTab1', 'linkTarget' ),
-                link = e.getValue().Trim();
+                link = e.getValue().Trim(); 
 
             if ( link.length < 1  )
                     return ;
@@ -112,8 +112,9 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             label: editor.lang.mwplugin.defineTarget,
                             title: 'Link target',
                             style: 'border: 1px;',
-                            onKeyUp: OnUrlChange
-                        },
+							onKeyUp: OnUrlChange,
+                            onChange: OnUrlChange  //01.03.14 RL
+                        },						
                         {
                             id: 'searchMsg',
                             type: 'html',
@@ -130,20 +131,46 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             style: 'border: 1px; width:100%;',
                             onChange: WikiPageSelected,
                             items: [  ]
-                        }
+                        },
+                        { //09.05.14 RL
+                            id : 'linkAsMedia',
+                            type : 'checkbox',
+                            label : editor.lang.mwplugin.linkAsMedia,
+                            title : 'Internal link to an image or a file of other types [[Media:<link>]]',
+                            'default' : false
+                        },						
+                        { //01.03.14 RL
+                            id : 'linkAsRedirect',
+                            type : 'checkbox',
+                            label : editor.lang.mwplugin.linkAsRedirect,
+                            title : 'Use only one #REDIRECT to linked page as first element on page.',
+                            'default' : false
+                        }                        
 		            ]
                 }
             ],
 
             onOk : function() {
                 var e = this.getContentElement( 'mwLinkTab1', 'linkTarget'),
-                    link = e.getValue().Trim().replace(/ /g, '_'),
-                    attributes = {href : link, _cke_saved_href : link};
+                    link = e.getValue().Trim().replace(/ /g, '_'); 
 
+				var redir = this.getContentElement( 'mwLinkTab1', 'linkAsRedirect').getValue(); //01.03.14 RL
+                if ( redir == true ) editor.insertHtml( '#REDIRECT ' );                         //01.03.14 RL
+
+				var linkasmedia = this.getContentElement( 'mwLinkTab1', 'linkAsMedia').getValue();               //09.05.14 RL
+				if ( (linkasmedia == true) && !(/^[mM][eE][dD][iI][aA]:/.test( link )) ) link = 'Media:' + link; //09.05.14 RL
+				
+				var attributes = {href : link, _cke_saved_href : link};                           
+
+				//Related to CKeditor Ticket #8493, 8719.patch: IE needs focus sent back to the parent document if a dialog is launched.
+				if ( CKEDITOR.env.ie ) editor.focus(); //05.03.14 RL Needed with IE to merge link text with selected text of page.				
+				
                 if ( !this._.selectedElement ) {
+					
                     // Create element if current selection is collapsed.
                     var selection = editor.getSelection(),
-                        ranges = selection.getRanges( true );
+                        ranges = selection.getRanges( true );  //In CK 4.3.3: ranges = selection.getRanges()[ 0 ];
+						
                     if ( ranges.length == 1 ) {
                         if ( ranges[0].collapsed ) {
                             var text = new CKEDITOR.dom.text( attributes.href, editor.document );
@@ -231,9 +258,23 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
 
                 var href = ( element  && ( element.getAttribute( '_cke_saved_href' ) || element.getAttribute( 'href' ) || element.getAttribute('link') ) ) || '';
                 if (href) {
+					href = href.replace(/%20/g, ' '); //09.05.14 RL
+					href = href.replace(/%3A/g, ':'); //09.05.14 RL-> Related to [[Media:xxx|yyy]] fix
+					if( /^[mM][eE][dD][iI][aA]:/.test( href ) ) { //If '[[Media:xxx|yyy]] is used...
+						href = href.replace(/^[mM][eE][dD][iI][aA]:/g, '');
+						var lt = this.getContentElement( 'mwLinkTab1', 'linkAsMedia');
+						lt.setValue(true);						
+					}                                 //09.05.14 RL<-
                     var e = this.getContentElement( 'mwLinkTab1', 'linkTarget');
                     e.setValue(href);
                 }
+				else if ( linkPasteText ) {  //08.09.14 RL-> Preferences->Editing->"Paste selected text as link text into link -dialog"
+                    if ( CKEDITOR.env.ie )                                   
+                        this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().document.$.selection.createRange().text);                                        
+					else
+					    this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().getNative()); 
+                }                            //08.09.14 RL<-
+
                 this._.selectedElement = element;
         	}
 

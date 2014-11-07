@@ -374,7 +374,7 @@ CKeditInterface.prototype = {
     * @param  string nodeValue content text of
     */
    MatchSelectedNodeInDomtree: function (parent, nodeName, nodeValue) {
-        for(var i = 0; i < parent.childNodes.length; i++) {
+        for(var i = 0; parent.childNodes && i < parent.childNodes.length; i++) {
             if (parent.childNodes[i].nodeType == 1 &&
                 parent.childNodes[i].nodeName.toUpperCase() == nodeName &&
                 parent.childNodes[i].innerHTML.replace(/^\s*/, '').replace(/\s*$/, '') == nodeValue) {
@@ -796,6 +796,17 @@ ShowRelToolbar = function(event, name, value, show) {
         ckePopupContextMenu.showMenu();
 }
 
+ShowRelToolbarByOffset = function(element, propertyName, propertyValue, displayedText){
+	var pos = CalculateElementPosition(element);
+    var wtp = new window.parent.WikiTextParser();
+    ckePopupContextMenu = new window.parent.ContextMenuFramework();
+    ckePopupContextMenu.setPosition(pos[0], pos[1]);
+    var toolBar = new window.parent.RelationToolBar();
+    toolBar.setWikiTextParser(wtp);
+    toolBar.createContextMenu(ckePopupContextMenu, propertyValue, displayedText, propertyName);
+    ckePopupContextMenu.showMenu();
+}
+
 /**
  * Create a new context menu for annotating a category.
  * Only the category container will be shown.
@@ -814,6 +825,20 @@ ShowCatToolbar = function(event, name) {
         toolBar.createContextMenu(ckePopupContextMenu, name);
         ckePopupContextMenu.showMenu();
 }
+
+ShowCatToolbarByOffset = function(element, name) {
+		var pos = CalculateElementPosition(element);
+	    var wtp = new window.parent.WikiTextParser();
+	    ckePopupContextMenu = new window.parent.ContextMenuFramework();
+	    ckePopupContextMenu.setPosition(pos[0], pos[1]);
+	    var toolBar = new window.parent.CategoryToolBar();
+	    toolBar.setWikiTextParser(wtp);
+	    toolBar.createContextMenu(ckePopupContextMenu, name);
+	    ckePopupContextMenu.showMenu();
+}
+
+
+
 
 /**
  * Calculate correct x and y coordinates of event in browser window
@@ -848,6 +873,40 @@ CalculateClickPosition = function(event) {
     return pos;
 }
 
+
+CalculateElementPosition = function(element) {
+    var offset = GetOffsetFromOuterHtml();
+    var pos = [0, 0];
+    
+    if(element.$){
+	    pos[0] = offset[0] + element.$.offsetTop;
+	    pos[1] = offset[1] + element.$.offsetLeft;
+    }
+    else if(jQuery(element).offset()){
+    	pos[0] = offset[0] + jQuery(element).offset().top;
+	    pos[1] = offset[1] + jQuery(element).offset().left;
+    }
+
+    var sx;
+    var sy;
+    if (CKEDITOR.env.ie) {
+        sx = (window.parent.document.documentElement.scrollLeft)
+            ? window.parent.document.documentElement.scrollLeft
+            : window.parent.document.body.scrollLeft;
+        sy = (window.parent.document.documentElement.scrollTop)
+            ? window.parent.document.documentElement.scrollTop
+            : window.parent.document.body.scrollTop;
+    }
+    else {
+        sx = window.parent.pageXOffset;
+        sy = window.parent.pageYOffset;
+    }
+    if (sx > 0 && sx < pos[0]) pos[0] -= sx;
+    if (sy > 0 && sy < pos[1]) pos[1] -= sy;
+
+    return pos;
+}
+
 /**
  * get offset from elements around the iframe
  *
@@ -856,7 +915,7 @@ CalculateClickPosition = function(event) {
  */
 GetOffsetFromOuterHtml = function() {
     var id = (window.parent.wgAction == "formedit") // Semantic Forms?
-        ? 'free_text'
+        ? 'cke_free_text'
         : 'editform';
     var el = window.parent.document.getElementById(id);
     var offset = [];
@@ -980,8 +1039,11 @@ CKEDITOR.plugins.smwtoolbar = {
         if (window.parent.smwhgGardeningHints)
             window.parent.smwhgGardeningHints.createContainer();
         window.parent.smw_links_callme();
+        // enable draging
+        window.parent.smwhg_dragresizetoolbar.draggable=null;
+        window.parent.smwhg_dragresizetoolbar.callme();
         this.SetEventHandler4AnnotationBox( editor );
-        editor.getCommand('SMWtoolbar').setState(CKEDITOR.TRISTATE_ON)
+        editor.getCommand('SMWtoolbar').setState(CKEDITOR.TRISTATE_ON);
     },
     DisableAnnotationToolbar: function( editor ) {
         this.stbIsActive = false;
@@ -1089,24 +1151,145 @@ CKEDITOR.plugins.add('smwtoolbar', {
 
 	init : function( editor )
 	{
+		
+		if (editor.contextMenu)
+		{
+			var editPropertyCommmand =
+			{
+					preserveState : false,
+					editorFocus : true,
+					canUndo : true,
+			        modes : { wysiwyg : 1, source : 1 },
+
+					exec: function( editor )
+					{
+						var propertyAttr = editPropertyCommmand.element.getAttribute('property');
+						var classAttr = editPropertyCommmand.element.getAttribute('class');
+						var jQueryLocator = '.' + classAttr + '[property=' + propertyAttr + ']'; 
+						jQuery('iframe').contents().find(jQueryLocator).trigger('dblclick');
+					}
+			};
+			
+			var editCategoryCommmand =
+			{
+					preserveState : false,
+					editorFocus : true,
+					canUndo : true,
+			        modes : { wysiwyg : 1, source : 1 },
+
+					exec: function( editor )
+					{
+						var sortAttr = editCategoryCommmand.element.getAttribute('sort');
+						var classAttr = editCategoryCommmand.element.getAttribute('class');
+						var jQueryLocator = '.' + classAttr + '[sort=' + sortAttr + ']'; 
+						jQuery('iframe').contents().find(jQueryLocator).trigger('dblclick');
+					}
+			};
+			var removePropertyCommmand =
+			{
+					preserveState : false,
+					editorFocus : true,
+					canUndo : true,
+			        modes : { wysiwyg : 1, source : 1 },
+
+					exec: function( editor )
+					{
+						var propertyAttr = editPropertyCommmand.element.getAttribute('property');
+						var displayedText = editPropertyCommmand.element.getText();
+						var classAttr = editPropertyCommmand.element.getAttribute('class');
+						
+//						removePropertyCommmand.element.getParent().replaceChild(document.createTextNode(displayedText), editPropertyCommmand.element)
+						var jQueryLocator = 'span:contains(\'' + displayedText + '\')[class=\'' + classAttr + '\'][property=\'' + propertyAttr + '\']'; 
+						jQuery('iframe').contents().find(jQueryLocator).filter(function(){
+							return jQuery(this).text() == displayedText;
+						}).replaceWith(displayedText);
+					}
+			};
+			
+			var removeCategoryCommmand =
+			{
+					preserveState : false,
+					editorFocus : true,
+					canUndo : true,
+			        modes : { wysiwyg : 1, source : 1 },
+
+					exec: function( editor )
+					{
+						var sortAttr = editCategoryCommmand.element.getAttribute('sort');
+						var classAttr = editCategoryCommmand.element.getAttribute('class');
+						var jQueryLocator = '.' + classAttr + '[sort=' + sortAttr + ']'; 
+						jQuery('iframe').contents().find(jQueryLocator).remove();
+					}
+			};
+			editor.addCommand( 'editProperty', editPropertyCommmand);
+			editor.addCommand( 'editCategory', editCategoryCommmand);
+			editor.addCommand( 'removeProperty', removePropertyCommmand);
+			editor.addCommand( 'removeCategory', removeCategoryCommmand);
+			editor.addMenuGroup( 'mediawiki' );
+			editor.addMenuItem( 'editPropertyItem',
+					{
+						label : 'Edit Property',
+						command : 'editProperty',
+						group : 'mediawiki'
+					});
+			
+			editor.addMenuItem( 'editCategoryItem',
+					{
+						label : 'Edit Category',
+						command : 'editCategory',
+						group : 'mediawiki'
+					});
+			editor.addMenuItem( 'removePropertyItem',
+					{
+						label : 'Remove Property',
+						command : 'removeProperty',
+						group : 'mediawiki'
+					});
+			
+			editor.addMenuItem( 'removeCategoryItem',
+					{
+						label : 'Remove Category',
+						command : 'removeCategory',
+						group : 'mediawiki'
+					});
+			
+			editor.contextMenu.addListener( function( element )
+			{
+				if (element.getAttribute('class') === 'fck_mw_category'){
+					editCategoryCommmand.categoryName = element.getAttribute('sort');
+					editCategoryCommmand.element = element;
+					removeCategoryCommmand.element = element;
+		 			return { removeCategoryItem: CKEDITOR.TRISTATE_ON,
+		 				/*editCategoryItem  : CKEDITOR.TRISTATE_ON*/};
+				}
+				else if (element.getAttribute('class') === 'fck_mw_property'){
+					editPropertyCommmand.element = element;
+					removePropertyCommmand.element = element;
+		 			return { removePropertyItem: CKEDITOR.TRISTATE_ON,
+		 				/*editPropertyItem  : CKEDITOR.TRISTATE_ON*/};
+				}
+				return null;
+			});
+
+		}
+		
 		editor.addCommand( 'SMWtoolbar', commandDefinition);
         if ( editor.ui.addButton ) {
             editor.ui.addButton( 'SMWtoolbar',
                 {
                     label : 'Semantic Toolbar',
                     command : 'SMWtoolbar',
-                    icon: this.path + 'images/tb_icon_semtoolbar.png',
-                    title: 'Semantic Toolbar',
+                    icon: this.path + 'images/tb_icon_semtoolbar.gif',
+                    title: 'Semantic Toolbar'
                 });
-            editor.getCommand('SMWtoolbar').setState(CKEDITOR.TRISTATE_OFF)
+            editor.getCommand('SMWtoolbar').setState(CKEDITOR.TRISTATE_OFF);
         }
         
-
         // disable toolbar when switching mode
 		editor.on( 'beforeCommandExec', function( ev ) {
 			if ( !plugin.stbIsActive )
 				return;
-			
+				
 			if ( ( ev.data.name == 'source' || ev.data.name == 'newpage' ) && editor.mode == 'wysiwyg' ) {
 				plugin.DisableAnnotationToolbar( editor );
             }
@@ -1127,13 +1310,30 @@ CKEDITOR.plugins.add('smwtoolbar', {
                 window.parent.gEditInterface = gEditInterface;
                 plugin.SetEventHandler4AnnotationBox(editor);
             }
+//            jQuery('iframe').contents().find('.fck_mw_property').dblclick(function(dblClickEvent) {
+//            	var element = jQuery(this);
+//    			var property = element.attr('property').split('::');
+//    			var displayedText = element.text();
+//    			var propertyName = property[0];
+//    			var propertyValue = property[1];
+//    			ShowRelToolbarByOffset(element, propertyName, propertyValue, displayedText);
+//    			dblClickEvent.preventDefault();
+//    		});
+//            
+//            jQuery('iframe').contents().find('.fck_mw_category').dblclick(function(dblClickEvent) {
+//            	var element = jQuery(this);
+//    			var categoryName = element.attr('sort');
+//    			ShowCatToolbarByOffset(element, categoryName);
+//    			dblClickEvent.preventDefault();
+//    		});
+            
         });
         editor.on("resize", function(event) {
             if (plugin.stbIsActive) {
-                //var ontomenu = window.parent.document.getElementById('ontomenuanchor');
+                var ontomenu = window.parent.document.getElementById('ontomenuanchor');
                 // I have no clue how to know in which mode we are, so just set the z-index to some
                 // value that works in both modes
-                //ontomenu.style.zIndex = editor.config.baseFloatZIndex + 10;
+                ontomenu.style.zIndex = editor.config.baseFloatZIndex + 10;
             }
         })
 
@@ -1155,7 +1355,7 @@ CKEDITOR.plugins.add( 'smwtoolbar',
 				label : 'Semantic Toolbar',
                 title : 'Semantic Toolbar',
 				command : 'SMWtoolbar',
-                icon: this.path + 'images/tb_icon_semtoolbar.png'
+                icon: this.path + 'images/tb_icon_semtoolbar.gif'
 			});
 
 		CKEDITOR.dialog.add( 'SMWtoolbar', this.path + 'dialogs/teaser.js' );

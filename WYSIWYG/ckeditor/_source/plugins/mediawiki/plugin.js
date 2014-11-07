@@ -10,12 +10,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 CKEDITOR.plugins.add( 'mediawiki',
 {
+
 	requires : [ 'fakeobjects', 'htmlwriter', 'dialog' ],
 
-	init : function( editor )
-	{
-        // add the CSS for general styles of Mediawiki elements
-        editor.addCss(
+    getMWElementCss : function() {  //01.03.14 RL Because of CKeditor 3.x and 4.x differences
+       var str =
+            // add the CSS for general styles of Mediawiki elements
             'img.fck_mw_frame' +
             '{' +
                 'background-color: #F9F9F9;' +
@@ -49,10 +49,9 @@ CKEDITOR.plugins.add( 'mediawiki',
             'img.fck_mw_border' +
             '{' +
                 'border: 1px solid #dddddd;' +
-            '}\n'
-        );
-		// Add the CSS styles for special wiki placeholders.
-		editor.addCss(
+            '}\n' +
+
+            // Add the CSS styles for special wiki placeholders.
 			'img.FCK__MWRef' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_ref.gif' ) + ');' +
@@ -99,6 +98,15 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
+			'img.FCK__MWSyntaxhighlight' +  //17.02.14 RL, 02.11.14 RL For syntaxhighlight (earlier source)
+			'{' +
+				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_source.gif' ) + ');' +
+				'background-position: center center;' +
+				'background-repeat: no-repeat;' +
+				'border: 1px solid #a9a9a9;' +
+				'width: 66px !important;' +
+				'height: 15px !important;' +
+			'}\n' +
 			'img.FCK__MWNowiki' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_nowiki.gif' ) + ');' +
@@ -135,6 +143,15 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
+			'img.FCK__MWCategory' +     //07.01.14 RL Added this is for new CKEeditor element
+			'{' +
+				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
+				'background-position: center center;' +
+				'background-repeat: no-repeat;' +
+				'border: 1px solid #a9a9a9;' +
+				'width: 18px !important;' +
+				'height: 15px !important;' +
+			'}\n' +
 			'span.fck_mw_property' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_property.gif' ) + ');' +
@@ -144,7 +161,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
-			'span.fck_mw_category' +
+			'span.fck_mw_category' +    //07.01.14 RL This is for original element of html page
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
 				'background-position: 0 center;' +
@@ -152,8 +169,21 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'background-color: #94b0f3;' +
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
-			'}\n'
-		);
+			'}\n';
+
+        return str;
+    },
+
+    onLoad: function () {   //01.03 RL: For CKeditor 4.x
+        if (CKEDITOR.addCss)
+            CKEDITOR.addCss( this.getMWElementCss() );
+    },
+
+	init : function( editor )
+	{
+        if (editor.addCss)  //01.03 RL: For CKeditor 3.x
+            editor.addCss( this.getMWElementCss() );
+
 		var wikiFilterRules =
 			{
 				elements :
@@ -163,14 +193,17 @@ CKEDITOR.plugins.add( 'mediawiki',
                         var eClassName = element.attributes['class'] || '';
                         var className = null;
                         switch ( eClassName ){
-                            case 'fck_mw_source' :
-                                className = 'FCK__MWSource';
+                            case 'fck_mw_syntaxhighlight' :          //02.11.14 RL Was source
+                                className = 'FCK__MWSyntaxhighlight';
                             case 'fck_mw_ref' :
                                 if (className == null)
                                     className = 'FCK__MWRef';
                             case 'fck_mw_references' :
                                 if ( className == null )
                                     className = 'FCK__MWReferences';
+                            case 'fck_mw_category' :                 //07.01.14 RL
+                               if ( className == null )              //07.01.14 RL
+                                    className = 'FCK__MWCategory';   //07.01.14 RL
                             case 'fck_mw_template' :
                                 if ( className == null ) //YC
                                     className = 'FCK__MWTemplate'; //YC
@@ -221,6 +254,47 @@ CKEDITOR.plugins.add( 'mediawiki',
         var dataProcessor = editor.dataProcessor = new CKEDITOR.customprocessor( editor );
         dataProcessor.dataFilter.addRules( wikiFilterRules );
 
+		//28.03.14 RL->
+		var unlinkCommand =
+    	{	//To override unlink function of CKeditor, taken from
+			//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
+        	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
+            exec : function( editor ) {
+					var selection = editor.getSelection(),
+						bookmarks = selection.createBookmarks(),
+						ranges = selection.getRanges(),
+						rangeRoot,
+						element;
+
+					for ( var i = 0 ; i < ranges.length ; i++ )
+					{
+						rangeRoot = ranges[i].getCommonAncestor( true );
+						element = rangeRoot.getAscendant( 'a', true );
+						if ( !element )
+							continue;
+						ranges[i].selectNodeContents( element );
+					}
+
+					selection.selectRanges( ranges );
+					editor.document.$.execCommand( 'unlink', false, null );
+					selection.selectBookmarks( bookmarks );
+            }
+        };
+        //28.03.14 RL<-
+
+        //03.01.14 RL->For references (citation)
+		var referencesCommand =
+    	{
+        	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
+            exec : function( editor ) {
+                var ref = '<span class="fck_mw_references">_</span>',
+                    element = CKEDITOR.dom.element.createFromHtml(ref, editor.document),
+                    newFakeObj = editor.createFakeElement( element, 'FCK__MWReferences', 'span' );
+                editor.insertElement( newFakeObj );
+            }
+        };
+        //03.01.14 RL<-
+
         var signatureCommand =
     	{
         	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
@@ -232,6 +306,24 @@ CKEDITOR.plugins.add( 'mediawiki',
             }
         };
 
+        var simplelinkCommand =                                                    //27.08.14 Varlin 
+        { 
+            exec : function( editor ) { 
+			    var link; 
+				link = editor.getSelection().getSelectedText();                    //09.09.14 RL  
+                //if ( CKEDITOR.env.ie )                                           //05.09.14 RL->  
+				//    link = editor.getSelection().document.$.selection.createRange().text; 
+				//else                                                                      
+				//    link = editor.getSelection().getNative();  
+
+                if ( link && link != '' ) {                                        //05.09.14 RL<-
+                    var style = new CKEDITOR.style( {element : 'a', attributes : {href : link}} ); 
+                        style.type = CKEDITOR.STYLE_INLINE;		// need to override... dunno why. 
+                        style.apply( editor.document ); 
+				}		
+            } 
+        }; 
+		
         // language logic for additional messages
         var MWpluginLang = []
         MWpluginLang['en'] = {
@@ -244,12 +336,17 @@ CKEDITOR.plugins.add( 'mediawiki',
             // image
             imgTitle        : 'Mediawiki Image',
             fileName        : 'Image file name',
+            fileNameExtUrl  : 'Image file name or URL',
             searchLabel     : 'Automatic search results (%s)',
             noImgFound      : 'no images found',
             oneImgFound     : 'one image found',
             manyImgFound    : ' images found',
             caption         : 'Caption',
             imgType         : 'Special type',
+			imgTypeThumb    : 'Thumbnail',                                  //07.01.14 RL
+			imgTypeFrame    : 'Frame',                                      //07.01.14 RL
+			imgTypeFrameless: 'Frameless',                                  //07.01.14 RL
+			imgTypeBorder   : 'Border',                                     //07.01.14 RL
             alignCenter     : 'Center',
             // signature
             signature       : 'Signature',
@@ -259,14 +356,146 @@ CKEDITOR.plugins.add( 'mediawiki',
             specialTagDef   : 'Define any special tag, magic word or parser function:',
             // link
             linkTitle       : 'Mediawiki Link',
+			simplelink	    : 'Convert text to link',                             //05.09.14 RL 
             noPageFound     : 'no article found',
             onePageFound    : 'one article found',
             manyPageFound   : ' articles found',
             emailLink       : 'e-mail link... no search for it',
             anchorLink      : 'anchor link... no search for it',
-            defineTarget    : 'Define the wiki page for the link target:',
-            chooseTarget    : 'Choose an existing wikipage for the link target:'
-        }
+            linkAsRedirect  : 'Redirect to target page (#REDIRECT)',              //01.03.14 RL
+			linkAsMedia     : 'Internal link to an image or a file of other types, [[Media:<link>]]', //09.05.14 RL
+            defineTarget    : 'Define the wiki page for the link target:',        
+            chooseTarget    : 'Choose an existing wikipage for the link target:',
+			// references (citation)
+			referenceTitle 	    : 'Add/edit reference (citation)',                //03.01.14 RL
+			refDefTxt  		    : 'Reference text',                               //03.01.14 RL
+			refDefName          : 'Name of reference (if same text is referenced at multible places on page, if not, leave empty):',
+			ref				    : 'Add a reference',                              //03.01.14 RL
+			references		    : 'Add references block',                         //03.01.14 RL
+            // category
+			categorybtn         : 'Add/edit category',
+			categoryTitle       : 'Add/edit category and sort key',               //07.01.14 RL
+			category            : 'Category: (empty field=>list all categories)', //07.01.14 RL
+			categorySort        : 'Sortkey within category',                      //07.01.14 RL
+			noCategoryFound     : 'Not found, category is new',                   //09.01.14 RL
+            oneCategoryFound    : 'One category found',						      //09.01.14 RL
+            manyCategoryFound   : ' categories found',						      //09.01.14 RL
+            selfromCategoryList : 'Select from list of categories:'			      //09.01.14 RL
+		}
+
+        MWpluginLang['fi'] = {  //07.01.14 RL->
+            invalidContent  : 'virheellinen sisältö',                         //'invalid content',
+            searching       : 'haetaan...',                                   //'searching...',
+            externalLink    : 'ulkoinen linkki... ei haeta',                  //external link... no search for it',
+            startTyping     : 'kirjoita yo. kenttään',                        //'start typing in the above field',
+            stopTyping      : 'lopeta kirjoitus etsinnän käynnistämiseksi',   //'stop typing to search',
+            tooManyResults  : 'liikaa hakutuloksia...',                       //'too many results...',
+            // image
+            imgTitle        : 'Mediawikin kuva',                              //'Mediawiki Image',
+            fileName        : 'Tiedoston nimi mediawikissä',                  //'Image file name',
+            fileNameExtUrl  : 'Kuvatiedoston nimi tai URL',                   //'Image file name or URL',
+            searchLabel     : 'Löytyneet kuvat (%s)',                         //'Automatic search results (%s)',
+            noImgFound      : 'ei kuvia',                                     //'no images found',
+            oneImgFound     : 'yksi kuva',                                    //'one image found',
+            manyImgFound    : ' kpl',                                         //' images found',
+            caption         : 'Otsikko',                                      //'Caption',
+            imgType         : 'Tyyppi',                                       //Special type',
+			imgTypeThumb    : 'Pikkukuva (thumbnail)',                        //'Thumbnail',
+			imgTypeFrame    : 'Kehys (frame)',                                //'Frame',
+			imgTypeFrameless: 'Ei kehystä (frameless)',                       //'Frameless',
+			imgTypeBorder   : 'Rajat (border)',                               //Border',
+            alignCenter     : 'Oikealle',                                     //'Center',
+            // signature
+            signature       : 'Allekirjoitus',                                //'Signature',
+            // special tags
+            specialTags     : 'Tag',                                          //'Special Tags',
+            specialTagTitle : 'Tag -dialogi',                                 //'Special Tags Dialogue',
+            specialTagDef   : 'Määritä tag, magic word tai parser funktio',   //'Define any special tag, magic word or parser function:',
+            // link
+            linkTitle       : 'Mediawikin linkki',                            //'Mediawiki Link',
+			simplelink	    : 'Teksti linkiksi',                              //'Simple link',                      //09.05.14 RL
+            noPageFound     : 'sivuja ei löytynyt',                           //'no article found',
+            onePageFound    : 'yksi sivu löytyi',                             //'one article found',
+            manyPageFound   : ' kpl',                                         //' articles found',
+            emailLink       : 'sposti linkki... ei etsintää',                 //'e-mail link... no search for it',
+            anchorLink      : 'ankkuri linkki... ei etsintää',                //'anchor link... no search for it',
+            linkAsRedirect  : 'Pakko-ohjaus kohdesivulle (#REDIRECT)',        //'Redirect to target page',          //01.03.14 RL
+			linkAsMedia     : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',            //09.05.14 RL
+            defineTarget    : 'Määritä wikin sivu linkin kohteeksi',          //'Define the wiki page for the link target:',
+            chooseTarget    : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
+			// references (citation)
+			referenceTitle 	: 'Lisää viite / muuta viitettä',                 //'Add/edit reference (citation)',
+			refDefTxt  		: 'Viitteen teksti',                              //'Reference text',
+			refDefName      : 'Viitteen nimi (anna nimi vain jos samaan viitetekstiin viitataan useasta paikasta):', //'Name of reference'
+			ref				: 'Viite',                                        //'Add a reference' for button of menu
+			references		: 'Lista viitteistä',                             //'Add references block' for button of menu
+            // category
+			categorybtn    	    : 'Lisää/muuta luokkaa',                         //'Add/edit categories'
+			categoryTitle       : 'Sivun luokka',                                //'Add/edit categories'
+			category            : 'Luokka (tyhjä kenttä listaa kaikki luokat):', //'Category'
+			categorySort        : 'Lajitteluavain luokan sisällä:',              //'Sortkey within category'
+			noCategoryFound     : 'Luokkaa ei löydy, se on uusi',                //'no category found'			    //09.01.14 RL
+            oneCategoryFound    : 'Yksi luokka löytyi',                          //'one category found',            //09.01.14 RL
+            manyCategoryFound   : ' kpl',                                        //' categories found',			    //09.01.14 RL
+            selfromCategoryList : 'Valitse luokka listasta:'				     //'Select from list of categories  //09.01.14 RL
+		} //07.01.14 RL<-
+
+	MWpluginLang['fr'] = {
+            invalidContent  : 'invalid content',
+            searching       : 'recherche...',
+            externalLink    : 'lien externe... no search for it',
+            startTyping     : 'tapez dans le champ ci-dessus',
+            stopTyping      : 'arrêtez de taper pour lancer la recherche',
+            tooManyResults  : 'trop de résultats correspondants...',
+            // image
+            imgTitle        : 'Ajouter/modifier une image',
+            fileName        : 'Nom de fichier image',
+            fileNameExtUrl  : 'Image file name or URL',
+            searchLabel     : 'Résultats de recherche (%s)',
+            noImgFound      : 'aucune image trouvée',
+            oneImgFound     : 'une image trouvée',
+            manyImgFound    : ' images trouvées',
+            caption         : 'Légende',
+            imgType         : 'Encradement',
+			imgTypeThumb    : 'Miniature',
+			imgTypeFrame    : 'Cadre',
+			imgTypeFrameless: 'Sans cadre',
+			imgTypeBorder   : 'Bordure',
+            alignCenter     : 'Center',
+            // signature
+            signature       : 'Signature',
+            // special tags
+            specialTags     : 'Special Tags',
+            specialTagTitle : 'Special Tags Dialogue',
+            specialTagDef   : 'Define any special tag, magic word or parser function:',
+            // link
+            linkTitle       : 'Créer/éditer un lien',
+			simplelink	    : 'Lien rapide',                                                         //27.08.14 Varlin
+            noPageFound     : 'pas d’article trouvé',
+            onePageFound    : 'un article trouvé',
+            manyPageFound   : ' articles trouvés',
+            emailLink       : 'e-mail... pas de recherche',
+            anchorLink      : 'ancre... pas de recherche',
+            linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',
+			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
+			defineTarget    : 'Entrer la page cible:',
+            chooseTarget    : 'Choisissez la page :',
+			// references (citation)
+			referenceTitle 	: 'Ajouter/modifier une référence',
+			refDefTxt    	: 'Texte de la référence',
+			refDefName      : 'Nom de la référence :',
+			ref				: 'Ajouter une référence',
+			references		: 'Ajouter le bloc des références',
+			// category
+			categorybtn		: 'Ajouter/modifier les catégories',
+			categoryTitle	: 'Ajouter/modifier une catégorie',
+			category		: 'Catégorie:',
+			categorySort	: 'categorySort',
+			noCategoryFound     : 'Not found, category is new',
+            oneCategoryFound    : 'Une catégorie trouvée',
+            manyCategoryFound   : ' catégories trouvées',
+            selfromCategoryList : 'Sélectionner dans la liste:'
+	}
 
         MWpluginLang['de'] = {
             invalidContent  : 'invalid content',
@@ -278,12 +507,17 @@ CKEDITOR.plugins.add( 'mediawiki',
             // image
             imgTitle        : 'Mediawiki Bild',
             fileName        : 'Dateiname',
+            fileNameExtUrl  : 'Dateiname oder URL',
             searchLabel     : 'automatische Suchergebnisse (%s)',
             noImgFound      : 'keine Bilder gefunden',
             oneImgFound     : '1 Bild gefunden',
             manyImgFound    : ' Bilder gefunden',
             caption         : 'Beschreibung',
             imgType         : 'Bildtyp',
+            imgTypeThumb    : 'Miniatur',                                                            //29.09.14 RL
+            imgTypeFrame    : 'Rahmen',                                                              //29.09.14 RL 
+            imgTypeFrameless: 'Rahmenlos',                                                           //29.09.14 RL 
+            imgTypeBorder   : 'Linie',                                                               //29.09.14 RL
             alignCenter     : 'Mitte',
             // signature
             signature       : 'Signatur',
@@ -293,13 +527,30 @@ CKEDITOR.plugins.add( 'mediawiki',
             specialTagDef   : 'Definiere einen Spezialtag, ein magisches Wort oder eine Parserfunktion:',
             // link
             linkTitle       : 'Mediawiki Link',
+			simplelink	    : 'Convert text to link',                                                //27.08.14 Varlin 
+			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
             noPageFound     : 'keinen Artikel gefunden',
             onePageFound    : '1 Artikel gefunden',
             manyPageFound   : ' Artikel gefunden',
             emailLink       : 'e-mail link... es wird nicht danach gesucht',
             anchorLink      : 'anchor link... es wird nicht danach gesucht',
             defineTarget    : 'Definiere eine Wikiseite als Linkziel:',
-            chooseTarget    : 'Wähle eine existierende Wikiseite als Linkziel:'
+            chooseTarget    : 'Wähle eine existierende Wikiseite als Linkziel:',
+            // references (citation)
+            referenceTitle      : 'Referenz hinzufügen/bearbeiten',
+            refDefTxt           : 'Text für Referenz',
+            refDefName          : 'Name der Referenz',
+            ref                 : 'Referenz hinzufügen',
+            references          : 'Referenzblock hinzufügen',
+            // category
+            categorybtn         : 'Kategorien hinzufügen/bearbeiten',
+            categoryTitle       : 'Kategorie hinzufügen/bearbeiten',
+            category            : 'Kategorie:',
+            categorySort        : 'Sortierungsschlüssel innerhalb Kategorie',
+            noCategoryFound     : 'Nicht gefunden, neue Kategorie',
+            oneCategoryFound    : 'Eine Kategorie gefunden',
+            manyCategoryFound   : ' Kategorien gefunden',
+            selfromCategoryList : 'Aus Liste von Kategorien auswählen:'
         }
         if (typeof MWpluginLang[editor.langCode] != 'undefined' )
             editor.lang.mwplugin = MWpluginLang[editor.langCode];
@@ -307,13 +558,34 @@ CKEDITOR.plugins.add( 'mediawiki',
             editor.lang.mwplugin = MWpluginLang['en'];
 
         // define commands and dialogues
+
+		//This overrides 'link' function of CKeditor, button is already on screen drawn by CKeditor
+		//Works with CKeditor 3.6 and 4.3.3
         editor.addCommand( 'link', new CKEDITOR.dialogCommand( 'MWLink' ) );
         CKEDITOR.dialog.add( 'MWLink', this.path + 'dialogs/link.js' );
+
+		//28.03.14 RL 'unlink' worked with CKeditor 3.6 without this override function,
+		//             which is needed in CKeditor 4.3.3, otherwise button was grey all the time
+		//             because link plugin was not activated for some reason (propabley because of
+		//             overridden 'link' function abowe.
+		editor.addCommand( 'unlink', unlinkCommand );    //28.03.14 RL
+
         editor.addCommand( 'image', new CKEDITOR.dialogCommand( 'MWImage' ) );
         CKEDITOR.dialog.add( 'MWImage', this.path + 'dialogs/image.js' );
         editor.addCommand( 'MWSpecialTags', new CKEDITOR.dialogCommand( 'MWSpecialTags' ) );
         CKEDITOR.dialog.add( 'MWSpecialTags', this.path + 'dialogs/special.js' );
+
+		editor.addCommand( 'MWRef', new CKEDITOR.dialogCommand( 'MWRef' ) ); //03.01.14 RL For references (citation)
+        CKEDITOR.dialog.add( 'MWRef', this.path + 'dialogs/ref.js' );        //03.01.14 RL
+		editor.addCommand( 'MWReferences', referencesCommand);               //03.01.14 RL
+
+		editor.addCommand( 'MWCategory', new CKEDITOR.dialogCommand( 'MWCategory' ) ); //07.01.14 RL
+        CKEDITOR.dialog.add( 'MWCategory', this.path + 'dialogs/category.js' );        //07.01.14 RL
+
         editor.addCommand( 'MWSignature', signatureCommand);
+
+		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
+	
         if (editor.addMenuItem) {
             // A group menu is required
             // order, as second parameter, is not required
@@ -333,6 +605,22 @@ CKEDITOR.plugins.add( 'mediawiki',
 					command : 'MWSpecialTags',
                     icon: this.path + 'images/tb_icon_special.gif'
 				});
+
+            //03.01.14 RL->For references (citation)
+			editor.ui.addButton( 'MWRef',
+				{
+					label : editor.lang.mwplugin.ref,
+					command : 'MWRef',
+                    icon: this.path + 'images/icon_ref.gif'
+				});
+			editor.ui.addButton( 'MWReferences',
+				{
+					label : editor.lang.mwplugin.references,
+					command : 'MWReferences',
+                    icon: this.path + 'images/icon_references.gif'
+				});
+            //03.01.14 RL<-
+
 			editor.ui.addButton( 'MWSignature',
 				{
 					label : editor.lang.mwplugin.signature,
@@ -340,8 +628,21 @@ CKEDITOR.plugins.add( 'mediawiki',
                     icon: this.path + 'images/tb_icon_sig.gif'
 				});
 
+			editor.ui.addButton( 'MWCategory',    //07.01.14 RL
+				{
+					label : editor.lang.mwplugin.categorybtn,
+					command : 'MWCategory',
+                    icon: this.path + 'images/icon_category.gif'
+				});
+
+			editor.ui.addButton( 'MWSimpleLink',  //27.08.14 Varlin 
+                { 
+                    label : editor.lang.mwplugin.simplelink, 
+                    command : 'MWSimpleLink', 
+                    icon: this.path + 'images/tb_icon_simplelink.gif' 
+                }); 
 		}
-       
+
         // context menu
         if (editor.contextMenu) {
             editor.contextMenu.addListener(function(element, selection) {
@@ -355,32 +656,85 @@ CKEDITOR.plugins.add( 'mediawiki',
                         'FCK__MWNowiki',
                         'FCK__MWIncludeonly',
                         'FCK__MWNoinclude',
-                        'FCK__MWOnlyinclude'
+                        'FCK__MWOnlyinclude',
+						'FCK__MWSyntaxhighlight'                        //17.02.14 RL syntaxhighlight (earlier source)
                      ])
                    ) return {MWSpecialTags: CKEDITOR.TRISTATE_ON};
             });
         }
-		editor.on( 'doubleclick', function( evt )
-			{
-				var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
-				if ( element.is( 'a' ) || ( element.is( 'img' ) && element.getAttribute( '_cke_real_element_type' ) == 'anchor' ) )
-					evt.data.dialog = 'MWLink';
-                else if ( element.is( 'img' ) ) {
-                    if ( !element.getAttribute( '_cke_real_element_type' ) )
-                        evt.data.dialog = 'MWImage';
-                    else if ( element.getAttribute( 'class' ) &&
-                        element.getAttribute( 'class' ).InArray( [
-                            'FCK__MWSpecial',
-                            'FCK__MWMagicWord',
-                            'FCK__MWNowiki',
-                            'FCK__MWIncludeonly',
-                            'FCK__MWNoinclude',
-                            'FCK__MWOnlyinclude'
-                        ])
-                    )
-                        evt.data.dialog = 'MWSpecialTags';		
-                }
+		editor.on( 'selectionChange', function( evt )                   //28.03.14 RL For overridden 'unlink' button
+  			{
+				//To enable / disable unlink button, taken from
+				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
+  				if ( editor.readOnly )
+  					return;
+
+  				/*
+  				 * Despite our initial hope, document.queryCommandEnabled() does not work
+  				 * for this in Firefox. So we must detect the state by element paths.
+  				 */
+  				var cmd_unlink = editor.getCommand( 'unlink' ),
+                    cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' ),  //05.09.14 RL
+  					element = evt.data.path.lastElement && evt.data.path.lastElement.getAscendant( 'a', true );
+  				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() ) {
+  					cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable
+                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED ); //05.09.14 RL
+                }    
+  				else {
+  					cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED );       //Disable 
+                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //05.09.14 RL  
+                }    
+  			} );
+
+        editor.on( 'doubleclick', function( evt )
+			{
+			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
+
+				if ( element.is( 'img' ) &&                             //07.01.14 RL->
+				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
+					 element.getAttribute( 'class' ).InArray( [         //03.02.14 RL Modified to use InArray(..)
+								'FCK__MWReferences',
+								'FCK__MWMath'
+								])
+				   ) {
+				  /*Do nothing, because otherwise doubleclick of math or reference object
+				    will open dialog for linking image to page.
+				  */
+				}
+				//03.02.14 RL-> Dialog to edit template definitions is defined in ckeditor/plugins/mwtemplate/dialogs/teplate.js.
+				//              ckeditor/plugins/mwtemplate/plugins.js has following code but for some reason it is not
+				//              activated there on doubleclick of icon_template.gif, placing code here seems to solve the case.
+				else if ( element.is( 'img' ) &&
+                     element.getAttribute( 'class' ) &&
+                     element.getAttribute( 'class' ) == 'FCK__MWTemplate' )
+					evt.data.dialog = 'MWTemplate';
+				//03.02.14 RL<-
+				else
+                {                                                        //07.01.14 RL<-
+					if ( element.is( 'a' ) || ( element.is( 'img' ) && element.getAttribute( '_cke_real_element_type' ) == 'anchor' ) )
+						evt.data.dialog = 'MWLink';
+					else if ( element.is( 'img' ) ) {
+						if ( element.getAttribute( 'class' )      == 'FCK__MWCategory' ) //07.01.2014 RL For categories
+							evt.data.dialog = 'MWCategory';                              //07.01.2014 RL
+						else if ( element.getAttribute( 'class' ) == 'FCK__MWRef' )      //04.01.2014 RL For references (citation)
+							evt.data.dialog = 'MWRef';                                   //04.01.2014 RL
+						else if ( element.getAttribute( 'class' ) &&                     //07.01.14 RL This was earlier one step below
+							element.getAttribute( 'class' ).InArray( [
+								'FCK__MWSpecial',
+								'FCK__MWMagicWord',
+								'FCK__MWNowiki',
+								'FCK__MWIncludeonly',
+								'FCK__MWNoinclude',
+								'FCK__MWOnlyinclude',
+								'FCK__MWSyntaxhighlight'                                 //17.02.14 RL, 02.11.14 RL Earlier source
+							])
+						)
+							evt.data.dialog = 'MWSpecialTags';
+						else if ( !element.getAttribute( '_cke_real_element_type' ) )    //07.01.14 RL This was earlier one step abowe
+							evt.data.dialog = 'MWImage';
+					}
+                }  //07.01.14 RL
             }
         )
     }
@@ -442,7 +796,7 @@ CKEDITOR.customprocessor.prototype =
 
         fragment.writeHtml( writer, this.dataFilter );
 	    data = writer.getHtml( true );
-       
+
 	    return data;
    },
 
@@ -464,7 +818,7 @@ CKEDITOR.customprocessor.prototype =
             window.parent.wgCKeditorCurrentMode = 'source';
         else if (window.parent.popup && window.parent.popup.parent.wgCKeditorCurrentMode)
             window.parent.popup.parent.wgCKeditorCurrentMode = 'source';
-        
+
 		if (CKEDITOR.env.ie) {
 			data = this.ieFixHTML(data);
 		}
@@ -477,7 +831,7 @@ CKEDITOR.customprocessor.prototype =
         // and the same with attributes
         data = data.replace(/<(hr|br)([^>]*)([^/])>/gi, '<$1$2$3/>' );
         // remove some unncessary br tags that are followed by a </p> or </li>
-        data = data.replace(/<br\/>(\s*<\/(p|li)>)/gi, '$1');
+        data = data.replace(/<br\/>(\s*<\/(p|li|h1|h2|h3|h4|h5|h6)>)/gi, '$1');  //09.01.14 RL Added h1,h2,h3,h4,h5,h6 to keep edit link on same line as header
         // also remove <br/> before nested lists
         data = data.replace(/<br\/>(\s*<(ol|ul)>)/gi, '$1');
 		// in IE the values of the class and alt attribute are not quoted
@@ -485,7 +839,8 @@ CKEDITOR.customprocessor.prototype =
         data = data.replace(/alt=([^\"].*?)\s/gi, 'alt="$1" ');
         // when inserting data with Excel an unmatched <col> element exists, thus remove it
         data = data.replace(/<col[^>]*>/gi, '' );
-		
+        // 06.04.14 Varlin: remove <wbr> tags that causes parser to crash
+        data = data.replace(/<wbr>/gi, '' );
 
         var rootNode = this._getNodeFromHtml( data );
 		// rootNode is <body>.
@@ -555,7 +910,8 @@ CKEDITOR.customprocessor.prototype =
 					return;
 
                 // get real element from fake element
-                if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
+//			    if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
+	            if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
                     this._AppendNode( this._getRealElement( htmlNode ), stringBuilder, prefix );
                     return;
                 }
@@ -722,7 +1078,7 @@ CKEDITOR.customprocessor.prototype =
 						case 'a' :
                             // if there is no inner HTML in the Link, do not add it to the wikitext
                             if (! this._GetNodeText(htmlNode).Trim() ) break;
-                            
+
 							var pipeline = true;
 							// Get the actual Link href.
 							var href = htmlNode.getAttribute( '_cke_saved_href' );
@@ -737,45 +1093,33 @@ CKEDITOR.customprocessor.prototype =
 							if ( href == null ) {
 								href = htmlNode.getAttribute( 'href' ) || '';
 							}
-<<<<<<< .mine
 
 							//fix: Issue 14792 - Link with anchor is changed
-							//hrefType is a substring of href from the beginning until the colon. 
+							//hrefType is a substring of href from the beginning until the colon.
 							//it consists only of alphanumeric chars and optional url encoded chars in the middle.
 							var hrefTypeRegexp = /^(\w+(?:%\d{0,3})*\w*):/i;
 							var matches = href.match(hrefTypeRegexp);
 							if(hrefType == '' && matches) {
-								hrefType = matches[1]; 
+								hrefType = matches[1];
 							}
-							
+
 //						  if ( hrefType == '' && href.indexOf(':') > -1) {
 //                            hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
 //						  }
-=======
-							
-							//fix: Issue 14792 - Link with anchor is changed
-							//hrefType is a substring of href from the beginning until the colon. 
-							//it consists only of alphanumeric chars and optional url encoded chars in the middle.
-							var hrefTypeRegexp = /^(\w+(?:%\d{0,3})*\w*):/i;
-							var matches = href.match(hrefTypeRegexp);
-							if(hrefType == '' && matches) {
-								hrefType = matches[1]; 
-							}
-							
-//						  if ( hrefType == '' && href.indexOf(':') > -1) {
-//                            hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
-//						  }
->>>>>>> .r11163
 
 							var isWikiUrl = true;
 
-							if ( hrefType != "" && hrefType != "http" && hrefType != "mailto" && !href.StartsWith(hrefType.FirstToUpper() + ':') )
+							if ( hrefType != "" &&
+                                 hrefType != "http" &&
+                                 hrefType != "https" &&
+                                 hrefType != "mailto" &&
+                                 !href.StartsWith(hrefType.FirstToUpper() + ':') )
 								stringBuilder.push( '[[' + hrefType.FirstToUpper() + ':' );
 							else if ( htmlNode.className == "extiw" ){
 								stringBuilder.push( '[[' );
 								isWikiUrl = true;
-							} else {
-								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /\{\{[^\}]*\}\}/.test( href ) );
+							} else { //20.10.14 RL Support external link [//www.x.y]
+								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /\{\{[^\}]*\}\}/.test( href ) || href.StartsWith( '//' ) );
 								stringBuilder.push( isWikiUrl ? '[[' : '[' );
 							}
 							// #2223
@@ -796,7 +1140,7 @@ CKEDITOR.customprocessor.prototype =
 							}
                             if ( isWikiUrl ) href = decodeURIComponent(href);
 							stringBuilder.push( href );
-                            var innerHTML = this._GetNodeText(htmlNode) 
+                            var innerHTML = this._GetNodeText(htmlNode)
 							if ( pipeline && innerHTML != '[n]' && ( !isWikiUrl || href != innerHTML || !href.toLowerCase().StartsWith( "category:" ) ) ){
 								stringBuilder.push( isWikiUrl? '|' : ' ' );
 								this._AppendChildNodes( htmlNode, stringBuilder, prefix );
@@ -941,7 +1285,7 @@ CKEDITOR.customprocessor.prototype =
 
 						case 'img' :
 
-							var formula = htmlNode.getAttribute( '_cke_mw_math' );
+							var formula = htmlNode.getAttribute( '_fck_mw_math' ); //07.01.14 RL Was unknown: '_cke_mw_math'
 
 							if ( formula && formula.length > 0 ){
 								stringBuilder.push( '<math>' );
@@ -951,11 +1295,11 @@ CKEDITOR.customprocessor.prototype =
 							}
                             // external image?
                             var src = htmlNode.getAttribute( 'src' );
-                            if (src.toLowerCase().match(/^https?:\/\//)) {
+                            if (src != null && src.toLowerCase().match(/^https?:\/\//)) { //30.10.14 RL Test null (by Wingsofcourage)
                                 stringBuilder.push( src );
                                 return;
                             }
-                            
+
 							var imgName		= htmlNode.getAttribute( '_fck_mw_filename' ) || htmlNode.getAttribute( '_cke_mw_filename' ) || '';
 							var imgCaption	= htmlNode.getAttribute( 'alt' ) || '';
 							var imgType		= htmlNode.getAttribute( '_fck_mw_type' ) || htmlNode.getAttribute( '_cke_mw_type' ) || '';
@@ -1014,14 +1358,14 @@ CKEDITOR.customprocessor.prototype =
 						case 'span' :
                             var eClassName = htmlNode.getAttribute('class');
 							switch ( eClassName ){
-								case 'fck_mw_source' :
+								case 'fck_mw_syntaxhighlight' :                  //02.11.14 RL Was source
 									var refLang = htmlNode.getAttribute( 'lang' );
 
-									stringBuilder.push( '<source' );
+									stringBuilder.push( '<syntaxhighlight' );    //02.11.14 RL Was source
 									stringBuilder.push( ' lang="' + refLang + '"' );
 									stringBuilder.push( '>' );
-									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
-									stringBuilder.push( '</source>' );
+									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //30.10.14 RL fckSPACE
+									stringBuilder.push( '</syntaxhighlight>' );  //02.11.14 RL Was source
 									return;
 
 								case 'fck_mw_ref' :
@@ -1353,11 +1697,16 @@ CKEDITOR.customprocessor.prototype =
     // in FF htmlNode.textContent is set, while IE needs htmlNode.text;
     _GetNodeText : function( htmlNode ) {
         var text = '';
+        /*06.02.14 RL->*To make category work with IE11 and maintaining backwards compatibility***
         if (CKEDITOR.env.ie)
             text = htmlNode.text;
         else
             text = htmlNode.textContent;
-        return (typeof text == 'undefined') ? '' : text;
+        *******/
+        if (typeof htmlNode.textContent != 'undefined') text = htmlNode.textContent;
+        else text = htmlNode.text;
+        /*06.02.14 RL<-*/
+		return (typeof text == 'undefined') ? '' : text;
     },
 
 	// Property and Category values must be of a certain format. Otherwise this will break
@@ -1467,14 +1816,15 @@ CKEDITOR.customprocessor.prototype =
                 text = text.replace( pattern, "&#95;&#95;$1&#95;&#95;")
             }
         }
-        
+
         return text;
     },
-	
+
 	ieFixHTML: function(html, convertToLowerCase){
 		var zz = html;
+        zz = zz.replace( /\s+data-cke-expando=".*?"/g, '' ); //09.02.14 RL: In IE8, we need to remove the expando attributes.
 		var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
-		
+
 		if (z) {
 			for (var i = 0; i < z.length; i++) {
 				var y, zSaved = z[i], attrRE = /\=[a-zA-Z\.\:\[\]_\(\)\&\$\%#\@\!0-9]+[?\s+|?>]/g;

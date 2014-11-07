@@ -1,964 +1,1242 @@
-﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
-For licensing, see LICENSE.html or http://ckeditor.com/license
-*/
+﻿'use strict';
+CKEDITOR.plugins.add('scayt', {
 
-/**
- * @fileOverview Spell Check As You Type (SCAYT).
- * Button name : Scayt.
- */
+	//requires : ['menubutton', 'dialog'],
+	requires: 'menubutton,dialog',
+	lang: 'af,ar,bg,bn,bs,ca,cs,cy,da,de,el,en-au,en-ca,en-gb,en,eo,es,et,eu,fa,fi,fo,fr-ca,fr,gl,gu,he,hi,hr,hu,is,it,ja,ka,km,ko,lt,lv,mk,mn,ms,nb,nl,no,pl,pt-br,pt,ro,ru,sk,sl,sr-latn,sr,sv,th,tr,ug,uk,vi,zh-cn,zh', // %REMOVE_LINE_CORE%
+	icons: 'scayt', // %REMOVE_LINE_CORE%
+	hidpi: true, // %REMOVE_LINE_CORE%
+	tabToOpen : null,
+	dialogName: 'scaytDialog',
+	init: function(editor) {
+		var self = this,
+			plugin = CKEDITOR.plugins.scayt;
 
-(function()
-{
-	var commandName  = 'scaytcheck',
-		openPage = '';
+		this.bindEvents(editor);
+		this.parseConfig(editor);
+		this.addRule(editor);
 
-	// Checks if a value exists in an array
-	function in_array( needle, haystack )
-	{
-		var found = 0,
-			key;
-		for ( key in haystack )
-		{
-			if ( haystack[ key ] == needle )
-			{
-				found = 1;
-				break;
-			}
-		}
-		return found;
-	}
+		// source mode
+		CKEDITOR.dialog.add(this.dialogName, CKEDITOR.getUrl(this.path + 'dialogs/options.js'));
+		// end source mode
 
-	var onEngineLoad = function()
-	{
-		var editor = this;
+		this.addMenuItems(editor);
+		var config = editor.config,
+			lang = editor.lang.scayt,
+			env = CKEDITOR.env;
 
-		var createInstance = function()	// Create new instance every time Document is created.
-		{
-			var config = editor.config;
-			// Initialise Scayt instance.
-			var oParams = {};
-			// Get the iframe.
-			oParams.srcNodeRef = editor.document.getWindow().$.frameElement;
-			// syntax : AppName.AppVersion@AppRevision
-			oParams.assocApp  = 'CKEDITOR.' + CKEDITOR.version + '@' + CKEDITOR.revision;
-			oParams.customerid = config.scayt_customerid  || '1:WvF0D4-UtPqN1-43nkD4-NKvUm2-daQqk3-LmNiI-z7Ysb4-mwry24-T8YrS3-Q2tpq2';
-			oParams.customDictionaryIds = config.scayt_customDictionaryIds || '';
-			oParams.userDictionaryName = config.scayt_userDictionaryName || '';
-			oParams.sLang = config.scayt_sLang || 'en_US';
+		editor.ui.add('Scayt', CKEDITOR.UI_MENUBUTTON, {
+			label : lang.text_title,
+			title : lang.text_title,
+			// SCAYT doesn't work in IE Compatibility Mode and IE (8 & 9) Quirks Mode
+			modes : {wysiwyg: !(env.ie && ( env.version < 8 || env.quirks ) ) },
+			toolbar: 'spellchecker,20',
+			refresh: function() {
+				var buttonState = editor.ui.instances.Scayt.getState();
 
-			// Introduce SCAYT onLoad callback. (#5632)
-			oParams.onLoad = function()
-				{
-					// Draw down word marker to avoid being covered by background-color style.(#5466)
-					if ( !( CKEDITOR.env.ie && CKEDITOR.env.version < 8 ) )
-						this.addStyle( this.selectorCss(), 'padding-bottom: 2px !important;' );
-
-					// Call scayt_control.focus when SCAYT loaded
-					// and only if editor has focus and scayt control creates at first time (#5720)
-					if ( editor.focusManager.hasFocus && !plugin.isControlRestored( editor ) )
-						this.focus();
-
-				};
-
-			oParams.onBeforeChange = function()
-			{
-				if ( plugin.getScayt( editor ) && !editor.checkDirty() )
-					setTimeout( function(){ editor.resetDirty(); }, 0 );
-			};
-
-			var scayt_custom_params = window.scayt_custom_params;
-			if ( typeof scayt_custom_params == 'object' )
-			{
-				for ( var k in scayt_custom_params )
-					oParams[ k ] = scayt_custom_params[ k ];
-			}
-			// needs for restoring a specific scayt control settings
-			if ( plugin.getControlId( editor ) )
-				oParams.id = plugin.getControlId( editor );
-
-			var scayt_control = new window.scayt( oParams );
-
-			scayt_control.afterMarkupRemove.push( function( node )
-			{
-				( new CKEDITOR.dom.element( node, scayt_control.document ) ).mergeSiblings();
-			} );
-
-			// Copy config.
-			var lastInstance = plugin.instances[ editor.name ];
-			if ( lastInstance )
-			{
-				scayt_control.sLang = lastInstance.sLang;
-				scayt_control.option( lastInstance.option() );
-				scayt_control.paused = lastInstance.paused;
-			}
-
-			plugin.instances[ editor.name ] = scayt_control;
-
-			try {
-				scayt_control.setDisabled( plugin.isPaused( editor ) === false );
-			} catch (e) {}
-
-			editor.fire( 'showScaytState' );
-		};
-
-		editor.on( 'contentDom', createInstance );
-		editor.on( 'contentDomUnload', function()
-			{
-				// Remove scripts.
-				var scripts = CKEDITOR.document.getElementsByTag( 'script' ),
-					scaytIdRegex =  /^dojoIoScript(\d+)$/i,
-					scaytSrcRegex =  /^https?:\/\/svc\.spellchecker\.net\/spellcheck\/script\/ssrv\.cgi/i;
-
-				for ( var i=0; i < scripts.count(); i++ )
-				{
-					var script = scripts.getItem( i ),
-						id = script.getId(),
-						src = script.getAttribute( 'src' );
-
-					if ( id && src && id.match( scaytIdRegex ) && src.match( scaytSrcRegex ))
-						script.remove();
-				}
-			});
-
-		editor.on( 'beforeCommandExec', function( ev )		// Disable SCAYT before Source command execution.
-			{
-				if ( ( ev.data.name == 'source' || ev.data.name == 'newpage' ) && editor.mode == 'wysiwyg' )
-				{
-					var scayt_instance = plugin.getScayt( editor );
-					if ( scayt_instance )
-					{
-						plugin.setPaused( editor, !scayt_instance.disabled );
-						// store a control id for restore a specific scayt control settings
-						plugin.setControlId( editor, scayt_instance.id );
-						scayt_instance.destroy( true );
-						delete plugin.instances[ editor.name ];
+				// check if scayt is created
+				if(editor.scayt) {
+					// check if scayt is enabled
+					if(plugin.state[editor.name]) {
+						buttonState = CKEDITOR.TRISTATE_ON;
+					} else {
+						buttonState = CKEDITOR.TRISTATE_OFF;
 					}
 				}
-				// Catch on source mode switch off (#5720)
-				else if ( ev.data.name == 'source'  && editor.mode == 'source' )
-					plugin.markControlRestore( editor );
-			});
 
-		editor.on( 'afterCommandExec', function( ev )
-			{
-				if ( !plugin.isScaytEnabled( editor ) )
-					return;
+				editor.fire('scaytButtonState', buttonState);
+			},
+			onRender: function() {
+				var that = this;
 
-				if ( editor.mode == 'wysiwyg' && ( ev.data.name == 'undo' || ev.data.name == 'redo' ) )
-					window.setTimeout( function() { plugin.getScayt( editor ).refresh(); }, 10 );
-			});
+				editor.on('scaytButtonState', function(ev) {
+					if(typeof ev.data !== undefined) {
+						that.setState(ev.data);
+					}
+				});
+			},
+			onMenu : function() {
+				var scaytInstance = editor.scayt;
 
-		editor.on( 'destroy', function( ev )
-			{
-				var editor = ev.editor,
-					scayt_instance = plugin.getScayt( editor );
+				editor.getMenuItem('scaytToggle').label = editor.lang.scayt[(scaytInstance ? plugin.state[editor.name] : false) ? 'btn_disable' : 'btn_enable'];
 
-				// SCAYT instance might already get destroyed by mode switch (#5744).
-				if ( !scayt_instance )
-					return;
+				// If UI tab is disabled we shouldn't show menu item
+				var menuDefinition = {
+					scaytToggle  : CKEDITOR.TRISTATE_OFF,
+					scaytOptions : scaytInstance ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
+					scaytLangs   : scaytInstance ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
+					scaytDict    : scaytInstance ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
+					scaytAbout   : scaytInstance ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
+					WSC          : editor.plugins.wsc ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED
+				};
 
-				delete plugin.instances[ editor.name ];
-				// store a control id for restore a specific scayt control settings
-				plugin.setControlId( editor, scayt_instance.id );
-				scayt_instance.destroy( true );
-			});
-
-		// Listen to data manipulation to reflect scayt markup.
-		editor.on( 'afterSetData', function()
-			{
-				if ( plugin.isScaytEnabled( editor ) ) {
-					window.setTimeout( function()
-						{
-							var instance = plugin.getScayt( editor );
-							instance && instance.refresh();
-						}, 10 );
+				if(!editor.config.scayt_uiTabs[0]) {
+					delete menuDefinition.scaytOptions;
 				}
+
+				if(!editor.config.scayt_uiTabs[1]) {
+					delete menuDefinition.scaytLangs;
+				}
+
+				if(!editor.config.scayt_uiTabs[2]) {
+					delete menuDefinition.scaytDict;
+				}
+
+				return menuDefinition;
+			}
+		});
+
+		// If the 'contextmenu' plugin is loaded, register the listeners.
+		if(editor.contextMenu && editor.addMenuItems) {
+			editor.contextMenu.addListener(function(element, selection) {
+				var scaytInstance = editor.scayt;
+				var result;
+
+				if(scaytInstance) {
+					// TODO: implement right lang getter
+					var selectionNode = scaytInstance.getSelectionNode(),
+						word;
+
+					if(selectionNode) {
+						word = selectionNode.getAttribute(scaytInstance.getNodeAttribute());
+					} else {
+						word = selectionNode;
+					}
+
+					// SCAYT shouldn't build context menu if instance isnot created or word is without misspelling
+					if(word) {
+						var items = self.menuGenerator(editor, word, self);
+
+						scaytInstance.showBanner('.' + editor.contextMenu._.definition.panel.className.split(' ').join(' .'));
+						result = items;
+					}
+				}
+
+				return result;
 			});
 
-		// Reload spell-checking for current word after insertion completed.
-		editor.on( 'insertElement', function()
-			{
-				var scayt_instance = plugin.getScayt( editor );
-				if ( plugin.isScaytEnabled( editor ) )
-				{
-					// Unlock the selection before reload, SCAYT will take
-					// care selection update.
-					if ( CKEDITOR.env.ie )
-						editor.getSelection().unlock( true );
+			editor.contextMenu._.onHide = CKEDITOR.tools.override(editor.contextMenu._.onHide, function(org) {
+				return function() {
+					var scaytInstance = editor.scayt;
 
-					// Return focus to the editor and refresh SCAYT markup (#5573).
-					window.setTimeout( function()
-					{
-						scayt_instance.focus();
-						scayt_instance.refresh();
-					}, 10 );
-				}
-			}, this, null, 50 );
+					if(scaytInstance) {
+						scaytInstance.hideBanner();
+					}
 
-		editor.on( 'insertHtml', function()
-			{
-				var scayt_instance = plugin.getScayt( editor );
-				if ( plugin.isScaytEnabled( editor ) )
-				{
-					// Unlock the selection before reload, SCAYT will take
-					// care selection update.
-					if ( CKEDITOR.env.ie )
-						editor.getSelection().unlock( true );
-
-					// Return focus to the editor (#5573)
-					// Refresh SCAYT markup
-					window.setTimeout( function()
-					{
-						scayt_instance.focus();
-						scayt_instance.refresh();
-					}, 10 );
-				}
-			}, this, null, 50 );
-
-		editor.on( 'scaytDialog', function( ev )	// Communication with dialog.
-			{
-				ev.data.djConfig = window.djConfig;
-				ev.data.scayt_control = plugin.getScayt( editor );
-				ev.data.tab = openPage;
-				ev.data.scayt = window.scayt;
+					return org.apply(this);
+				};
 			});
+		}
+	},
+	addMenuItems: function(editor) {
+		var self = this,
+			plugin = CKEDITOR.plugins.scayt,
+			menuGroup = 'scaytButton';
 
-		var dataProcessor = editor.dataProcessor,
-			htmlFilter = dataProcessor && dataProcessor.htmlFilter;
+		editor.addMenuGroup(menuGroup);
 
-		if ( htmlFilter )
-		{
-			htmlFilter.addRules(
-				{
-					elements :
-					{
-						span : function( element )
-						{
-							if ( element.attributes[ 'data-scayt_word' ]
-									&& element.attributes[ 'data-scaytid' ] )
-							{
-								delete element.name;	// Write children, but don't write this node.
-								return element;
-							}
+		var items_order = editor.config.scayt_contextMenuItemsOrder.split('|');
+
+		if(items_order && items_order.length) {
+			for(var pos = 0 ; pos < items_order.length ; pos++) {
+				editor.addMenuGroup('scayt_' + items_order[pos], pos - 10);
+			}
+		}
+
+		var uiMenuItems = {
+			scaytToggle: {
+				label : editor.lang.scayt.btn_enable,
+				group : menuGroup,
+				onClick : function() {
+					var scaytInstance = editor.scayt;
+
+					plugin.state[editor.name] = !plugin.state[editor.name];
+
+					if(plugin.state[editor.name] === true) {
+						if(!scaytInstance) {
+							plugin.createScayt(editor);
+						}
+					} else {
+						if(scaytInstance) {
+							plugin.destroy(editor);
 						}
 					}
 				}
-			);
+			},
+			scaytAbout: {
+				label : editor.lang.scayt.btn_about,
+				group : menuGroup,
+				onClick : function() {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'about';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				}
+			},
+			scaytOptions: {
+				label : editor.lang.scayt.btn_options,
+				group : menuGroup,
+				onClick : function() {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'options';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				}
+			},
+			scaytLangs: {
+				label : editor.lang.scayt.btn_langs,
+				group : menuGroup,
+				onClick : function() {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'langs';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				}
+			},
+			scaytDict: {
+				label : editor.lang.scayt.btn_dictionaries,
+				group : menuGroup,
+				onClick : function() {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'dictionaries';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				}
+			}
+		};
+
+		if(editor.plugins.wsc) {
+			uiMenuItems.WSC = {
+				label : editor.lang.wsc.toolbar,
+				group : menuGroup,
+				onClick: function() {
+					var inlineMode = (editor.elementMode == CKEDITOR.ELEMENT_MODE_INLINE),
+						plugin = CKEDITOR.plugins.scayt,
+						scaytInstance = editor.scayt,
+						text = inlineMode ? editor.container.getText() : editor.document.getBody().getText();
+
+					text = text.replace(/\s/g, '');
+
+					if(text) {
+						if(scaytInstance && plugin.state[editor.name] && scaytInstance.setMarkupPaused) {
+							scaytInstance.setMarkupPaused(true);
+						}
+
+						editor.lockSelection();
+						editor.execCommand('checkspell');
+					} else {
+						alert('Nothing to check!');
+					}
+				}
+			}
 		}
 
-		// Override Image.equals method avoid CK snapshot module to add SCAYT markup to snapshots. (#5546)
-		var undoImagePrototype = CKEDITOR.plugins.undo.Image.prototype;
-		undoImagePrototype.equals = CKEDITOR.tools.override( undoImagePrototype.equals, function( org )
-		{
-			return function( otherImage )
-			{
-				var thisContents = this.contents,
-					otherContents = otherImage.contents;
-				var scayt_instance = plugin.getScayt( this.editor );
-				// Making the comparison based on content without SCAYT word markers.
-				if ( scayt_instance && plugin.isScaytReady( this.editor ) )
-				{
-					// scayt::reset might return value undefined. (#5742)
-					this.contents = scayt_instance.reset( thisContents ) || '';
-					otherImage.contents = scayt_instance.reset( otherContents ) || '';
+		editor.addMenuItems(uiMenuItems);
+	},
+	bindEvents: function(editor) {
+		var self = this,
+			plugin = CKEDITOR.plugins.scayt,
+			inline_mode = (editor.elementMode == CKEDITOR.ELEMENT_MODE_INLINE);
+
+		CKEDITOR.on('dialogDefinition', function(dialogDefinitionEvent) {
+
+			if (dialogDefinitionEvent.data.name === 'scaytDialog') {
+
+				var dialogDefinition = dialogDefinitionEvent.data.definition;
+
+				dialogDefinition.dialog.on('cancel', function(cancelEvent) {
+					return false;
+				}, this, null, -1);
+			}
+		});
+
+		var scaytDestroy = function() {
+
+			if (editor.scayt) {
+				plugin.destroy(editor);
+			}
+		};
+
+		var contentDomReady = function() {
+
+			// The event is fired when editable iframe node was reinited so we should restart our service
+			if (plugin.state[editor.name] && !editor.readOnly) {
+				plugin.createScayt(editor);
+			}
+		};
+
+		var contentDomtHandler = function() {
+			if(inline_mode) {
+				editor.on( 'blur', scaytDestroy);
+				editor.on( 'focus', contentDomReady);
+
+				// We need to check if editor has focus(created) right now.
+				// If editor is active - make attempt to create scayt
+				if(editor.focusManager.hasFocus) {
+					contentDomReady();
 				}
 
-				var retval = org.apply( this, arguments );
+			} else {
+				contentDomReady();
+			}
+		};
 
-				this.contents = thisContents;
-				otherImage.contents = otherContents;
+		editor.on('contentDom', contentDomtHandler);
+
+		editor.on('beforeCommandExec', function(ev) {
+			var scaytInstance;
+
+			// TODO: after switching in source mode not recreate SCAYT instance, try to just rerun markuping to don't make requests to server
+			if(ev.data.name in plugin.options.disablingCommandExec && editor.mode == 'wysiwyg') {
+				scaytInstance = editor.scayt;
+				if(scaytInstance) {
+					plugin.destroy(editor);
+					editor.fire('scaytButtonState', CKEDITOR.TRISTATE_DISABLED);
+				}
+			} else if(ev.data.name === 'bold' || ev.data.name === 'italic' || ev.data.name === 'underline' || ev.data.name === 'strike' || ev.data.name === 'subscript' || ev.data.name === 'superscript') {
+				scaytInstance = editor.scayt;
+				if(scaytInstance) {
+					scaytInstance.removeMarkupInSelectionNode();
+					scaytInstance.fire('startSpellCheck');
+				}
+			}
+		});
+
+		editor.on('beforeSetMode', function(ev) {
+			var scaytInstance;
+			// needed when we use:
+			// CKEDITOR.instances.editor_ID.setMode("source")
+			// CKEDITOR.instances.editor_ID.setMode("wysiwyg")
+			// can't be implemented in editor.on('mode', function(ev) {});
+			if (ev.data == 'source') {
+				scaytInstance = editor.scayt;
+				if(scaytInstance) {
+					plugin.destroy(editor);
+					editor.fire('scaytButtonState', CKEDITOR.TRISTATE_DISABLED);
+				}
+			} /*else if (ev.data == 'wysiwyg') {
+
+			}*/
+		});
+
+		editor.on('afterCommandExec', function(ev) {
+			var scaytInstance;
+
+			if(editor.mode == 'wysiwyg' && (ev.data.name == 'undo' || ev.data.name == 'redo')) {
+				scaytInstance = editor.scayt;
+				if(scaytInstance) {
+					setTimeout(function() {
+						scaytInstance.fire('startSpellCheck');
+					}, 250);
+				}
+			}
+		});
+
+		// handle readonly changes
+		editor.on('readOnly', function(ev) {
+			var scaytInstance;
+
+			if(ev) {
+				scaytInstance = editor.scayt;
+
+				if(ev.editor.readOnly === true) {
+					if(scaytInstance) {
+						scaytInstance.fire('removeMarkupInDocument', {});
+					}
+				} else {
+					if(scaytInstance) {
+						scaytInstance.fire('startSpellCheck');
+					} else if(ev.editor.mode == 'wysiwyg' && plugin.state[ev.editor.name] === true) {
+						plugin.createScayt(editor);
+						ev.editor.fire('scaytButtonState', CKEDITOR.TRISTATE_ON);
+					}
+				}
+			}
+		});
+
+		// we need to destroy SCAYT before CK editor will be completely destroyed
+		editor.on('beforeDestroy', scaytDestroy);
+
+		//#9439 after SetData method fires contentDom event and SCAYT create additional instanse
+		// This way we should destroy SCAYT on setData event when contenteditable Iframe was re-created
+		editor.on('setData', function() {
+			scaytDestroy();
+
+			// in inline mode SetData does not fire contentDom event
+			if(editor.elementMode == CKEDITOR.ELEMENT_MODE_INLINE) {
+				contentDomtHandler();
+			}
+		}, this, null, 50);
+
+		// Reload spell-checking for current word after insertion completed.
+		editor.on('insertElement', function() {
+			var scaytInstance = editor.scayt;
+
+			if(scaytInstance) {
+				scaytInstance.removeMarkupInSelectionNode();
+				scaytInstance.fire('startSpellCheck');
+			}
+		}, this, null, 50);
+
+		editor.on('insertHtml', function() {
+			var scaytInstance = editor.scayt;
+
+			if(scaytInstance) {
+				scaytInstance.removeMarkupInSelectionNode();
+				scaytInstance.fire('startSpellCheck');
+			}
+		}, this, null, 50);
+
+		// The event is listening to open necessary dialog tab
+		editor.on('scaytDialogShown', function(ev) {
+			var dialog = ev.data,
+				scaytInstance = editor.scayt;
+
+			dialog.selectPage(scaytInstance.tabToOpen);
+		});
+
+		/*
+		After each 'paste' CKEditor call insertHtml and we have subscribed for 'insertHtml' event before
+		editor.on('paste', function(ev)
+			{
+				var scaytInstance = plugin.getScayt(editor);
+				if(!scaytInstance || scaytInstance.enabled === false)
+					return;
+
+				setTimeout(function() {
+					scaytInstance.removeMarkupInSelectionNode();
+					scaytInstance.fire("startSpellCheck");
+				}, 0);
+			});*/
+	},
+	parseConfig: function(editor) {
+		var plugin = CKEDITOR.plugins.scayt;
+
+		// preprocess config for backward compatibility
+		plugin.replaceOldOptionsNames(editor.config);
+
+		// Checking editor's config after initialization
+		if(typeof editor.config.scayt_autoStartup !== 'boolean') {
+			editor.config.scayt_autoStartup = false;
+		}
+		plugin.state[editor.name] = editor.config.scayt_autoStartup;
+
+		if(!editor.config.scayt_contextCommands) {
+			editor.config.scayt_contextCommands = 'ignore|ignoreall|add';
+		}
+
+		if(!editor.config.scayt_contextMenuItemsOrder) {
+			editor.config.scayt_contextMenuItemsOrder = 'suggest|moresuggest|control';
+		}
+
+		if(!editor.config.scayt_sLang) {
+			editor.config.scayt_sLang = 'en_US';
+		}
+
+		if(editor.config.scayt_maxSuggestions === undefined || typeof editor.config.scayt_maxSuggestions != 'number' || editor.config.scayt_maxSuggestions < 0) {
+			editor.config.scayt_maxSuggestions = 5;
+		}
+
+		if(editor.config.scayt_customDictionaryIds === undefined || typeof editor.config.scayt_customDictionaryIds !== 'string') {
+			editor.config.scayt_customDictionaryIds = '';
+		}
+
+		if(editor.config.scayt_userDictionaryName === undefined || typeof editor.config.scayt_userDictionaryName !== 'string') {
+			editor.config.scayt_userDictionaryName = null;
+		}
+
+		if (typeof editor.config.scayt_uiTabs === 'string' && editor.config.scayt_uiTabs.split(',').length === 3) {
+			var scayt_uiTabs = [], _tempUITabs = [];
+			editor.config.scayt_uiTabs = editor.config.scayt_uiTabs.split(',');
+
+			CKEDITOR.tools.search(editor.config.scayt_uiTabs, function(value) {
+				if (Number(value) === 1 || Number(value) === 0) {
+					_tempUITabs.push(true);
+					scayt_uiTabs.push(Number(value));
+				} else {
+					_tempUITabs.push(false);
+				}
+			});
+
+			if (CKEDITOR.tools.search(_tempUITabs, false) === null) {
+				editor.config.scayt_uiTabs = scayt_uiTabs;
+			} else {
+				editor.config.scayt_uiTabs = [1,1,1];
+			}
+
+		} else {
+			editor.config.scayt_uiTabs = [1,1,1];
+		}
+
+		if(typeof editor.config.scayt_serviceProtocol != 'string') {
+			editor.config.scayt_serviceProtocol = null;
+		}
+
+		if(typeof editor.config.scayt_serviceHost != 'string') {
+			editor.config.scayt_serviceHost = null;
+		}
+
+		if(typeof editor.config.scayt_servicePort != 'string') {
+			editor.config.scayt_servicePort = null;
+		}
+
+		if(typeof editor.config.scayt_servicePath != 'string') {
+			editor.config.scayt_servicePath = null;
+		}
+
+		if(!editor.config.scayt_moreSuggestions) {
+			editor.config.scayt_moreSuggestions = 'on';
+		}
+
+		if(typeof editor.config.scayt_customerId !== 'string') {
+			editor.config.scayt_customerId = '1:WvF0D4-UtPqN1-43nkD4-NKvUm2-daQqk3-LmNiI-z7Ysb4-mwry24-T8YrS3-Q2tpq2';
+		}
+
+		if(typeof editor.config.scayt_srcUrl !== 'string') {
+			var protocol = document.location.protocol;
+			protocol = protocol.search(/https?:/) != -1 ? protocol : 'http:';
+
+			editor.config.scayt_srcUrl = protocol + '//svc.webspellchecker.net/spellcheck31/lf/scayt3/ckscayt/ckscayt.js';
+		}
+
+		if(typeof CKEDITOR.config.scayt_handleCheckDirty !== 'boolean') {
+			CKEDITOR.config.scayt_handleCheckDirty = true;
+		}
+
+		if(typeof CKEDITOR.config.scayt_handleUndoRedo !== 'boolean') {
+			CKEDITOR.config.scayt_handleUndoRedo = true;
+		}
+	},
+	addRule: function(editor) {
+		var dataProcessor = editor.dataProcessor,
+			htmlFilter = dataProcessor && dataProcessor.htmlFilter,
+			pathFilters = editor._.elementsPath && editor._.elementsPath.filters,
+			dataFilter = dataProcessor && dataProcessor.dataFilter,
+			removeFormatFilter = editor.addRemoveFormatFilter,
+			scaytFilter = function scaytFilter(element) {
+				var plugin = CKEDITOR.plugins.scayt,
+					scaytInstance = editor.scayt;
+
+				if(scaytInstance && element.hasAttribute(plugin.options.data_attribute_name)) {
+					return false;
+				}
+			},
+			removeFormatFilterTemplate = function(element) {
+				var plugin = CKEDITOR.plugins.scayt,
+					scaytInstance = editor.scayt,
+					result = true;
+
+				if(scaytInstance && element.hasAttribute(plugin.options.data_attribute_name)) {
+					result = false;
+				}
+
+				return result;
+			};
+
+		if(pathFilters) {
+			pathFilters.push(scaytFilter);
+		}
+
+		if(dataFilter) {
+			var dataFilterRules = {
+				elements: {
+					span: function(element) {
+
+						var plugin = CKEDITOR.plugins.scayt;
+
+						if(plugin && plugin.state[editor.name] && element.classes && CKEDITOR.tools.search(element.classes, plugin.options.misspelled_word_class)) {
+
+							if (element.classes && element.parent.type === CKEDITOR.NODE_DOCUMENT_FRAGMENT) {
+								delete element.attributes['style'];
+								delete element.name;
+							} else {
+								delete element.classes[CKEDITOR.tools.indexOf(element.classes, plugin.options.misspelled_word_class)];
+							}
+
+						}
+
+						return element;
+					}
+				}
+			};
+
+			dataFilter.addRules(dataFilterRules);
+		}
+
+		if (htmlFilter) {
+			var htmlFilterRules = {
+				elements: {
+					span: function(element) {
+						var plugin = CKEDITOR.plugins.scayt;
+
+						if(plugin && plugin.state[editor.name] && element.hasClass(plugin.options.misspelled_word_class) && element.attributes[plugin.options.data_attribute_name]) {
+
+							element.removeClass(plugin.options.misspelled_word_class);
+							delete element.attributes[plugin.options.data_attribute_name];
+							delete element.name;
+						}
+
+						return element;
+					}
+				}
+			};
+
+			htmlFilter.addRules(htmlFilterRules);
+		}
+
+		if(removeFormatFilter) {
+			removeFormatFilter.call(editor, removeFormatFilterTemplate);
+		}
+	},
+	scaytMenuDefinition: function(editor) {
+		var self = this,
+			plugin = CKEDITOR.plugins.scayt,
+			scayt_instance =  editor.scayt;
+		return {
+			scayt_ignore: {
+				label:  scayt_instance.getLocal('btn_ignore'),
+				group : 'scayt_control',
+				order : 1,
+				exec: function(editor) {
+					var scaytInstance = editor.scayt;
+					scaytInstance.ignoreWord();
+				}
+			},
+			scayt_ignoreall: {
+				label : scayt_instance.getLocal('btn_ignoreAll'),
+				group : 'scayt_control',
+				order : 2,
+				exec: function(editor) {
+					var scaytInstance = editor.scayt;
+					scaytInstance.ignoreAllWords();
+				}
+			},
+			scayt_add: {
+				label : scayt_instance.getLocal('btn_addWord'),
+				group : 'scayt_control',
+				order : 3,
+				exec : function(editor) {
+					var scaytInstance = editor.scayt;
+
+					// @TODO: We need to add set/restore bookmark logic to 'addWordToUserDictionary' method inside dictionarymanager.
+					// Timeout is used as tmp fix for IE9, when after hitting 'Add word' menu item, document container was blurred.
+					setTimeout(function() {
+						scaytInstance.addWordToUserDictionary();
+					}, 10);
+				}
+			},
+			option:{
+				label : scayt_instance.getLocal('btn_options'),
+				group : 'scayt_control',
+				order : 4,
+				exec: function(editor) {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'options';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				},
+				verification: function(editor) {
+					return (editor.config.scayt_uiTabs[0] == 1) ? true : false;
+				}
+			},
+			language: {
+				label : scayt_instance.getLocal('btn_langs'),
+				group : 'scayt_control',
+				order : 5,
+				exec: function(editor) {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'langs';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				},
+				verification: function(editor) {
+					return (editor.config.scayt_uiTabs[1] == 1) ? true : false;
+				}
+			},
+			dictionary: {
+				label : scayt_instance.getLocal('btn_dictionaries'),
+				group : 'scayt_control',
+				order : 6,
+				exec: function(editor) {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'dictionaries';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				},
+				verification: function(editor) {
+					return (editor.config.scayt_uiTabs[2] == 1) ? true : false;
+				}
+			},
+			about: {
+				label : scayt_instance.getLocal('btn_about'),
+				group : 'scayt_control',
+				order : 7,
+				exec: function(editor) {
+					var scaytInstance = editor.scayt;
+
+					scaytInstance.tabToOpen = 'about';
+					editor.lockSelection();
+					editor.openDialog(self.dialogName);
+				}
+			}
+		};
+	},
+	buildSuggestionMenuItems: function(editor, suggestions) {
+		var self = this,
+			itemList = {},
+			subItemList = {},
+			plugin = CKEDITOR.plugins.scayt,
+			scayt_instance = editor.scayt;
+
+		if(suggestions.length > 0 && suggestions[0] !== 'no_any_suggestions') {
+			for(var i = 0; i < suggestions.length; i++) {
+
+				var commandName = 'scayt_suggest_' + CKEDITOR.plugins.scayt.suggestions[i].replace(' ', '_');
+				editor.addCommand(commandName, self.createCommand(CKEDITOR.plugins.scayt.suggestions[i]));
+
+				if(i < editor.config.scayt_maxSuggestions) {
+
+					// mainSuggestions
+					editor.addMenuItem(commandName, {
+						label: suggestions[i],
+						command: commandName,
+						group: 'scayt_suggest',
+						order: i + 1
+					});
+
+					itemList[commandName] = CKEDITOR.TRISTATE_OFF;
+
+				} else {
+
+					// moreSuggestions
+					editor.addMenuItem(commandName, {
+						label: suggestions[i],
+						command: commandName,
+						group: 'scayt_moresuggest',
+						order: i + 1
+					});
+
+					subItemList[commandName] = CKEDITOR.TRISTATE_OFF;
+
+					if(editor.config.scayt_moreSuggestions === 'on') {
+
+						editor.addMenuItem('scayt_moresuggest', {
+							label : scayt_instance.getLocal('btn_moreSuggestions'),
+							group : 'scayt_moresuggest',
+							order : 10,
+							getItems : function() {
+								return subItemList;
+							}
+						});
+
+						itemList['scayt_moresuggest'] = CKEDITOR.TRISTATE_OFF;
+					}
+				}
+			}
+		} else {
+			var noSuggestionsCommand = 'no_scayt_suggest';
+			itemList[noSuggestionsCommand] = CKEDITOR.TRISTATE_DISABLED;
+
+			editor.addCommand(noSuggestionsCommand, {
+				exec: function() {
+
+				}
+			});
+
+			editor.addMenuItem(noSuggestionsCommand, {
+				label : scayt_instance.getLocal('btn_noSuggestions') || noSuggestionsCommand,
+				command: noSuggestionsCommand,
+				group : 'scayt_suggest',
+				order : 0
+			});
+		}
+
+		return itemList;
+	},
+	menuGenerator: function(editor, word) {
+		var self = this,
+			scaytInstance = editor.scayt,
+			menuItem = this.scaytMenuDefinition(editor),
+			itemList = {},
+			mainSuggestions = {},
+			moreSuggestions = {},
+			allowedOption = editor.config.scayt_contextCommands.split('|');
+
+		scaytInstance.fire('getSuggestionsList', {lang: scaytInstance.getLang(), word: word});
+		itemList = this.buildSuggestionMenuItems(editor, CKEDITOR.plugins.scayt.suggestions);
+
+		if(editor.config.scayt_contextCommands == 'off') {
+			return itemList;
+		}
+
+		for(var key in menuItem) {
+			if(CKEDITOR.tools.indexOf(allowedOption, key.replace('scayt_', '')) == -1 && editor.config.scayt_contextCommands != 'all') {
+				continue;
+			}
+
+			itemList[key] = CKEDITOR.TRISTATE_OFF;
+			// delete item from context menu if its state isn't verified as allowed
+			if(typeof menuItem[key].verification === 'function' && !menuItem[key].verification(editor)) {
+				// itemList[key] = (menuItem[key].verification(editor)) ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED;
+				delete itemList[key];
+			}
+
+			editor.addCommand(key, {
+				exec: menuItem[key].exec
+			});
+
+			editor.addMenuItem(key, {
+				label : editor.lang.scayt[menuItem[key].label] || menuItem[key].label,
+				command: key,
+				group : menuItem[key].group,
+				order : menuItem[key].order
+			});
+		}
+
+		return itemList;
+	},
+	createCommand: function(suggestion) {
+		return {
+			exec: function(editor) {
+				var scaytInstance = editor.scayt;
+				scaytInstance.replaceSelectionNode({word: suggestion});
+			}
+		};
+	}
+});
+
+CKEDITOR.plugins.scayt = {
+	state: {},
+	suggestions: [],
+	loadingHelper: {
+		loadOrder: []
+	},
+	isLoading: false,
+	options: {
+		disablingCommandExec: {
+			source: true,
+			newpage: true,
+			templates: true
+		},
+		data_attribute_name: 'data-scayt-word',
+		misspelled_word_class: 'scayt-misspell-word'
+	},
+	backCompatibilityMap: {
+		'scayt_service_protocol': 'scayt_serviceProtocol',
+		'scayt_service_host'  : 'scayt_serviceHost',
+		'scayt_service_port'  : 'scayt_servicePort',
+		'scayt_service_path'  : 'scayt_servicePath',
+		'scayt_customerid'    : 'scayt_customerId'
+	},
+	replaceOldOptionsNames: function(config) {
+		for(var key in config) {
+			if(key in this.backCompatibilityMap) {
+				config[this.backCompatibilityMap[key]] = config[key];
+				delete config[key];
+			}
+		}
+	},
+	createScayt : function(editor) {
+		var self = this;
+
+		this.loadScaytLibrary(editor, function(_editor) {
+			var _scaytInstanceOptions = {
+				lang        : _editor.config.scayt_sLang,
+				container       : _editor.editable().$.nodeName == 'BODY' ? _editor.document.getWindow().$.frameElement : _editor.editable().$,
+				customDictionary  : _editor.config.scayt_customDictionaryIds,
+				userDictionaryName  : _editor.config.scayt_userDictionaryName,
+				localization    : _editor.langCode,
+				customer_id     : _editor.config.scayt_customerId,
+				data_attribute_name : self.options.data_attribute_name,
+				misspelled_word_class: self.options.misspelled_word_class
+			};
+
+			if(_editor.config.scayt_serviceProtocol) {
+				_scaytInstanceOptions['service_protocol'] = _editor.config.scayt_serviceProtocol;
+			}
+
+			if(_editor.config.scayt_serviceHost) {
+				_scaytInstanceOptions['service_host'] = _editor.config.scayt_serviceHost;
+			}
+
+			if(_editor.config.scayt_servicePort) {
+				_scaytInstanceOptions['service_port'] = _editor.config.scayt_servicePort;
+			}
+
+			if(_editor.config.scayt_servicePath) {
+				_scaytInstanceOptions['service_path'] = _editor.config.scayt_servicePath;
+			}
+
+			var _scaytInstance = new SCAYT.CKSCAYT(_scaytInstanceOptions, function() {
+				// success callback
+			}, function() {
+				// error callback
+			});
+
+			_scaytInstance.subscribe('suggestionListSend', function(data) {
+				// TODO: 1. Maybe store suggestions for specific editor
+				// TODO: 2. Fix issue with suggestion duplicates on on server
+				//CKEDITOR.plugins.scayt.suggestions = data.suggestionList;
+				var _wordsCollection = {},
+					_suggestionList =[];
+				for (var i=0; i < data.suggestionList.length; i++) {
+					if (!_wordsCollection[data.suggestionList[i]]) {
+						_wordsCollection[data.suggestionList[i]] = data.suggestionList[i];
+						_suggestionList.push(data.suggestionList[i]);
+					}
+				}
+				CKEDITOR.plugins.scayt.suggestions = _suggestionList;
+
+			});
+
+			_editor.scayt = _scaytInstance;
+
+			_editor.fire('scaytButtonState', _editor.readOnly ? CKEDITOR.TRISTATE_DISABLED : CKEDITOR.TRISTATE_ON);
+		});
+	},
+	destroy: function(editor) {
+		if(editor.scayt) {
+			editor.scayt.destroy();
+		}
+
+		delete editor.scayt;
+		editor.fire('scaytButtonState', CKEDITOR.TRISTATE_OFF);
+	},
+	loadScaytLibrary: function(editor, callback) {
+		var self = this;
+
+		if(typeof window.SCAYT === 'undefined' || typeof window.SCAYT.CKSCAYT !== 'function') {
+			// add onLoad callbacks for editors while SCAYT is loading
+			this.loadingHelper[editor.name] = callback;
+			this.loadingHelper.loadOrder.push(editor.name);
+
+			CKEDITOR.scriptLoader.load(editor.config.scayt_srcUrl, function(success) {
+				var editorName;
+
+				CKEDITOR.fireOnce('scaytReady');
+
+				for(var i = 0; i < self.loadingHelper.loadOrder.length; i++) {
+					editorName = self.loadingHelper.loadOrder[i];
+
+					if(typeof self.loadingHelper[editorName] === 'function') {
+						self.loadingHelper[editorName](CKEDITOR.instances[editorName]);
+					}
+
+					delete self.loadingHelper[editorName];
+				}
+				self.loadingHelper.loadOrder = [];
+			});
+		} else if(window.SCAYT && typeof window.SCAYT.CKSCAYT === 'function') {
+			CKEDITOR.fireOnce('scaytReady');
+
+			if(!editor.scayt) {
+				if(typeof callback === 'function') {
+					callback(editor);
+				}
+			}
+		}
+	}
+};
+
+CKEDITOR.on('scaytReady', function() {
+
+	// Override editor.checkDirty method avoid CK checkDirty functionality to fix SCAYT issues with incorrect checkDirty behavior.
+	if(CKEDITOR.config.scayt_handleCheckDirty === true) {
+		var editorCheckDirty = CKEDITOR.editor.prototype;
+
+		editorCheckDirty.checkDirty = CKEDITOR.tools.override(editorCheckDirty.checkDirty, function(org) {
+
+			return function() {
+				var retval = null,
+					pluginStatus = CKEDITOR.plugins.scayt && CKEDITOR.plugins.scayt.state[this.name] && this.scayt,
+					scaytInstance = this.scayt;
+
+				if(!pluginStatus) {
+					retval = org.call(this);
+				} else {
+					retval = (this.status == 'ready');
+
+					if (retval) {
+						var currentData = scaytInstance.removeMarkupFromString(this.getSnapshot()),
+							prevData = scaytInstance.removeMarkupFromString(this._.previousValue);
+
+						retval = (retval && (prevData !== currentData))
+					}
+				}
+
 				return retval;
 			};
 		});
 
-		if ( editor.document )
-			createInstance();
-	};
+		editorCheckDirty.resetDirty = CKEDITOR.tools.override(editorCheckDirty.resetDirty, function(org) {
+			return function() {
+				var pluginStatus = CKEDITOR.plugins.scayt && CKEDITOR.plugins.scayt.state[this.name] && this.scayt,
+					scaytInstance = this.scayt;//CKEDITOR.plugins.scayt.getScayt(this);
 
-CKEDITOR.plugins.scayt =
-	{
-		engineLoaded : false,
-		instances : {},
-		// Data storage for SCAYT control, based on editor instances
-		controlInfo : {},
-		setControlInfo : function( editor, o )
-		{
-			if ( editor && editor.name && typeof ( this.controlInfo[ editor.name ] ) != 'object' )
-				this.controlInfo[ editor.name ] = {};
-
-			for ( var infoOpt in o )
-				this.controlInfo[ editor.name ][ infoOpt ] = o[ infoOpt ];
-		},
-		isControlRestored : function( editor )
-		{
-			if ( editor &&
-					editor.name &&
-					this.controlInfo[ editor.name ] )
-			{
-				return this.controlInfo[ editor.name ].restored ;
-			}
-			return false;
-		},
-		markControlRestore : function( editor )
-		{
-			this.setControlInfo( editor, { restored:true } );
-		},
-		setControlId: function( editor, id )
-		{
-			this.setControlInfo( editor, { id:id } );
-		},
-		getControlId: function( editor )
-		{
-			if ( editor &&
-					editor.name &&
-					this.controlInfo[ editor.name ] &&
-					this.controlInfo[ editor.name ].id )
-			{
-				return this.controlInfo[ editor.name ].id;
-			}
-			return null;
-		},
-		setPaused: function( editor , bool )
-		{
-			this.setControlInfo( editor, { paused:bool } );
-		},
-		isPaused: function( editor )
-		{
-			if ( editor &&
-					editor.name &&
-					this.controlInfo[editor.name] )
-			{
-				return this.controlInfo[editor.name].paused;
-			}
-			return undefined;
-		},
-		getScayt : function( editor )
-		{
-			return this.instances[ editor.name ];
-		},
-		isScaytReady : function( editor )
-		{
-			return this.engineLoaded === true &&
-				'undefined' !== typeof window.scayt && this.getScayt( editor );
-		},
-		isScaytEnabled : function( editor )
-		{
-			var scayt_instance = this.getScayt( editor );
-			return ( scayt_instance ) ? scayt_instance.disabled === false : false;
-		},
-		getUiTabs : function( editor )
-		{
-			var uiTabs = [];
-
-			// read UI tabs value from config
-			var configUiTabs = editor.config.scayt_uiTabs || "1,1,1";
-
-			// convert string to array
-			configUiTabs = configUiTabs.split( ',' );
-
-			// "About us" should be always shown for standard config
-			configUiTabs[3] = "1";
-
-			for ( var i = 0; i < 4; i++ ) {
-				uiTabs[i] = (typeof window.scayt != "undefined" && typeof window.scayt.uiTags != "undefined")
-								? (parseInt(configUiTabs[i],10) && window.scayt.uiTags[i])
-								: parseInt(configUiTabs[i],10);
-			}
-			return uiTabs;
-		},
-		loadEngine : function( editor )
-		{
-			// SCAYT doesn't work with Firefox2, Opera and AIR.
-			if ( CKEDITOR.env.gecko && CKEDITOR.env.version < 10900 || CKEDITOR.env.opera || CKEDITOR.env.air )
-				return editor.fire( 'showScaytState' );
-
-			if ( this.engineLoaded === true )
-				return onEngineLoad.apply( editor );	// Add new instance.
-			else if ( this.engineLoaded == -1 )			// We are waiting.
-				return CKEDITOR.on( 'scaytReady', function(){ onEngineLoad.apply( editor ); } );	// Use function(){} to avoid rejection as duplicate.
-
-			CKEDITOR.on( 'scaytReady', onEngineLoad, editor );
-			CKEDITOR.on( 'scaytReady', function()
-				{
-					this.engineLoaded = true;
-				},
-				this,
-				null,
-				0
-			);	// First to run.
-
-			this.engineLoaded = -1;	// Loading in progress.
-
-			// compose scayt url
-			var protocol = document.location.protocol;
-			// Default to 'http' for unknown.
-			protocol = protocol.search( /https?:/) != -1? protocol : 'http:';
-			var baseUrl  = 'svc.spellchecker.net/scayt26/loader__base.js';
-
-			var scaytUrl  =  editor.config.scayt_srcUrl || ( protocol + '//' + baseUrl );
-			var scaytConfigBaseUrl =  plugin.parseUrl( scaytUrl ).path +  '/';
-
-			if( window.scayt == undefined )
-			{
-				CKEDITOR._djScaytConfig =
-				{
-					baseUrl: scaytConfigBaseUrl,
-					addOnLoad:
-					[
-						function()
-						{
-							CKEDITOR.fireOnce( 'scaytReady' );
-						}
-					],
-					isDebug: false
-				};
-				// Append javascript code.
-				CKEDITOR.document.getHead().append(
-					CKEDITOR.document.createElement( 'script',
-						{
-							attributes :
-								{
-									type : 'text/javascript',
-									async : 'true',
-									src : scaytUrl
-								}
-						})
-				);
-			}
-			else
-				CKEDITOR.fireOnce( 'scaytReady' );
-
-			return null;
-		},
-		parseUrl : function ( data )
-		{
-			var match;
-			if ( data.match && ( match = data.match(/(.*)[\/\\](.*?\.\w+)$/) ) )
-				return { path: match[1], file: match[2] };
-			else
-				return data;
-		}
-	};
-
-	var plugin = CKEDITOR.plugins.scayt;
-
-	// Context menu constructing.
-	var addButtonCommand = function( editor, buttonName, buttonLabel, commandName, command, menugroup, menuOrder )
-	{
-		editor.addCommand( commandName, command );
-
-		// If the "menu" plugin is loaded, register the menu item.
-		editor.addMenuItem( commandName,
-			{
-				label : buttonLabel,
-				command : commandName,
-				group : menugroup,
-				order : menuOrder
-			});
-	};
-
-	var commandDefinition =
-	{
-		preserveState : true,
-		editorFocus : false,
-		canUndo : false,
-
-		exec: function( editor )
-		{
-			if ( plugin.isScaytReady( editor ) )
-			{
-				var isEnabled = plugin.isScaytEnabled( editor );
-
-				this.setState( isEnabled ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_ON );
-
-				var scayt_control = plugin.getScayt( editor );
-				// the place where the status of editor focus should be restored
-				// after there will be ability to store its state before SCAYT button click
-				// if (storedFocusState is focused )
-				//   scayt_control.focus();
-				//
-				// now focus is set certainly
-				scayt_control.focus();
-				scayt_control.setDisabled( isEnabled );
-			}
-			else if ( !editor.config.scayt_autoStartup && plugin.engineLoaded >= 0 )	// Load first time
-			{
-				this.setState( CKEDITOR.TRISTATE_DISABLED );
-				plugin.loadEngine( editor );
-			}
-		}
-	};
-
-	// Add scayt plugin.
-	CKEDITOR.plugins.add( 'scayt',
-	{
-		requires : [ 'menubutton' ],
-
-		beforeInit : function( editor )
-		{
-			var items_order = editor.config.scayt_contextMenuItemsOrder
-					|| 'suggest|moresuggest|control',
-				items_order_str = "";
-
-			items_order = items_order.split( '|' );
-
-			if ( items_order && items_order.length )
-			{
-				for ( var pos = 0 ; pos < items_order.length ; pos++ )
-					items_order_str += 'scayt_' + items_order[ pos ] + ( items_order.length != parseInt( pos, 10 ) + 1 ? ',' : '' );
-			}
-
-			// Put it on top of all context menu items (#5717)
-			editor.config.menu_groups =  items_order_str + ',' + editor.config.menu_groups;
-		},
-
-		init : function( editor )
-		{
-			// Delete span[data-scaytid] when text pasting in editor (#6921)
-			var dataFilter = editor.dataProcessor && editor.dataProcessor.dataFilter;
-			var dataFilterRules =
-			{
-					elements :
-					{
-							span : function( element )
-							{
-									var attrs = element.attributes;
-									if ( attrs && attrs[ 'data-scaytid' ] )
-											delete element.name;
-							}
-					}
+				if(!pluginStatus) {
+					org.call(this);
+				} else {
+					this._.previousValue = scaytInstance.removeMarkupFromString(this.getSnapshot());
+				}
 			};
-			dataFilter && dataFilter.addRules( dataFilterRules );
+		});
+	}
 
-			var moreSuggestions = {},
-				mainSuggestions = {};
+	if(CKEDITOR.config.scayt_handleUndoRedo === true) {
+		var undoImagePrototype = CKEDITOR.plugins.undo.Image.prototype;
 
-			// Scayt command.
-			var command = editor.addCommand( commandName, commandDefinition );
+		// add backword compatibility for CKEDITOR 4.2. method equals was repleced on other method
+		var equalsContentMethodName = (typeof undoImagePrototype.equalsContent == "function") ? 'equalsContent' : 'equals';
 
-			// Add Options dialog.
-			CKEDITOR.dialog.add( commandName, CKEDITOR.getUrl( this.path + 'dialogs/options.js' ) );
+		undoImagePrototype[equalsContentMethodName] = CKEDITOR.tools.override(undoImagePrototype[equalsContentMethodName], function(org) {
+			return function(otherImage) {
+				var pluginState = CKEDITOR.plugins.scayt && CKEDITOR.plugins.scayt.state[otherImage.editor.name] && otherImage.editor.scayt,
+					scaytInstance = otherImage.editor.scayt,
+					thisContents = this.contents,
+					otherContents = otherImage.contents,
+					retval = null;
 
-			var uiTabs = plugin.getUiTabs( editor );
+				// Making the comparison based on content without SCAYT word markers.
+				if(pluginState) {
+					this.contents = scaytInstance.removeMarkupFromString(thisContents) || '';
+					otherImage.contents = scaytInstance.removeMarkupFromString(otherContents) || '';
+				}
 
-			var menuGroup = 'scaytButton';
-			editor.addMenuGroup( menuGroup );
-			// combine menu items to render
-			var uiMenuItems = {};
+				var retval = org.apply(this, arguments);
 
-			var lang = editor.lang.scayt;
+				this.contents = thisContents;
+				otherImage.contents = otherContents;
 
-			// always added
-			uiMenuItems.scaytToggle =
-				{
-					label : lang.enable,
-					command : commandName,
-					group : menuGroup
-				};
-
-			if ( uiTabs[0] == 1 )
-				uiMenuItems.scaytOptions =
-				{
-					label : lang.options,
-					group : menuGroup,
-					onClick : function()
-					{
-						openPage = 'options';
-						editor.openDialog( commandName );
-					}
-				};
-
-			if ( uiTabs[1] == 1 )
-				uiMenuItems.scaytLangs =
-				{
-					label : lang.langs,
-					group : menuGroup,
-					onClick : function()
-					{
-						openPage = 'langs';
-						editor.openDialog( commandName );
-					}
-				};
-			if ( uiTabs[2] == 1 )
-				uiMenuItems.scaytDict =
-				{
-					label : lang.dictionariesTab,
-					group : menuGroup,
-					onClick : function()
-					{
-						openPage = 'dictionaries';
-						editor.openDialog( commandName );
-					}
-				};
-			// always added
-			uiMenuItems.scaytAbout =
-				{
-					label : editor.lang.scayt.about,
-					group : menuGroup,
-					onClick : function()
-					{
-						openPage = 'about';
-						editor.openDialog( commandName );
-					}
-				};
-
-			editor.addMenuItems( uiMenuItems );
-
-				editor.ui.add( 'Scayt', CKEDITOR.UI_MENUBUTTON,
-					{
-						label : lang.title,
-						title : CKEDITOR.env.opera ? lang.opera_title : lang.title,
-						className : 'cke_button_scayt',
-						modes : { wysiwyg : 1 },
-						onRender: function()
-						{
-							command.on( 'state', function()
-							{
-								this.setState( command.state );
-							},
-							this);
-						},
-						onMenu : function()
-						{
-							var isEnabled = plugin.isScaytEnabled( editor );
-
-							editor.getMenuItem( 'scaytToggle' ).label = lang[ isEnabled ? 'disable' : 'enable' ];
-
-							var uiTabs = plugin.getUiTabs( editor );
-
-							return {
-								scaytToggle  : CKEDITOR.TRISTATE_OFF,
-								scaytOptions : isEnabled && uiTabs[0] ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
-								scaytLangs   : isEnabled && uiTabs[1] ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
-								scaytDict    : isEnabled && uiTabs[2] ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
-								scaytAbout   : isEnabled && uiTabs[3] ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED
-							};
-						}
-					});
-
-			// If the "contextmenu" plugin is loaded, register the listeners.
-			if ( editor.contextMenu && editor.addMenuItems )
-			{
-				editor.contextMenu.addListener( function( element, selection )
-					{
-						if ( !plugin.isScaytEnabled( editor )
-								|| selection.getRanges()[ 0 ].checkReadOnly() )
-							return null;
-
-						var scayt_control = plugin.getScayt( editor ),
-							node = scayt_control.getScaytNode();
-
-						if ( !node )
-							return null;
-
-							var word = scayt_control.getWord( node );
-
-						if ( !word )
-							return null;
-
-						var sLang = scayt_control.getLang(),
-							_r = {},
-							items_suggestion = window.scayt.getSuggestion( word, sLang );
-						if ( !items_suggestion || !items_suggestion.length )
-							return null;
-						// Remove unused commands and menuitems
-						for ( var m in moreSuggestions )
-						{
-							delete editor._.menuItems[ m ];
-							delete editor._.commands[ m ];
-						}
-						for ( m in mainSuggestions )
-						{
-							delete editor._.menuItems[ m ];
-							delete editor._.commands[ m ];
-						}
-						moreSuggestions = {};		// Reset items.
-						mainSuggestions = {};
-
-						var moreSuggestionsUnable = editor.config.scayt_moreSuggestions || 'on';
-						var moreSuggestionsUnableAdded = false;
-
-						var maxSuggestions = editor.config.scayt_maxSuggestions;
-						( typeof maxSuggestions != 'number' ) && ( maxSuggestions = 5 );
-						!maxSuggestions && ( maxSuggestions = items_suggestion.length );
-
-						var contextCommands = editor.config.scayt_contextCommands || 'all';
-						contextCommands = contextCommands.split( '|' );
-
-						for ( var i = 0, l = items_suggestion.length; i < l; i += 1 )
-						{
-							var commandName = 'scayt_suggestion_' + items_suggestion[i].replace( ' ', '_' );
-							var exec = ( function( el, s )
-								{
-									return {
-										exec: function()
-										{
-											scayt_control.replace( el, s );
-										}
-									};
-								})( node, items_suggestion[i] );
-
-							if ( i < maxSuggestions )
-							{
-								addButtonCommand( editor, 'button_' + commandName, items_suggestion[i],
-									commandName, exec, 'scayt_suggest', i + 1 );
-								_r[ commandName ] = CKEDITOR.TRISTATE_OFF;
-								mainSuggestions[ commandName ] = CKEDITOR.TRISTATE_OFF;
-							}
-							else if ( moreSuggestionsUnable == 'on' )
-							{
-								addButtonCommand( editor, 'button_' + commandName, items_suggestion[i],
-									commandName, exec, 'scayt_moresuggest', i + 1 );
-								moreSuggestions[ commandName ] = CKEDITOR.TRISTATE_OFF;
-								moreSuggestionsUnableAdded = true;
-							}
-						}
-
-						if ( moreSuggestionsUnableAdded )
-						{
-							// Register the More suggestions group;
-							editor.addMenuItem( 'scayt_moresuggest',
-							{
-								label : lang.moreSuggestions,
-								group : 'scayt_moresuggest',
-								order : 10,
-								getItems : function()
-								{
-									return moreSuggestions;
-								}
-							});
-							mainSuggestions[ 'scayt_moresuggest' ] = CKEDITOR.TRISTATE_OFF;
-						}
-
-						if ( in_array( 'all', contextCommands )  || in_array( 'ignore', contextCommands)  )
-						{
-							var ignore_command = {
-								exec: function(){
-									scayt_control.ignore( node );
-								}
-							};
-							addButtonCommand( editor, 'ignore', lang.ignore, 'scayt_ignore', ignore_command, 'scayt_control', 1 );
-							mainSuggestions[ 'scayt_ignore' ] = CKEDITOR.TRISTATE_OFF;
-						}
-
-						if ( in_array( 'all', contextCommands )  || in_array( 'ignoreall', contextCommands ) )
-						{
-							var ignore_all_command = {
-								exec: function(){
-									scayt_control.ignoreAll( node );
-								}
-							};
-							addButtonCommand(editor, 'ignore_all', lang.ignoreAll, 'scayt_ignore_all', ignore_all_command, 'scayt_control', 2);
-							mainSuggestions['scayt_ignore_all'] = CKEDITOR.TRISTATE_OFF;
-						}
-
-						if ( in_array( 'all', contextCommands )  || in_array( 'add', contextCommands ) )
-						{
-							var addword_command = {
-								exec: function(){
-									window.scayt.addWordToUserDictionary( node );
-								}
-							};
-							addButtonCommand(editor, 'add_word', lang.addWord, 'scayt_add_word', addword_command, 'scayt_control', 3);
-							mainSuggestions['scayt_add_word'] = CKEDITOR.TRISTATE_OFF;
-						}
-
-						if ( scayt_control.fireOnContextMenu )
-							scayt_control.fireOnContextMenu( editor );
-
-						return mainSuggestions;
-					});
-			}
-
-			var showInitialState = function()
-				{
-					editor.removeListener( 'showScaytState', showInitialState );
-
-					if ( !CKEDITOR.env.opera && !CKEDITOR.env.air )
-						command.setState( plugin.isScaytEnabled( editor ) ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF );
-					else
-						command.setState( CKEDITOR.TRISTATE_DISABLED );
-				};
-
-			editor.on( 'showScaytState', showInitialState );
-
-			if ( CKEDITOR.env.opera || CKEDITOR.env.air )
-			{
-				editor.on( 'instanceReady', function()
-				{
-					showInitialState();
-				});
-			}
-
-			// Start plugin
-			if ( editor.config.scayt_autoStartup )
-			{
-				editor.on( 'instanceReady', function()
-				{
-					plugin.loadEngine( editor );
-				});
-			}
-		},
-
-		afterInit : function( editor )
-		{
-			// Prevent word marker line from displaying in elements path and been removed when cleaning format. (#3570) (#4125)
-			var elementsPathFilters,
-					scaytFilter = function( element )
-					{
-						if ( element.hasAttribute( 'data-scaytid' ) )
-							return false;
-					};
-
-			if ( editor._.elementsPath && ( elementsPathFilters = editor._.elementsPath.filters ) )
-				elementsPathFilters.push( scaytFilter );
-
-			editor.addRemoveFormatFilter && editor.addRemoveFormatFilter( scaytFilter );
-
-		}
-	});
-})();
+				return retval;
+			};
+		});
+	}
+});
 
 /**
- * If enabled (true), turns on SCAYT automatically after loading the editor.
- * @name CKEDITOR.config.scayt_autoStartup
- * @type Boolean
- * @default false
- * @example
- * config.scayt_autoStartup = true;
+ * If enabled (set to `true`), turns on SCAYT automatically
+ * after loading the editor.
+ *
+ *		config.scayt_autoStartup = true;
+ *
+ * @cfg {Boolean} [scayt_autoStartup=false]
+ * @member CKEDITOR.config
  */
 
 /**
  * Defines the number of SCAYT suggestions to show in the main context menu.
- * The possible values are:
- * <ul>
- *	<li>0 (zero): All suggestions are displayed in the main context menu.</li>
- *	<li>Positive number: The maximum number of suggestions to shown in context
- *		menu. Other entries will be shown in "More Suggestions" sub-menu.</li>
- *	<li>Negative number: No suggestions are shown in the main context menu. All
- *		entries will be listed in the "Suggestions" sub-menu.</li>
- * </ul>
- * @name CKEDITOR.config.scayt_maxSuggestions
- * @type Number
- * @default 5
- * @example
- * // Display only three suggestions in the main context menu.
- * config.scayt_maxSuggestions = 3;
- * @example
- * // Do not show the suggestions directly.
- * config.scayt_maxSuggestions = -1;
+ * Possible values are:
+ *
+ * * `0` (zero) &ndash; No suggestions are shown in the main context menu. All
+ *     entries will be listed in the "More Suggestions" sub-menu.
+ * * Positive number &ndash; The maximum number of suggestions to show in the context
+ *     menu. Other entries will be shown in the "More Suggestions" sub-menu.
+ * * Negative number &ndash; 5 suggestions are shown in the main context menu. All other
+ *     entries will be listed in the "More Suggestions" sub-menu.
+ *
+ * Examples:
+ *
+ *		// Display only three suggestions in the main context menu.
+ *		config.scayt_maxSuggestions = 3;
+ *
+ *		// Do not show the suggestions directly.
+ *		config.scayt_maxSuggestions = 0;
+ *
+ * @cfg {Number} [scayt_maxSuggestions=5]
+ * @member CKEDITOR.config
  */
 
 /**
- * Sets the customer ID for SCAYT. Required for migration from free version
- * with banner to paid version.
- * @name CKEDITOR.config.scayt_customerid
- * @type String
- * @default ''
- * @example
- * // Load SCAYT using my customer ID.
- * config.scayt_customerid  = 'your-encrypted-customer-id';
+ * Sets the customer ID for SCAYT. Used for hosted users only. Required for migration from free
+ * to trial or paid versions.
+ *
+ *		// Load SCAYT using my customer ID.
+ *		config.scayt_customerId  = 'your-encrypted-customer-id';
+ *
+ * @cfg {String} [scayt_customerId='1:WvF0D4-UtPqN1-43nkD4-NKvUm2-daQqk3-LmNiI-z7Ysb4-mwry24-T8YrS3-Q2tpq2']
+ * @member CKEDITOR.config
  */
 
 /**
  * Enables/disables the "More Suggestions" sub-menu in the context menu.
- * The possible values are "on" or "off".
- * @name CKEDITOR.config.scayt_moreSuggestions
- * @type String
- * @default 'on'
- * @example
- * // Disables the "More Suggestions" sub-menu.
- * config.scayt_moreSuggestions = 'off';
- */
-
-/**
- * Customizes the display of SCAYT context menu commands ("Add Word", "Ignore"
- * and "Ignore All"). It must be a string with one or more of the following
- * words separated by a pipe ("|"):
- * <ul>
- *	<li>"off": disables all options.</li>
- *	<li>"all": enables all options.</li>
- *	<li>"ignore": enables the "Ignore" option.</li>
- *	<li>"ignoreall": enables the "Ignore All" option.</li>
- *	<li>"add": enables the "Add Word" option.</li>
- * </ul>
- * @name CKEDITOR.config.scayt_contextCommands
- * @type String
- * @default 'all'
- * @example
- * // Show only "Add Word" and "Ignore All" in the context menu.
- * config.scayt_contextCommands = 'add|ignoreall';
- */
-
-/**
- * Sets the default spellchecking language for SCAYT.
- * @name CKEDITOR.config.scayt_sLang
- * @type String
- * @default 'en_US'
- * @example
- * // Sets SCAYT to German.
- * config.scayt_sLang = 'de_DE';
- */
-
-/**
- * Sets the visibility of the SCAYT tabs in the settings dialog and toolbar
- * button. The value must contain a "1" (enabled) or "0" (disabled) number for
- * each of the following entries, in this precise order, separated by a
- * comma (","): "Options", "Languages" and "Dictionary".
- * @name CKEDITOR.config.scayt_uiTabs
- * @type String
- * @default '1,1,1'
- * @example
- * // Hide the "Languages" tab.
- * config.scayt_uiTabs = '1,0,1';
- */
-
-
-/**
- * Set the URL to SCAYT core. Required to switch to licensed version of SCAYT application.
- * Further details at http://wiki.spellchecker.net/doku.php?id=3rd:wysiwyg:fckeditor:wscckf3l .
- * @name CKEDITOR.config.scayt_srcUrl
- * @type String
- * @default ''
- * @example
- * config.scayt_srcUrl = "http://my-host/spellcheck/lf/scayt/scayt.js";
- */
-
-/**
- * Links SCAYT to custom dictionaries. It's a string containing dictionary ids
- * separared by commas (","). Available only for licensed version.
- * Further details at http://wiki.spellchecker.net/doku.php?id=custom_dictionary_support .
- * @name CKEDITOR.config.scayt_customDictionaryIds
- * @type String
- * @default ''
- * @example
- * config.scayt_customDictionaryIds = '3021,3456,3478"';
- */
-
-/**
- * Makes it possible to activate a custom dictionary on SCAYT. The user
- * dictionary name must be used. Available only for licensed version.
- * @name CKEDITOR.config.scayt_userDictionaryName
- * @type String
- * @default ''
- * @example
- * config.scayt_userDictionaryName = 'MyDictionary';
- */
-
-/**
- * Define order of placing of SCAYT context menu items by groups.
- * It must be a string with one or more of the following
- * words separated by a pipe ("|"):
- * <ul>
- *     <li>'suggest'     - main suggestion word list,</li>
- *     <li>'moresuggest' - more suggestions word list,</li>
- *     <li>'control'     - SCAYT commands, such as 'Ignore' and 'Add Word'</li>
- * </ul>
+ * Possible values are `'on'` and `'off'`.
  *
- * @name CKEDITOR.config.scayt_contextMenuItemsOrder
- * @type String
- * @default 'suggest|moresuggest|control'
- * @example
- * config.scayt_contextMenuItemsOrder = 'moresuggest|control|suggest';
+ *		// Disables the "More Suggestions" sub-menu.
+ *		config.scayt_moreSuggestions = 'off';
+ *
+ * @cfg {String} [scayt_moreSuggestions='on']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Customizes the display of SCAYT context menu commands ("Add Word", "Ignore",
+ * "Ignore All", "Options", "Languages", "Dictionaries" and "About").
+ * This must be a string with one or more of the following
+ * words separated by a pipe character (`'|'`):
+ *
+ * * `off` &ndash; disables all options.
+ * * `all` &ndash; enables all options.
+ * * `ignore` &ndash; enables the "Ignore" option.
+ * * `ignoreall` &ndash; enables the "Ignore All" option.
+ * * `add` &ndash; enables the "Add Word" option.
+ * * `option` &ndash; enables "Options" menu item.
+ * * `language` &ndash; enables "Languages" menu item.
+ * * `dictionary` &ndash; enables "Dictionaries" menu item.
+ * * `about` &ndash; enables "About" menu item.
+ *
+ * Note, that availability of 'Options', 'Languages' and 'Dictionaries' items
+ * depends on scayt_uiTabs option also.
+ * Example:
+ *
+ *		// Show only "Add Word" and "Ignore All" in the context menu.
+ *		config.scayt_contextCommands = 'add|ignoreall';
+ *
+ * @cfg {String} [scayt_contextCommands='ignore|ignoreall|add']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Sets the default spell checking language for SCAYT. Possible values are:
+ * `'en_US'`, `'en_GB'`, `'pt_BR'`, `'da_DK'`,
+ * `'nl_NL'`, `'en_CA'`, `'fi_FI'`, `'fr_FR'`,
+ * `'fr_CA'`, `'de_DE'`, `'el_GR'`, `'it_IT'`,
+ * `'nb_NO'`, `'pt_PT'`, `'es_ES'`, `'sv_SE'`.
+ *
+ *		// Sets SCAYT to German.
+ *		config.scayt_sLang = 'de_DE';
+ *
+ * @cfg {String} [scayt_sLang='en_US']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Sets the visibility of particular tabs in the SCAYT dialog window and toolbar
+ * button. This setting must contain a `1` (enabled) or `0`
+ * (disabled) value for each of the following entries, in this precise order,
+ * separated by a comma (`','`): `'Options'`, `'Languages'`, and `'Dictionary'`.
+ *
+ *		// Hides the "Languages" tab.
+ *		config.scayt_uiTabs = '1,0,1';
+ *
+ * @cfg {String} [scayt_uiTabs='1,1,1']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Allows to specify protocol for WSC service (ssrv.cgi) full path.
+ *
+ *		// Defines protocol for WSC service (ssrv.cgi) full path.
+ *		config.scayt_serviceProtocol='https';
+ *
+ * @cfg {String} [scayt_serviceProtocol='http']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Allows to specify host for WSC service (ssrv.cgi) full path.
+ *
+ *		// Defines host for WSC service (ssrv.cgi) full path.
+ *		config.scayt_serviceHost='my-host';
+ *
+ * @cfg {String} [scayt_serviceHost='svc.webspellchecker.net']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Allows to specify port for WSC service (ssrv.cgi) full path.
+ *
+ *		// Defines port for WSC service (ssrv.cgi) full path.
+ *		config.scayt_servicePort='2330';
+ *
+ * @cfg {String} [scayt_servicePort='80']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Allows to specify path for WSC service (ssrv.cgi) full path.
+ *
+ *		// Defines host for WSC service (ssrv.cgi) full path.
+ *		config.scayt_servicePath='my-path/ssrv.cgi';
+ *
+ * @cfg {String} [scayt_servicePath='spellcheck31/script/ssrv.cgi']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Sets the URL to SCAYT core. Required to switch to the licensed version of SCAYT application.
+ *
+ * Further details available at [http://wiki.webspellchecker.net/doku.php?id=migration:hosredfreetolicensedck](http://wiki.webspellchecker.net/doku.php?id=migration:hosredfreetolicensedck)
+ *
+ *		config.scayt_srcUrl = "http://my-host/spellcheck/lf/scayt/scayt.js";
+ *
+ * @cfg {String} [scayt_srcUrl='//svc.webspellchecker.net/spellcheck31/lf/scayt3/ckscayt/ckscayt.js']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Links SCAYT to custom dictionaries. This is a string containing dictionary IDs
+ * separared by commas (`','`). Available only for the licensed version.
+ *
+ * Further details at [http://wiki.webspellchecker.net/doku.php?id=installationandconfiguration:customdictionaries:licensed](http://wiki.webspellchecker.net/doku.php?id=installationandconfiguration:customdictionaries:licensed)
+ *
+ *		config.scayt_customDictionaryIds = '3021,3456,3478';
+ *
+ * @cfg {String} [scayt_customDictionaryIds='']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Makes it possible to activate a custom dictionary in SCAYT. The user
+ * dictionary name must be used. Available only for the licensed version.
+ *
+ *		config.scayt_userDictionaryName = 'MyDictionary';
+ *
+ * @cfg {String} [scayt_userDictionaryName='']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Defines the order SCAYT context menu items by groups.
+ * This must be a string with one or more of the following
+ * words separated by a pipe character (`'|'`):
+ *
+ * * `suggest` &ndash; main suggestion word list,
+ * * `moresuggest` &ndash; more suggestions word list,
+ * * `control` &ndash; SCAYT commands, such as "Ignore" and "Add Word".
+ *
+ * Example:
+ *
+ *		config.scayt_contextMenuItemsOrder = 'moresuggest|control|suggest';
+ *
+ * @cfg {String} [scayt_contextMenuItemsOrder='suggest|moresuggest|control']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * If set to `true` &ndash; overrides checkDirty functionality of CK
+ * to fix SCAYT issues with incorrect checkDirty behavior. If set to `false`,
+ * provides better performance on big preloaded text.
+ *
+ *		config.scayt_handleCheckDirty = 'false';
+ *
+ * @cfg {String} [scayt_handleCheckDirty='true']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * If set to `true` &ndash; overrides undo\redo functionality of CK
+ * to fix SCAYT issues with incorrect undo\redo behavior. If set to `false`,
+ * provides better performance on undo\redo text.
+ *
+ *		config.scayt_handleUndoRedo = 'false';
+ *
+ * @cfg {String} [scayt_handleUndoRedo='true']
+ * @member CKEDITOR.config
  */

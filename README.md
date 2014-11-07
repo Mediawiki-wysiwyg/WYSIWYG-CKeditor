@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 07.11.14  Updated version of CKeditor from 4.4.4 to 4.4.5 (earlier 23.08.14 "default table properties" modification with table.js was cancelled by this update, textselection plugin has not been updated). Replaced contents of ckeditor\_source directory with source files of CKEditor 4.4.5. After this copied following directories from directory ckeditor\plugins to directory ckeditor\_source\plugins: mediawiki, mwtemplate, smwqueryinterface, smwrichmedia, smwrule, smwtoolbar, smwwebservice, textselection.
+
 - 04.11.14  Modified IE compatibility mode setting "IE=9" to be the first of all metas (like it should be, related to mod. made at 17.02.13).
 
 - 02.11.14  With syntaxhighlight extension use tag syntaxhighlight by default, source tag is still supported (f.ex xml  tag source works now). Convert existing "old" source -tag on page or keyed in source -tag in dialog special.js to syntaxhighlight -tag.
