@@ -1,4 +1,4 @@
-"Kama" Skin
+﻿"Kama" Skin
 ====================
 
 "Kama" is the default skin of CKEditor 3.x.

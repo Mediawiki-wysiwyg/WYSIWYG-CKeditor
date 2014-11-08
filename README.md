@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 07.11.14  Fixed version info of CKeditor on page "Special:Version" (CKeditor 4.4.5 revision 25cdcad). Updated CKeditor source related files in ckeditor/_source from githhub repository of CKeditor. Added source code of texttransform plugin. Instructions and sample config.js to run source files of CKeditor with WYSIWYG (_source/_ReadMe-ckeditor_source.txt).
+
 - 07.11.14  Updated version of CKeditor from 4.4.4 to 4.4.5 (earlier 23.08.14 "default table properties" modification with table.js was cancelled by this update, textselection plugin has not been updated). Replaced contents of ckeditor\_source directory with source files of CKEditor 4.4.5. After this copied following directories from directory ckeditor\plugins to directory ckeditor\_source\plugins: mediawiki, mwtemplate, smwqueryinterface, smwrichmedia, smwrule, smwtoolbar, smwwebservice, textselection.
 
 - 04.11.14  Modified IE compatibility mode setting "IE=9" to be the first of all metas (like it should be, related to mod. made at 17.02.13).
