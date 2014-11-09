@@ -1259,14 +1259,14 @@ CKEDITOR.plugins.add('smwtoolbar', {
 					editCategoryCommmand.categoryName = element.getAttribute('sort');
 					editCategoryCommmand.element = element;
 					removeCategoryCommmand.element = element;
-		 			return { removeCategoryItem: CKEDITOR.TRISTATE_ON,
-		 				/*editCategoryItem  : CKEDITOR.TRISTATE_ON*/};
+		 			return { removeCategoryItem: CKEDITOR.TRISTATE_ON  //07.11.14 RL CKBuilder warning: Internet Explorer has a non-standard intepretation of trailing commas.
+		 				/*, editCategoryItem  : CKEDITOR.TRISTATE_ON*/};
 				}
 				else if (element.getAttribute('class') === 'fck_mw_property'){
 					editPropertyCommmand.element = element;
 					removePropertyCommmand.element = element;
-		 			return { removePropertyItem: CKEDITOR.TRISTATE_ON,
-		 				/*editPropertyItem  : CKEDITOR.TRISTATE_ON*/};
+		 			return { removePropertyItem: CKEDITOR.TRISTATE_ON  //07.11.14 RL CKBuilder warning: IE + trailing commas
+		 				/*, editPropertyItem  : CKEDITOR.TRISTATE_ON*/};
 				}
 				return null;
 			});
