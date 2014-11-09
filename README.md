@@ -35,7 +35,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 07.11.14  Updated CKBuilder and run instructions of _source directory. Fixed CKBuilder warnings with smwtoolbar/plugin.js.
+- 07.11.14  Updated CKBuilder and run instructions of _source directory. Fixed CKBuilder warnings with smwtoolbar/plugin.js. Added command _source/dev/builder/build_leave-js-unminified.sh.
 
 - 07.11.14  Fixed version info of CKeditor on page "Special:Version" (CKeditor 4.4.5 revision 25cdcad). Updated CKeditor source related files in ckeditor/_source from githhub repository of CKeditor. Added source code of texttransform plugin. Instructions and sample config.js to run source files of CKeditor with WYSIWYG (_source/_ReadMe-ckeditor_source.txt).
 
