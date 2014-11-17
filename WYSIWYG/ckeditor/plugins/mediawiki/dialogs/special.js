@@ -67,9 +67,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     className = null,
                     textarea = this.getContentElement( 'mwSpecialTagDef', 'tagDefinition'),
                     content = textarea.getValue(),
-                    wgImgWikitags = ['syntaxhighlight', 'ref', 'nowiki', 'html',        //02.11.14 RL Was source
-                        'includeonly', 'gallery', 'noinclude', 'onlyinclude'
-                    ],
+                    wgImgWikitags = ['references','ref','syntaxhighlight','html','nowiki','math','gallery','includeonly','noinclude','onlyinclude'],  //17.11.14 RL 						
                     wgCKeditorMagicWords = window.parent.wgCKeditorMagicWords || window.parent.parent.wgCKeditorMagicWords;
 
 				content.Trim();
@@ -102,18 +100,27 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" lang="' + el[2] + '" _fck_mw_tagtype="t">' 
                           + convToHTML(inner) + '</span>';                      //30.10.14 RL Added convToHTML()
                 } //17.02.14 RL<-
-                else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {
-                    var inner = el[2] || '_',
+              //else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {                            //17.11.14 RL
+				else if (el = content.match(/^<([\w_-]+)(\s*[\w_-]*)=*("?[\w_-]*"?)>(.*?)<\/([\w_-]+)>$/)) { //17.11.14 RL			
+					// $1  $2  $3  $4    $5       $1  $2  $4   $5       $1  $4   $5    
+					//<tag xxx=yyy>zzzz</tag> or <tag xxx>zzz</tag> or <tag>zzz</tag>
+
+					var inner = el[4] || '_',                   //17.11.14 RL Was el[2]
                         spanClass = 'fck_mw_special';
                     className = 'FCK__MWSpecial';
 
                     if (el[1].InArray(wgImgWikitags)) {
-                        spanClass = 'fck_mw_' + el[1];
+						spanClass = 'fck_mw_' + el[1];
                         className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
                     }					
-                    tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" _fck_mw_tagtype="t">'
-                        + inner + '</span>';
-					}
+                    tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '"'; 
+
+					if ( el[2] != "" && el[3] != "" ) {         //17.11.14 RL
+						tag = tag + ' ' + el[2] + '=' + el[3]; 
+					}	
+						
+                    tag = tag + ' _fck_mw_tagtype="t">' + inner + '</span>';				
+				}
                 else if (el = content.match(/^__(.*?)__$/)) {
                     tag = '<span class="fck_mw_magic" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" _fck_mw_tagtype="c">'
                         + '_</span>'
@@ -200,7 +207,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                         inner = element.getHtml().replace(/_$/, '').replace(/fckLR/g, '\r\n').replace(/fckSPACE/g,' '); //30.10.14 RL fckSPACE
 
 					inner = convFromHTML(inner);		//30.10.14 RL Added convFromHTML()				
-						
+
 					if ( element.getAttribute( 'class' ).InArray(['fck_mw_special',
 					                                              'fck_mw_syntaxhighlight'     //17.02.14 RL, 03.11.24 RL Was source
 																 ])
@@ -208,9 +215,18 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 					{         
                         var tagName = element.getAttribute('_fck_mw_tagname') || '',
 						    tagLang = element.getAttribute( 'lang' ) || '',           //17.02.14 RL
-                            tagType = element.getAttribute('_fck_mw_tagtype') || '';
-
-						if ( tagName == 'syntaxhighlight' ) {                         //17.02.14 RL-> //02.11.14 RL Was source
+                            tagType = element.getAttribute('_fck_mw_tagtype') || '',
+					        tagPollVote = element.getAttribute( 'show-results-before-voting' ) || ''; //17.11.14 RL
+							;
+							
+						if ( tagName == 'poll' ) {                                    //17.11.14 RL
+                            content += '<' + tagName;
+							if ( tagPollVote != '') {
+							  content += ' show-results-before-voting=' + tagPollVote;      
+							}                                              
+							content += '>' + inner + '</' + tagName + '>';  
+                        }    
+						else if ( tagName == 'syntaxhighlight' ) {                    //17.02.14 RL-> //02.11.14 RL Was source
                             content += '<' + tagName;
 							if (tagLang != '') {  //<syntaxhighlight lang="xxxx">                       
 							  content += ' lang="' + tagLang + '"';      

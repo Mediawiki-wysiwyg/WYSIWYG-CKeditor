@@ -204,11 +204,18 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	function fck_genericTagHook( $str, $argv, $parser ) {
-		if( in_array( $this->fck_mw_taghook, array( 'ref', 'math', 'references', 'syntaxhighlight' ) ) ) {  //02.11.14 RL Was source
-			$class = $this->fck_mw_taghook;
-		} else {
-			$class = 'special';
-		}
+		//if( in_array( $this->fck_mw_taghook, array( 'ref', 'math', 'references', 'syntaxhighlight' ) ) ) {  //02.11.14 RL Was source
+		//	$class = $this->fck_mw_taghook;
+		//} else {
+		//	$class = 'special';
+		//}
+		
+		if( in_array( $this->fck_mw_taghook, array( 'references','ref','syntaxhighlight','html','nowiki','math','gallery','includeonly','noinclude','onlyinclude' ) ) ) { //17.11.14 RL
+			$class = $this->fck_mw_taghook; 
+		} 
+		else {  //17.11.14 RL
+			$class = 'special'; //All others like <calendar>, <poll> ,etc...
+		} 		
 
         $ret = '<span class="fck_mw_' . $class . '" _fck_mw_customtag="true" '.
                '_fck_mw_tagname="' . $this->fck_mw_taghook . '" _fck_mw_tagtype="t"';
@@ -232,6 +239,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		return $replacement;
 	}
 
+
 	/**
 	 * Callback function for wiki tags: nowiki, includeonly, noinclude
 	 *
@@ -241,15 +249,18 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	function fck_wikiTag( $tagName, $str, $argv = array() ) {
-        	$className = $tagName;
-		if ('calendar' == $tagName) {
-			$className = 'nowiki';
-		}
+	
+		if( in_array( $tagName, array( 'references','ref','syntaxhighlight','html','nowiki','math','gallery','includeonly','noinclude','onlyinclude' ) ) ) { //17.11.14 RL
+			$className = $tagName; 
+		} 
+		else {  //17.11.14 RL
+			$className = 'special';  //All others like <calendar>, <poll> ,etc...
+		} 
 	    
 		if( empty( $argv ) ) {
-			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '">';
+			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t">'; //17.11.14 RL _fck_mw_tagtype
 		} else {
-			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '"';
+			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t"';  //17.11.14 RL _fck_mw_tagtype
 			foreach( $argv as $key => $value ) {
 				$ret .= " " . $key . "=\"" . $value . "\"";
 			}
@@ -302,6 +313,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 			|| ( isset( $wgExtensionFunctions ) && in_array( 'wfCite', $wgExtensionFunctions ) ) ) {
 			$elements = array_merge( $elements, array( 'ref', 'references' ) );
 		}
+		
 		global $wgRawHtml;
 		if( $wgRawHtml ) {
 			$elements[] = 'html';
@@ -376,17 +388,24 @@ class CKeditorParser extends CKeditorParserWrapper {
 						$output = $this->fck_wikiTag( 'gallery', $content, $params ); // required by FCKeditor
 						//$output = $this->renderImageGallery( $content, $params );
 						break;
-					case 'calendar':
-					    	$output = $this->fck_wikiTag( 'calendar', $content, $params ); // required by FCKeditor
-					    	break;
+					default: //case 'calendar': case 'poll':  ..etc...                   //17.11.14 RL 
+						$output = $this->fck_wikiTag( $tagName, $content, $params );     //17.11.14 RL  
+
+						//$this->fck_mw_taghook = $tagName;                              //17.11.14 RL->This works too, but is ~3 times slower
+						//$handler = array( 'CKeditorParser', 'fck_genericTagHook' );    
+						//$params = array( $content, $params, $this );
+						//$output = call_user_func_array( $handler , $params );          //17.11.14 RL<-
+
+					/******17.11.14 RL****	
 					default:
 						if( isset( $this->mTagHooks[$tagName] ) ) {
 							$this->fck_mw_taghook = $tagName; // required by FCKeditor
-							$output = call_user_func_array( $this->mTagHooks[$tagName],
-							array( $content, $params, $this ) );
+							$output = call_user_func_array( $this->mTagHooks[$tagName],  
+															array( $content, $params, $this ) ); //This type of call seems to fail
 						} else {
 							throw new MWException( "Invalid call hook $element" );
 						}
+					******/	
 				}
 				wfProfileOut( __METHOD__ . "-render-$tagName" );
 			} else {
