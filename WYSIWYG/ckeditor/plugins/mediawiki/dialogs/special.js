@@ -119,7 +119,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 						tag = tag + ' ' + el[2] + '=' + el[3]; 
 					}	
 						
-                    tag = tag + ' _fck_mw_tagtype="t">' + inner + '</span>';				
+                    tag = tag + ' _fck_mw_tagtype="t">' + convToHTML(inner) + '</span>'; //19.11.14 RL Added convToHTML()				
 				}
                 else if (el = content.match(/^__(.*?)__$/)) {
                     tag = '<span class="fck_mw_magic" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" _fck_mw_tagtype="c">'
@@ -133,7 +133,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     var inner = el[2] || '_';
                     tag = '<span class="fck_mw_special" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '"' +
                           ' _fck_mw_tagtype="' + tagType + '">'
-                        + inner + '</span>'
+                        + convToHTML(inner)  + '</span>' //19.11.14 RL Added convToHTML()	
                     className = 'FCK__MWSpecial';
                 }
                 else if (el = content.match(/^{{([A-Z\d]+)}}$/)) {

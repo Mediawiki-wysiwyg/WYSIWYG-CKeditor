@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 19.11.14  Fixed tag- dialog: support multiple nested tags of wikitext or html syntax by converting inserted text to html format (related to fix dated 30.10.14 below).
+
 - 17.11.14  Modified wysiwyg to work with poll- extension (by default all unkown simple wikitext tags should now work as "special" -element).
 
 - 07.11.14  Updated CKBuilder and run instructions of _source directory. Fixed CKBuilder warnings with smwtoolbar/plugin.js. Added command _source/dev/builder/build_leave-js-unminified.sh.
