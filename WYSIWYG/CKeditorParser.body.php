@@ -18,6 +18,18 @@ class CKeditorParser extends CKeditorParserWrapper {
        "onlyinclude",
        "noinclude"
     );
+	private $FCKeditorImageWikiTags = array( //19.11.14 RL 	MW tags using image element in wysiwyg
+		"references",
+		"ref",
+		"syntaxhighlight",
+		"html",
+		"nowiki",
+		"math",
+		"gallery",
+		"includeonly",
+		"noinclude",
+		"onlyinclude"  
+	);   
 	private $FCKeditorMagicWords = array(
        "NOTOC",
        "FORCETOC",
@@ -128,6 +140,9 @@ class CKeditorParser extends CKeditorParserWrapper {
     public function getSpecialTags() {
         return $this->FCKeditorWikiTags;
     }
+	public function getImageWikiTags() {  //19.11.14 RL
+		return $this->FCKeditorImageWikiTags;
+	}		
     public function getMagicWords() {
         return $this->FCKeditorMagicWords;
     }
@@ -210,7 +225,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		//	$class = 'special';
 		//}
 		
-		if( in_array( $this->fck_mw_taghook, array( 'references','ref','syntaxhighlight','html','nowiki','math','gallery','includeonly','noinclude','onlyinclude' ) ) ) { //17.11.14 RL
+		if( in_array( $this->fck_mw_taghook, $this->FCKeditorImageWikiTags ) ) { //19.11.14 RL
 			$class = $this->fck_mw_taghook; 
 		} 
 		else {  //17.11.14 RL
@@ -249,8 +264,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	function fck_wikiTag( $tagName, $str, $argv = array() ) {
-	
-		if( in_array( $tagName, array( 'references','ref','syntaxhighlight','html','nowiki','math','gallery','includeonly','noinclude','onlyinclude' ) ) ) { //17.11.14 RL
+		if( in_array( $tagName, $this->FCKeditorImageWikiTags ) ) { //19.11.14 RL
 			$className = $tagName; 
 		} 
 		else {  //17.11.14 RL
@@ -371,17 +385,20 @@ class CKeditorParser extends CKeditorParserWrapper {
 						$output = $this->fck_wikiTag( 'nowiki', $content, $params ); // required by FCKeditor
 						break;
 					case 'math':
+						
 						if( $wgUseTeX ){ //normal render
 							$output = $wgContLang->armourMath( MathRenderer::renderMath( $content ) );
 						} else {         //show fakeimage
-                              //17.10.14 RL->Location of "button_math.png" may vary: it can be in math extension or in skins/common/images 
-							if (file_exists(str_replace('//', '/',dirname(__FILE__).'/../../extensions/Math/images/button_math.png'))) { 
-                                $output = '<img _fckfakelement="true" class="FCK__MWMath" _fck_mw_math="'.$content.'" src="'.$wgScriptPath.'/extensions/Math/images/button_math.png" />';
-                            } 
-                            else { 
-                              //17.10.14 RL<- 
-                                $output = '<img _fckfakelement="true" class="FCK__MWMath" _fck_mw_math="'.$content.'" src="'.$wgScriptPath.'/skins/common/images/button_math.png" />';
-                            } //17.10.14 RL
+							$output = $this->fck_wikiTag( 'math', $content, $params ); //19.11.14 RL Use normal wysiwyg element
+							
+							//17.10.14 RL->Location of "button_math.png" may vary: it can be in math extension or in skins/common/images 
+							//if (file_exists(str_replace('//', '/',dirname(__FILE__).'/../../extensions/Math/images/button_math.png'))) { 
+							//	$output = '<img _fckfakelement="true" class="FCK__MWMath" _fck_mw_math="'.$content.'" src="'.$wgScriptPath.'/extensions/Math/images/button_math.png" />';
+							//} 
+                            //else { 
+							//  //17.10.14 RL<- 
+							//	$output = '<img _fckfakelement="true" class="FCK__MWMath" _fck_mw_math="'.$content.'" src="'.$wgScriptPath.'/skins/common/images/button_math.png" />';
+                            //} //17.10.14 RL
 						}
                         break;
 					case 'gallery':

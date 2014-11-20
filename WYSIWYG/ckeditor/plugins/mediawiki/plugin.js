@@ -143,9 +143,18 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
-			'img.FCK__MWCategory' +     //07.01.14 RL Added this is for new CKEeditor element
+			'img.FCK__MWCategory' +     //07.01.14 RL New element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
+				'background-position: center center;' +
+				'background-repeat: no-repeat;' +
+				'border: 1px solid #a9a9a9;' +
+				'width: 18px !important;' +
+				'height: 15px !important;' +
+			'}\n' +
+			'img.FCK__MWMath' +         //19.11.14 RL
+			'{' +
+				'background-image: url(' + ( CKEDITOR.getUrl( this.path + 'images/button_math.png' ) ) + ');' +
 				'background-position: center center;' +
 				'background-repeat: no-repeat;' +
 				'border: 1px solid #a9a9a9;' +
@@ -161,7 +170,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
-			'span.fck_mw_category' +    //07.01.14 RL This is for original element of html page
+			'span.fck_mw_category' +    //07.01.14 RL Original element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
 				'background-position: 0 center;' +
@@ -170,7 +179,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n';
-
         return str;
     },
 
@@ -201,9 +209,12 @@ CKEDITOR.plugins.add( 'mediawiki',
                             case 'fck_mw_references' :
                                 if ( className == null )
                                     className = 'FCK__MWReferences';
-                            case 'fck_mw_category' :                 //07.01.14 RL
-                               if ( className == null )              //07.01.14 RL
-                                    className = 'FCK__MWCategory';   //07.01.14 RL
+                            case 'fck_mw_category' :                 //07.01.14 RL->
+                               if ( className == null )              
+                                    className = 'FCK__MWCategory';   //07.01.14 RL<-
+                            case 'fck_mw_math' :                     //19.11.14 RL->
+                               if ( className == null )  
+                                    className = 'FCK__MWMath';       //19.11.14 RL<-								
                             case 'fck_mw_template' :
                                 if ( className == null ) //YC
                                     className = 'FCK__MWTemplate'; //YC
@@ -694,8 +705,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 				if ( element.is( 'img' ) &&                             //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
 					 element.getAttribute( 'class' ).InArray( [         //03.02.14 RL Modified to use InArray(..)
-								'FCK__MWReferences',
-								'FCK__MWMath'
+								'FCK__MWReferences'   
+								/**,'FCK__MWMath'**/                    //19.11.14 RL Commented out
 								])
 				   ) {
 				  /*Do nothing, because otherwise doubleclick of math or reference object
@@ -727,6 +738,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 								'FCK__MWIncludeonly',
 								'FCK__MWNoinclude',
 								'FCK__MWOnlyinclude',
+								'FCK__MWMath',                                           //19.11.14 RL
 								'FCK__MWSyntaxhighlight'                                 //17.02.14 RL, 02.11.14 RL Earlier source
 							])
 						)
@@ -1285,14 +1297,16 @@ CKEDITOR.customprocessor.prototype =
 
 						case 'img' :
 
-							var formula = htmlNode.getAttribute( '_fck_mw_math' ); //07.01.14 RL Was unknown: '_cke_mw_math'
-
-							if ( formula && formula.length > 0 ){
-								stringBuilder.push( '<math>' );
-								stringBuilder.push( formula );
-								stringBuilder.push( '</math>' );
-								return;
-							}
+							//19.11.14 RL Commented out
+							//var formula = htmlNode.getAttribute( '_fck_mw_math' ); //07.01.14 RL Was unknown: '_cke_mw_math'
+                            //
+							//if ( formula && formula.length > 0 ){
+							//	stringBuilder.push( '<math>' );
+							//	stringBuilder.push( formula );
+							//	stringBuilder.push( '</math>' );
+							//	return;
+							//}
+							
                             // external image?
                             var src = htmlNode.getAttribute( 'src' );
                             if (src != null && src.toLowerCase().match(/^https?:\/\//)) { //30.10.14 RL Test null (by Wingsofcourage)

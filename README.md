@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 20.11.14  Fixed tag- dialog: allow more advanced tag definitions in tag -dialog; reactivated text-html-text conversions using browser (related to fix dated 19.11.14 below); use tag -dialog to edit math -formulas. Changed handling of math -element from img- to span- tag making it identical with other similar elements of wysiwyg.
+
 - 19.11.14  Fixed tag- dialog: support multiple nested tags of wikitext or html syntax by converting inserted text to html format (related to fix dated 30.10.14 below).
 
 - 17.11.14  Modified wysiwyg to work with poll- extension (by default all unkown simple wikitext tags should now work as "special" -element).
