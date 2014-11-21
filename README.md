@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 21.01.14  Update of installation instructions below.
+
 - 20.11.14  Fixed tag- dialog: support comments -tag (about 99% compatible); try to parse any simple tags of wikitext unknown to wysiwyg.
 
 - 20.11.14  Fixed tag- dialog: allow more advanced tag definitions in tag -dialog; reactivated text-html-text conversions using browser (related to fix dated 19.11.14 below); use tag -dialog to edit math -formulas. Changed handling of math -element from img- to span- tag making it identical with other similar elements of wysiwyg.
@@ -209,7 +211,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 -----------------
 **File: LocalSettings.php**
 
-Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together:
+Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together. Definition of wysiwyg extension in file LocalSettings.php should be placed as last of all other extensions in order to make wysiwyg aware of tags which other installed extensions may be using.
 
 
     #13.11.13->
