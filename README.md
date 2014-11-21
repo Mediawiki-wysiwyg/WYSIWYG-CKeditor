@@ -35,7 +35,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 21.01.14  Update of installation instructions below.
+- 21.01.14  Fixed data of gallery -tag to be edited with tag -dialog (tag is displayed as gallery -element in wysiwyg). Enabled use of attributes for hovergallery -tag (tag is displayed as special -element in wysiwyg).
 
 - 20.11.14  Fixed tag- dialog: support comments -tag (about 99% compatible); try to parse any simple tags of wikitext unknown to wysiwyg.
 
@@ -211,7 +211,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 -----------------
 **File: LocalSettings.php**
 
-Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together. Definition of wysiwyg extension in file LocalSettings.php should be placed as last of all other extensions in order to make wysiwyg aware of tags which other installed extensions may be using.
+Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together.
 
 
     #13.11.13->

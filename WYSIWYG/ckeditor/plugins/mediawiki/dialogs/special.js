@@ -201,7 +201,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                             'FCK__MWNoinclude',
                             'FCK__MWOnlyinclude',
 							'FCK__MWMath',            //19.11.14 RL
-							'FCK__MWSyntaxhighlight'  //17.02.14 RL, 02.11.14 RL Was source
+							'FCK__MWSyntaxhighlight', //17.02.14 RL, 02.11.14 RL Was source
+							'FCK__MWGallery'          //21.11.14 RL
                          ])
                     )
                 {

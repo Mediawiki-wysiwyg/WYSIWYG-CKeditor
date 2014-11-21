@@ -739,7 +739,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 								'FCK__MWNoinclude',
 								'FCK__MWOnlyinclude',
 								'FCK__MWMath',                                           //19.11.14 RL
-								'FCK__MWSyntaxhighlight'                                 //17.02.14 RL, 02.11.14 RL Earlier source
+								'FCK__MWSyntaxhighlight',                                //17.02.14 RL, 02.11.14 RL Earlier source
+								'FCK__MWGallery'                                         //21.11.14 RL   
 							])
 						)
 							evt.data.dialog = 'MWSpecialTags';

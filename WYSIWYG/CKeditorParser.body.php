@@ -17,8 +17,8 @@ class CKeditorParser extends CKeditorParserWrapper {
        "includeonly",
        "onlyinclude",
        "noinclude",
-	   "comments",  //20.11.14 RL <comments> will be displayed as special -element     
-	   "poll"       //20.11.14 RL <poll> 
+	   "comments",  //20.11.14 RL <comments> will be displayed as special -element also when comments -extension is not installed    
+	   "poll"       //20.11.14 RL <poll> always display as special -element...
     );
 	private $FCKeditorImageWikiTags = array( //19.11.14 RL 	MW tags using image element in wysiwyg
 		"references",
@@ -32,12 +32,16 @@ class CKeditorParser extends CKeditorParserWrapper {
 		"noinclude",
 		"onlyinclude"  
 	);   
-	private $FCKeditorAttribWikiTags = array( //20.11.14 RL Attributes of MW tags which are using image element in wysiwyg 
+    //20.11.14 RL $FCKeditorAttribWikiTags contains attributes of all MW tags which are using image elements in wysiwyg and special.js tag -dialog for editing. 
+	//            Variable is used at least until special.js is fixed to use nodeName/nodeVal or similar "name immune" solution.
+	private $FCKeditorAttribWikiTags = array( 
 		"lang",                               //syntaxhighlight  
 		"show-results-before-voting",         //poll
 		"style",                              //pre
 		"allow",                              //comments  
-		"voting"                              //comments    
+		"voting",                             //comments    
+		"maxhoverwidth",                      //hovergallery    //21.11.14 RL
+		"maxhoverheight"                      //hovergallery    //21.11.14 RL  
 	);	
 	private $FCKeditorMagicWords = array(
        "NOTOC",
