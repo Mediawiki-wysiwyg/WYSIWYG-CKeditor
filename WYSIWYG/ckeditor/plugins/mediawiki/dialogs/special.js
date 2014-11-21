@@ -167,7 +167,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     }
                 }
                 else if (el = content.match(/^{{[\w\d_-]+(\|.*?)*}}$/)) {
-                    tag = '<span class="fck_mw_template">' + el[0].substr(2, -2) + '</span>';
+				                      //    /^{{[\w\d_-]+((\|.*?)*)}}$/   <-this is .match rule of template.js
+					tag = '<span class="fck_mw_template">' + el[0] + '</span>'; //21.11.14 RL Original el[0].substr(2, -2) returned empty string because of negative length
                     className = 'FCK__MWTemplate';
                 }
                 else {

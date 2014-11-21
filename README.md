@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 21.01.14  It is possible to enter also template definition with tag -dialog (template dialog, template.js, is preferred method to work with template definitions).
+
 - 21.01.14  Fixed data of gallery -tag to be edited with tag -dialog (tag is displayed as gallery -element in wysiwyg). Enabled use of attributes for hovergallery -tag (tag is displayed as special -element in wysiwyg).
 
 - 20.11.14  Fixed tag- dialog: support comments -tag (about 99% compatible); try to parse any simple tags of wikitext unknown to wysiwyg.
