@@ -16,7 +16,9 @@ class CKeditorParser extends CKeditorParserWrapper {
        "nowiki",
        "includeonly",
        "onlyinclude",
-       "noinclude"
+       "noinclude",
+	   "comments",  //20.11.14 RL <comments> will be displayed as special -element     
+	   "poll"       //20.11.14 RL <poll> 
     );
 	private $FCKeditorImageWikiTags = array( //19.11.14 RL 	MW tags using image element in wysiwyg
 		"references",
@@ -30,6 +32,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 		"noinclude",
 		"onlyinclude"  
 	);   
+	private $FCKeditorAttribWikiTags = array( //20.11.14 RL Attributes of MW tags which are using image element in wysiwyg 
+		"lang",                               //syntaxhighlight  
+		"show-results-before-voting",         //poll
+		"style",                              //pre
+		"allow",                              //comments  
+		"voting"                              //comments    
+	);	
 	private $FCKeditorMagicWords = array(
        "NOTOC",
        "FORCETOC",
@@ -143,6 +152,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 	public function getImageWikiTags() {  //19.11.14 RL
 		return $this->FCKeditorImageWikiTags;
 	}		
+	public function getAttribWikiTags() { //20.11.14 RL
+		return $this->FCKeditorAttribWikiTags;
+	}			
     public function getMagicWords() {
         return $this->FCKeditorMagicWords;
     }
@@ -280,11 +292,14 @@ class CKeditorParser extends CKeditorParserWrapper {
 			}
 			$ret .= '>';
 		}
-		if( !is_null( $str ) )
+	
+		if( !is_null( $str ) && $str != '' ) //20.11.14 RL Added $str != ''
             $ret .= htmlspecialchars( $str );
         else $ret .= '_';
 		$ret .= '</span>';
 
+		//if ($tagName == 'comments') printf("debug_tag_0 %s", preg_replace("/</","",$ret) ); //20.11.14 RL 
+		
 		$replacement = $this->fck_addToStrtr( $ret );
 
 		return $replacement;
@@ -318,6 +333,8 @@ class CKeditorParser extends CKeditorParserWrapper {
 		$nowikiItems = array();
 		$generalItems = array();
 
+		//printf('debug_tag_1 mTagHooks: %d', is_null( $this->mTagHooks ) ); //20.11.14 RL 
+		
 		$elements = array_merge( array( 'nowiki', 'gallery', 'math' ), array_keys( $this->mTagHooks ) );
 		if ( ( isset( $wgHooks['ParserFirstCallInit']) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgHooks['ParserFirstCallInit'] ) )
 			|| ( isset( $wgExtensionFunctions ) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgExtensionFunctions ) ) ) {

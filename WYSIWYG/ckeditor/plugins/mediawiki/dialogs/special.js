@@ -1,6 +1,5 @@
 CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 {
-
         function stripTags(html) {                                                       //30.10.14 RL->
             return html.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, ''); 
         } 
@@ -98,12 +97,14 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" lang="' + el[2] + '" _fck_mw_tagtype="t">' 
                           + convToHTML(inner) + '</span>';                      //30.10.14 RL Added convToHTML()
                 } //17.02.14 RL<-
-              //else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {                            //17.11.14 RL
-				else if (el = content.match(/^<([\w_-]+)(\s*[\w_-]*)=*("?[\w_-\s\:\;]*"?)>(.*?)<\/([\w_-]+)>$/)) { //19.11.14 RL			
-					// $1  $2  $3              $4    $5     $1  $2      $4    $5     $1  &2  $4   $5       $1  $4   $5
+              //else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {                                    //17.11.14 RL
+				//else if (el = content.match(/^<([\w_-]+)(\s*[\w_-]*)=*("?[\w_-\s\:\;\,]*"?)>(.*?)<\/([\w_-]+)>$/)) { //19.11.14 RL			
+				else if (el = content.match(/^<([\w_-]+)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)>(.*?)<\/([\w_-]+)>$/)) { //19.11.14 RL			
+
+					// $1  ($2  $3) x 2        $8    $9     $1  $2      $8    $9     $1  &2  $8   $9       $1  $4   $9
 					//<tag xxx=aaa:bbb;ccc:ddd>zzzz</tag>, <tag xxx=yyy>zzzz</tag>, <tag xxx>zzz</tag> or <tag>zzz</tag>
 
-					var inner = el[4] || '_',                   //17.11.14 RL Was el[2]
+					var inner = el[8] || '_',                   //17.11.14 RL Was el[2]
                         spanClass = 'fck_mw_special';
                     className = 'FCK__MWSpecial';
 
@@ -116,7 +117,12 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 					if ( el[2] != '' && el[3] != '' ) {         //17.11.14 RL
 						tag = tag + ' ' + el[2] + '=' + el[3]; 
 					}	
-						
+					if ( el[4] != '' && el[5] != '' ) {         //20.11.14 RL
+						tag = tag + ' ' + el[4] + '=' + el[5]; 
+					}					
+					if ( el[6] != '' && el[7] != '' ) {         //20.11.14 RL
+						tag = tag + ' ' + el[6] + '=' + el[7]; 
+					}						
                     tag = tag + ' _fck_mw_tagtype="t">' + convToHTML(inner) + '</span>'; //19.11.14 RL Added convToHTML()				
 				}
                 else if (el = content.match(/^__(.*?)__$/)) {
@@ -194,8 +200,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                             'FCK__MWIncludeonly',
                             'FCK__MWNoinclude',
                             'FCK__MWOnlyinclude',
-							'FCK__MWMath',                                                     //19.11.14 RL
-							'FCK__MWSyntaxhighlight'                                           //17.02.14 RL, 02.11.14 RL Was source
+							'FCK__MWMath',            //19.11.14 RL
+							'FCK__MWSyntaxhighlight'  //17.02.14 RL, 02.11.14 RL Was source
                          ])
                     )
                 {
@@ -205,39 +211,33 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 
                     var content = '',
                         inner = element.getHtml().replace(/_$/, '').replace(/fckLR/g, '\r\n').replace(/fckSPACE/g,' '); //30.10.14 RL fckSPACE
-
+						
 					inner = convFromHTML(inner);		//30.10.14 RL Added convFromHTML()				
 
 					if ( element.getAttribute( 'class' ).InArray(['fck_mw_special',
-					                                              'fck_mw_syntaxhighlight'     //17.02.14 RL, 03.11.24 RL Was source
+					                                              'fck_mw_syntaxhighlight' //17.02.14 RL, 03.11.24 RL Was source
 																 ])
                        ) 
 					{         
                         var tagName = element.getAttribute('_fck_mw_tagname') || '',
-						    tagLang = element.getAttribute( 'lang' ) || '',           //17.02.14 RL
                             tagType = element.getAttribute('_fck_mw_tagtype') || '',
-					        tagPollVote = element.getAttribute( 'show-results-before-voting' ) || '', //17.11.14 RL
-							tagStyle = element.getAttribute( 'style' ) || '' ;        //19.11.14 RL
+							attr    = wgCKeditorMagicWords.attribwikitags,           //20.11.14 RL
+							index, tagAttrVal, tagAttrName;                          //20.11.14 RL
 
-						if ( tagName == 'poll' ) {                                    //17.11.14 RL
+						if ( tagType == 't' ) {
                             content += '<' + tagName;
-							if ( tagPollVote != '') {
-							  content += ' show-results-before-voting=' + tagPollVote;      
-							}                                              
-							content += '>' + inner + '</' + tagName + '>';  
-                        }    
-						else if ( tagName == 'syntaxhighlight' ) {                    //17.02.14 RL-> //02.11.14 RL Was source
-                            content += '<' + tagName;
-							if (tagLang != '') {  //<syntaxhighlight lang="xxxx">                       
-							  content += ' lang="' + tagLang + '"';      
-							}                                              
-							content += '>' + inner + '</' + tagName + '>';  
-                        }                                                             //17.02.14 RL<-
-                        else if ( tagType == 't' ) {
-                            content += '<' + tagName;
-							if ( tagStyle != '' ) {                                   //19.11.14 RL
-								content += ' style="' + tagStyle + '"';               
-							}
+							for (index = 0; index < attr.length; ++index) {          //20.11.14 RL 
+								if ( ( tagAttrVal = element.getAttribute( attr[index] ) || '' ) != '' ) { 
+									tagAttrName = attr[index];
+								
+									if ( ( tagAttrVal != undefined ) && ( tagAttrName != '' ) ) { //20.11.14 RL                               
+										content += ' ' + tagAttrName;
+									}
+									if ( ( tagAttrVal != undefined ) && ( tagAttrName != '' ) ) {  //20.11.14 RL
+										content += '="' + tagAttrVal + '"';
+									}
+								}
+							} 
 							content += '>' + inner + '</' + tagName + '>';
                         }
                         else if ( tagType == 'sf') {

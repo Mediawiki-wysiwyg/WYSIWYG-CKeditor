@@ -320,7 +320,8 @@ class CKeditor_MediaWiki {
         $ckParser = new CKeditorParser();
         $vars['wgCKeditorMagicWords'] = array(
             'wikitags' => $ckParser->getSpecialTags(),
-			'imagewikitags' => $ckParser->getImageWikiTags(), //19.11.14 RL
+			'imagewikitags' => $ckParser->getImageWikiTags(),   //19.11.14 RL
+			'attribwikitags' => $ckParser->getAttribWikiTags(), //20.11.14 RL
             'magicwords' => $ckParser->getMagicWords(),
             'datevars' => $ckParser->getDateTimeVariables(),
             'wikivars' => $ckParser->getWikiVariables(),
