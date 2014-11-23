@@ -64,65 +64,51 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     className = null,
                     textarea = this.getContentElement( 'mwSpecialTagDef', 'tagDefinition'),
                     content = textarea.getValue(),
-                    //19.11.14 RL wgImgWikitags = ['references','ref','syntaxhighlight','html','nowiki','math','gallery','includeonly','noinclude','onlyinclude'],
                     wgCKeditorMagicWords = window.parent.wgCKeditorMagicWords || window.parent.parent.wgCKeditorMagicWords;
 
 				content.Trim();
 				content = content.replace(/\r?\n/g, 'fckLR');
 
-                // check for a allowed tags
-				//17.02.14 RL->     
-				if (el = content.match(/^<(source|syntaxhighlight).*?lang=/)) { //02.11.14 RL 
-                    //<source lang="xx">... and <syntaxhighlight lang="xx">...
-					//Replace source -tag with syntaxhighlight -tag 
-					if ( content.match(/^<(source).*?lang="([\w_-]+)">(.*?)<\/(source)>$/) ) { //02.11.14 RL
-						content = content.replace(/^<(source).*?lang="([\w_-]+)">(.*?)<\/(source)>$/, '<syntaxhighlight lang="$2">$3</syntaxhighlight>');
-					}
-
-					if (! (el = content.match(/^<(syntaxhighlight).*?lang="([\w_-]+)">(.*?)<\/(syntaxhighlight)>$/))) { //30.10.14 RL Was source
-						alert (editor.lang.mwplugin.invalidContent);
-						return false;					
-					}
-
-					var inner = el[3] || '_',
-                        spanClass = 'fck_mw_special';
-                    className = 'FCK__MWSpecial';
-
-					inner = inner.replace(/ /g,'fckSPACE');                     //02.11.14 RL				
-					
-                    if (el[1].InArray(wgCKeditorMagicWords.imagewikitags)) {    //19.11.14 RL 
-                        spanClass = 'fck_mw_' + el[1];
-                        className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
-                    }					
-                    tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '" lang="' + el[2] + '" _fck_mw_tagtype="t">' 
-                          + convToHTML(inner) + '</span>';                      //30.10.14 RL Added convToHTML()
-                } //17.02.14 RL<-
-              //else if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) {                                    //17.11.14 RL
-				//else if (el = content.match(/^<([\w_-]+)(\s*[\w_-]*)=*("?[\w_-\s\:\;\,]*"?)>(.*?)<\/([\w_-]+)>$/)) { //19.11.14 RL			
-				else if (el = content.match(/^<([\w_-]+)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)>(.*?)<\/([\w_-]+)>$/)) { //19.11.14 RL			
-
-					// $1  ($2  $3) x 2        $8    $9     $1  $2      $8    $9     $1  &2  $8   $9       $1  $4   $9
+				// check for a allowed tags
+				//if (el = content.match(/^<([\w_-]+)>(.*?)<\/([\w_-]+)>$/)) { //17.11.14 RL
+				//if (el = content.match(/^<([\w_-]+)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)>(.*?)<\/([\w_-]+)>$/)) { //21.11.14 RL			
+				if (el = content.match(/^<([\w_-]+)\s*([\w_-]*)=*("?[\w_-\s\:\;\,\.\/\(\)\'\!]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,\.\/\(\)\'\!]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,\.\/\(\)\'\!]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,\.\/\(\)\'\!]*"?)>(.*?)<\/([\w_-]+)>$/)) { //23.11.14 RL			
+					// $1  ($2  $3) x 4        $10   $11    $1  $2      $10   $11    $1  &2  $10  $11      $1  $10  $11
 					//<tag xxx=aaa:bbb;ccc:ddd>zzzz</tag>, <tag xxx=yyy>zzzz</tag>, <tag xxx>zzz</tag> or <tag>zzz</tag>
 
-					var inner = el[8] || '_',                   //17.11.14 RL Was el[2]
-                        spanClass = 'fck_mw_special';
+					//For <source> tag replace it with <syntaxhighlight> tag and refresh contents of el -variable after replace.
+					//Note! Latest version of syntaxhighlight extension, >= rev:50696, should be installed.
+					if ( content.match(/^<(source).*?lang="([\w_-]+)">(.*?)<\/(source)>$/) ) { //02.11.14 RL
+						content = content.replace(/^<(source).*?lang="([\w_-]+)">(.*?)<\/(source)>$/, '<syntaxhighlight lang="$2">$3</syntaxhighlight>');
+						//Note! Below should be same match as in "if (el = content.match..." test abowe.
+						if ( ! (el = content.match(/^<([\w_-]+)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)\s*([\w_-]*)=*("?[\w_-\s\:\;\,]*"?)>(.*?)<\/([\w_-]+)>$/))) { //23.11.14 RL			
+							alert (editor.lang.mwplugin.invalidContent);
+							return false;					
+						}
+					}	
+					
+					var inner     = el[10] || '_',     //23.11.14 RL
+                        spanClass = 'fck_mw_special',  //Default: tag is displayed as special -element in wysiwyg
+						attrstr   = '';                //23.11.14 RL
                     className = 'FCK__MWSpecial';
 
-                    if (el[1].InArray(wgCKeditorMagicWords.imagewikitags)) {    //19.11.14 RL 
-						spanClass = 'fck_mw_' + el[1];
+                    if (el[1].InArray(wgCKeditorMagicWords.imagewikitags)) { //19.11.14 RL List of "known" MW tags in wysiwyg 
+						spanClass = 'fck_mw_' + el[1];                       //Tag has own element in wysiwyg
                         className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
                     }					
                     tag = '<span class="'+ spanClass +'" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '"'; 
 
-					if ( el[2] != '' && el[3] != '' ) {         //17.11.14 RL
-						tag = tag + ' ' + el[2] + '=' + el[3]; 
-					}	
-					if ( el[4] != '' && el[5] != '' ) {         //20.11.14 RL
-						tag = tag + ' ' + el[4] + '=' + el[5]; 
-					}					
-					if ( el[6] != '' && el[7] != '' ) {         //20.11.14 RL
-						tag = tag + ' ' + el[6] + '=' + el[7]; 
-					}						
+					for (i = 2; i <= 8; i++, i++) { //23.11.14 RL-> i=2,4,6 => maximum of 4 attributes
+						if ( el[i] != '' && el[i+1] != '' ) {
+							tag = tag + ' ' + el[i] + '=' + el[i+1]; 
+							attrstr = attrstr + el[i] + ",";
+						}
+					}
+					
+					if ( attrstr != '' ) { //23.11.14 RL
+						tag = tag + ' _fck_mw_tagattributes="' + attrstr.substr( 0, attrstr.length - 1 ) + '"';
+					}                                           
+					
                     tag = tag + ' _fck_mw_tagtype="t">' + convToHTML(inner) + '</span>'; //19.11.14 RL Added convToHTML()				
 				}
                 else if (el = content.match(/^__(.*?)__$/)) {
@@ -220,25 +206,25 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 					                                              'fck_mw_syntaxhighlight' //17.02.14 RL, 03.11.24 RL Was source
 																 ])
                        ) 
-					{         
+					{      					
                         var tagName = element.getAttribute('_fck_mw_tagname') || '',
                             tagType = element.getAttribute('_fck_mw_tagtype') || '',
-							attr    = wgCKeditorMagicWords.attribwikitags,           //20.11.14 RL
-							index, tagAttrVal, tagAttrName;                          //20.11.14 RL
+							attr = '',                                               //23.11.14 RL
+							index, tagAttrVal;                                       //20.11.14 RL
 
+						if ( element.hasAttribute('_fck_mw_tagattributes') ) {       //23.11.14 RL
+							attr = element.getAttribute('_fck_mw_tagattributes').split(",") || ''; 							
+						}
+						
 						if ( tagType == 't' ) {
                             content += '<' + tagName;
-							for (index = 0; index < attr.length; ++index) {          //20.11.14 RL 
-								if ( ( tagAttrVal = element.getAttribute( attr[index] ) || '' ) != '' ) { 
-									tagAttrName = attr[index];
-								
-									if ( ( tagAttrVal != undefined ) && ( tagAttrName != '' ) ) { //20.11.14 RL                               
-										content += ' ' + tagAttrName;
-									}
-									if ( ( tagAttrVal != undefined ) && ( tagAttrName != '' ) ) {  //20.11.14 RL
+							for (index = 0; index < attr.length; ++index) {          //23.11.14 RL Attributes of tag							
+								if ( ( attr[index] != undefined ) && ( attr[index] != '' ) ) {
+									content += ' ' + attr[index];
+									if ( element.hasAttribute(attr[index]) && ( tagAttrVal = element.getAttribute( attr[index] ) || undefined ) != undefined ) { 
 										content += '="' + tagAttrVal + '"';
 									}
-								}
+								}									
 							} 
 							content += '>' + inner + '</' + tagName + '>';
                         }
@@ -266,7 +252,6 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     textarea.setValue(content);
                 }
             }
-			
         }
 }
 } );

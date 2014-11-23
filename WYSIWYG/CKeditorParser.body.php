@@ -17,10 +17,12 @@ class CKeditorParser extends CKeditorParserWrapper {
        "includeonly",
        "onlyinclude",
        "noinclude",
-	   "comments",  //20.11.14 RL <comments> will be displayed as special -element also when comments -extension is not installed    
-	   "poll"       //20.11.14 RL <poll> always display as special -element...
+	   "comments",  //20.11.14 RL <comments> is always display as special -element also when comments -extension is not installed    
+	   "poll"       //20.11.14 RL <poll> is always display as special -element also when...
     );
-	private $FCKeditorImageWikiTags = array( //19.11.14 RL 	MW tags using image element in wysiwyg
+	//19.11.14 RL $FCKeditorImageWikiTags lists MW tags which are using own image element in wysiwyg.
+	//            All other MW tags are using special-element.
+	private $FCKeditorImageWikiTags = array(
 		"references",
 		"ref",
 		"syntaxhighlight",
@@ -32,17 +34,6 @@ class CKeditorParser extends CKeditorParserWrapper {
 		"noinclude",
 		"onlyinclude"  
 	);   
-    //20.11.14 RL $FCKeditorAttribWikiTags contains attributes of all MW tags which are using image elements in wysiwyg and special.js tag -dialog for editing. 
-	//            Variable is used at least until special.js is fixed to use nodeName/nodeVal or similar "name immune" solution.
-	private $FCKeditorAttribWikiTags = array( 
-		"lang",                               //syntaxhighlight  
-		"show-results-before-voting",         //poll
-		"style",                              //pre
-		"allow",                              //comments  
-		"voting",                             //comments    
-		"maxhoverwidth",                      //hovergallery    //21.11.14 RL
-		"maxhoverheight"                      //hovergallery    //21.11.14 RL  
-	);	
 	private $FCKeditorMagicWords = array(
        "NOTOC",
        "FORCETOC",
@@ -156,9 +147,6 @@ class CKeditorParser extends CKeditorParserWrapper {
 	public function getImageWikiTags() {  //19.11.14 RL
 		return $this->FCKeditorImageWikiTags;
 	}		
-	public function getAttribWikiTags() { //20.11.14 RL
-		return $this->FCKeditorAttribWikiTags;
-	}			
     public function getMagicWords() {
         return $this->FCKeditorMagicWords;
     }
@@ -235,16 +223,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	function fck_genericTagHook( $str, $argv, $parser ) {
-		//if( in_array( $this->fck_mw_taghook, array( 'ref', 'math', 'references', 'syntaxhighlight' ) ) ) {  //02.11.14 RL Was source
-		//	$class = $this->fck_mw_taghook;
-		//} else {
-		//	$class = 'special';
-		//}
-		
+	
+		$attrstr = ''; //23.11.14 RL
+
 		if( in_array( $this->fck_mw_taghook, $this->FCKeditorImageWikiTags ) ) { //19.11.14 RL
 			$class = $this->fck_mw_taghook; 
 		} 
-		else {  //17.11.14 RL
+		else {
 			$class = 'special'; //All others like <calendar>, <poll> ,etc...
 		} 		
 
@@ -255,10 +240,15 @@ class CKeditorParser extends CKeditorParserWrapper {
 		} else {
 			foreach( $argv as $key => $value ) {
 				$ret .= " " . $key . "=\"" . $value . "\"";
+				$attrstr .= $key . ",";  //23.11.14 RL
 			}
+			if( ! empty( $attrstr ) ) {  //23.11.14 RL List of attribute names for special.js
+				$ret .= ' _fck_mw_tagattributes="' . substr( $attrstr,0,strlen($attrstr) - 1 ) . '"';
+			}	
 			$ret .= '>';
 		}
-		if( is_null( $str ) ) {
+
+		if( is_null( $str ) && $str != '' ) { //20.11.14 RL Added $str != ''
 			//$ret = substr( $ret, 0, -1 ) . ' />';
             $ret .= '>_</span>';
 		} else {
@@ -280,6 +270,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	function fck_wikiTag( $tagName, $str, $argv = array() ) {
+		
+		$attrstr = ''; //23.11.14 RL
+		
 		if( in_array( $tagName, $this->FCKeditorImageWikiTags ) ) { //19.11.14 RL
 			$className = $tagName; 
 		} 
@@ -292,14 +285,20 @@ class CKeditorParser extends CKeditorParserWrapper {
 		} else {
 			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t"';  //17.11.14 RL _fck_mw_tagtype
 			foreach( $argv as $key => $value ) {
-				$ret .= " " . $key . "=\"" . $value . "\"";
+				$ret .= " " . $key . "=\"" . $value . "\"";				
+				$attrstr .= $key . ",";  //23.11.14 RL
 			}
+			if( ! empty( $attrstr ) ) {  //23.11.14 RL List of attribute names for special.js
+				$ret .= ' _fck_mw_tagattributes="' . substr( $attrstr,0,strlen($attrstr) - 1 ) . '"';
+			}	
 			$ret .= '>';
 		}
 	
-		if( !is_null( $str ) && $str != '' ) //20.11.14 RL Added $str != ''
+		if( !is_null( $str ) && $str != '' ) { //20.11.14 RL Added $str != ''
             $ret .= htmlspecialchars( $str );
-        else $ret .= '_';
+        } else {
+			$ret .= '_';
+		}	
 		$ret .= '</span>';
 
 		//if ($tagName == 'comments') printf("debug_tag_0 %s", preg_replace("/</","",$ret) ); //20.11.14 RL 
@@ -1337,13 +1336,67 @@ class CKeditorParser extends CKeditorParserWrapper {
         // check for tag attributes
         $attr = array();
         if ($matches[1]{0} != ">") {
-            $f = strpos($matches[1], '>');
+	
+			//23.11.14 RL->
+			// This is original code where explode() using space as delimiter,
+			// makes it support only attribute values where there are no spaces within attribute values, f.ex:
+			//   <tag foo="bar">some text</tag> 
+			/*****		
+			$f = strpos($matches[1], '>');
             $t = explode(' ', substr($matches[1], 0, $f));
             foreach ($t as $x) {
-                if (strlen($x) > 0 && ($g = strpos($x, '=')) !== false) {
+
+				if (strlen($x) > 0 && ($g = strpos($x, '=')) !== false) {
                     $attr[substr($x, 0, $g)] = str_replace("'", "", str_replace('"', '', substr($x, $g+1)));
                 }
             }
+			*****/
+
+			/**23.11.14 RL Following supports spaces within attribute values. F.ex:
+			               <tag foo="cold beer is good">some text</tag>
+			               Variable $matches[1] contains tag definition part without tag name, f.ex.: 
+			                  voting="plus" allow="derfel,jack smith,jhon magia,milla"> 
+			                  show-results-before-voting="1">Do you like this extension? Yes No I don't know yet			
+			**/
+			$f = strpos($matches[1], '>');
+			$search_str = substr($matches[1], 0, $f); 			
+			while ( strlen($search_str) > 0 ) {
+				//Process one attribute=value pair at a time
+				if ( ($g = strpos($search_str, '=')) !== false ) { 
+					//Search '=' and take name of attribute
+					$attribname = str_replace(' ', '', substr($search_str, 0, $g));
+					$search_str = substr($search_str, $g + 1);
+					$attribval = '';
+					if ( strlen($search_str) > 0 ) { 
+						//Take value which may or may not be delimited with " or '
+						if ( ($search_str[0] == '"') || ($search_str[0] == "'") ) {
+							$search_ch = $search_str[0];
+							$search_str = substr($search_str,1);
+						} else {
+							$search_ch = ' ';
+						}
+						if ((strpos($search_str, '=') !== false) && (( $g = strpos($search_str, $search_ch)) !== false)) {
+							//Take value of this attribute, there are still more attributes to come
+							$attribval = substr($search_str, 0, $g);
+							$search_str = substr($search_str, $g + 1);
+						} else {
+							//Last pair
+							if ( strlen($search_str) > 0 ) 
+								$attribval = $search_str;
+							else	
+								$attribval = '';
+								
+							$search_str = '';
+						}
+						$attr[$attribname] = str_replace("'", "", str_replace('"', '', $attribval));
+						/****
+						printf("_________________________attrname:#%s# pos_g:%d str:%s search_ch:%s %d attribval:#%s#</br>", 
+								$attribname, $g, $search_str, $search_ch, 
+								strpos($search_str, $search_ch), str_replace("'", "", str_replace('"', '', $attribval)));
+						****/
+					}
+				}
+			}  //23.11.14 RL<-			
             $matches[1] = substr($matches[1], $f);
         }
         // check for uniqe makers that should be reverted

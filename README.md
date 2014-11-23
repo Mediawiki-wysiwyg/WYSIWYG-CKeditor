@@ -35,9 +35,11 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 21.01.14  It is possible to enter also template definition with tag -dialog (template dialog, template.js, is preferred method to work with template definitions).
+- 23.11.14  Fixed tag- dialog (try to parse any simple tags of wikitext unknown to wysiwyg): pass name of attributes of wikitags to special.js using own special attribute (_fck_mw_tagattributes); removed extension specific predefined attribute list; do not use tag names of MW in tag -dialog (except converting source -tag to syntaxhighlight -tag).
 
-- 21.01.14  Fixed data of gallery -tag to be edited with tag -dialog (tag is displayed as gallery -element in wysiwyg). Enabled use of attributes for hovergallery -tag (tag is displayed as special -element in wysiwyg).
+- 21.11.14  It is possible to enter also template definition with tag -dialog (template dialog, template.js, is preferred method to work with template definitions).
+
+- 21.11.14  Fixed data of gallery -tag to be edited with tag -dialog (tag is displayed as gallery -element in wysiwyg). Enabled use of attributes for hovergallery -tag (tag is displayed as special -element in wysiwyg).
 
 - 20.11.14  Fixed tag- dialog: support comments -tag (about 99% compatible); try to parse any simple tags of wikitext unknown to wysiwyg.
 
@@ -207,6 +209,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 
 - MediaWiki: 1.21.2, 1.22.0 - 1.22.12, 1.23.0-1.23.5
 - SemanticForms: 2.7
+- SyntaxHighlight GeSHi: version must be >= rev:50696
 - PHP 5.5.6,  MySQL 5.6.14, Apache 2.4.7  (=XAMPP for Linux 1.8.3-2)
 - PHP 5.5.15, MySQL 5.6.20, Apache 2.4.10 (=XAMPP for Linux 1.8.3-5)
 
