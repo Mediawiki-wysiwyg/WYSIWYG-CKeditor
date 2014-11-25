@@ -1064,7 +1064,9 @@ CKEDITOR.customprocessor.prototype =
 								var sLastStr = stringBuilder[ stringBuilder.length - 1 ];
 								if ( sLastStr != ";" && sLastStr != ":" && sLastStr != "#" && sLastStr != "*" )
  									stringBuilder.push( '\n' + prefix );
-							}
+								else 
+									stringBuilder.push( '\n' ); //25.11.14 RL For empty lines of numbered and bulleted lists
+							} 
 
 							var parent = htmlNode.parentNode;
 							var listType = "*";

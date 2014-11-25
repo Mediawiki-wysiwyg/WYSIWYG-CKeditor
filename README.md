@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 25.11.14  Fixed handling of empty lines inside numbered and bulleted lists.
+
 - 23.11.14  Fixed tag- dialog (try to parse any simple tags of wikitext unknown to wysiwyg): pass name of attributes of wikitags to special.js using own special attribute (_fck_mw_tagattributes); removed extension specific predefined attribute list; do not use tag names of MW in tag -dialog (except converting source -tag to syntaxhighlight -tag).
 
 - 21.11.14  It is possible to enter also template definition with tag -dialog (template dialog, template.js, is preferred method to work with template definitions).
