@@ -34,27 +34,28 @@ class CKeditorParser extends CKeditorParserWrapper {
 		"noinclude",
 		"onlyinclude"  
 	);   
-	private $FCKeditorMagicWords = array(
+	// List below are from here: http://www.mediawiki.org/wiki/Help:Magic_words#Page_names
+	private $FCKeditorMagicWords = array(  //List of magic words like '__{word}__'
        "NOTOC",
        "FORCETOC",
        "TOC",
        "NOEDITSECTION",
        "NEWSECTIONLINK",
        "NONEWSECTIONLINK", // MW 1.15+
+       "NOGALLERY",
+       "HIDDENCAT",	   
        "NOCONTENTCONVERT",
        "NOCC",
        "NOTITLECONVERT",
        "NOTC",
-       "NOGALLERY",
-       "INDEX", // MW 1.14+
-       "NOINDEX", // MW 1.14+
-       "STATICREDIRECT", // MW 1.14+
-       "NOGALLERY",
-       "HIDDENCAT",
        "START",
-       "END"
+       "END",  
+       "INDEX",            // MW 1.14+
+       "NOINDEX",          // MW 1.14+
+       "STATICREDIRECT",   // MW 1.14+
+       "DISAMBIG"          //26.11.14 RL
 	);
-    private $FCKeditorDateTimeVariables= array(
+    private $FCKeditorDateTimeVariables= array( // http://www.mediawiki.org/wiki/Help:Magic_words#Page_names
        'CURRENTYEAR',
        'CURRENTMONTH',
        'CURRENTMONTHNAME',
@@ -67,30 +68,62 @@ class CKeditorParser extends CKeditorParserWrapper {
        'CURRENTTIME',
        'CURRENTHOUR',
        'CURRENTWEEK',
-       'CURRENTTIMESTAMP'
+       'CURRENTTIMESTAMP',
+       'LOCALYEAR',     //26.11.14 RL->Same as the preceding ones, but using the site's server config or $wgLocaltimezone
+       'LOCALMONTH',
+       'LOCALMONTHNAME',
+       'LOCALMONTHNAMEGEN',
+       'LOCALMONTHABBREV',
+       'LOCALDAY',
+       'LOCALDAY2',
+       'LOCALDOW',
+       'LOCALDAYNAME',
+       'LOCALTIME',
+       'LOCALHOUR',
+       'LOCALWEEK',
+       'LOCALTIMESTAMP' //26.11.14 RL<-
     );
-    private $FCKeditorWikiVariables = array(
+    private $FCKeditorWikiVariables = array( // http://www.mediawiki.org/wiki/Help:Magic_words#Page_names
        'SITENAME',
        'SERVER',
        'SERVERNAME',
        'DIRMARK',
+	   'DIRECTIONMARK',          //26.11.14 RL
        'SCRIPTPATH',
+	   'STYLEPATH',              //26.11.14 RL
        'CURRENTVERSION',
+	   'CONTENTLANGUAGE',        //26.11.14 RL
        'CONTENTLANG',
+	   'PAGEID',                 //26.11.14 RL  
+	   'CASCADINGSOURCES',       //26.11.14 RL
        'REVISIONID',
        'REVISIONDAY',
        'REVISIONDAY2',
        'REVISIONMONTH',
+	   'REVISIONMONTH1',         //22.11.14 RL
        'REVISIONYEAR',
        'REVISIONTIMESTAMP',
-       'REVISIONUSER', // MW 1.15+
+       'REVISIONUSER',           // MW 1.15+
+	   'REVISIONSIZE',           //26.11.14 RL 
+       'NUMBEROFPAGES',          //26.11.14 RL->
+       'NUMBEROFARTICLES',	 
+       'NUMBEROFFILES',
+       'NUMBEROFEDITS',
+       'NUMBEROFVIEWS',
+       'NUMBEROFUSERS',
+       'NUMBEROFADMINS',	   
+       'NUMBEROFACTIVEUSERS',    //26.11.14 RL<-
        'FULLPAGENAME',
        'PAGENAME',
        'BASEPAGENAME',
        'SUBPAGENAME',
        'SUBJECTPAGENAME',
+	   'ARTICLEPAGENAME',        //26.11.14 RL
        'TALKPAGENAME',
+	   'ROOTPAGENAME',           //26.11.14 RL
        'NAMESPACE',
+	   'NAMESPACENUMBER',        //26.11.14 RL
+	   'SUBJECTSPACE',           //26.11.14 RL
        'ARTICLESPACE',
        'TALKSPACE'
     );
@@ -100,7 +133,7 @@ class CKeditorParser extends CKeditorParserWrapper {
         'uc',
         'ucfirst',
         'formatnum',
-        '#dateformat', // MW 1.15+
+        '#dateformat',           // MW 1.15+
         'padleft',
         'padright',
         'plural',
@@ -698,9 +731,9 @@ class CKeditorParser extends CKeditorParserWrapper {
         //$text = strtr($text, array("\n" => "\nFCKLR_fcklr_FCKLR", "\r" => ''));
         // this doesn't work when inside tables. So leave this for later.
 
-        $text = $this->parseExternalLinksWithTmpl($text);
+        $text = $this->parseExternalLinksWithTmpl($text); //26.11.14 RL Parses both external and internal links
 
-        $finalString = parent::internalParse( $text, $isMain );
+        $finalString = parent::internalParse( $text, $isMain );		
 		return $finalString;
 	}
 
@@ -724,20 +757,21 @@ class CKeditorParser extends CKeditorParserWrapper {
 		return $text;
 	}
 
-	function parseExternalLinksWithTmpl( $text ) {
+	function parseExternalLinksWithTmpl( $text ) { //26.11.14 RL Parses both external and internal links
    		$callback = array(
 			'[' => array(
 				'end'=>']',
 				'cb' => array(
-					1 => array( $this, 'fck_replaceCkmarkupInLink' )
+					1 => array( $this, 'fck_replaceCkmarkupInLink' ),        //External link in case [..]
+					2 => array( $this, 'fck_replaceCkmarkupInInternalLink' ) //26.11.14 RL Internal link in case [[..]]
 				),
 				'min' => 1,
-				'max' => 1,
+				'max' => 2, //26.11.14 RL Was 1
 			)
 		);
 
 		$text = $this->replace_callback( $text, $callback );
-        //var_dump($text);
+        //var_dump($text);		
         return $text;
     }
 
@@ -753,7 +787,8 @@ class CKeditorParser extends CKeditorParserWrapper {
      * replaced elements, built the anchor element but replace is with FckmwXZfckmw
      * so that the parser wont touch it.
      */
-    function fck_replaceCkmarkupInLink( $matches ) {
+    function fck_replaceCkmarkupInLink( $matches ) { //26.11.14 RL With external links
+        //printf(" Matches1_external:%s",$matches['title']);	 //debug
         $p = strpos($matches['title'], ' ');
         if ($p === false) return $matches['text'];
         $target = substr($matches['title'], 0, $p);
@@ -761,11 +796,27 @@ class CKeditorParser extends CKeditorParserWrapper {
         if (!preg_match('/Fckmw\d+fckmw/', $title) &&
             !preg_match('/Fckmw\d+fckmw/', $target)) return $matches['text'];
 
+        //printf(" Matches1 target:%s title:%s",$target,$title); //debug
         $title = $this->revertEncapsulatedString($title);
         $target = $this->revertEncapsulatedString($target);
         return $this->fck_addToStrtr('<a href="'.$target.'" _cke_saved_href="'.$target.'" _cke_mw_type="http">'.$title.'</a>');
     }
 
+    function fck_replaceCkmarkupInInternalLink( $matches ) { //26.11.14 RL With internal links
+        //printf(" Matches2_internal:%s",$matches['title']);	 //debug
+        $p = strpos($matches['title'], '|');
+        if ($p === false) return $matches['text'];
+        $target = substr($matches['title'], 0, $p);
+        $title = substr($matches['title'], $p + 1);
+        if (!preg_match('/Fckmw\d+fckmw/', $title) &&
+            !preg_match('/Fckmw\d+fckmw/', $target)) return $matches['text'];
+
+        //printf(" Matches2 target:%s title:%s",$target,$title); //debug
+        $title = $this->revertEncapsulatedString($title);
+        $target = $this->revertEncapsulatedString($target);
+        return $this->fck_addToStrtr('<a href="'.$target.'">'.$title.'</a>');
+    }	
+	
 	function stripNoGallery( &$text ) {}
 
     function stripToc( $text ) {
@@ -1082,7 +1133,6 @@ class CKeditorParser extends CKeditorParserWrapper {
 		)
 		);
 		$text = $this->replace_callback($text, $callback);
-
         // now each property string is prefixed with <!--FCK_SKIP_START--> and
 		// tailed with <!--FCK_SKIP_END-->
 		// use this knowledge to find properties within these comments
@@ -1134,13 +1184,16 @@ class CKeditorParser extends CKeditorParserWrapper {
                            $matches[0][$i],
                            $this->fck_mw_strtr_span[$matches[0][$i]],
 	                       $text);
+                   //printf("first i:%d Match:%s text:%s",$i,$matches[0][$i],$text);     //debug
                }
    	           else if (isset($this->fck_mw_strtr_span['href="'.$matches[0][$i].'"'])) {
 	               $text = str_replace(
                            $matches[0][$i],
                            substr($this->fck_mw_strtr_span['href="'.$matches[0][$i].'"'], 6, -1),
 	                       $text);
+                   //printf("second i:%d Match:%s text:%s",$i,$matches[0][$i],$text);    //debug
 	           }
+	   
 	        }
         }
         return $text;

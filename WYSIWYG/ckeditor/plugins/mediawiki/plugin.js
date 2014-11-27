@@ -1108,33 +1108,40 @@ CKEDITOR.customprocessor.prototype =
 							if ( href == null ) {
 								href = htmlNode.getAttribute( 'href' ) || '';
 							}
-
+							
+							href = decodeURIComponent(href); //26.11.14 RL Decode here because hrefTypeRegexp below does not work with optional url encoded chars in the middle.
+							
 							//fix: Issue 14792 - Link with anchor is changed
 							//hrefType is a substring of href from the beginning until the colon.
 							//it consists only of alphanumeric chars and optional url encoded chars in the middle.
 							var hrefTypeRegexp = /^(\w+(?:%\d{0,3})*\w*):/i;
-							var matches = href.match(hrefTypeRegexp);
+                            var matches = href.match(hrefTypeRegexp) || ''; //26.11.14 RL Added || ''
 							if(hrefType == '' && matches) {
 								hrefType = matches[1];
 							}
 
-//						  if ( hrefType == '' && href.indexOf(':') > -1) {
-//                            hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
-//						  }
+							//if ( hrefType == '' && href.indexOf(':') > -1) {
+							//	hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
+							//}
 
 							var isWikiUrl = true;
-
+						
 							if ( hrefType != "" &&
                                  hrefType != "http" &&
                                  hrefType != "https" &&
                                  hrefType != "mailto" &&
-                                 !href.StartsWith(hrefType.FirstToUpper() + ':') )
-								stringBuilder.push( '[[' + hrefType.FirstToUpper() + ':' );
+                                 //!href.StartsWith(hrefType.FirstToUpper() + ':') )  //26.11.14 RL->
+								 !href.toLowerCase().StartsWith(hrefType.toLowerCase() + ':') ) {
+								//stringBuilder.push( '[[' + hrefType.FirstToUpper() + ':' );
+								stringBuilder.push( '[[' + hrefType.toLowerCase().FirstToUpper() + ':' ); //26.11.14 RL<-
+							}	
 							else if ( htmlNode.className == "extiw" ){
 								stringBuilder.push( '[[' );
 								isWikiUrl = true;
-							} else { //20.10.14 RL Support external link [//www.x.y]
-								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /\{\{[^\}]*\}\}/.test( href ) || href.StartsWith( '//' ) );
+							} else { 
+								//20.10.14 RL '[//www.x.y]' is external link
+								//26.11.14 RL '{{' should propably start href because variables inside link names => added ^ in test below
+								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /^\{\{[^\}]*\}\}/.test( href ) || href.StartsWith( '//' ) );
 								stringBuilder.push( isWikiUrl ? '[[' : '[' );
 							}
 							// #2223
@@ -1153,8 +1160,10 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push(':');
 								href = href.substring(8);
 							}
-                            if ( isWikiUrl ) href = decodeURIComponent(href);
+
+                            //if ( isWikiUrl ) href = decodeURIComponent(href); //26.11.14 RL Already done abowe
 							stringBuilder.push( href );
+
                             var innerHTML = this._GetNodeText(htmlNode)
 							if ( pipeline && innerHTML != '[n]' && ( !isWikiUrl || href != innerHTML || !href.toLowerCase().StartsWith( "category:" ) ) ){
 								stringBuilder.push( isWikiUrl? '|' : ' ' );
