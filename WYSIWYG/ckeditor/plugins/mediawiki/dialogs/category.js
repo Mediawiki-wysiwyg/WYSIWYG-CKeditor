@@ -179,7 +179,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				var sortkey  = this.getValueOf( 'mwCategoryTab1', 'sortkeyValue' ).Trim();
 
 				//Build html syntax fox category like this:
-				//  <span> class="fck_mw_category" sort="CName">Sort</span>
+				//  <span> class="fck_mw_category" sort="SName">CName</span>
 				//  <span> _fcknotitle="true" class="fck_mw_category" sort="CName">CName</span>
 	
 				if ( category.length > 0 ) {
@@ -198,11 +198,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 						realElement.setAttribute('_fcknotitle','true');					
 				
 					if ( sortkey.length > 0 )
-						realElement.setAttribute('sort',sortkey); 
+						realElement.setAttribute( 'sort', sortkey ); 
 
 					//Name of category	 
 					if ( category.length > 0 )
-						realElement.setText(category);
+						realElement.setText( category );
 											
 					//Are there any additional attributes used by html format???  
 					var fakeElement = editor.createFakeElement( realElement , 'FCK__MWCategory', 'span', false );
@@ -283,7 +283,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                     //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.document.$.selection.createRange().text ); 
                     //else                   //27.02.14 RL<- 
                     //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() );
-                    
+
                     this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getSelectedText().replace(/ /g,'_') ); //09.09.14 RL<-
                 }
 				this.getContentElement( 'mwCategoryTab1', 'categoryValue' ).focus();

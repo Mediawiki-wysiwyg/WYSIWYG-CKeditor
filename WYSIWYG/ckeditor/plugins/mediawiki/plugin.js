@@ -1738,7 +1738,7 @@ CKEDITOR.customprocessor.prototype =
 	// Property and Category values must be of a certain format. Otherwise this will break
 	// the semantic annotation when switching between wikitext and WYSIWYG view
 	_formatSemanticValues : function (htmlNode) {
-		var text = this._GetNodeText(htmlNode);
+		var text = this._GetNodeText(htmlNode).htmlDecode(); //05.12.14 RL Added htmlDecode
 
 		// remove any &nbsp;
 		text = text.replace('&nbsp;', ' ');
@@ -1746,6 +1746,7 @@ CKEDITOR.customprocessor.prototype =
 		text = text.replace('<br>', ' ');
         // and trim leading and trailing whitespaces
 		text = text.Trim();
+
 		// no value set, then add an space to fix problems with [[prop:val| ]]
 		if (text.length == 0)
 			text = " ";
@@ -1754,7 +1755,7 @@ CKEDITOR.customprocessor.prototype =
         var eClassName = htmlNode.getAttribute('class');
 		switch (eClassName) {
 			case 'fck_mw_property' :
-				var name = htmlNode.getAttribute('property') || '';
+				var name = htmlNode.getAttribute('property').htmlDecode() || ''; //05.12.14 RL Added htmlDecode
 				if (name.indexOf('::') != -1) {
                     var ann = name.substring(name.indexOf('::') + 2);
 					if ( emptyVal.exec( ann ) ) return '';
@@ -1767,7 +1768,7 @@ CKEDITOR.customprocessor.prototype =
 					return '[[' + name + '::' + text + ']]' ;
 				}
 			case 'fck_mw_category' :
-				var sort = htmlNode.getAttribute('sort') || '';
+				var sort = htmlNode.getAttribute('sort').htmlDecode() || '';     //05.12.14 RL Added htmlDecode
                 //var labelCategory = smwContentLangForFCK('Category') || 'Category:';
                 var labelCategory = 'Category';
                 if (sort == text) sort = null;

@@ -1,40 +1,5 @@
 CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 {
-        function stripTags(html) {                                                       //30.10.14 RL->
-            return html.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, ''); 
-        } 
-
-        function htmlEncode(html) { //text=>html using browser
-            return document.createElement( 'a' ).appendChild( document.createTextNode( html ) ).parentNode.innerHTML;
-        } 
-
-        function htmlDecode(html) { //html=>text using browser
-            var tmp = document.createElement("DIV");
-            tmp.innerHTML = html;
-            return tmp.textContent || tmp.innerText || "";
-        }
-        
-        function convToHTML(text2html) { 
-            if (htmlEncode('<\n>') == '&lt;\n&gt;') { 
-                //text to html using browser
-                return htmlEncode(text2html); 
-            }
-            else { //In case browser fails, text=>html using replace
-                return text2html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            }    
-        }; 
-        
-        function convFromHTML(html) {    
-            if ( htmlDecode('&lt;\n&gt;') == '<\n>' ) {
-                //html=>text using browser
-                return (htmlDecode(html));
-            }
-            else { //In case browser fails, html=>text using replace
-                return stripTags(html).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'); 
-			    //return html.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'); 
-            }    
-        };                                                                               //30.10.14 RL<-      
-
         return {
             title : editor.lang.mwplugin.specialTagTitle,
             minWidth  : 600,

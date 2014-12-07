@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 05.12.14  Fixed handling of some special characters (f.ex: '&' and '"') with category -dialog (character '_' will still be converted to space).
+
 - 26.11.14  Added possibility to use mediawiki variables, f.ex ROOTPAGENAME, with internal links. Added new variable names and magic words of latest MW versions.
 
 - 25.11.14  Fixed handling of empty lines inside numbered and bulleted lists.

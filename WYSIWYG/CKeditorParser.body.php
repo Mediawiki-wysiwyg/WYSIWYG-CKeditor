@@ -865,10 +865,10 @@ class CKeditorParser extends CKeditorParserWrapper {
                   $val = $cat;
                 }
                 $appendString .= $linebreak;
-                if ($val != $title->mTextform) {
-                  $appendString .= '<span ' . $args . 'class="fck_mw_category" sort="' . $val . '">' . str_replace('_', ' ', $cat) . '</span>';
+                if ($val != $title->mTextform) {   //05.12.14 RL Added htmlspecialchars below 
+                  $appendString .= '<span ' . $args . 'class="fck_mw_category" sort="' . htmlspecialchars ( $val ) . '">' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';
                 } else {
-                  $appendString .= '<span ' . $args . 'class="fck_mw_category">' . str_replace('_', ' ', $cat) . '</span>';
+                  $appendString .= '<span ' . $args . 'class="fck_mw_category">' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';
                 }
                 $linebreak = "<br />";
               }

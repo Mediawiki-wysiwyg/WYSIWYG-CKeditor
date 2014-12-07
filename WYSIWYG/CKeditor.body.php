@@ -15,7 +15,9 @@ define('RTE_TOGGLE_LINK', 2);
  */
 define('RTE_POPUP', 4);
 
+
 class CKeditor_MediaWiki {
+
 	public $showFCKEditor;
     public $loadSTBonStartup;
 	private $count = array();
@@ -188,6 +190,7 @@ class CKeditor_MediaWiki {
         $action = $wgRequest->getText( 'action' );
         if (! in_array($action, array('edit', 'submit'))) return $out;
         $inlineStyles = array();
+
         foreach ( $out->styles as $key => $val ) {
             if (count($out->styles[$key]) > 0) {
                 if (isset($out->styles[$key]['condition']) ||
@@ -209,6 +212,7 @@ class CKeditor_MediaWiki {
                 }
             }
         }
+
         foreach($inlineStyles as $media => $css ) {
             $out->addInlineStyle( $css );
         }
@@ -222,7 +226,7 @@ class CKeditor_MediaWiki {
         return $out;
     }
 
-        public function onCustomEditor( $article, $user ) {
+	public function onCustomEditor( $article, $user ) {
 #-               global $wgRequest, $mediaWiki;
               global $wgRequest, $wgUseExternalEditor;
  
@@ -647,6 +651,41 @@ $script .= '</script>';
         $ckeHeight = (empty($wgFCKEditorHeight)) ? 0 : $wgFCKEditorHeight;
 		$script = <<<HEREDOC
 
+function stripTags(html) { //05.12.14 RL->
+    return html.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '');
+}
+
+function htmlEncode(html) { //text=>html using browser
+    return document.createElement( 'a' ).appendChild( document.createTextNode( html ) ).parentNode.innerHTML;
+}
+
+function htmlDecode(html) { //html=>text using browser
+    var tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
+
+function convToHTML(text2html) {
+	if ( htmlEncode('<\\n>') == '&lt;\\n&gt;' ) {
+		//text to html using browser
+		return htmlEncode(text2html);
+    }
+    else { //In case browser fails, text=>html using replace
+        return text2html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+}
+
+function convFromHTML(html){
+    if ( htmlDecode('&lt;\\n&gt;') == '<\\n>' ) {
+        //html=>text using browser
+        return (htmlDecode(html));
+    }
+    else { //In case browser fails, html to text using replace
+        return stripTags(html).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+        //return html.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+    }
+}	                       //05.12.14 RL<-
+		
 //IE hack to call func from popup
 function FCK_sajax(func_name, args, target) {
 	sajax_request_type = 'POST';
