@@ -465,7 +465,7 @@ $messages['fr'] = array(
 	'tog-riched_use_popup' => "Ouvrir l'éditeur enrichi dans une popup",
 	'tog-riched_use_toggle' => "Donner la possibilité de changer entre l'éditeur original WikiText et l'éditeur enrichi",
 	'tog-riched_toggle_remember_state' => "Se souvenir de la dernière selection de l'éditeur",
-    'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
+    'tog-riched_link_paste_text' => "Reprendre la sélection comme texte de lien dans la fenêtre de lien",
 );
 
 /** Galician (Galego)
