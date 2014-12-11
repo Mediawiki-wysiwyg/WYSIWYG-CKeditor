@@ -228,9 +228,8 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     #13.11.13->
     require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
 
-    #Or only for registered users:
-    $wgGroupPermissions['registered_users']['wysiwyg']=true;
     $wgGroupPermissions['*']['wysiwyg'] = true;          //Everyone can use (if can edit)...
+    #Or only for registered users: $wgGroupPermissions['user']['wysiwyg']=true;
     $wgDefaultUserOptions['cke_show'] = 'richeditor';    //Enable CKEditor
     $wgDefaultUserOptions['riched_use_toggle'] = false;  //Editor can toggle CKEditor/WikiText
     $wgDefaultUserOptions['riched_start_disabled'] = false; //Important!!! else bug...
