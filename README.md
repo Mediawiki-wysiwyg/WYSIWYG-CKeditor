@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 11.12.14  Fixed French translation (by Varlin, commit b5bc0784af2b4e481d6195439a733ed78bce8874 [b5bc078]). Fixed $wgGroupPermissions in sample LocalSettings.php below (by nemobis).
+
 - 05.12.14  Fixed handling of some special characters (f.ex: '&' and '"') with category -dialog (character '_' will still be converted to space).
 
 - 26.11.14  Added possibility to use mediawiki variables, f.ex ROOTPAGENAME, with internal links. Added new variable names and magic words of latest MW versions.
@@ -228,9 +230,12 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     #13.11.13->
     require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
 
-    #Or only for registered users:
-    $wgGroupPermissions['registered_users']['wysiwyg']=true;
-    $wgGroupPermissions['*']['wysiwyg'] = true;          //Everyone can use (if can edit)...
+    # Examples of setting permissions using $wgGroupPermissions, for more detailed explanation see:
+    #   https://www.mediawiki.org/wiki/Manual:$wgGroupPermissions#Example
+    # $wgGroupPermissions['user']['wysiwyg'] = true; //Only registered users are allowed to use wysiwyg
+    # $wgGroupPermissions['*']['wysiwyg'] = true;    //Everyone is allowed to use wysiwyg
+    $wgGroupPermissions['*']['wysiwyg'] = true;
+
     $wgDefaultUserOptions['cke_show'] = 'richeditor';    //Enable CKEditor
     $wgDefaultUserOptions['riched_use_toggle'] = false;  //Editor can toggle CKEditor/WikiText
     $wgDefaultUserOptions['riched_start_disabled'] = false; //Important!!! else bug...
