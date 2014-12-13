@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 12.12.14  Updated version info: 1.5.6_0 [B551+12.12.2014]
+
 - 12.12.14  Fixed handling of sort key with categories: earlier spaces in category name caused sort key to be name of category, now sort key obeys name of page by default.
 
 - 11.12.14  Fixed French translation (by Varlin, commit b5bc0784af2b4e481d6195439a733ed78bce8874 [b5bc078]). Fixed $wgGroupPermissions in sample LocalSettings.php below (by nemobis).
