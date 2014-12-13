@@ -852,7 +852,6 @@ class CKeditorParser extends CKeditorParserWrapper {
             $parserOutput->setText(strtr($parserOutput->getText(), array('FCKLR_fcklr_FCKLR' => '<br fcklr="true"/>')));
             $parserOutput->setText(strtr($parserOutput->getText(), array('--~~~~' => '<span class="fck_mw_signature">_</span>')));
 
-
             /*27.11.13 RL->To display possible categories defined on page.*/
             $categories = $parserOutput->getCategories();
             if ($categories) {
@@ -860,23 +859,24 @@ class CKeditorParser extends CKeditorParserWrapper {
               $linebreak = '';
               foreach ($categories as $cat => $val) {
                 $args = '';
-                if ($val == 'RTENOTITLE') {
-                  $args .= '_fcknotitle="true" ';
-                  $val = $cat;
+                if ($val == 'RTENOTITLE') { //No sort key
+                  $args .= '_fcknotitle="true"';
+				  $val = '';                //12.12.14 RL Was $val = $cat;
                 }
                 $appendString .= $linebreak;
-                if ($val != $title->mTextform) {   //05.12.14 RL Added htmlspecialchars below 
-                  $appendString .= '<span ' . $args . 'class="fck_mw_category" sort="' . htmlspecialchars ( $val ) . '">' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';
+				//if ($val == $title->mTextform) { //12.12.14 RL This has earlier been always false and mTextform returns 'AJAX', not name of page, in case editing starts in wikitext mode
+				if ($val == '') {                  //12.12.14 RL, 05.12.14 RL Added htmlspecialchars below 
+					$appendString .= '<span class="fck_mw_category" ' . $args . '>' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';
                 } else {
-                  $appendString .= '<span ' . $args . 'class="fck_mw_category">' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';
-                }
-                $linebreak = "<br />";
+					$appendString .= '<span class="fck_mw_category" ' . $args . ' sort="' . htmlspecialchars ( $val ) . '">' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';					
+                } 
+                $linebreak = ' '; //Value '<br />' produces element (type=3) in CKeditor, otherwise it will be text (type=2)
               }
               $oldText = $parserOutput->getText();
-         
               $parserOutput->setText($oldText . $appendString);
             }				
             /*27.11.13 RL<-*/
+
             if (!empty($this->fck_mw_strtr_span)) {
                     global $leaveRawTemplates;
                     if (!empty($leaveRawTemplates)) {

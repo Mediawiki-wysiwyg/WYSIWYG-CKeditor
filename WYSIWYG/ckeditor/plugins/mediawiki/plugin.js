@@ -1755,7 +1755,10 @@ CKEDITOR.customprocessor.prototype =
         var eClassName = htmlNode.getAttribute('class');
 		switch (eClassName) {
 			case 'fck_mw_property' :
-				var name = htmlNode.getAttribute('property').htmlDecode() || ''; //05.12.14 RL Added htmlDecode
+				var name = ''; //12.12.14 RL 
+				if ( htmlNode.hasAttribute('property') ) { //12.12.14 RL 
+					name = htmlNode.getAttribute('property').htmlDecode() || ''; //05.12.14 RL Added htmlDecode
+				}
 				if (name.indexOf('::') != -1) {
                     var ann = name.substring(name.indexOf('::') + 2);
 					if ( emptyVal.exec( ann ) ) return '';
@@ -1768,10 +1771,17 @@ CKEDITOR.customprocessor.prototype =
 					return '[[' + name + '::' + text + ']]' ;
 				}
 			case 'fck_mw_category' :
-				var sort = htmlNode.getAttribute('sort').htmlDecode() || '';     //05.12.14 RL Added htmlDecode
-                //var labelCategory = smwContentLangForFCK('Category') || 'Category:';
-                var labelCategory = 'Category';
-                if (sort == text) sort = null;
+				var sort = '', //12.12.14 RL 
+				  //labelCategory = smwContentLangForFCK('Category') || 'Category:',
+					labelCategory = 'Category';
+				if ( htmlNode.hasAttribute('sort') ) { //12.12.14 RL
+					sort = htmlNode.getAttribute('sort').htmlDecode() || ''; //05.12.14 RL Added htmlDecode 
+				}
+				sort = sort.trim();  //12.12.14 RL->
+                if ( (sort == '') || //Was if (sort == text)
+				     (sort.substr(0,1).toUpperCase() == mw.config.get( 'wgPageName' ).trim().substr(0,1).toUpperCase()) ) {
+					sort = null;  
+				}  //12.12.14 RL<-	
 				if (sort) {
 					if (emptyVal.exec(sort)) sort = ' ';
 					return '[[' + labelCategory + ':' + text + '|' + sort + ']]';
