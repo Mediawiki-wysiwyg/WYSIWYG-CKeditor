@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 22.12.14  Fixed issue with caption: in case existing image was double clicked, caption was lost (by Aarakast). Version: 1.5.6_0 [B551+22.12.2014].
+
 - 12.12.14  Updated version info: 1.5.6_0 [B551+12.12.2014]
 
 - 12.12.14  Fixed handling of sort key with categories: earlier spaces in category name caused sort key to be name of category, now sort key obeys name of page by default.
