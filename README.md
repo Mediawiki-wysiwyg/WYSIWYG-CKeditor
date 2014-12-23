@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 23.12.14  Fixed clearing preview if image (uploading of new image failed). Version: 1.5.6_0 [B551++23.12.2014].
+
 - 23.12.14  When existing image is double clicked, display preview of image in image dialog. Version: 1.5.6_0 [B551+23.12.2014].
 
 - 22.12.14  Fixed issue with caption: in case existing image was double clicked, caption was lost (by Aarakast). Version: 1.5.6_0 [B551+22.12.2014].

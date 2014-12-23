@@ -66,7 +66,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
     var previewPreloader;
 	
     var ClearImage = function( dialog ) { //23.11.14 RL
-        url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
+        url = ''; // .../noimage.png prevented insert of new image
         SrcInWiki = url;
         previewPreloader.setAttribute( 'src', url );
 		dialog.preview.setAttribute( 'src', previewPreloader.$.src );
