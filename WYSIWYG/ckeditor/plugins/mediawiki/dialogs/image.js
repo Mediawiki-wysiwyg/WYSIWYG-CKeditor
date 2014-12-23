@@ -1,6 +1,5 @@
 CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 {
-
 	// Load image preview.
 	var IMAGE = 1,
 		LINK = 2,
@@ -25,7 +24,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 		// Hide loader
 		CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
 
-		// New image -> new domensions
+		// New image -> new dimensions
 		if ( !this.dontResetSize )
 			resetSize( this );
 
@@ -65,6 +64,14 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 		previewImageId = numbering( 'previewImage' );
 
     var previewPreloader;
+	
+    var ClearImage = function( dialog ) { //23.11.14 RL
+        url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
+        SrcInWiki = url;
+        previewPreloader.setAttribute( 'src', url );
+		dialog.preview.setAttribute( 'src', previewPreloader.$.src );
+		updatePreview( dialog );
+    }	
     
     var GetImageUrl = function( dialog, img ) {
         var LoadPreviewImage = function(result) {
@@ -80,6 +87,28 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
         window.parent.sajax_request_type = 'GET' ;
         window.parent.sajax_do_call( 'wfSajaxGetImageUrl', [img], LoadPreviewImage ) ;
     }
+
+	var DispImgPView = function ( dialog, img ) {  //23.12.14 RL
+	
+        if ( img == editor.lang.mwplugin.tooManyResults || img == '' ) return;
+
+        GetImageUrl( dialog, img );
+
+        var original = dialog.originalElement;
+
+		dialog.preview.removeStyle( 'display' );
+
+		original.setCustomData( 'isReady', 'false' );
+        // Show loader
+		var loader = CKEDITOR.document.getById( imagePreviewLoaderId );
+		if ( loader )
+            loader.setStyle( 'display', '' );
+
+        original.on( 'load', onImgLoadEvent, dialog );
+		original.on( 'error', onImgLoadErrorEvent, dialog );
+		original.on( 'abort', onImgLoadErrorEvent, dialog );
+		original.setAttribute( 'src', img );
+	}
 
     var updatePreview = function( dialog ) {
 		//Don't load before onShow.
@@ -115,7 +144,9 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
         var StartSearch = function() {
             var	e = dialog.getContentElement( 'info', 'imgFilename' ),
                 link = e.getValue().Trim();
-
+            
+			if ( link == '' ) ClearImage( dialog ); //23.12.14 RL
+			
             SetSearchMessage( dialog, editor.lang.mwplugin.searching ) ;
             
             // Make an Ajax search for the pages.
@@ -270,25 +301,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                                     newImg = this.getValue(),
                                                     e = dialog.getContentElement( 'info', 'imgFilename' );
                                                 if ( newImg == editor.lang.mwplugin.tooManyResults ) return;
-
                                                 e.setValue(newImg.replace(/_/g, ' '));
-                                                GetImageUrl( dialog, newImg );
-
-                                                var original = dialog.originalElement;
-
-												dialog.preview.removeStyle( 'display' );
-
-												original.setCustomData( 'isReady', 'false' );
-                                                // Show loader
-												var loader = CKEDITOR.document.getById( imagePreviewLoaderId );
-												if ( loader )
-                                                    loader.setStyle( 'display', '' );
-
-                                                original.on( 'load', onImgLoadEvent, dialog );
-												original.on( 'error', onImgLoadErrorEvent, dialog );
-												original.on( 'abort', onImgLoadErrorEvent, dialog );
-												original.setAttribute( 'src', newImg );
-
+												DispImgPView( dialog, newImg); //23.12.14 RL
                                             }
                                         }
                                     ]
@@ -348,11 +362,11 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                         type: 'select',
                                         label: editor.lang.mwplugin.imgType,
                                         items: [
-                                            [ editor.lang.common.notSet, ' ' ],                    //07.01.14 RL
-                                            [ editor.lang.mwplugin.imgTypeThumb,    'Thumbnail' ], //07.01.14 RL
-                                            [ editor.lang.mwplugin.imgTypeFrame,    'Frame' ],     //07.01.14 RL
-											[ editor.lang.mwplugin.imgTypeFrameless,'Frameless' ], //07.01.14 RL
-                                            [ editor.lang.mwplugin.imgTypeBorder,   'Border' ]     //07.01.14 RL
+                                            [ editor.lang.common.notSet, ' ' ],                    //07.01.14 RL->
+                                            [ editor.lang.mwplugin.imgTypeThumb,    'Thumbnail' ],
+                                            [ editor.lang.mwplugin.imgTypeFrame,    'Frame' ],
+											[ editor.lang.mwplugin.imgTypeFrameless,'Frameless' ],
+                                            [ editor.lang.mwplugin.imgTypeBorder,   'Border' ]     //07.01.14 RL<-
                                         ],
                                         setup : function( type, element ) {
                                             var imgType = element.getAttribute( '_fck_mw_type') || '',
@@ -645,9 +659,10 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 					this.imageEditMode = element.getName();
 					this.imageElement = element;
 					SrcInWiki = element.getAttribute( 'src' );
+					OnUrlChange( this ); //23.12.14 RL imgList is existing image					
 				}
                 else {
-                    OnUrlChange( this );
+					OnUrlChange( this ); //imgList from db
                 }
 
 				if ( this.imageEditMode )
@@ -671,7 +686,10 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 					this.preview.setStyle( 'display', 'none' );
 				}
 
-        	},
+                e = this.getContentElement( 'info', 'imgFilename' ); //23.12.14 RL-> Preview existing image
+				var newImg = e.getValue().replace(/ /g, '_');
+				DispImgPView( this, newImg); //23.12.14 RL<-
+			},
 			onHide : function()
 			{
 				if ( this.preview )
@@ -688,8 +706,6 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
 				delete this.imageElement;
 			}
-
-
         }
 }
 } );
