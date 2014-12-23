@@ -1321,8 +1321,10 @@ CKEDITOR.customprocessor.prototype =
 							
                             // external image?
                             var src = htmlNode.getAttribute( 'src' );
-                            if (src != null && src.toLowerCase().match(/^https?:\/\//)) { //30.10.14 RL Test null (by Wingsofcourage)
-                                stringBuilder.push( src );
+                            if (src != null && //30.10.14 RL Test null (by Wingsofcourage)
+							    src.toLowerCase().match(/^https?:\/\//) &&
+								! src.toLowerCase().match(/noimage.png/) ) { //23.12.14 RL Link to nonexisting image=>force internal link                            
+								stringBuilder.push( src );
                                 return;
                             }
 

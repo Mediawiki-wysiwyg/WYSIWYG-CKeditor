@@ -66,7 +66,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
     var previewPreloader;
 	
     var ClearImage = function( dialog ) { //23.11.14 RL
-        url = ''; // .../noimage.png prevented insert of new image
+        url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
         SrcInWiki = url;
         previewPreloader.setAttribute( 'src', url );
 		dialog.preview.setAttribute( 'src', previewPreloader.$.src );
@@ -592,7 +592,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                 }
                 // Set attributes.
 				this.commitContent( IMAGE, this.imageElement );
-                // Change the image element into a link when it's an external URL
+                // Change the image element into a link when it's an external URL				
                 if ( this.imageElement.getAttribute('href') ) {
                     var link = editor.document.createElement( 'a' );
                     link.setAttribute('href', this.imageElement.getAttribute('href'));

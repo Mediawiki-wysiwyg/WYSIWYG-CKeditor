@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 23.12.14  Fixed clearing preview if image (uploading of new image failed). Version: 1.5.6_0 [B551++23.12.2014].
+- 23.12.14  Fixed handling of image link in case image file is not yet available in MW and link is edited in wysiwyg (=noimage.png is always considered internal link). Version: 1.5.6_0 [B551+++23.12.2014].
+
+- 23.12.14  Fixed clearing preview of image (uploading of new image failed). Version: 1.5.6_0 [B551++23.12.2014].
 
 - 23.12.14  When existing image is double clicked, display preview of image in image dialog. Version: 1.5.6_0 [B551+23.12.2014].
 
