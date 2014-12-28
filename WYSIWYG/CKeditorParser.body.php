@@ -215,6 +215,11 @@ class CKeditorParser extends CKeditorParserWrapper {
 		return $key;
 	}
 
+    function htmlDecode ( $string ) { //27.12.14 RL
+		$string = str_replace( array( '&amp;', '&quot;', '#039', '&lt;', '&gt;'  ), array( '&', '"', '\'', '<', '>' ), $string );
+        return $string;
+    }
+	
 	/**
 	 * Handle link to subpage if necessary
 	 * @param string $target the source of the link
@@ -730,10 +735,18 @@ class CKeditorParser extends CKeditorParserWrapper {
         // preserve linebreaks
         //$text = strtr($text, array("\n" => "\nFCKLR_fcklr_FCKLR", "\r" => ''));
         // this doesn't work when inside tables. So leave this for later.
-
+		
         $text = $this->parseExternalLinksWithTmpl($text); //26.11.14 RL Parses both external and internal links
 
-        $finalString = parent::internalParse( $text, $isMain );		
+		// Use MW function Parser.php->internalParse for wikitext->html conversion. 
+        $finalString = parent::internalParse( $text, $isMain );	
+
+		// In case there are html code in link data f.ex. italic format in link text like
+		// [http://test.com ''bbb''] => <a href="http://test.com"><i>bbb<i></a>, 
+		// they were converted into html format using &lt; &gt; etc. by abowe parent::internalParse too early
+		// in replaceExternalLinks of Parser.php->internalParse. Decode them back to text format here.
+		$finalString = $this->htmlDecode( $finalString ); //27.12.14 RL		
+		
 		return $finalString;
 	}
 
