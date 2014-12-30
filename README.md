@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 30.12.14  Fixed resizing of image which did not always work with FF (related to merged modification of batch-9 "Fix resizing problem in Firefox #17" at 27.08.14). If size has not been given in dialog, use (and display) default size of the image. Version: 1.5.6_0 [B551+30.12.2014].
+
 - 27.12.14  Fixed use of formats italic, bold and undeline inside display text of internal/external link. Version: 1.5.6_0 [B551+27.12.2014].
 
 - 23.12.14  Fixed handling of image link in case image file is not yet available in MW and link is edited in wysiwyg (=noimage.png is always considered internal link). Version: 1.5.6_0 [B551+++23.12.2014].

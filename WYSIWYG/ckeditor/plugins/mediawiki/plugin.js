@@ -1327,13 +1327,12 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( src );
                                 return;
                             }
-
 							var imgName		= htmlNode.getAttribute( '_fck_mw_filename' ) || htmlNode.getAttribute( '_cke_mw_filename' ) || '';
 							var imgCaption	= htmlNode.getAttribute( 'alt' ) || '';
 							var imgType		= htmlNode.getAttribute( '_fck_mw_type' ) || htmlNode.getAttribute( '_cke_mw_type' ) || '';
 							var imgLocation	= htmlNode.getAttribute( '_fck_mw_location' ) || '';
-							var imgWidth	= htmlNode.getAttribute( '_fck_mw_width' ) || '';
-							var imgHeight	= htmlNode.getAttribute( '_fck_mw_height' ) || '';
+							var imgWidth	= '';  //htmlNode.getAttribute( '_fck_mw_width' ) || '';  //30.12.14 RL
+							var imgHeight	= '';  //htmlNode.getAttribute( '_fck_mw_height' ) || ''; //30.12.14 RL
                             var imgStyle    = htmlNode.getAttribute( 'style' ) || '';
                             var match = /(?:^|\s)width\s*:\s*(\d+)/i.exec( imgStyle ),
                                 imgStyleWidth = match && match[1] || 0;
@@ -1349,12 +1348,12 @@ CKEDITOR.customprocessor.prototype =
 
 							if ( imgStyleWidth.length > 0 )
 								imgWidth = imgStyleWidth;
-							else if ( imgWidth.length > 0 && imgRealWidth.length > 0 )
+							else if ( imgRealWidth.length > 0 )  //30.12.14 RL
 								imgWidth = imgRealWidth;
 
 							if ( imgStyleHeight.length > 0 )
 								imgHeight = imgStyleHeight;
-							else if ( imgHeight.length > 0 && imgRealHeight.length > 0 )
+							else if ( imgRealHeight.length > 0 ) //30.12.14 RL
 								imgHeight = imgRealHeight;
 
 							if ( imgType.length > 0 )

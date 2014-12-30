@@ -81,8 +81,8 @@ class CKeditorLinker {
        * @param array $handlerParams Associative array of media handler parameters, to be passed
        *       to transform(). Typical keys are "width" and "page".
        */
-      static function makeImageLink2( $skin, Title $nt, $file, $frameParams = array(), $handlerParams = array(), $time, &$ret ) {
-              $orginal = $nt->getText();
+      static function makeImageLink2( $skin, Title $nt, $file, $frameParams = array(), $handlerParams = array(), $time, &$ret ) {	          
+			  $orginal = $nt->getText();
               $file = RepoGroup::singleton()->getLocalRepo()->newFile( $nt );
               $found = $file->exists();
 
@@ -111,10 +111,22 @@ class CKeditorLinker {
                       $fp['align'] = '';
               }
 
+			  $imgSize = '';   //30.12.14 RL->
+			  $imgWidth = '';
+			  $imgHeight = ''; //30.12.14 RL<-			  
               $ret = '<img ';
 
               if( $found ) {
                       $ret .= "src=\"{$url}\" ";
+					  /**getimagesize returns array (requires php 4 or php 5), f.ex:
+							[0] => 378
+							[1] => 281
+							[2] => 3
+							[3] => width="378" height="281"
+							[bits] => 8
+							[mime] => image/png
+					  **/
+					  $imgSize = getimagesize( dirname(__FILE__) . '/../../..' . $url); //30.12.14 RL
               } else {
                       $ret .= "_fck_mw_valid=\"false"."\" ";
               }
@@ -125,14 +137,39 @@ class CKeditorLinker {
               }
               if( !empty( $hp ) ) {
                       if( isset( $hp['width'] ) ) {
-                              $ret .= "_fck_mw_width=\"" . $hp['width'] . "\" ";
-							  $ret .= "width=\"" . $hp['width'] . "\" ";         //10.01.14 RL To resize image properly in edit mode of wysiwyg
-                      }
+                              //$ret .= "_fck_mw_width=\"" . $hp['width'] . "\" ";
+							  //$ret .= "width=\"" . $hp['width'] . "\" ";    //10.01.14 RL
+							  $imgWidth = $hp['width'];       //30.12.14 RL->
+                      } elseif( $found ) {
+							  $imgWidth = $imgSize['0'];
+					  }                                       //30.12.14 RL<- 
+					  
                       if( isset( $hp['height'] ) ) {
-                              $ret .= "_fck_mw_height=\"" . $hp['height'] . "\" ";
-							  $ret .= "height=\"" . $hp['height'] . "\"  ";      //10.01.14 RL To resize image properly in edit mode of wysiwyg
-                      }
-              }
+                              //$ret .= "_fck_mw_height=\"" . $hp['height'] . "\" ";
+							  //$ret .= "height=\"" . $hp['height'] . "\"  "; //10.01.14 RL
+							  $imgHeight = $hp['height'];     //30.12.14 RL->
+                      } elseif( found ) {
+							  $imgHeight = $imgSize['1'];
+					  } 
+              } elseif ( $found ) {
+					$imgWidth  = $imgSize['0'];            
+					$imgHeight = $imgSize['1'];            
+			  }                                               //30.12.14 RL<- 
+			  
+              if( !empty( $imgWidth ) ) {                     //30.12.14 RL->  
+                    //$ret .= "_fck_mw_width=\"" . $imgWidth . "\" ";   //30.12.14 RL Not used
+				    $ret .= "width=\"" . $imgWidth . "\" ";   //10.01.14 RL To resize image properly in edit mode of wysiwyg
+              }			  
+              if( !empty( $imgHeight ) ) {
+                    //$ret .= "_fck_mw_height=\"" . $imgHeight . "\" "; //30.12.14 RL Not used
+				    $ret .= "height=\"" . $imgHeight . "\" "; //10.01.14 RL To resize image properly in edit mode of wysiwyg
+              }                                               //30.12.14 RL<-
+			  
+			  if ( $found ) {                                 //30.12.14 RL->  
+			        //Inform image dialog about original size of the image
+			        $ret .= "_fck_mw_origimgwidth=\"" . $imgSize['0'] . "\" _fck_mw_origimgheight=\"" . $imgSize['1'] . "\" ";
+              }                                               //30.12.14 RL<-
+			  
               $class = '';
               if( isset( $fp['thumbnail'] ) ) {
                       $ret .= "_fck_mw_type=\"thumb" . "\" ";
@@ -173,12 +210,13 @@ class CKeditorLinker {
               if( $class ) {
                       $ret .= "class=\"$class\" ";
               }
-       if (isset($fp['no-link']))
-           $ret .= 'no-link="1" ';
-       if (isset($fp['link-title']) && is_object($fp['link-title']))
-           $ret .= 'link="'.htmlentities ($fp['link-title']->getFullText()).'" ';
-       if (isset($fp['link-url']))
-           $ret .= 'link="'.$fp['link-url'].'" ';
+			  
+              if (isset($fp['no-link']))
+                  $ret .= 'no-link="1" ';
+              if (isset($fp['link-title']) && is_object($fp['link-title']))
+                  $ret .= 'link="'.htmlentities ($fp['link-title']->getFullText()).'" ';
+              if (isset($fp['link-url']))
+                  $ret .= 'link="'.$fp['link-url'].'" ';
 
               $ret .= '/>';
 
