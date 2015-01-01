@@ -452,16 +452,16 @@ CKEDITOR.plugins.add( 'mediawiki',
 		} //07.01.14 RL<-
 
 	MWpluginLang['fr'] = {
-            invalidContent  : 'invalid content',
+            invalidContent  : 'contenu invalide',
             searching       : 'recherche...',
-            externalLink    : 'lien externe... no search for it',
+            externalLink    : 'lien externe... pas de recherche',
             startTyping     : 'tapez dans le champ ci-dessus',
             stopTyping      : 'arrêtez de taper pour lancer la recherche',
             tooManyResults  : 'trop de résultats correspondants...',
             // image
             imgTitle        : 'Ajouter/modifier une image',
             fileName        : 'Nom de fichier image',
-            fileNameExtUrl  : 'Image file name or URL',
+            fileNameExtUrl  : 'URL ou nom d’image',
             searchLabel     : 'Résultats de recherche (%s)',
             noImgFound      : 'aucune image trouvée',
             oneImgFound     : 'une image trouvée',
@@ -472,13 +472,13 @@ CKEDITOR.plugins.add( 'mediawiki',
 			imgTypeFrame    : 'Cadre',
 			imgTypeFrameless: 'Sans cadre',
 			imgTypeBorder   : 'Bordure',
-            alignCenter     : 'Center',
+            alignCenter     : 'Centrer',
             // signature
             signature       : 'Signature',
             // special tags
-            specialTags     : 'Special Tags',
-            specialTagTitle : 'Special Tags Dialogue',
-            specialTagDef   : 'Define any special tag, magic word or parser function:',
+            specialTags     : 'Balises spéciales',
+            specialTagTitle : 'Balises spéciales',
+            specialTagDef   : 'Définir une balise spéciale :',
             // link
             linkTitle       : 'Créer/éditer un lien',
 			simplelink	    : 'Lien rapide',                                                         //27.08.14 Varlin
@@ -488,7 +488,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail... pas de recherche',
             anchorLink      : 'ancre... pas de recherche',
             linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',
-			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
+			linkAsMedia     : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', //09.05.14 RL
 			defineTarget    : 'Entrer la page cible:',
             chooseTarget    : 'Choisissez la page :',
 			// references (citation)
@@ -502,7 +502,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			categoryTitle	: 'Ajouter/modifier une catégorie',
 			category		: 'Catégorie:',
 			categorySort	: 'categorySort',
-			noCategoryFound     : 'Not found, category is new',
+			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound    : 'Une catégorie trouvée',
             manyCategoryFound   : ' catégories trouvées',
             selfromCategoryList : 'Sélectionner dans la liste:'
