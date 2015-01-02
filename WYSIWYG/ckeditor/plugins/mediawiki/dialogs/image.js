@@ -122,14 +122,14 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
     var SetSearchMessage = function ( dialog, message ) {
         message = searchLabel.replace(/%s/, message);
-        var	e = dialog.getContentElement( 'info', 'imgList' ),
+        var	e = dialog.getContentElement( 'mwImgTab1', 'imgList' ),
         label = document.getElementById(e.domId).getElementsByTagName('label')[0];
         e.html = message;
         label.innerHTML = message;
     }
 
     var ClearSearch = function(dialog) {
-        var	e = dialog.getContentElement( 'info', 'imgList' );
+        var	e = dialog.getContentElement( 'mwImgTab1', 'imgList' );
         e.items = [];
         var div = document.getElementById(e.domId),
             select = div.getElementsByTagName('select')[0];
@@ -142,7 +142,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
         //var dialog = this.getDialog();
 
         var StartSearch = function() {
-            var	e = dialog.getContentElement( 'info', 'imgFilename' ),
+            var	e = dialog.getContentElement( 'mwImgTab1', 'imgFilename' ),
                 link = e.getValue().Trim();
             
 			if ( link == '' ) ClearImage( dialog ); //23.12.14 RL
@@ -156,7 +156,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
         var LoadSearchResults = function(result) {
             var results = result.responseText.split( '\n' ),
-                select = dialog.getContentElement( 'info', 'imgList' );
+                select = dialog.getContentElement( 'mwImgTab1', 'imgList' );
 
             ClearSearch(dialog) ;
 
@@ -180,7 +180,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
         }
 
-        var e = dialog.getContentElement( 'info', 'imgFilename' ),
+        var e = dialog.getContentElement( 'mwImgTab1', 'imgFilename' ),
         link = e.getValue().Trim();
 
         if ( searchTimer )
@@ -222,7 +222,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
             minHeight : 310,
 			contents : [
 				{
-					id : 'info',
+					id : 'mwImgTab1', 
 					label : 'Tab info',
 					elements :
 					[
@@ -299,7 +299,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             onChange: function () {
                                                 var dialog = this.getDialog(),
                                                     newImg = this.getValue(),
-                                                    e = dialog.getContentElement( 'info', 'imgFilename' );
+                                                    e = dialog.getContentElement( 'mwImgTab1', 'imgFilename' );
                                                 if ( newImg == editor.lang.mwplugin.tooManyResults ) return;
                                                 e.setValue(newImg.replace(/_/g, ' '));
 												DispImgPView( dialog, newImg); //23.12.14 RL
@@ -351,7 +351,61 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 								else if ( type == CLEANUP )
 									element.removeAttribute( 'alt' );
 							}
-
+                        },
+                       { //31.12.14 RL
+                            id: 'imgLink',
+                            type: 'text',
+                            label : editor.lang.mwplugin.img_link_title, 
+                            title : editor.lang.mwplugin.img_link_title,
+                            style: 'border: 1px;',
+							onChange : function()
+							{
+								//alert('imgLink:');
+							},
+							setup : function( type, element ) {
+								if ( type == IMAGE )
+									this.setValue( element.getAttribute( 'link' ) );
+							},
+							commit : function( type, element ) {
+								var linkTxt =this.getValue();
+								linkTxt = linkTxt.trim();
+								if ( type == IMAGE ) {
+									if ( linkTxt || this.isChanged() ) {
+										element.setAttribute( 'link', linkTxt );
+                                    }
+								}
+								else if ( type == PREVIEW )
+									element.setAttribute( 'link', linkTxt );
+								else if ( type == CLEANUP )
+									element.removeAttribute( 'link' );
+							}
+                        },
+                        { //31.12.14 RL
+                            id : 'linkDisabled',
+                            type : 'checkbox',
+                            label : editor.lang.mwplugin.img_link_disable, 
+                            title : editor.lang.mwplugin.img_link_disable,
+                            'default' : false,
+							onChange : function()
+							{
+								//alert('linkDisabled:');
+							},
+							setup : function( type, element ) {
+								if ( type == IMAGE )
+									this.setValue( element.getAttribute( 'no-link' ) == "1" );
+							},
+							commit : function( type, element ) {
+								var linkDisabled = this.getValue();
+								if ( type == IMAGE || type == PREVIEW ) {
+									if ( linkDisabled  ) { //|| this.isChanged()
+										element.setAttribute( 'no-link', "1" );
+                                    } else {
+										element.removeAttribute( 'no-link' );
+									}
+								}
+								else if ( type == CLEANUP )
+									element.removeAttribute( 'no-link' );
+							}							
                         },
                         {
                             type: 'hbox',
@@ -426,10 +480,11 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             [ editor.lang.image.alignLeft , 'Left' ],
                                             [ editor.lang.mwplugin.alignCenter, 'Center' ]
                                             ****/
-											[ editor.lang.common.notSet,     ' '      ],          
-                                            [ editor.lang.common.alignRight, 'Right'  ], 
-                                            [ editor.lang.common.alignLeft,  'Left'   ],  
-                                            [ editor.lang.common.alignCenter,'Center' ]  
+											[ editor.lang.common.notSet,     ' '      ],
+											[ editor.lang.common.alignNone,  'None'   ], //31.12.14 RL											
+                                            [ editor.lang.common.alignLeft,  'Left'   ],
+                                            [ editor.lang.common.alignCenter,'Center' ],
+											[ editor.lang.common.alignRight, 'Right'  ]
                                             /*07.01.14 RL<-*/
                                         ],
                                         setup : function( type, element ) {
@@ -443,26 +498,101 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             if ( type == IMAGE ) {
                                                 if ( this.getValue() || this.isChanged() ) {
                                                     var newVal = this.getValue().toLowerCase().Trim(),
-                                                        classes = [ 'right', 'left', 'center' ];
-                                            if ( newVal ) {
+                                                        classes = [ 'none', 'right', 'left', 'center' ];
+                                                    if ( newVal ) {
                                                         for (var i = 0; i < classes.length; i++ ) {
-                                                            if ( newVal == classes[i] )
+                                                            if ( newVal == classes[i] ) {
                                                                 element.addClass('fck_mw_' + classes[i]);
-                                                            else
+																element.addClass('float' + classes[i]);
+															}
+                                                            else {
                                                                 element.removeClass('fck_mw_' + classes[i]);
+																element.removeClass('float' + classes[i]);
+															}
                                                         }
                                                         element.setAttribute('_fck_mw_location', newVal);
                                                     }
                                                     else {
-                                                        element.setAttribute('_fck_mw_location', 'none');
-                                                        element.removeClass('fck_mw_left');
-                                                        element.removeClass('fck_mw_center');
-                                                        element.addClass('fck_mw_right');
+														for (var i = 0; i < classes.length; i++ ) {
+															element.removeClass('fck_mw_' + classes[i]);
+															element.removeClass('float' + classes[i]);
+                                                        }														
+														if ( element.hasAttribute( '_fck_mw_location' ) ) {
+															element.removeAttribute( '_fck_mw_location' );
+														}
+													}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    { //31.12.14 RL
+                                        id: 'imgVAlign',
+                                        type: 'select',
+                                        label: editor.lang.mwplugin.imgVertAlign,
+                                        items: [
+											[ editor.lang.common.notSet,           ' ' ],          
+                                            [ editor.lang.mwplugin.img_super,      'Super' ],
+											[ editor.lang.mwplugin.img_baseline,   'Baseline' ], 
+                                            [ editor.lang.mwplugin.img_sub,        'Sub' ],  
+											[ editor.lang.mwplugin.img_top,        'Top' ],
+											[ editor.lang.mwplugin.img_text_top,   'Text-top' ],
+											[ editor.lang.mwplugin.img_middle,     'Middle' ],
+											[ editor.lang.mwplugin.img_text_bottom,'Text-bottom' ],
+											[ editor.lang.mwplugin.img_bottom,     'Bottom' ]
+                                        ],
+                                        setup : function( type, element ) {
+											//var valign = element.getStyle( 'vertical-align' ) || '';
+											var valign = element.getAttribute( '_fck_mw_vertical-align' ) || '';
+											if ( type == IMAGE && valign ) {
+												this.setValue( valign.FirstToUpper() );
+											}
+                                        },
+                                        commit : function( type, element ) {
+                                            if ( type == IMAGE ) {
+                                                if ( this.getValue() || this.isChanged() ) {
+                                                    var newVal = this.getValue().toLowerCase().Trim();
+                                                    if ( newVal ) {
+														element.$.style.verticalAlign = newVal;                   //For wysiwyg
+														element.setAttribute( '_fck_mw_vertical-align', newVal ); //For MW
+													}
+                                                    else {
+														//element.$.style.removeProperty( 'vertical-align' );
+														element.$.style.verticalAlign = 'middle';                 //Set default of MW for wysiwyg
+														if ( element.hasAttribute( '_fck_mw_vertical-align' ) ) {
+															element.removeAttribute( '_fck_mw_vertical-align' );  //For MW
+														}
                                                     }
                                                 }
                                             }
                                         }
                                     },
+									{ //31.12.14 RL
+										id : 'sizeUpright',
+										type : 'checkbox',
+										label : editor.lang.mwplugin.img_upright, 
+										title : editor.lang.mwplugin.img_upright,
+										'default' : false,
+										onChange : function()
+										{
+											//alert('linkDisabled:');
+										},
+										setup : function( type, element ) {
+											if ( type == IMAGE )
+												this.setValue( element.getAttribute( '_fck_mw_upright' ) == "1" );
+										},
+										commit : function( type, element ) {
+											var linkDisabled = this.getValue();
+											if ( type == IMAGE || type == PREVIEW ) {
+												if ( linkDisabled  ) { //|| this.isChanged()
+													element.setAttribute( '_fck_mw_upright', "1" );
+												} else {
+													element.removeAttribute( '_fck_mw_upright' );
+												}
+											}
+											else if ( type == CLEANUP )
+												element.removeAttribute( '_fck_mw_upright' );
+										}							
+									},									
                                     {
                                         id: 'imgWidth',
                                         type: 'text',
@@ -474,15 +604,15 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												imgStyle = element.getAttribute( 'style') || '',            
                                                 match = /(?:^|\s)width\s*:\s*(\d+)/i.exec( imgStyle ),
                                                 imgStyleWidth = match && match[1] || 0,
-												imgRealWidth  = ( element.getAttribute( 'width' ) || '' ) + '', //10.01.14 RL
-												imgOrigWidth  = ( element.getAttribute( '_fck_mw_origimgwidth' ) || '' ) + ''; //30.12.14 RL
+												imgRealWidth  = ( element.getAttribute( 'width' ) || '' ) + ''; //10.01.14 RL
+												//imgOrigWidth  = ( element.getAttribute( '_fck_mw_origimgwidth' ) || '' ) + ''; //31.12.14 RL
 													
 											if ( imgStyleWidth.length > 0 )     //10.01.14 RL->
 												imgWidth = imgStyleWidth;                                        
 											else if ( imgRealWidth.length > 0 ) //26.08.14
 												imgWidth = imgRealWidth;        //10.01.14 RL<-
-											else if ( imgOrigWidth.length > 0 )
-											    imgWidth = imgOrigWidth;
+											//else if ( imgOrigWidth.length > 0 )
+											//    imgWidth = imgOrigWidth;
 											
                                             if ( type == IMAGE && imgWidth )    //10.01.14 RL Was imgStyleWidth
                                                 this.setValue( imgWidth );		//10.01.14 RL Was imgStyleWidth		
@@ -531,15 +661,15 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												imgStyle = element.getAttribute( 'style') || '',             
                                                 match = /(?:^|\s)height\s*:\s*(\d+)/i.exec( imgStyle ),      
                                                 imgStyleHeight = match && match[1] || 0,
-												imgRealHeight  = ( element.getAttribute( 'height' ) || '' ) + '',  //10.01.14 RL
-												imgOrigHeight  = ( element.getAttribute( '_fck_mw_origimgheight' ) || '' ) + ''; //30.12.14 RL
+												imgRealHeight  = ( element.getAttribute( 'height' ) || '' ) + '';  //10.01.14 RL
+												//imgOrigHeight  = ( element.getAttribute( '_fck_mw_origimgheight' ) || '' ) + ''; //31.12.14 RL
 
 											if ( imgStyleHeight.length > 0 )     //10.01.14 RL->
 												imgHeight = imgStyleHeight;
 											else if ( imgRealHeight.length > 0 ) //26.08.14
 												imgHeight = imgRealHeight;       //10.01.14 RL<-
-											else if ( imgOrigHeight.length > 0 )
-												imgHeight = imgOrigHeight;
+											//else if ( imgOrigHeight.length > 0 )
+											//	imgHeight = imgOrigHeight;
 								
                                             if ( type == IMAGE && imgHeight )	 //10.01.14 RL Was imgStyleHight
                                                 this.setValue( imgHeight ); 	 //10.01.14 RL Was imgStyleHight
@@ -600,6 +730,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                 }
                 // Set attributes.
 				this.commitContent( IMAGE, this.imageElement );
+
                 // Change the image element into a link when it's an external URL				
                 if ( this.imageElement.getAttribute('href') ) {
                     var link = editor.document.createElement( 'a' );
@@ -608,6 +739,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                     link.setText( text );
                     this.imageElement = link;
                 }
+				/****** //31.12.14 RL Do not overwrite any of user made settings.
                 else {
                     // set some default classes for alignment and border if this is not defined
                     var attrClass = this.imageElement.getAttribute('class');
@@ -616,9 +748,22 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                     if ( !( attrClass && attrClass.match(/fck_mw_(left|right|center)/) ) )
                         this.imageElement.addClass('fck_mw_right');
                 }
+				********/
+				
+				if ( this.imageElement.getAttribute('_fck_mw_upright') ) { //31.12.14 RL
+					// Check-box upright overrules width/height in this dialog.
+					// I was unable to find out how width/height elements of dialog could be accessed from
+					// upright element, so remove width and height here.
+					this.imageElement.removeAttribute('width');
+					this.imageElement.removeAttribute('height');
+					this.imageElement.$.style.removeProperty( 'width' );  //For IE
+					this.imageElement.$.style.removeProperty( 'height' ); //For IE
+                }
+
                 // Remove empty style attribute.
-				if ( !this.imageElement.getAttribute( 'style' ) )
+				if ( !this.imageElement.getAttribute( 'style' ) ) {
 					this.imageElement.removeAttribute( 'style' );
+				}
 
                 // Insert a new Image.
 				if ( !this.imageEditMode )
@@ -633,14 +778,14 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                 this.dontResetSize = false;
                 
                 // clear old selection list from a previous call
-                var	e = this.getContentElement( 'info', 'imgList' );
+                var	e = this.getContentElement( 'mwImgTab1', 'imgList' );
                     e.items = [];
                 var div = document.getElementById(e.domId),
                     select = div.getElementsByTagName('select')[0];
                 while ( select.options.length > 0 )
                     select.remove( 0 );
                 // and set correct label for image list
-                e = this.getContentElement( 'info', 'imgList' ),
+                e = this.getContentElement( 'mwImgTab1', 'imgList' ),
                     label = document.getElementById(e.domId).getElementsByTagName('label')[0];
                 var editor = this.getParentEditor(),
                     message = editor.lang.mwplugin.searchLabel.replace(/%s/, editor.lang.mwplugin.startTyping);
@@ -685,15 +830,15 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 					this.imageElement =  editor.document.createElement( 'img' );
 
 				// Dont show preview if no URL given.
-				if ( !CKEDITOR.tools.trim( this.getValueOf( 'info', 'imgFilename' ) ) )
+				if ( !CKEDITOR.tools.trim( this.getValueOf( 'mwImgTab1', 'imgFilename' ) ) )
 				{
 					this.preview.removeAttribute( 'src' );
 					this.preview.setStyle( 'display', 'none' );
 				} else { // Preview existing image //30.12.14 RL Added "else"
-					e = this.getContentElement( 'info', 'imgFilename' ); //23.12.14 RL-> 
+					e = this.getContentElement( 'mwImgTab1', 'imgFilename' ); //23.12.14 RL-> 
 					var newImg = e.getValue().replace(/ /g, '_');
 					DispImgPView( this, newImg);   //23.12.14 RL<-
-				}
+				}				
 			},
 			onHide : function()
 			{

@@ -31,6 +31,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             'img.fck_mw_left' +
             '{' +
                 'margin: 0.5em 1.4em 0.8em 0em;' +
+                'clear: left;' +     //31.12.14 RL
+                'float: left;' +     //31.12.14 RL
             '}\n' +
             'img.fck_mw_center' +
             '{' +
@@ -39,6 +41,11 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'margin-bottom: 0.5em;' +
                 'display: block;' +
             '}\n' +
+           'img.fck_mw_none' +       //31.12.14 RL
+            '{' +
+                'clear: both;' +     //Remove left and right floats
+				'display: block;' +  //To make image split possible text lines automatically
+            '}\n' +			
             'img.fck_mw_notfound' +
             '{' +
                 'font-size: 1px;' +
@@ -358,9 +365,20 @@ CKEDITOR.plugins.add( 'mediawiki',
 			imgTypeFrame    : 'Frame',                                      //07.01.14 RL
 			imgTypeFrameless: 'Frameless',                                  //07.01.14 RL
 			imgTypeBorder   : 'Border',                                     //07.01.14 RL
-            alignCenter     : 'Center',
+			img_baseline    : 'Baseline', //31.12.14 RL->
+			img_sub         : 'Sub',
+			img_super       : 'Super',
+			img_top         : 'Top',
+			img_text_top    : 'Text-top',
+			img_middle      : 'Middle',
+			img_bottom      : 'Bottom',
+			img_text_bottom : 'Text-bottom',
+			img_upright     : 'Resize to fit (upright)',
+			img_link_title  : 'Link',
+			img_link_disable: 'Disable link', 
+			imgVertAlign    : 'Alignment (vert.)', //31.12.14 RL<-
             // signature
-            signature       : 'Signature',
+            signature       : 'Signature', 
             // special tags
             specialTags     : 'Special Tags',
             specialTagTitle : 'Special Tags Dialogue',
@@ -415,7 +433,18 @@ CKEDITOR.plugins.add( 'mediawiki',
 			imgTypeFrame    : 'Kehys (frame)',                                //'Frame',
 			imgTypeFrameless: 'Ei kehystä (frameless)',                       //'Frameless',
 			imgTypeBorder   : 'Rajat (border)',                               //Border',
-            alignCenter     : 'Oikealle',                                     //'Center',
+			img_baseline    : 'Perustaso',     //31.12.14 RL->
+			img_sub         : 'Alaindeksi',
+			img_super       : 'Yläindeksi',
+			img_top         : 'Ylös',
+			img_text_top    : 'Ylös tekstiin',
+			img_middle      : 'Keskelle',
+			img_bottom      : 'Alas',
+			img_text_bottom : 'Alas tekstiin',
+			img_upright     : 'Sovita kuvan koko (upright)',
+			img_link_title  : 'Linkki',
+			img_link_disable: 'Estä linkin toiminta',
+			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-			
             // signature
             signature       : 'Allekirjoitus',                                //'Signature',
             // special tags
@@ -472,7 +501,18 @@ CKEDITOR.plugins.add( 'mediawiki',
 			imgTypeFrame    : 'Cadre',
 			imgTypeFrameless: 'Sans cadre',
 			imgTypeBorder   : 'Bordure',
-            alignCenter     : 'Centrer',
+			img_baseline    : 'Ligne_de_base',     //31.12.14 RL->
+			img_sub         : 'Indice',
+			img_super       : 'Exposant',
+			img_top         : 'Haut',
+			img_text_top    : 'Haut-texte',
+			img_middle      : 'Milieu',
+			img_bottom      : 'Bas',
+			img_text_bottom : 'Bas-texte',
+			img_upright     : 'Redimensionner pour se adapter (upright)',
+			img_link_title  : 'Entrer la page cible',
+			img_link_disable: 'Un lien est désactivée',
+			imgVertAlign    : 'Alignement (vert.)', //31.12.14 RL<-
             // signature
             signature       : 'Signature',
             // special tags
@@ -529,7 +569,18 @@ CKEDITOR.plugins.add( 'mediawiki',
             imgTypeFrame    : 'Rahmen',                                                              //29.09.14 RL 
             imgTypeFrameless: 'Rahmenlos',                                                           //29.09.14 RL 
             imgTypeBorder   : 'Linie',                                                               //29.09.14 RL
-            alignCenter     : 'Mitte',
+			img_baseline    : 'Grundlinie',     //31.12.14 RL->
+			img_sub         : 'Tiefgestellt',
+			img_super       : 'Hochgestellt',
+			img_top         : 'Oben',
+			img_text_top    : 'Text-oben',
+			img_middle      : 'Mitte',
+			img_bottom      : 'Unten',
+			img_text_bottom : 'Text-unten',
+			img_upright     : 'Automatisch angepasst (upright)',
+			img_link_title  : 'Verweis',
+			img_link_disable: 'Verweis deaktiviert',
+			imgVertAlign    : 'Ausrichtung (vert.)', //31.12.14 RL<-
             // signature
             signature       : 'Signatur',
             // special tags
@@ -1333,15 +1384,22 @@ CKEDITOR.customprocessor.prototype =
 							var imgLocation	= htmlNode.getAttribute( '_fck_mw_location' ) || '';
 							var imgWidth	= '';  //htmlNode.getAttribute( '_fck_mw_width' ) || '';  //30.12.14 RL
 							var imgHeight	= '';  //htmlNode.getAttribute( '_fck_mw_height' ) || ''; //30.12.14 RL
+							var imgRealWidth	= ( htmlNode.getAttribute( 'width' ) || '' ) + '';
+							var imgRealHeight	= ( htmlNode.getAttribute( 'height' ) || '' ) + '';
+
                             var imgStyle    = htmlNode.getAttribute( 'style' ) || '';
                             var match = /(?:^|\s)width\s*:\s*(\d+)/i.exec( imgStyle ),
                                 imgStyleWidth = match && match[1] || 0;
                             match = /(?:^|\s)height\s*:\s*(\d+)/i.exec( imgStyle );
                             var imgStyleHeight = match && match[1] || 0;
-							var imgRealWidth	= ( htmlNode.getAttribute( 'width' ) || '' ) + '';
-							var imgRealHeight	= ( htmlNode.getAttribute( 'height' ) || '' ) + '';
+
                             var imgNolink = ( htmlNode.getAttribute( 'no-link' ) || '' ) + '';
                             var imgLink = ( htmlNode.getAttribute( 'link' ) || '' ) + '';
+
+							//match = /(?:^|\s)vertical-align\s*:\s*([\w\-]*)/i.exec( imgStyle );       //31.12.14 RL->  
+							//var imgVLocation = match && match[1] || 0;
+							var imgVLocation = htmlNode.getAttribute( '_fck_mw_vertical-align' ) || ''; 
+							var imgUpright   = htmlNode.getAttribute( '_fck_mw_upright' ) || '';        //31.12.14 RL<-
 
 							stringBuilder.push( '[[File:' );
 							stringBuilder.push( imgName );
@@ -1360,14 +1418,19 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( '|' + imgType );
 
 							if ( imgLocation.length > 0 )
-								stringBuilder.push( '|' + imgLocation );
+								stringBuilder.push( '|' + imgLocation );  //Horizontal position
 
-							if ( imgWidth.length > 0 ){
-								stringBuilder.push( '|' + imgWidth );
-
+							if ( imgVLocation.length > 0 ) //31.12.14 RL->
+								stringBuilder.push( '|' + imgVLocation ); //Vertical position
+								
+							if ( imgUpright.length > 0 ) {
+								stringBuilder.push( '|upright' ); //Size: upright
+							} else if ( imgWidth.length > 0 || imgHeight.length > 0 ){ //31.12.14 RL<-
+								stringBuilder.push( '|' );
+								if ( imgWidth.length > 0 )
+									stringBuilder.push( imgWidth );
 								if ( imgHeight.length > 0 )
 									stringBuilder.push( 'x' + imgHeight );
-
 								stringBuilder.push( 'px' );
 							}
 

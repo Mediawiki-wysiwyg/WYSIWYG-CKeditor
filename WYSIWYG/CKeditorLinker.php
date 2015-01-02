@@ -57,29 +57,41 @@ class CKeditorLinker {
               /*13.11.13 RL<-*/
       }
 
-      /**
-       * Make an image link in MediaWiki 1.11
-       * @param Title $title Title object
-       * @param File $file File object, or false if it doesn't exist
-       *
-       * @param array $frameParams Associative array of parameters external to the media handler.
-       *     Boolean parameters are indicated by presence or absence, the value is arbitrary and
-       *     will often be false.
-       *          thumbnail       If present, downscale and frame
-       *          manualthumb     Image name to use as a thumbnail, instead of automatic scaling
-       *          framed          Shows image in original size in a frame
-       *          frameless       Downscale but don't frame
-       *          upright         If present, tweak default sizes for portrait orientation
-       *          upright_factor  Fudge factor for "upright" tweak (default 0.75)
-       *          border          If present, show a border around the image
-       *          align           Horizontal alignment (left, right, center, none)
-       *          valign          Vertical alignment (baseline, sub, super, top, text-top, middle,
-       *                          bottom, text-bottom)
-       *          alt             Alternate text for image (i.e. alt attribute). Plain text.
-       *          caption         HTML for image caption.
-       *
-       * @param array $handlerParams Associative array of media handler parameters, to be passed
-       *       to transform(). Typical keys are "width" and "page".
+      /**Mediakiki 1.22
+         * Given parameters derived from [[Image:Foo|options...]], generate the
+         * HTML that that syntax inserts in the page.
+         *
+         * @param $parser Parser object
+         * @param $title Title object of the file (not the currently viewed page)
+         * @param $file File object, or false if it doesn't exist
+         * @param array $frameParams associative array of parameters external to the media handler.
+         *     Boolean parameters are indicated by presence or absence, the value is arbitrary and
+         *     will often be false.
+         *          thumbnail       If present, downscale and frame
+         *          manualthumb     Image name to use as a thumbnail, instead of automatic scaling
+         *          framed          Shows image in original size in a frame
+         *          frameless       Downscale but don't frame
+         *          upright         If present, tweak default sizes for portrait orientation
+         *          upright_factor  Fudge factor for "upright" tweak (default 0.75)
+         *          border          If present, show a border around the image
+         *          align           Horizontal alignment (left, right, center, none)
+         *          valign          Vertical alignment (baseline, sub, super, top, text-top, middle,
+         *                          bottom, text-bottom)
+         *          alt             Alternate text for image (i.e. alt attribute). Plain text.
+         *          class           HTML for image classes. Plain text.
+         *          caption         HTML for image caption.
+         *          link-url        URL to link to
+         *          link-title      Title object to link to
+         *          link-target     Value for the target attribute, only with link-url
+         *          no-link         Boolean, suppress description link
+         *
+         * @param array $handlerParams associative array of media handler parameters, to be passed
+         *       to transform(). Typical keys are "width" and "page".
+         * @param string $time timestamp of the file, set as false for current
+         * @param string $query query params for desc url
+         * @param $widthOption: Used by the parser to remember the user preference thumbnailsize
+         * @since 1.20
+         * @return String: HTML for an image, with links, wrappers, etc.
        */
       static function makeImageLink2( $skin, Title $nt, $file, $frameParams = array(), $handlerParams = array(), $time, &$ret ) {	          
 			  $orginal = $nt->getText();
@@ -111,10 +123,12 @@ class CKeditorLinker {
                       $fp['align'] = '';
               }
 
+              $ret = '<img ';
+              $class = '';
+			  $style = '';     //31.12.14 RL
 			  $imgSize = '';   //30.12.14 RL->
 			  $imgWidth = '';
 			  $imgHeight = ''; //30.12.14 RL<-			  
-              $ret = '<img ';
 
               if( $found ) {
                       $ret .= "src=\"{$url}\" ";
@@ -132,29 +146,55 @@ class CKeditorLinker {
               }
               $ret .= "_fck_mw_filename=\"{$orginal}\" ";
 
-              if( $fp['align'] ) {
+              if( $fp['align'] ) { //Horizontal location
                       $ret .= "_fck_mw_location=\"" . strtolower( $fp['align'] ) . "\" ";
               }
+			  
+              if( isset( $fp['valign'] ) ) { //Vertical location  //31.12.14 RL
+					  $ret   .= "_fck_mw_vertical-align=\"" . strtolower( $fp['valign'] ) . "\" "; //For wysiwyg: _fck_mw_vertical-align="middle"
+					  $style .= "vertical-align:"           . strtolower( $fp['valign'] ) . ";";   //For MW: style="vertical-align: middle;"
+              } else {
+                      $style .= "vertical-align:middle;"; //Default of MW for wysiwyg
+			  }
+			  
+			  if( isset( $fp['upright'] ) ) { //Resize automatically  //31.12.14 RL
+					  $ret   .= '_fck_mw_upright="1" ';
+              } 
+
               if( !empty( $hp ) ) {
-                      if( isset( $hp['width'] ) ) {
-                              //$ret .= "_fck_mw_width=\"" . $hp['width'] . "\" ";
-							  //$ret .= "width=\"" . $hp['width'] . "\" ";    //10.01.14 RL
-							  $imgWidth = $hp['width'];       //30.12.14 RL->
-                      } elseif( $found ) {
-							  $imgWidth = $imgSize['0'];
-					  }                                       //30.12.14 RL<- 
-					  
-                      if( isset( $hp['height'] ) ) {
-                              //$ret .= "_fck_mw_height=\"" . $hp['height'] . "\" ";
-							  //$ret .= "height=\"" . $hp['height'] . "\"  "; //10.01.14 RL
-							  $imgHeight = $hp['height'];     //30.12.14 RL->
-                      } elseif( found ) {
-							  $imgHeight = $imgSize['1'];
-					  } 
-              } elseif ( $found ) {
+					if( isset( $hp['width'] ) ) {
+						//$ret .= "_fck_mw_width=\"" . $hp['width'] . "\" ";
+						//$ret .= "width=\"" . $hp['width'] . "\" ";    //10.01.14 RL
+						$imgWidth = $hp['width'];       //30.12.14 RL
+					}
+					if( isset( $hp['height'] ) ) {
+						//$ret .= "_fck_mw_height=\"" . $hp['height'] . "\" ";
+						//$ret .= "height=\"" . $hp['height'] . "\"  "; //10.01.14 RL
+						$imgHeight = $hp['height'];     //30.12.14 RL
+					}
+					
+					/**31.12.14 RL*** MW does not necessarily need both width and height info of image so we do nto use this. 
+					
+					// F.ex. [[image:picture.png|none|120px]] => missing value is then calculated automatically by MW.
+					// In case we want size to be displayed in image dialog calculate missing proportional values here:
+					// imgHeight = realHeight * (imgWidth / realWidth), using integer value rounded down
+					// imgWidth  = realWidth  * (imgHeight / realHeight)
+					if ( $found && isset( $hp['width'] ) && !isset( $hp['height'] ) ) {
+						$imgHeight = floor( $imgSize['1'] * ( $imgWidth / $imgSize['0'] ) ); 
+					} elseif ( $found && isset( $hp['height'] ) && !isset( $hp['width'] ) ) {
+						$imgWidth  = floor( $imgSize['0'] * ( $imgHeight / $imgSize['1'] ) );						
+					} elseif ( $found && !isset( $hp['height'] ) && !isset( $hp['width'] ) ) {
+						$imgWidth  = $imgSize['0'];            
+						$imgHeight = $imgSize['1'];            
+					}
+					*******/
+              } 
+			  /****
+			  elseif ( $found ) { //30.12.14 RL
 					$imgWidth  = $imgSize['0'];            
 					$imgHeight = $imgSize['1'];            
-			  }                                               //30.12.14 RL<- 
+			  } 
+			  *****/
 			  
               if( !empty( $imgWidth ) ) {                     //30.12.14 RL->  
                     //$ret .= "_fck_mw_width=\"" . $imgWidth . "\" ";   //30.12.14 RL Not used
@@ -170,28 +210,31 @@ class CKeditorLinker {
 			        $ret .= "_fck_mw_origimgwidth=\"" . $imgSize['0'] . "\" _fck_mw_origimgheight=\"" . $imgSize['1'] . "\" ";
               }                                               //30.12.14 RL<-
 			  
-              $class = '';
               if( isset( $fp['thumbnail'] ) ) {
                       $ret .= "_fck_mw_type=\"thumb" . "\" ";
-                      $class .= 'fck_mw_frame';
-              } else if( isset( $fp['border'] ) ) {
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_frame';
+              } elseif( isset( $fp['border'] ) ) {
                       $ret .= "_fck_mw_type=\"border" . "\" ";
-                      $class .= 'fck_mw_border';
-              } else if( isset( $fp['framed'] ) ) {
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_border';
+              } elseif( isset( $fp['framed'] ) ) {
                       $ret .= "_fck_mw_type=\"frame" . "\" ";
-                      $class .= 'fck_mw_frame';
-              } else if( isset( $fp['frameless'] ) ) {             //07.01.14 RL New style for picture
-                      $ret .= "_fck_mw_type=\"frameless" . "\" ";  //07.01.14 RL
-                    //$class .= 'fck_mw_frame';                    //07.01.14 RL
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_frame'; 
+              } elseif( isset( $fp['frameless'] ) ) {                           //07.01.14 RL New style for picture
+                      $ret .= "_fck_mw_type=\"frameless" . "\" ";  
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_frameless';     //31.12.14 RL
               }
-
-              if( $fp['align'] == 'right' ) {
-                      $class .= ( $class ? ' ': '' ) . 'fck_mw_right';
-              } else if( $fp['align'] == 'center' ) {
-                      $class .= ( $class ? ' ' : ''  ) . 'fck_mw_center';
-              } else if( $fp['align'] == 'left' ) {
-                      $class .= ( $class ? ' ': '' ) . 'fck_mw_left';
-              } else if( isset( $fp['framed'] ) || isset( $fp['thumbnail'] ) ) {
+			  
+              // Alignment info can not be simply added into class of image element
+              // => use own "img." styles to position element on page properly (defined in plugin.js).
+              if( $fp['align'] == 'none' ) {
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_none';		    //31.12.14 RL		  
+              } elseif( $fp['align'] == 'right' ) {
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_right';
+              } elseif( $fp['align'] == 'center' ) {
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_center';
+              } elseif( $fp['align'] == 'left' ) {
+                      $class .= ( $class ? ' ' : '' ) . 'fck_mw_left';
+              } elseif( isset( $fp['framed'] ) || isset( $fp['thumbnail'] ) ) {
                       $class .= ( $class ? ' ' : '' ) . 'fck_mw_right';
               }
 
@@ -209,6 +252,10 @@ class CKeditorLinker {
 
               if( $class ) {
                       $ret .= "class=\"$class\" ";
+              }
+			  
+              if ( $style ) { //31.12.14 RL
+                      $ret .= "style=\"$style\" ";
               }
 			  
               if (isset($fp['no-link']))
