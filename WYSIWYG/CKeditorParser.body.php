@@ -745,7 +745,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		// [http://test.com ''bbb''] => <a href="http://test.com"><i>bbb<i></a>, 
 		// they were converted into html format using &lt; &gt; etc. by abowe parent::internalParse too early
 		// in replaceExternalLinks of Parser.php->internalParse. Decode them back to text format here.
-		$finalString = $this->htmlDecode( $finalString ); //27.12.14 RL		
+		// $finalString = $this->htmlDecode( $finalString ); //27.12.14 RL //03.01.15 RL Commented out, this causes problems with other texts of page
 		
 		return $finalString;
 	}
