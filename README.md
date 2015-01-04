@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 02.01.15  Cancelled modification related to formats of link texts (= "B551+27.12.2014"), because it caused problems with html related characters '&', '"', '\'', '<', '>' which were used in other texts than links. Version: 1.5.6_0 [B551+02.01.2015].
+- 04.01.15  Modification related to formats of link texts (old "B551+27.12.2014"). Version: 1.5.6_0 [B551+04.01.2015].
+
+- 02.01.15  Cancelled modification related to formats of link texts (old "B551+27.12.2014"), because it caused problems with html related characters '&', '"', '\'', '<', '>' which were used in other texts than links. Version: 1.5.6_0 [B551+02.01.2015].
 
 - 31.12.14  Modifications with image dialog: canceled use of default size with images; width and height can both be specified, only one of them or none of them; size definition "upright"; horizontal alignment "none"; vertical alignments "baseline, sub, super, top, text-top, middle, bottom, text-bottom"; link target (external or internal); disable link. Merged some french translations (by Varlin). Version: 1.5.6_0 [B551+31.12.2014].
 

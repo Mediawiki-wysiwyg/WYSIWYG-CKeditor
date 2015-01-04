@@ -270,11 +270,19 @@ class CKeditorLinker {
               return false;
       }
 
-      static function makeExternalLink( $url, $text, &$link, &$attribs, $linktype ) {
-              $url = htmlspecialchars( $url );
-              $text = htmlspecialchars( $text );
+      static function makeExternalLink( $url, $text, &$link, &$attribs, $linktype ) {               
+              
+			  $url = htmlspecialchars( $url );
+              
+			  // Following html encoding of $text destroys formats inside link text (italic, bold, underline) 
+			  // f.ex. [http://test.com ''bbb''] => <a href="http://test.com"><i>bbb<i></a>.
+			  // If needed, encoding is parameter controlled action already in MW in Linker::makeExternalLink.
+			  // => 04.01.15 RL commented out (by vadamovsky) 
+              // $text = htmlspecialchars( $text );  
+			  
               $url = preg_replace( "/^RTECOLON/", ":", $url ); // change 'RTECOLON' => ':'
-              $args = '';
+              
+			  $args = '';
               if( $text == 'RTENOTITLE' ){ // 2223
                       $args .= '_fcknotitle="true" ';
                       $text = $url;

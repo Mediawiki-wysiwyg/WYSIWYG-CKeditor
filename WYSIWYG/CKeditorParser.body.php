@@ -215,7 +215,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		return $key;
 	}
 
-    function htmlDecode ( $string ) { //27.12.14 RL
+    function htmlDecode ( $string ) { //27.12.14 RL	
 		$string = str_replace( array( '&amp;', '&quot;', '#039', '&lt;', '&gt;'  ), array( '&', '"', '\'', '<', '>' ), $string );
         return $string;
     }
@@ -741,12 +741,21 @@ class CKeditorParser extends CKeditorParserWrapper {
 		// Use MW function Parser.php->internalParse for wikitext->html conversion. 
         $finalString = parent::internalParse( $text, $isMain );	
 
+		/*** 04.01.15 RL This code is unnecessary, fix has been applied in CKeditorLinker.php::makeExternalLink instead. ****
 		// In case there are html code in link data f.ex. italic format in link text like
 		// [http://test.com ''bbb''] => <a href="http://test.com"><i>bbb<i></a>, 
-		// they were converted into html format using &lt; &gt; etc. by abowe parent::internalParse too early
-		// in replaceExternalLinks of Parser.php->internalParse. Decode them back to text format here.
-		// $finalString = $this->htmlDecode( $finalString ); //27.12.14 RL //03.01.15 RL Commented out, this causes problems with other texts of page
-		
+		// they were encoded into html format using &lt; &gt; etc. by abowe parent::internalParse too early
+		// somewhere in replaceExternalLinks of Parser.php->internalParse from wysiwyg point of view.
+		// Dedoce them back here, but only links on page between [..] because otherwise contents of page is messed up.	
+		if (preg_match_all('/<a([\S ]+)<\/a>/', $finalString, $matches, PREG_OFFSET_CAPTURE)) {
+			for ($i = 0; $i<count($matches); $i++) {
+				for ($j= 0; $j<count($matches[$i]); $j++) {												
+					$finalString = str_replace($matches[$i][$j][0],$this->htmlDecode($matches[$i][$j][0]),$finalString );
+				}
+			}
+		}
+		*********/
+
 		return $finalString;
 	}
 
