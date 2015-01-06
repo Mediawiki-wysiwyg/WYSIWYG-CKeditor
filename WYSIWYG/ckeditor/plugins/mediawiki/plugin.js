@@ -57,7 +57,6 @@ CKEDITOR.plugins.add( 'mediawiki',
             '{' +
                 'border: 1px solid #dddddd;' +
             '}\n' +
-
             // Add the CSS styles for special wiki placeholders.
 			'img.FCK__MWRef' +
 			'{' +
@@ -86,7 +85,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
-
 			'img.FCK__MWMagicWord' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_magic.gif' ) + ');' +
@@ -191,14 +189,14 @@ CKEDITOR.plugins.add( 'mediawiki',
 
     onLoad: function () {   //01.03 RL: For CKeditor 4.x
         if (CKEDITOR.addCss)
-            CKEDITOR.addCss( this.getMWElementCss() );
+            CKEDITOR.addCss( this.getMWElementCss() );		
     },
 
 	init : function( editor )
-	{
+	{	
         if (editor.addCss)  //01.03 RL: For CKeditor 3.x
             editor.addCss( this.getMWElementCss() );
-
+			
 		var wikiFilterRules =
 			{
 				elements :
@@ -625,7 +623,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 		//Works with CKeditor 3.6 and 4.3.3
         editor.addCommand( 'link', new CKEDITOR.dialogCommand( 'MWLink' ) );
         CKEDITOR.dialog.add( 'MWLink', this.path + 'dialogs/link.js' );
-
+		
 		//28.03.14 RL 'unlink' worked with CKeditor 3.6 without this override function,
 		//             which is needed in CKeditor 4.3.3, otherwise button was grey all the time
 		//             because link plugin was not activated for some reason (propabley because of
@@ -725,6 +723,25 @@ CKEDITOR.plugins.add( 'mediawiki',
             });
         }
 
+		/*****
+		$(document).on('click', '.cke_button__source', function(){
+			// do stuff
+		});		
+		*****/
+		
+		editor.on('mode', function( evt ) //05.01.15 RL Editor opened or source buttons pressed, selected editor mode is ready
+			{
+				var objId = 'wpTextbox1',
+					oEditorIframe  = document.getElementById( 'cke_' + objId ); //05.01.15 RL
+				
+				//CKEDITOR.instances[objId ].commands.source.enable(); //Already enabled by CKeditor
+				if ( editor.mode == 'wysiwyg') {
+					document.getElementById('toggle_'  + objId).style.visibility=''; //Show toggle link in wysiwyg mode
+				} else {
+					document.getElementById('toggle_'  + objId).style.visibility='hidden'; //Hide toggle link source mode
+				}				
+			} );
+			
 		editor.on( 'selectionChange', function( evt )                   //28.03.14 RL For overridden 'unlink' button
   			{
 				//To enable / disable unlink button, taken from
@@ -819,7 +836,35 @@ CKEDITOR.customprocessor.prototype =
 	_inLSpace : false,
 
    toHtml : function( data, fixForBody )
-   {
+   {   
+		var objId = 'wpTextbox1',
+			oEditorIframe  = document.getElementById( 'cke_' + objId ); //05.01.15 RL
+
+		/****
+		function set_btn_status( btn_name, btn_status ) {		
+			//3.6.x:
+			//CKEDITOR.instances.yourEditorInstance.getCommand( 'save' ).enable(); //or .disable()
+			
+			//4.x:
+			CKEDITOR.instances[objId].commands['source'].enable();
+			//CKEDITOR.instances.wpTextbox1.commands.source.enable();  //or .disable()
+		}
+		*****/
+		
+		// Disabling button source will not work here, because editor is not ready yet.
+		
+		// Enable button after timeout if all else fails, should work in all browsers.
+		//setTimeout( function(){ set_btn_status('source', true); }, 3000); 
+		
+        // When source button is pressed in wikitext mode,
+		// toHtml is called two times, first time data is in wikitext format and second time data is in html format.
+		// During first call (=in case data seems not to be html) keep wysiwyg window hidden,
+		// so that wikitext is not visible for user in wysowyg window.
+		// Following is not optimal solutions but seems to work.. there must better way to do this. 
+        if ( !data.indexOf('<p>') == 0 && !data.match(/<.*?fck_mw/) ) { //05.01.15 RL 
+            oEditorIframe.style.display = 'none'; //Hide window of CKeditor 
+		}
+
         // all converting to html (like: data = data.replace( /</g, '&lt;' );)
         var loadHTMLFromAjax = function( result ){
             if (window.parent.popup &&
@@ -831,33 +876,40 @@ CKEDITOR.customprocessor.prototype =
             }
             else if (window.parent.wgCKeditorInstance &&
                      window.parent.wgCKeditorCurrentMode != 'wysiwyg') {
-                window.parent.wgCKeditorInstance.setData(result.responseText);
+                window.parent.wgCKeditorInstance.focus(); //05.01.15 RL
+				window.parent.wgCKeditorInstance.setData(result.responseText);
                 window.parent.wgCKeditorCurrentMode = 'wysiwyg';
+
+				oEditorIframe.style.display = ''; //Show window of CKeditor //05.01.15 RL
             }
         }
-        // Hide the textarea to avoid seeing the code change.
+
+		// Hide the textarea to avoid seeing the code change.
         //textarea.hide();
+		
+		/***
         var loading = document.createElement( 'span' );
         loading.innerHTML = '&nbsp;'+ 'Loading Wikitext. Please wait...' + '&nbsp;';
         loading.style.position = 'absolute';
         loading.style.left = '5px';
         //textarea.parentNode.appendChild( loading, textarea );
+		***/
 
         // prevent double transformation because of some weird runtime issues
         // with the event dataReady in the smwtoolbar plugin
         if (!(data.indexOf('<p>') == 0 &&
               data.match(/<.*?_fck_mw/) || data.match(/class="fck_mw_\w+"/i)) ) {
-
             // Use Ajax to transform the Wikitext to HTML.
+			// This is run after source or ToggleCKEditor button is pressed in wikitext mode. 
             if( window.parent.popup ){
                 window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
             } else {
                 window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.wgPageName], loadHTMLFromAjax );
             }
         }
+	
         var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
         writer = new CKEDITOR.htmlParser.basicWriter();
-
         fragment.writeHtml( writer, this.dataFilter );
 	    data = writer.getHtml( true );
 
@@ -974,7 +1026,6 @@ CKEDITOR.customprocessor.prototype =
 					return;
 
                 // get real element from fake element
-//			    if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
 	            if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
                     this._AppendNode( this._getRealElement( htmlNode ), stringBuilder, prefix );
                     return;
