@@ -133,13 +133,13 @@ class CKeditor_MediaWiki {
 	#	$text = $parser->strip( $text, $stripState );
 	#	return true;
 	# }
-	public static function onParserBeforeStrip( &$parser, &$text, &$stripState ) {
-	    #$text = $parser->strip( $text, $stripState );
-        if (get_class($parser) == 'CKeditorParser') {
-            $text = $parser->strip( $text, $stripState );
+	        public static function onParserBeforeStrip( &$parser, &$text, &$stripState ) {
+#               $text = $parser->strip( $text, $stripState );
+               if (get_class($parser) == 'CKeditorParser') {
+                       $text = $parser->strip( $text, $stripState );
+               }
+                return true;
         }
-        return true;
-    }
 
 	public static function onSanitizerAfterFixTagAttributes( $text, $element, &$attribs ) {
 		$text = preg_match_all( "/Fckmw\d+fckmw/", $text, $matches );
@@ -702,7 +702,7 @@ function onLoadCKeditor(){
 	if( !( showFCKEditor & RTE_VISIBLE ) )
 		showFCKEditor += RTE_VISIBLE;
 	firstLoad = false;
-	realTextarea = document.getElementById( '$textfield' );	
+	realTextarea = document.getElementById( '$textfield' );
 	if ( realTextarea ){
 		var height = $ckeHeight;
 		realTextarea.style.display = 'none';
@@ -813,24 +813,21 @@ function initEditor(){
 
 		//17.01.14 RL-> Removed [] here because they would not move with link text when "toggle_$textfield" was repositioned =>
 		//              instead brackets has been set into variables editorLink, editorMsgOn and editorMsgOff directly.
-		//05.01.14 RL   Hide toggle link by default -> style="visibility:hidden;", link is made visible in plugin.js->editor.on('mode',...)
-		ckTools.innerHTML='<a class="fckToogle" id="toggle_$textfield" style="visibility:hidden;" href="javascript:void(0)" onclick="ToggleCKEditor(\'toggle\',\'$textfield\')">'+ editorLink +'</a> ';
+		ckTools.innerHTML='<a class="fckToogle" id="toggle_$textfield" href="javascript:void(0)" onclick="ToggleCKEditor(\'toggle\',\'$textfield\')">'+ editorLink +'</a> ';
 
 		//Do not hide WikiEditor toolbar if preferences told us to start with it.
 		if (showFCKEditor & RTE_VISIBLE) { //10.04.14 RL 
 			if ( $('#wikiEditor-ui-toolbar') ) {  //Hide WikiEditor toolbar
 				$('#wikiEditor-ui-toolbar').hide(); 
 			}	
-		} else { //05.01.15 RL Start with WikiEditor, show toggle link
-			document.getElementById("toggle_$textfield").style.visibility = '';		
-		}
-
+		}	                               //10.04.14 RL
+		
 		//F.ex: $("#toggle_$textfield") equals to $('#toggle_wpTextbox1') 
 		//$( "#toggle_$textfield" ).insertBefore('#ckTools');  //This worked with FireFox v26.0 but not with IE11
 		$( "#toggle_$textfield" ).insertBefore("#editform");   //This works with FF and IE
 		$( "#toggle_$textfield" ).css('font-size','0.8em');
 		//$( "#toggle_$textfield" ).css('float','left');       //This does not work with WikiEditor window, text disappears
-		//17.01.14 RL<-	
+		//17.01.14 RL<-
 	}
     /*
 	if( showFCKEditor & RTE_POPUP ){
@@ -894,10 +891,10 @@ function ToggleCKEditor( mode, objId ){
 
 	if ( firstLoad ){
 
-		if ( $('#wikiEditor-ui-toolbar') ) {  //10.04.14 RL
+		if ( $('#wikiEditor-ui-toolbar') ) {  //10.04.14 RL->
 			//Hide WikiEditor toolbar (in case preferences told us to start with it).
 			$('#wikiEditor-ui-toolbar').hide(); 
-		}
+		}                                     //10.04.14 RL<-
 		
 		// firstLoad = true => FCKeditor start invisible
 		if( oToggleLink ) oToggleLink.innerHTML = 'Loading...';
@@ -915,13 +912,13 @@ function ToggleCKEditor( mode, objId ){
 	}
 
 	if( ! CKEDITOR.ready ) {
-        return false; // sajax_do_call in action
-    }
+    return false; // sajax_do_call in action
+  }
 
     //01.03.14 RL: In CKeditor 3.6 'basic_ready', in 4.3.3 'loaded'
 	if( ! ((CKEDITOR.status == 'basic_ready') || (CKEDITOR.status == 'loaded')) ) {
-        return false; // not loaded yet
-    }
+    return false; // not loaded yet
+  }
 
     var oEditorIns = CKEDITOR.instances[objId];
 	var oEditorIframe  = document.getElementById( 'cke_' + objId );
@@ -949,7 +946,6 @@ function ToggleCKEditor( mode, objId ){
 		if( oPopupLink ) oPopupLink.style.display = '';
 		showFCKEditor -= RTE_VISIBLE;
 		oEditorIframe.style.display = 'none';
-		
 		if (toolbar) {
             toolbar.style.display = 'inline';
             toolbar.style.visibility = 'visible';
@@ -985,6 +981,7 @@ function ToggleCKEditor( mode, objId ){
             smwhg_dragresizetoolbar.callme();
         }
 	} else {
+
 		//17.01.14 RL-> Hide WikiEditor toolbar
 		if ( $('#wikiEditor-ui-toolbar') ) {
 			$('#wikiEditor-ui-toolbar').hide(); 
@@ -996,14 +993,11 @@ function ToggleCKEditor( mode, objId ){
 		
 		// FCKeditor hidden -> visible
 		//if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); // switch to plain
-
-		SRCtextarea.style.display = 'none'; //Hide wikieditor window 
-		// Copy text from twxtarea of wikieditor to CKeditor, text is still in wikitext format.
-		// Setting text in CKeditor will also trigger wikitext->html conversion.
-		oEditorIns.setData( SRCtextarea.value ); 
+		SRCtextarea.style.display = 'none';
+		// copy from textarea to FCKeditor
+		oEditorIns.setData( SRCtextarea.value );
 		if (toolbar) toolbar.style.display = 'none';
-		//oEditorIframe.style.display = ''; //Displays CKeditor window. //05.01.15 RL Keep hidden until conversion is ready in plugin.js->toHTML
-		
+		oEditorIframe.style.display = '';
 		//if ( !bIsWysiwyg ) oEditorIns.SwitchEditMode();	// switch to WYSIWYG
 		showFCKEditor += RTE_VISIBLE; // showFCKEditor+=RTE_VISIBLE
 		if( oToggleLink ) oToggleLink.innerHTML = editorMsgOff;
