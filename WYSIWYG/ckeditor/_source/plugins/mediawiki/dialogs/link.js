@@ -258,8 +258,8 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
 
                 var href = ( element  && ( element.getAttribute( '_cke_saved_href' ) || element.getAttribute( 'href' ) || element.getAttribute('link') ) ) || '';
                 if (href) {
-					href = href.replace(/%20/g, ' '); //09.05.14 RL
-					href = href.replace(/%3A/g, ':'); //09.05.14 RL-> Related to [[Media:xxx|yyy]] fix
+					href = decodeURIComponent(href); //26.11.14 RL Convert url encoded chars like %20->' ', %3A->':', %2F->'/' etc.
+					
 					if( /^[mM][eE][dD][iI][aA]:/.test( href ) ) { //If '[[Media:xxx|yyy]] is used...
 						href = href.replace(/^[mM][eE][dD][iI][aA]:/g, '');
 						var lt = this.getContentElement( 'mwLinkTab1', 'linkAsMedia');

@@ -15,7 +15,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
         var StartSearch = function() {
             var	e = dialog.getContentElement( 'mwCategoryTab1', 'categoryValue' ),
-                value = e.getValue().Trim();
+                value = e.getValue().Trim().replace(/ /g,'_'); //12.12.14 RL ' '=>'_'
 
 			//Commented out to get list of categories when dialog is opened.
             //if ( value.length < 1  )
@@ -45,7 +45,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                     SetSearchMessage( results.length - 1  + editor.lang.mwplugin.manyCategoryFound ) ;
 
                 for ( var i = 0 ; i < results.length ; i++ )
-                    select.add ( results[i], results[i] );  //Is this correct????
+                    select.add ( results[i], results[i] );  //Is this correct?
 					//select.add ( results[i].replace(/_/g, ' '), results[i] );
             }
         }
@@ -97,11 +97,10 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 		element.editMode = true;
 
 		//Get values of category and sort key 
-        category = element.getText().replace(/ /g, '_');  //08.09.14 RL Added replace
-        sortkey = element.getAttribute('sort');
-
-		//Default sort key is category name => display only category	
-		if (category == sortkey) sortkey = null;  
+		category = element.getText().replace(/ /g, '_');  //08.09.14 RL Added replace
+		if ( element.hasAttribute('sort') ) { //12.12.14 RL
+			sortkey = element.getAttribute('sort');
+		}
 
         if ( category.length > 0 )
          this.setValueOf( 'mwCategoryTab1','categoryValue', category );
@@ -175,36 +174,33 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                 //    attributes = {href : link, _cke_saved_href : link};
 				
 				var editor = this.getParentEditor();
-				var category = this.getValueOf( 'mwCategoryTab1', 'categoryValue' ).Trim();
-				var sortkey  = this.getValueOf( 'mwCategoryTab1', 'sortkeyValue' ).Trim();
+				var category = this.getValueOf( 'mwCategoryTab1', 'categoryValue' ).Trim().replace(/_/g,' ');
+				var sortkey  = this.getValueOf( 'mwCategoryTab1', 'sortkeyValue' ).Trim().replace(/_/g,' ');
 
 				//Build html syntax fox category like this:
-				//  <span> class="fck_mw_category" sort="CName">Sort</span>
-				//  <span> _fcknotitle="true" class="fck_mw_category" sort="CName">CName</span>
+				//  <span> class="fck_mw_category" sort="SName">CName</span>
+				//  <span> _fcknotitle="true" class="fck_mw_category" sort="PName">CName</span>
 	
 				if ( category.length > 0 ) {
 					var realElement = CKEDITOR.dom.element.createFromHtml('<span></span>');
 
-					//User gave only name of category => set sort key to same value
-					if ( sortkey.length == 0 )
-						sortkey = category;					
-
 					//Name FCK class for category element.	
-					realElement.setAttribute('class','fck_mw_category');						
+					realElement.setAttribute('class','fck_mw_category');					
+					
+					//User gave only name of category => set sort key to be eq. to first letter of page name
+					if ( sortkey.length == 0 ) {
+						sortkey = mw.config.get( 'wgPageName' ).trim().substr(0,1).toUpperCase(); //12.12.14 RL
+						realElement.setAttribute('_fcknotitle','true'); //12.12.14 RL
+					}	
 
-					//Is rule for this attribute right?  
-					//...wikitext to html conversion seems to work like this 
-					if ( sortkey == category )			  
-						realElement.setAttribute('_fcknotitle','true');					
-				
 					if ( sortkey.length > 0 )
-						realElement.setAttribute('sort',sortkey); 
-
+						realElement.setAttribute( 'sort', sortkey ); 
+						
 					//Name of category	 
 					if ( category.length > 0 )
-						realElement.setText(category);
+						realElement.setText( category );
 											
-					//Are there any additional attributes used by html format???  
+					//Are there any additional attributes used by html format?  
 					var fakeElement = editor.createFakeElement( realElement , 'FCK__MWCategory', 'span', false );
 					editor.insertElement(fakeElement);
 				}
@@ -212,8 +208,6 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
     		onShow : function()
         	{
-			    /* This block is original code from link.js, and is unchanged, is this needed here or not ????*/
-                
 				// clear old selection list from a previous call
                 var editor = this.getParentEditor(),
                     e = this.getContentElement( 'mwCategoryTab1', 'categoryList' );
@@ -226,40 +220,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                 var message = editor.lang.mwplugin.startTyping;
                 e.html = message;
                 document.getElementById(e.domId).innerHTML = message;
-
-				
-				/**** Original code from link.js, is this needed here or not???? ******
-
-            	this.fakeObj = false;
-
-                var selection = editor.getSelection(),
-    				element = null;
-
-        		// Fill in all the relevant fields if there's already one link selected.
-            	if ( ( element = plugin.getSelectedLink( editor ) ) && element.hasAttribute( 'href' ) )
-                	selection.selectElement( element );
-    			else if ( ( element = selection.getSelectedElement() ) && element.is( 'img' ) )
-                {
-                    if ( element.getAttribute( '_cke_real_element_type' ) &&
-            			 element.getAttribute( '_cke_real_element_type' ) == 'anchor' )
-                    {
-                        this.fakeObj = element;
-                        element = editor.restoreRealElement( this.fakeObj );
-                        selection.selectElement( this.fakeObj );
-                    }
-                    else {
-                        selection.selectElement( element );
-                    }
-                }
-
-                var href = ( element  && ( element.getAttribute( '_cke_saved_href' ) || element.getAttribute( 'href' ) || element.getAttribute('link') ) ) || '';
-                if (href) {
-                    var e = this.getContentElement( 'mwLinkTab1', 'linkTarget');
-                    e.setValue(href);
-                }
-                this._.selectedElement = element;
-				******************************/
-				
+	
 				/*This was taken from first simple dialog for category definitions.*/
 				this.editObj = false;
 				this.fakeObj = false;
@@ -269,8 +230,9 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				var ranges = selection.getRanges();
 				var element = selection.getSelectedElement();
 				var seltype = selection.getType();
-	
-				if ( seltype == CKEDITOR.SELECTION_ELEMENT && element.getAttribute( 'class' ) == 'FCK__MWCategory' )
+
+				//12.12.14 RL CKEDITOR.SELECTION_NONE=0 (no selection), CKEDITOR.SELECTION_TEXT=2, CKEDITOR.SELECTION_ELEMENT=3
+				if ( (seltype == CKEDITOR.SELECTION_TEXT || seltype == CKEDITOR.SELECTION_ELEMENT) && element.getAttribute( 'class' ) == 'FCK__MWCategory' )
 				{
 					this.fakeObj = element;
 					element = editor.restoreRealElement( this.fakeObj );
@@ -283,12 +245,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                     //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.document.$.selection.createRange().text ); 
                     //else                   //27.02.14 RL<- 
                     //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() );
-                    
-                    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getSelectedText().replace(/ /g,'_') ); //09.09.14 RL<-
+
+                    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getSelectedText().replace(/ /g,'_') ); //09.09.14 RL<- 
                 }
 				this.getContentElement( 'mwCategoryTab1', 'categoryValue' ).focus();
         	}
-
         }
 }
 } );

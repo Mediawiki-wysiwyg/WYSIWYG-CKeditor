@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 09.01.15  Updated WYSIWYG\ckeditor\_source directory. Version: 1.5.6_0 [B551+09.01.2015].
+
 - 04.01.15  Modification related to formats of link texts (old "B551+27.12.2014"). Version: 1.5.6_0 [B551+04.01.2015].
 
 - 02.01.15  Cancelled modification related to formats of link texts (old "B551+27.12.2014"), because it caused problems with html related characters '&', '"', '\'', '<', '>' which were used in other texts than links. Version: 1.5.6_0 [B551+02.01.2015].

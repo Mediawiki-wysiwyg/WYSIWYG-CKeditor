@@ -31,6 +31,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             'img.fck_mw_left' +
             '{' +
                 'margin: 0.5em 1.4em 0.8em 0em;' +
+                'clear: left;' +     //31.12.14 RL
+                'float: left;' +     //31.12.14 RL
             '}\n' +
             'img.fck_mw_center' +
             '{' +
@@ -39,6 +41,11 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'margin-bottom: 0.5em;' +
                 'display: block;' +
             '}\n' +
+           'img.fck_mw_none' +       //31.12.14 RL
+            '{' +
+                'clear: both;' +     //Remove left and right floats
+				'display: block;' +  //To make image split possible text lines automatically
+            '}\n' +			
             'img.fck_mw_notfound' +
             '{' +
                 'font-size: 1px;' +
@@ -143,9 +150,18 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
-			'img.FCK__MWCategory' +     //07.01.14 RL Added this is for new CKEeditor element
+			'img.FCK__MWCategory' +     //07.01.14 RL New element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
+				'background-position: center center;' +
+				'background-repeat: no-repeat;' +
+				'border: 1px solid #a9a9a9;' +
+				'width: 18px !important;' +
+				'height: 15px !important;' +
+			'}\n' +
+			'img.FCK__MWMath' +         //19.11.14 RL
+			'{' +
+				'background-image: url(' + ( CKEDITOR.getUrl( this.path + 'images/button_math.png' ) ) + ');' +
 				'background-position: center center;' +
 				'background-repeat: no-repeat;' +
 				'border: 1px solid #a9a9a9;' +
@@ -161,7 +177,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
-			'span.fck_mw_category' +    //07.01.14 RL This is for original element of html page
+			'span.fck_mw_category' +    //07.01.14 RL Original element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
 				'background-position: 0 center;' +
@@ -170,7 +186,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n';
-
         return str;
     },
 
@@ -201,9 +216,12 @@ CKEDITOR.plugins.add( 'mediawiki',
                             case 'fck_mw_references' :
                                 if ( className == null )
                                     className = 'FCK__MWReferences';
-                            case 'fck_mw_category' :                 //07.01.14 RL
-                               if ( className == null )              //07.01.14 RL
-                                    className = 'FCK__MWCategory';   //07.01.14 RL
+                            case 'fck_mw_category' :                 //07.01.14 RL->
+                               if ( className == null )              
+                                    className = 'FCK__MWCategory';   //07.01.14 RL<-
+                            case 'fck_mw_math' :                     //19.11.14 RL->
+                               if ( className == null )  
+                                    className = 'FCK__MWMath';       //19.11.14 RL<-								
                             case 'fck_mw_template' :
                                 if ( className == null ) //YC
                                     className = 'FCK__MWTemplate'; //YC
@@ -347,9 +365,20 @@ CKEDITOR.plugins.add( 'mediawiki',
 			imgTypeFrame    : 'Frame',                                      //07.01.14 RL
 			imgTypeFrameless: 'Frameless',                                  //07.01.14 RL
 			imgTypeBorder   : 'Border',                                     //07.01.14 RL
-            alignCenter     : 'Center',
+			img_baseline    : 'Baseline', //31.12.14 RL->
+			img_sub         : 'Sub',
+			img_super       : 'Super',
+			img_top         : 'Top',
+			img_text_top    : 'Text-top',
+			img_middle      : 'Middle',
+			img_bottom      : 'Bottom',
+			img_text_bottom : 'Text-bottom',
+			img_upright     : 'Resize to fit (upright)',
+			img_link_title  : 'Link',
+			img_link_disable: 'Disable link', 
+			imgVertAlign    : 'Alignment (vert.)', //31.12.14 RL<-
             // signature
-            signature       : 'Signature',
+            signature       : 'Signature', 
             // special tags
             specialTags     : 'Special Tags',
             specialTagTitle : 'Special Tags Dialogue',
@@ -404,7 +433,18 @@ CKEDITOR.plugins.add( 'mediawiki',
 			imgTypeFrame    : 'Kehys (frame)',                                //'Frame',
 			imgTypeFrameless: 'Ei kehystä (frameless)',                       //'Frameless',
 			imgTypeBorder   : 'Rajat (border)',                               //Border',
-            alignCenter     : 'Oikealle',                                     //'Center',
+			img_baseline    : 'Perustaso',     //31.12.14 RL->
+			img_sub         : 'Alaindeksi',
+			img_super       : 'Yläindeksi',
+			img_top         : 'Ylös',
+			img_text_top    : 'Ylös tekstiin',
+			img_middle      : 'Keskelle',
+			img_bottom      : 'Alas',
+			img_text_bottom : 'Alas tekstiin',
+			img_upright     : 'Sovita kuvan koko (upright)',
+			img_link_title  : 'Linkki',
+			img_link_disable: 'Estä linkin toiminta',
+			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-			
             // signature
             signature       : 'Allekirjoitus',                                //'Signature',
             // special tags
@@ -441,16 +481,16 @@ CKEDITOR.plugins.add( 'mediawiki',
 		} //07.01.14 RL<-
 
 	MWpluginLang['fr'] = {
-            invalidContent  : 'invalid content',
+            invalidContent  : 'contenu invalide',
             searching       : 'recherche...',
-            externalLink    : 'lien externe... no search for it',
+            externalLink    : 'lien externe... pas de recherche',
             startTyping     : 'tapez dans le champ ci-dessus',
             stopTyping      : 'arrêtez de taper pour lancer la recherche',
             tooManyResults  : 'trop de résultats correspondants...',
             // image
             imgTitle        : 'Ajouter/modifier une image',
             fileName        : 'Nom de fichier image',
-            fileNameExtUrl  : 'Image file name or URL',
+            fileNameExtUrl  : 'URL ou nom d’image',
             searchLabel     : 'Résultats de recherche (%s)',
             noImgFound      : 'aucune image trouvée',
             oneImgFound     : 'une image trouvée',
@@ -461,13 +501,24 @@ CKEDITOR.plugins.add( 'mediawiki',
 			imgTypeFrame    : 'Cadre',
 			imgTypeFrameless: 'Sans cadre',
 			imgTypeBorder   : 'Bordure',
-            alignCenter     : 'Center',
+			img_baseline    : 'Ligne_de_base',     //31.12.14 RL->
+			img_sub         : 'Indice',
+			img_super       : 'Exposant',
+			img_top         : 'Haut',
+			img_text_top    : 'Haut-texte',
+			img_middle      : 'Milieu',
+			img_bottom      : 'Bas',
+			img_text_bottom : 'Bas-texte',
+			img_upright     : 'Redimensionner pour se adapter (upright)',
+			img_link_title  : 'Entrer la page cible',
+			img_link_disable: 'Un lien est désactivée',
+			imgVertAlign    : 'Alignement (vert.)', //31.12.14 RL<-
             // signature
             signature       : 'Signature',
             // special tags
-            specialTags     : 'Special Tags',
-            specialTagTitle : 'Special Tags Dialogue',
-            specialTagDef   : 'Define any special tag, magic word or parser function:',
+            specialTags     : 'Balises spéciales',
+            specialTagTitle : 'Balises spéciales',
+            specialTagDef   : 'Définir une balise spéciale :',
             // link
             linkTitle       : 'Créer/éditer un lien',
 			simplelink	    : 'Lien rapide',                                                         //27.08.14 Varlin
@@ -477,7 +528,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail... pas de recherche',
             anchorLink      : 'ancre... pas de recherche',
             linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',
-			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
+			linkAsMedia     : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', //09.05.14 RL
 			defineTarget    : 'Entrer la page cible:',
             chooseTarget    : 'Choisissez la page :',
 			// references (citation)
@@ -491,7 +542,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			categoryTitle	: 'Ajouter/modifier une catégorie',
 			category		: 'Catégorie:',
 			categorySort	: 'categorySort',
-			noCategoryFound     : 'Not found, category is new',
+			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound    : 'Une catégorie trouvée',
             manyCategoryFound   : ' catégories trouvées',
             selfromCategoryList : 'Sélectionner dans la liste:'
@@ -518,7 +569,18 @@ CKEDITOR.plugins.add( 'mediawiki',
             imgTypeFrame    : 'Rahmen',                                                              //29.09.14 RL 
             imgTypeFrameless: 'Rahmenlos',                                                           //29.09.14 RL 
             imgTypeBorder   : 'Linie',                                                               //29.09.14 RL
-            alignCenter     : 'Mitte',
+			img_baseline    : 'Grundlinie',     //31.12.14 RL->
+			img_sub         : 'Tiefgestellt',
+			img_super       : 'Hochgestellt',
+			img_top         : 'Oben',
+			img_text_top    : 'Text-oben',
+			img_middle      : 'Mitte',
+			img_bottom      : 'Unten',
+			img_text_bottom : 'Text-unten',
+			img_upright     : 'Automatisch angepasst (upright)',
+			img_link_title  : 'Verweis',
+			img_link_disable: 'Verweis deaktiviert',
+			imgVertAlign    : 'Ausrichtung (vert.)', //31.12.14 RL<-
             // signature
             signature       : 'Signatur',
             // special tags
@@ -694,8 +756,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 				if ( element.is( 'img' ) &&                             //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
 					 element.getAttribute( 'class' ).InArray( [         //03.02.14 RL Modified to use InArray(..)
-								'FCK__MWReferences',
-								'FCK__MWMath'
+								'FCK__MWReferences'   
+								/**,'FCK__MWMath'**/                    //19.11.14 RL Commented out
 								])
 				   ) {
 				  /*Do nothing, because otherwise doubleclick of math or reference object
@@ -727,7 +789,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 								'FCK__MWIncludeonly',
 								'FCK__MWNoinclude',
 								'FCK__MWOnlyinclude',
-								'FCK__MWSyntaxhighlight'                                 //17.02.14 RL, 02.11.14 RL Earlier source
+								'FCK__MWMath',                                           //19.11.14 RL
+								'FCK__MWSyntaxhighlight',                                //17.02.14 RL, 02.11.14 RL Earlier source
+								'FCK__MWGallery'                                         //21.11.14 RL   
 							])
 						)
 							evt.data.dialog = 'MWSpecialTags';
@@ -1051,7 +1115,9 @@ CKEDITOR.customprocessor.prototype =
 								var sLastStr = stringBuilder[ stringBuilder.length - 1 ];
 								if ( sLastStr != ";" && sLastStr != ":" && sLastStr != "#" && sLastStr != "*" )
  									stringBuilder.push( '\n' + prefix );
-							}
+								else 
+									stringBuilder.push( '\n' ); //25.11.14 RL For empty lines of numbered and bulleted lists
+							} 
 
 							var parent = htmlNode.parentNode;
 							var listType = "*";
@@ -1093,33 +1159,40 @@ CKEDITOR.customprocessor.prototype =
 							if ( href == null ) {
 								href = htmlNode.getAttribute( 'href' ) || '';
 							}
-
+							
+							href = decodeURIComponent(href); //26.11.14 RL Decode here because hrefTypeRegexp below does not work with optional url encoded chars in the middle.
+							
 							//fix: Issue 14792 - Link with anchor is changed
 							//hrefType is a substring of href from the beginning until the colon.
 							//it consists only of alphanumeric chars and optional url encoded chars in the middle.
 							var hrefTypeRegexp = /^(\w+(?:%\d{0,3})*\w*):/i;
-							var matches = href.match(hrefTypeRegexp);
+                            var matches = href.match(hrefTypeRegexp) || ''; //26.11.14 RL Added || ''
 							if(hrefType == '' && matches) {
 								hrefType = matches[1];
 							}
 
-//						  if ( hrefType == '' && href.indexOf(':') > -1) {
-//                            hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
-//						  }
+							//if ( hrefType == '' && href.indexOf(':') > -1) {
+							//	hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
+							//}
 
 							var isWikiUrl = true;
-
+						
 							if ( hrefType != "" &&
                                  hrefType != "http" &&
                                  hrefType != "https" &&
                                  hrefType != "mailto" &&
-                                 !href.StartsWith(hrefType.FirstToUpper() + ':') )
-								stringBuilder.push( '[[' + hrefType.FirstToUpper() + ':' );
+                                 //!href.StartsWith(hrefType.FirstToUpper() + ':') )  //26.11.14 RL->
+								 !href.toLowerCase().StartsWith(hrefType.toLowerCase() + ':') ) {
+								//stringBuilder.push( '[[' + hrefType.FirstToUpper() + ':' );
+								stringBuilder.push( '[[' + hrefType.toLowerCase().FirstToUpper() + ':' ); //26.11.14 RL<-
+							}	
 							else if ( htmlNode.className == "extiw" ){
 								stringBuilder.push( '[[' );
 								isWikiUrl = true;
-							} else { //20.10.14 RL Support external link [//www.x.y]
-								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /\{\{[^\}]*\}\}/.test( href ) || href.StartsWith( '//' ) );
+							} else { 
+								//20.10.14 RL '[//www.x.y]' is external link
+								//26.11.14 RL '{{' should propably start href because variables inside link names => added ^ in test below
+								isWikiUrl = !( href.StartsWith( 'mailto:' ) || /^\w+:\/\//.test( href ) || /^\{\{[^\}]*\}\}/.test( href ) || href.StartsWith( '//' ) );
 								stringBuilder.push( isWikiUrl ? '[[' : '[' );
 							}
 							// #2223
@@ -1138,8 +1211,10 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push(':');
 								href = href.substring(8);
 							}
-                            if ( isWikiUrl ) href = decodeURIComponent(href);
+
+                            //if ( isWikiUrl ) href = decodeURIComponent(href); //26.11.14 RL Already done abowe
 							stringBuilder.push( href );
+
                             var innerHTML = this._GetNodeText(htmlNode)
 							if ( pipeline && innerHTML != '[n]' && ( !isWikiUrl || href != innerHTML || !href.toLowerCase().StartsWith( "category:" ) ) ){
 								stringBuilder.push( isWikiUrl? '|' : ' ' );
@@ -1285,62 +1360,77 @@ CKEDITOR.customprocessor.prototype =
 
 						case 'img' :
 
-							var formula = htmlNode.getAttribute( '_fck_mw_math' ); //07.01.14 RL Was unknown: '_cke_mw_math'
-
-							if ( formula && formula.length > 0 ){
-								stringBuilder.push( '<math>' );
-								stringBuilder.push( formula );
-								stringBuilder.push( '</math>' );
-								return;
-							}
+							//19.11.14 RL Commented out
+							//var formula = htmlNode.getAttribute( '_fck_mw_math' ); //07.01.14 RL Was unknown: '_cke_mw_math'
+                            //
+							//if ( formula && formula.length > 0 ){
+							//	stringBuilder.push( '<math>' );
+							//	stringBuilder.push( formula );
+							//	stringBuilder.push( '</math>' );
+							//	return;
+							//}
+							
                             // external image?
                             var src = htmlNode.getAttribute( 'src' );
-                            if (src != null && src.toLowerCase().match(/^https?:\/\//)) { //30.10.14 RL Test null (by Wingsofcourage)
-                                stringBuilder.push( src );
+                            if (src != null && //30.10.14 RL Test null (by Wingsofcourage)
+							    src.toLowerCase().match(/^https?:\/\//) &&
+								! src.toLowerCase().match(/noimage.png/) ) { //23.12.14 RL Link to nonexisting image=>force internal link                            
+								stringBuilder.push( src );
                                 return;
                             }
-
 							var imgName		= htmlNode.getAttribute( '_fck_mw_filename' ) || htmlNode.getAttribute( '_cke_mw_filename' ) || '';
 							var imgCaption	= htmlNode.getAttribute( 'alt' ) || '';
 							var imgType		= htmlNode.getAttribute( '_fck_mw_type' ) || htmlNode.getAttribute( '_cke_mw_type' ) || '';
 							var imgLocation	= htmlNode.getAttribute( '_fck_mw_location' ) || '';
-							var imgWidth	= htmlNode.getAttribute( '_fck_mw_width' ) || '';
-							var imgHeight	= htmlNode.getAttribute( '_fck_mw_height' ) || '';
+							var imgWidth	= '';  //htmlNode.getAttribute( '_fck_mw_width' ) || '';  //30.12.14 RL
+							var imgHeight	= '';  //htmlNode.getAttribute( '_fck_mw_height' ) || ''; //30.12.14 RL
+							var imgRealWidth	= ( htmlNode.getAttribute( 'width' ) || '' ) + '';
+							var imgRealHeight	= ( htmlNode.getAttribute( 'height' ) || '' ) + '';
+
                             var imgStyle    = htmlNode.getAttribute( 'style' ) || '';
                             var match = /(?:^|\s)width\s*:\s*(\d+)/i.exec( imgStyle ),
                                 imgStyleWidth = match && match[1] || 0;
                             match = /(?:^|\s)height\s*:\s*(\d+)/i.exec( imgStyle );
                             var imgStyleHeight = match && match[1] || 0;
-							var imgRealWidth	= ( htmlNode.getAttribute( 'width' ) || '' ) + '';
-							var imgRealHeight	= ( htmlNode.getAttribute( 'height' ) || '' ) + '';
+
                             var imgNolink = ( htmlNode.getAttribute( 'no-link' ) || '' ) + '';
                             var imgLink = ( htmlNode.getAttribute( 'link' ) || '' ) + '';
+
+							//match = /(?:^|\s)vertical-align\s*:\s*([\w\-]*)/i.exec( imgStyle );       //31.12.14 RL->  
+							//var imgVLocation = match && match[1] || 0;
+							var imgVLocation = htmlNode.getAttribute( '_fck_mw_vertical-align' ) || ''; 
+							var imgUpright   = htmlNode.getAttribute( '_fck_mw_upright' ) || '';        //31.12.14 RL<-
 
 							stringBuilder.push( '[[File:' );
 							stringBuilder.push( imgName );
 
 							if ( imgStyleWidth.length > 0 )
 								imgWidth = imgStyleWidth;
-							else if ( imgWidth.length > 0 && imgRealWidth.length > 0 )
+							else if ( imgRealWidth.length > 0 )  //30.12.14 RL
 								imgWidth = imgRealWidth;
 
 							if ( imgStyleHeight.length > 0 )
 								imgHeight = imgStyleHeight;
-							else if ( imgHeight.length > 0 && imgRealHeight.length > 0 )
+							else if ( imgRealHeight.length > 0 ) //30.12.14 RL
 								imgHeight = imgRealHeight;
 
 							if ( imgType.length > 0 )
 								stringBuilder.push( '|' + imgType );
 
 							if ( imgLocation.length > 0 )
-								stringBuilder.push( '|' + imgLocation );
+								stringBuilder.push( '|' + imgLocation );  //Horizontal position
 
-							if ( imgWidth.length > 0 ){
-								stringBuilder.push( '|' + imgWidth );
-
+							if ( imgVLocation.length > 0 ) //31.12.14 RL->
+								stringBuilder.push( '|' + imgVLocation ); //Vertical position
+								
+							if ( imgUpright.length > 0 ) {
+								stringBuilder.push( '|upright' ); //Size: upright
+							} else if ( imgWidth.length > 0 || imgHeight.length > 0 ){ //31.12.14 RL<-
+								stringBuilder.push( '|' );
+								if ( imgWidth.length > 0 )
+									stringBuilder.push( imgWidth );
 								if ( imgHeight.length > 0 )
 									stringBuilder.push( 'x' + imgHeight );
-
 								stringBuilder.push( 'px' );
 							}
 
@@ -1712,7 +1802,7 @@ CKEDITOR.customprocessor.prototype =
 	// Property and Category values must be of a certain format. Otherwise this will break
 	// the semantic annotation when switching between wikitext and WYSIWYG view
 	_formatSemanticValues : function (htmlNode) {
-		var text = this._GetNodeText(htmlNode);
+		var text = this._GetNodeText(htmlNode).htmlDecode(); //05.12.14 RL Added htmlDecode
 
 		// remove any &nbsp;
 		text = text.replace('&nbsp;', ' ');
@@ -1720,6 +1810,7 @@ CKEDITOR.customprocessor.prototype =
 		text = text.replace('<br>', ' ');
         // and trim leading and trailing whitespaces
 		text = text.Trim();
+
 		// no value set, then add an space to fix problems with [[prop:val| ]]
 		if (text.length == 0)
 			text = " ";
@@ -1728,7 +1819,10 @@ CKEDITOR.customprocessor.prototype =
         var eClassName = htmlNode.getAttribute('class');
 		switch (eClassName) {
 			case 'fck_mw_property' :
-				var name = htmlNode.getAttribute('property') || '';
+				var name = ''; //12.12.14 RL 
+				if ( htmlNode.hasAttribute('property') ) { //12.12.14 RL 
+					name = htmlNode.getAttribute('property').htmlDecode() || ''; //05.12.14 RL Added htmlDecode
+				}
 				if (name.indexOf('::') != -1) {
                     var ann = name.substring(name.indexOf('::') + 2);
 					if ( emptyVal.exec( ann ) ) return '';
@@ -1741,10 +1835,17 @@ CKEDITOR.customprocessor.prototype =
 					return '[[' + name + '::' + text + ']]' ;
 				}
 			case 'fck_mw_category' :
-				var sort = htmlNode.getAttribute('sort') || '';
-                //var labelCategory = smwContentLangForFCK('Category') || 'Category:';
-                var labelCategory = 'Category';
-                if (sort == text) sort = null;
+				var sort = '', //12.12.14 RL 
+				  //labelCategory = smwContentLangForFCK('Category') || 'Category:',
+					labelCategory = 'Category';
+				if ( htmlNode.hasAttribute('sort') ) { //12.12.14 RL
+					sort = htmlNode.getAttribute('sort').htmlDecode() || ''; //05.12.14 RL Added htmlDecode 
+				}
+				sort = sort.trim();  //12.12.14 RL->
+                if ( (sort == '') || //Was if (sort == text)
+				     (sort.substr(0,1).toUpperCase() == mw.config.get( 'wgPageName' ).trim().substr(0,1).toUpperCase()) ) {
+					sort = null;  
+				}  //12.12.14 RL<-	
 				if (sort) {
 					if (emptyVal.exec(sort)) sort = ' ';
 					return '[[' + labelCategory + ':' + text + '|' + sort + ']]';
