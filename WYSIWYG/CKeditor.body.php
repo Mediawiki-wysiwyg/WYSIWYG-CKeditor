@@ -593,6 +593,7 @@ var firstLoad = true;
 var isConflict = ' . ( $form->isConflict ?  1 : 0 ) . ';		                          //21.02.14 RL                                           
 var editorMsgOn = "[' . Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) . ']";        //17.01.14 RL Added []
 var editorMsgOff = "[' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) . ']";  //17.01.14 RL Added []
+var editorWaitPageLoad = "' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_wait_page_load' ) ) . '"; //12.01.15 RL
 var editorLink = "[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']";  //17.01.14 RL Added []
 var saveSetting = ' . ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state']  ) ?  1 : 0 ) . ';
 var useEditwarning = ' . ( $wgUser->getOption( 'useeditwarning' ) ?  1 : 0 ) . ';         //13.04.14 RL
@@ -602,6 +603,7 @@ var RTE_TOGGLE_LINK = ' . RTE_TOGGLE_LINK . ';
 var RTE_POPUP = ' . RTE_POPUP . ';
 var wgCKeditorInstance = null;
 var wgCKeditorCurrentMode = "wysiwyg";
+var editorForceReadOnly = false; //12.01.15 RL To disable source button and toggle link for prolonged time.
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
 
@@ -890,14 +892,14 @@ function ToggleCKEditor( mode, objId ){
 	var oPopupLink = document.getElementById( 'popup_' + objId );
 
 	if ( firstLoad ){
-
 		if ( $('#wikiEditor-ui-toolbar') ) {  //10.04.14 RL->
 			//Hide WikiEditor toolbar (in case preferences told us to start with it).
 			$('#wikiEditor-ui-toolbar').hide(); 
 		}                                     //10.04.14 RL<-
-		
+
+		SRCtextarea.readOnly = true;  //12.01.15 RL
+
 		// firstLoad = true => FCKeditor start invisible
-		if( oToggleLink ) oToggleLink.innerHTML = 'Loading...';
 		sajax_request_type = 'POST';
 		CKEDITOR.ready = false;
 		sajax_do_call('wfSajaxWikiToHTML', [SRCtextarea.value], function( result ){
@@ -905,6 +907,7 @@ function ToggleCKEditor( mode, objId ){
 				SRCtextarea.value = result.responseText; // insert parsed text
 				onLoadCKeditor();
 				if( oToggleLink ) oToggleLink.innerHTML = editorMsgOff;
+				SRCtextarea.readOnly = false;  //12.01.15 RL
 				CKEDITOR.ready = true;
 			}
 		});
@@ -912,18 +915,20 @@ function ToggleCKEditor( mode, objId ){
 	}
 
 	if( ! CKEDITOR.ready ) {
-    return false; // sajax_do_call in action
-  }
+      return false; // sajax_do_call in action
+    }
 
     //01.03.14 RL: In CKeditor 3.6 'basic_ready', in 4.3.3 'loaded'
 	if( ! ((CKEDITOR.status == 'basic_ready') || (CKEDITOR.status == 'loaded')) ) {
-    return false; // not loaded yet
-  }
+      return false; // not loaded yet
+    }
 
     var oEditorIns = CKEDITOR.instances[objId];
 	var oEditorIframe  = document.getElementById( 'cke_' + objId );
 	var toolbar = document.getElementById( 'toolbar' );
 	var bIsWysiwyg = ( oEditorIns.mode == 'wysiwyg' );
+
+	//if( oToggleLink ) oToggleLink.innerHTML = editorWaitPageLoad;
 
 	//CKeditor visible -> hidden
 	if ( showFCKEditor & RTE_VISIBLE ){
@@ -932,7 +937,7 @@ function ToggleCKEditor( mode, objId ){
 		if ( $('#wikiEditor-ui-toolbar') ) {
 			$('#wikiEditor-ui-toolbar').show(); 
 			//objId contains string: wpTextbox1 => $('#toggle_wpTextbox1') is eq. to $('#toggle_' + objId)
-			$('#toggle_' + objId).insertBefore('#wikiEditor-ui-toolbar');		
+			$('#toggle_' + objId).insertBefore('#wikiEditor-ui-toolbar');	
 		}
 		//17.01.14 RL<-
 		
@@ -942,8 +947,9 @@ function ToggleCKEditor( mode, objId ){
 			sajax_request_type = 'GET';
 			sajax_do_call( 'wfSajaxToggleCKeditor', ['hide'], function(){} ); //remember closing in session
 		}
-		if( oToggleLink ) oToggleLink.innerHTML = editorMsgOn;
-		if( oPopupLink ) oPopupLink.style.display = '';
+        if( oToggleLink ) oToggleLink.innerHTML = editorMsgOn;
+
+        if( oPopupLink ) oPopupLink.style.display = '';
 		showFCKEditor -= RTE_VISIBLE;
 		oEditorIframe.style.display = 'none';
 		if (toolbar) {
@@ -1000,12 +1006,13 @@ function ToggleCKEditor( mode, objId ){
 		oEditorIframe.style.display = '';
 		//if ( !bIsWysiwyg ) oEditorIns.SwitchEditMode();	// switch to WYSIWYG
 		showFCKEditor += RTE_VISIBLE; // showFCKEditor+=RTE_VISIBLE
-		if( oToggleLink ) oToggleLink.innerHTML = editorMsgOff;
-		if( oPopupLink ) oPopupLink.style.display = 'none';
+        if( oToggleLink ) oToggleLink.innerHTML = editorMsgOff;
+        if( oPopupLink ) oPopupLink.style.display = 'none';
         if (typeof AdvancedAnnotation != 'undefined')
             AdvancedAnnotation.unload();
         if ( loadSTBonStartup )
             CKEDITOR.instances[objId].execCommand('SMWtoolbar');
+
 	}
 
 	return true;

@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 12.01.15  Modified wikitext to html conversions so that toHtml function is not called unnecessarily two times (with page is opening, source button and toggle link). Keep editor in read-only mode and buttons of wysiwyg menu disabled during wysiwyg-wikitext conversion in both directions (this has visible effect with big wiki pages, when conversion takes long time). Added partial support of text "Page is loading, please wait...". Version: 1.5.6_0 [B551+12.01.2015].
+
 - 09.01.15  Updated WYSIWYG\ckeditor\_source directory. Version: 1.5.6_0 [B551+09.01.2015].
 
 - 04.01.15  Modification related to formats of link texts (old "B551+27.12.2014"). Version: 1.5.6_0 [B551+04.01.2015].

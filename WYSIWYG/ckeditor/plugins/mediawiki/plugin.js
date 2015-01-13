@@ -747,7 +747,7 @@ CKEDITOR.plugins.add( 'mediawiki',
   					cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED );       //Disable 
                     cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //05.09.14 RL  
                 }    
-  			} );
+  			} )
 
         editor.on( 'doubleclick', function( evt )
 			{
@@ -801,9 +801,136 @@ CKEDITOR.plugins.add( 'mediawiki',
                 }  //07.01.14 RL
             }
         )
+		
+		$(document).on('click', '.cke_button__source', function(){ //12.01.15 RL
+				showPageIsLoading(true, 'page_loading_wpTextbox1');
+		});		
+		
+		editor.on('mode', function( evt ) //12.01.15 RL Editor opened or source buttons pressed, selected editor mode is ready
+			{
+				setSourceToggle( editor ); //This is required by source button (source->wysiwyg). 				
+			} 
+		)
+		
+		editor.on( 'readOnly', function () //12.01.15 RL: Event fired when the readOnly property changes.
+			{
+				setSourceToggle( editor ); //This is required by toggle link (wikieditor->wysiwyg).
+			} 
+		)
+		
+		CKEDITOR.on( 'instanceReady', function ( evt ) //12.01.15 RL
+			{
+				editor = evt.editor; //This is from CKeditor example of read-only mode.
+			} 
+		)
     }
-
 });
+
+function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button and toggle link
+
+	var objId = 'wpTextbox1',
+		oToggleLink = document.getElementById( 'toggle_' + objId );				
+	// CKEDITOR.instances[objId ].commands.source.enable(); //At this point already enabled by CKeditor
+	if ( oToggleLink ) {
+		if ( editor.mode == 'wysiwyg' ) {
+			oToggleLink.innerHTML = window.parent.editorMsgOff;
+		} else {  
+			oToggleLink.innerHTML = window.parent.editorMsgOn;
+		}
+		// Prolonged disable of toggle link with editorForceReadOnly.		
+		if ( editor.mode == 'wysiwyg' && window.parent.editorForceReadOnly == false ) {
+			oToggleLink.style.visibility = 'visible'; //Show toggle link in wysiwyg mode
+		} else {
+			oToggleLink.style.visibility = 'hidden';  //Hide toggle link source mode
+		}
+	}
+	// Prolonged disable of source button with editorForceReadOnly.
+	// We are waiting for html conversion to be ready, disable source button when menu and editor is ready 
+	// in wysiwyg mode but when source button is still enabled despite of read-only mode.
+	if ( editor.mode == 'wysiwyg' && window.parent.editorForceReadOnly == true ) { 
+		editor.commands.source.disable();
+	} 
+	if ( editor.mode == 'source' ) {
+		showPageIsLoading( false, 'page_loading_' + objId );
+	}
+}
+
+function toggleReadOnly( isReadOnly ) { //12.01.15 RL 
+	// Change the read-only state of the editor.
+	// http://docs.ckeditor.com/#!/api/CKEDITOR.editor-method-setReadOnly
+		
+	var objId = 'wpTextbox1',
+	    editor = CKEDITOR.instances[objId],
+		command,
+		oToggleLink = document.getElementById( 'toggle_' + objId ),
+		mode = editor.mode;		
+
+	if ( mode == '' ) mode = 'wysiwyg'; //In source->wysiwyg direction wysiwyg may not be ready yet => force mode
+
+	for ( var name in editor.commands ) {
+		command = editor.commands[name];
+		//command.disable();  //command.enable();
+		isReadOnly ? command.disable() : command[ command.modes[ mode ] ? 'enable' : 'disable' ]();
+	}
+
+	//In read-only mode source button seems still to be enabled, so disable it
+	if ( isReadOnly == true ) {
+		showPageIsLoading( true, 'page_loading_' + objId );
+		window.parent.editorForceReadOnly = true;
+		editor.commands.source.disable(); //This is here on purpose
+		editor.setReadOnly( true );
+		if ( oToggleLink ) {
+			oToggleLink.style.visibility = 'hidden';
+		}
+	} else {	
+		window.parent.editorForceReadOnly = false;
+		editor.commands.source.enable(); //This is here on purpose			
+		//editor.setReadOnly( false ); //Seems to crash in this call!!! ...
+		editor.readOnly = false;       //...use this as temporary fix, undo-redo buttons won't work
+		if ( oToggleLink ) {
+			oToggleLink.style.visibility = '';
+			if ( editor.mode == 'wysiwyg' ) 
+				oToggleLink.innerHTML = window.parent.editorMsgOff;
+			else  
+				oToggleLink.innerHTML = window.parent.editorMsgOn;
+		}
+		showPageIsLoading( false, 'page_loading_' + objId );
+	}	
+	editor.focus(); //Set focus to editor to get elements of menu activated.
+}
+
+function showPageIsLoading( disp, loadingId ) { //12.01.15 RL
+	// Message "please wait, page is loading..." does not fully work:
+	// -browser issues: works better in FF than IE (=text is not always displayed and required use of toggle link first)
+	//  =>is now in use only in case toggle link is enabled (because of location of text)
+	var objId = 'wpTextbox1',
+		//loadingId = 'page_loading_' + objId,
+		loadingLoc = null,
+		loading = document.createElement( 'div' ),
+		loadingObj = document.getElementById( loadingId );
+	
+	if ( !loadingLoc ) loadingLoc = document.getElementById( 'toggle_' + objId ); //toggle_wpTextbox1
+	//if ( !loadingLoc ) loadingLoc = document.getElementById( 'toolbar' ); //toolbar
+	//if ( !loadingLoc ) loadingLoc = document.getElementById( objId ); //SRCtextarea
+	//if ( !loadingLoc ) loadingLoc = document.getElementById( 'editform' ); //editform
+	
+	if ( !loadingObj && loadingLoc ) {
+		loadingLoc.parentNode.insertBefore( loading, loadingLoc );
+		loading.innerHTML = '<a class="fckPageLoading" id="' + loadingId  
+			+ '" style="display:inline;visibility:hidden;position:absolute;right:5px;font-size:0.8em" href="javascript:void(0)" onclick="">' 
+			+ editorWaitPageLoad +'</a> ';
+		loadingObj = document.getElementById( loadingId );
+	} 
+
+	if ( loadingObj && loadingLoc ) {
+
+		if ( disp ) {
+			loadingObj.style.visibility = 'visible';
+		} else {	
+			loadingObj.style.visibility = 'hidden';	
+		}	
+	}
+}
 
 CKEDITOR.customprocessor = function( editor )
 {
@@ -819,49 +946,51 @@ CKEDITOR.customprocessor.prototype =
 	_inLSpace : false,
 
    toHtml : function( data, fixForBody )
-   {
+   {  
         // all converting to html (like: data = data.replace( /</g, '&lt;' );)
         var loadHTMLFromAjax = function( result ){
-            if (window.parent.popup &&
-                window.parent.popup.parent.wgCKeditorInstance &&
-                window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg') {
+			if ( window.parent.popup &&
+				 window.parent.popup.parent.wgCKeditorInstance &&
+				 window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg') {
+				 window.parent.popup.parent.wgCKeditorInstance.setData(result.responseText);
+				 window.parent.popup.parent.wgCKeditorCurrentMode = 'wysiwyg';
+			}
+			else if ( window.parent.wgCKeditorInstance &&
+					  window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) {
+				window.parent.wgCKeditorInstance.setData(result.responseText);				
+				window.parent.wgCKeditorCurrentMode = 'wysiwyg';
+				toggleReadOnly( false ); //12.01.15 RL				
+			}
+		}
 
-                window.parent.popup.parent.wgCKeditorInstance.setData(result.responseText);
-                window.parent.popup.parent.wgCKeditorCurrentMode = 'wysiwyg';
-            }
-            else if (window.parent.wgCKeditorInstance &&
-                     window.parent.wgCKeditorCurrentMode != 'wysiwyg') {
-                window.parent.wgCKeditorInstance.setData(result.responseText);
-                window.parent.wgCKeditorCurrentMode = 'wysiwyg';
-            }
-        }
-        // Hide the textarea to avoid seeing the code change.
-        //textarea.hide();
-        var loading = document.createElement( 'span' );
-        loading.innerHTML = '&nbsp;'+ 'Loading Wikitext. Please wait...' + '&nbsp;';
-        loading.style.position = 'absolute';
-        loading.style.left = '5px';
-        //textarea.parentNode.appendChild( loading, textarea );
+        // Prevent double transformation because of some weird runtime issues
+        // with the event dataReady in the smwtoolbar plugin 
+		// 12.01.15 RL-> 
+		//   There are two calls to toHtml when source button or toggle link is pressed in wikitext mode.
+		//   Rule below tries to test when page is in wikitext mode. Inserted html code inside page may make this test fail.
+        //if (!(data.indexOf('<p>') == 0 && 
+        //      data.match(/<.*?_fck_mw/) || data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL Commented out
+		if ( (data.match('<p>') == null) && 
+			 (data.match(/<.*?_fck_mw/) == null) &&
+			 (data.match(/class="fck_mw_\w+"/i) == null) &&
+			  window.parent.wgCKeditorInstance &&                //Because of TransformTextSwitcher plugin
+			  window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
+		{				
+			toggleReadOnly( true );                   //12.01.15 RL<-
+			// Use Ajax to transform the Wikitext to HTML.
+			if( window.parent.popup ){
+				window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
+			} else {
+				window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.wgPageName], loadHTMLFromAjax );
+			}
+		}
+		var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
+		writer = new CKEDITOR.htmlParser.basicWriter();
 
-        // prevent double transformation because of some weird runtime issues
-        // with the event dataReady in the smwtoolbar plugin
-        if (!(data.indexOf('<p>') == 0 &&
-              data.match(/<.*?_fck_mw/) || data.match(/class="fck_mw_\w+"/i)) ) {
+		fragment.writeHtml( writer, this.dataFilter );
+		data = writer.getHtml( true );
 
-            // Use Ajax to transform the Wikitext to HTML.
-            if( window.parent.popup ){
-                window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
-            } else {
-                window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.wgPageName], loadHTMLFromAjax );
-            }
-        }
-        var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
-        writer = new CKEDITOR.htmlParser.basicWriter();
-
-        fragment.writeHtml( writer, this.dataFilter );
-	    data = writer.getHtml( true );
-
-	    return data;
+		return data;
    },
 
 	/*
@@ -874,6 +1003,7 @@ CKEDITOR.customprocessor.prototype =
 	 *            for human reading. Not all Data Processors may provide it.
 	 */
 	toDataFormat : function( data, fixForBody ){
+
         if ( (window.parent.showFCKEditor &&
              !(window.parent.showFCKEditor & window.parent.RTE_VISIBLE)) )
              return window.parent.document.getElementById(window.parent.wgCKeditorInstance.name).value;
@@ -915,7 +1045,7 @@ CKEDITOR.customprocessor.prototype =
         }
 
 		var stringBuilder = new Array();
-		this._AppendNode( rootNode, stringBuilder, '' );
+		this._AppendNode( rootNode, stringBuilder, '' );  
 		return stringBuilder.join( '' ).Trim();
 	},
 
