@@ -250,21 +250,22 @@ function wfSajaxSearchArticleCKeditor( $term ) {
 	return join("\n", $ret);
 }
 
-function wfSajaxSearchCategoryCKeditor( $term ){  //09.01.14 RL $term added
+function wfSajaxSearchCategoryCKeditor(){  //09.01.14 RL $term added
 
 	global $wgContLang;                           //09.01.14 RL
-	$term = $wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) ); //09.01.14 RL
+	//$term = $wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) ); //09.01.14 RL
 	$ns = NS_CATEGORY;                            //=14
 	$dbr = wfGetDB( DB_SLAVE );
 	/** @todo FIXME: should use Database class */
 
+	/*
 	//09.01.14 RL->
 	$term1 = $wgContLang->ucfirst( $term );
 	$term2 = $wgContLang->lc( $term );
 	$term3 = $wgContLang->uc( $term );
 	$term4 = $wgContLang->ucfirst( $term2 );
 	$term  = $term1;	
-
+	
 	if( $term != "" ) {
 		// $search will be added to mysql query string below
 		$searchr = 	"AND ( tmpSelectCat1.cl_to LIKE '%".$dbr->strencode( $term1 )."%' ".
@@ -276,7 +277,7 @@ function wfSajaxSearchCategoryCKeditor( $term ){  //09.01.14 RL $term added
 		$searchr = 	"";
 	}
 	//09.01.14 RL<-
-
+	
 	$m_sql = "SELECT tmpSelectCat1.cl_to AS title FROM ".$dbr->tableName('categorylinks')." AS tmpSelectCat1 ".
 		"LEFT JOIN ".$dbr->tableName('page')." AS tmpSelectCatPage ON ( tmpSelectCat1.cl_to = tmpSelectCatPage.page_title ".
 		"AND tmpSelectCatPage.page_namespace =$ns ) ".
@@ -284,7 +285,15 @@ function wfSajaxSearchCategoryCKeditor( $term ){  //09.01.14 RL $term added
 		"WHERE tmpSelectCat2.cl_from IS NULL ".
 		$searchr." ".                            //14.01.14 RL
 		"GROUP BY tmpSelectCat1.cl_to";
+	*/
 	
+	$m_sql = "SELECT tmpSelectCat1.cl_to AS title FROM ".$dbr->tableName('categorylinks')." AS tmpSelectCat1 ".
+		"LEFT JOIN ".$dbr->tableName('page')." AS tmpSelectCatPage ON ( tmpSelectCat1.cl_to = tmpSelectCatPage.page_title ".
+		"AND tmpSelectCatPage.page_namespace =$ns ) ".
+		"LEFT JOIN ".$dbr->tableName('categorylinks')." AS tmpSelectCat2 ON tmpSelectCatPage.page_id = tmpSelectCat2.cl_from ".
+		"WHERE tmpSelectCat2.cl_from IS NULL ".
+		"GROUP BY tmpSelectCat1.cl_to";
+
 	$res = $dbr->query( $m_sql, __METHOD__ );
 
 	$ret = '';
