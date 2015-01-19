@@ -227,18 +227,17 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 	    ShowFilteredCategories(dialog, value);
     }
 
-	var loadElements = function (editor, selection, element) {
+	var loadElements = function (element) {
 		
 		element.editMode = true;
 
 		//Get values of category and sort key 
 		var category = element.getText().replace(/ /g, '_');  //08.09.14 RL Added replace
-		var SelectedCategories = GetControl(this, 'categoryValues');
+		var selectedCategories = GetControl(this, 'categoryValues');
 
-		ClearList(this, 'categoryValues')
 		if (category.length > 0) {
 		    selectedCats[category] = category;
-            AddSelectOption(SelectedCategories, category, category)
+		    AddSelectOption(selectedCategories, category, category);
 		}
 	}
 	   
@@ -306,8 +305,20 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
             onOk : function() {
 				
-				var editor = this.getParentEditor();
+                //Clear old categories
+                var catList = editor.document.find('.FCK__MWCategory');
+                if (catList.count() > 0) {
+                    for (var i = catList.count() - 1; i > -1  ; i--) {
+                        catList.getItem(i).remove();
+                    }
+                }
 
+                // Move selection to the end of the editable element.
+                var range = editor.createRange();
+                range.moveToPosition(range.root, CKEDITOR.POSITION_BEFORE_END);
+                editor.getSelection().selectRanges([range]);
+
+                //Insert new categories
 				for ( var category in selectedCats ) {
 					var realElement = CKEDITOR.dom.element.createFromHtml('<span></span>');
 
@@ -327,14 +338,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
     		onShow : function()
     		{
     		    selectedCats = new Array();
+    		    ClearList(this, 'categoryValues');
+    		    ClearList(this, 'categoryList');
+    		    ShowCategoriesSubTree(this, -1);
+
     		    // clear old selection list from a previous call
-                var editor = this.getParentEditor(),
-                    e = this.getContentElement('mwCategoryTab1', 'categoryList');
-                    e.items = [];
-                var div = document.getElementById(e.domId),
-                    select = div.getElementsByTagName('select')[0];
-                while (select != null && select.options != null && select.options.length > 0)
-                    select.remove( 0 );
                 var e = this.getContentElement( 'mwCategoryTab1', 'searchMsg' );
                 var message = editor.lang.mwplugin.startTyping;
                 e.html = message;
@@ -345,22 +353,20 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				this.fakeObj = false;
 				this.editMode = false;
 		
-				var selection = editor.getSelection();
-				var element = selection.getSelectedElement();
-				var seltype = selection.getType();
+    		    //Load categories
+                var catList = editor.document.find('.FCK__MWCategory');
+                if (catList.count() > 0) {
+                    for (var i=0;i<catList.count();i++) {
+                        this.fakeObj = catList.getItem(i);
+                        var element = editor.restoreRealElement(this.fakeObj);
+				        loadElements.apply(this, [element]);
+				    }
 
-				//12.12.14 RL CKEDITOR.SELECTION_NONE=0 (no selection), CKEDITOR.SELECTION_TEXT=2, CKEDITOR.SELECTION_ELEMENT=3
-				if (element != null && element.getAttribute('class') == 'FCK__MWCategory' && (seltype == CKEDITOR.SELECTION_TEXT || seltype == CKEDITOR.SELECTION_ELEMENT) )
-				{
-					this.fakeObj = element;
-					element = editor.restoreRealElement( this.fakeObj );
-					loadElements.apply( this, [ editor, selection, element ] );
-					selection.selectElement( this.fakeObj );
-				}
-				else if ( seltype == CKEDITOR.SELECTION_TEXT )
-				{
-				    this.setValueOf('mwCategoryTab1', 'categorySearch', selection.getSelectedText().replace(/ /g, '_')); //09.09.14 RL<- 
+                } else {
+				    var selection = editor.getSelection();
+                    this.setValueOf('mwCategoryTab1', 'categorySearch', selection.getSelectedText().replace(/ /g, '_')); //09.09.14 RL<- 
                 }
+
 				this.getContentElement('mwCategoryTab1', 'categorySearch').focus();
         	}
         }
