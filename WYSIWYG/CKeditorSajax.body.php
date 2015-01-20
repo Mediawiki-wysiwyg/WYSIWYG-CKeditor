@@ -250,43 +250,11 @@ function wfSajaxSearchArticleCKeditor( $term ) {
 	return join("\n", $ret);
 }
 
-function wfSajaxSearchCategoryCKeditor(){  //09.01.14 RL $term added
-
-	global $wgContLang;                           //09.01.14 RL
-	//$term = $wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) ); //09.01.14 RL
+function wfSajaxSearchCategoryCKeditor(){
 	$ns = NS_CATEGORY;                            //=14
 	$dbr = wfGetDB( DB_SLAVE );
 	/** @todo FIXME: should use Database class */
 
-	/*
-	//09.01.14 RL->
-	$term1 = $wgContLang->ucfirst( $term );
-	$term2 = $wgContLang->lc( $term );
-	$term3 = $wgContLang->uc( $term );
-	$term4 = $wgContLang->ucfirst( $term2 );
-	$term  = $term1;	
-	
-	if( $term != "" ) {
-		// $search will be added to mysql query string below
-		$searchr = 	"AND ( tmpSelectCat1.cl_to LIKE '%".$dbr->strencode( $term1 )."%' ".
-							"OR (LOWER(CAST(tmpSelectCat1.cl_to AS CHAR)) LIKE '%".$dbr->strencode( $term2 )."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
-							"OR (UPPER(CAST(tmpSelectCat1.cl_to AS CHAR)) LIKE '%".$dbr->strencode( $term3 )."%') ". //29.08.14 RL MySql+Postgres:convert(.,.)->cast(.AS.)
-							"OR (tmpSelectCat1.cl_to LIKE '%".$dbr->strencode( $term4 )."%') ".
-						") ";
-	} else {
-		$searchr = 	"";
-	}
-	//09.01.14 RL<-
-	
-	$m_sql = "SELECT tmpSelectCat1.cl_to AS title FROM ".$dbr->tableName('categorylinks')." AS tmpSelectCat1 ".
-		"LEFT JOIN ".$dbr->tableName('page')." AS tmpSelectCatPage ON ( tmpSelectCat1.cl_to = tmpSelectCatPage.page_title ".
-		"AND tmpSelectCatPage.page_namespace =$ns ) ".
-		"LEFT JOIN ".$dbr->tableName('categorylinks')." AS tmpSelectCat2 ON tmpSelectCatPage.page_id = tmpSelectCat2.cl_from ".
-		"WHERE tmpSelectCat2.cl_from IS NULL ".
-		$searchr." ".                            //14.01.14 RL
-		"GROUP BY tmpSelectCat1.cl_to";
-	*/
-	
 	$m_sql = "SELECT tmpSelectCat1.cl_to AS title FROM ".$dbr->tableName('categorylinks')." AS tmpSelectCat1 ".
 		"LEFT JOIN ".$dbr->tableName('page')." AS tmpSelectCatPage ON ( tmpSelectCat1.cl_to = tmpSelectCatPage.page_title ".
 		"AND tmpSelectCatPage.page_namespace =$ns ) ".

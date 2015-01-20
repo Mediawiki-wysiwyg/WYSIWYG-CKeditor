@@ -2,7 +2,9 @@
 // File: WYSIWYG/ckeditor/plugins/mediawiki/dialogs/category.js
 //
 // Versions:
-// 08.01.14 RL  More advanced dialog based on link.js, selection list for existing categories
+// 08.01.14 RL  More advanced dialog based on link.js, selection list for existing categories.
+// 19.01.15 DB  Support for hierarchical categories, more user friendly dialog to work with categories.
+// 20.01.15 RL  Translations based on user preferences.
 //
 CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 {
@@ -242,7 +244,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 	}
 	   
         return {
-            title : editor.lang.mwplugin.categoryTitle, //'Add/modify category'
+            title : editor.lang.mwplugin.categoryTitle, //Modify categories of page
             minWidth : 350,
             minHeight : 500,
             resizable: CKEDITOR.DIALOG_RESIZE_BOTH,
@@ -256,11 +258,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                         {
                             id: 'categoryValues',
                             type: 'select',
-                            size: 4,
-                            label: editor.lang.mwplugin.category,
-                            title: 'Write name of category',
+                            size: 6,
+                            label: editor.lang.mwplugin.categorySelected, //Page belongs to these categories
+                            title: editor.lang.mwplugin.categorySelected,
                             required: false,
-                            style: 'border: 1px; width:100%;',
+                            style: 'border: 1px; width: 100%;',
                             onLoad: OnDialogLoad,
                             onDblClick: OnDblClickCategoryValues,
                             items: []
@@ -268,8 +270,8 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                         {
                             id: 'categorySearch',
                             type: 'text',
-                            label: 'Recherche',
-                            title: 'Recherche',
+                            label: editor.lang.mwplugin.category, //Type text to search for or to create a new category
+                            title: editor.lang.mwplugin.category,
                             style: 'border: 1px;',
                             onKeyUp: OnSearchChange,
                             onChange: OnSearchChange
@@ -277,21 +279,15 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
                         {
                             id: 'categoryAdd',
                             type: 'button',
-                            label: 'Ajouter',
-                            title: 'Ajouter',
+                            label: editor.lang.mwplugin.categorybtn, //Create new category
+                            title: editor.lang.mwplugin.categorybtn,
                             onClick: OnClickAddButton
-                        },
-                        {
-                            id: 'searchMsg',
-                            type: 'html',
-                            style: 'font-size: smaller; font-style: italic;',
-                            html: editor.lang.mwplugin.startTyping
                         },
                         {
                             id: 'categoryList',
                             type: 'select',
-                            size: 20,
-                            label: editor.lang.mwplugin.selfromCategoryList, //'Select from list of existing categories:'
+                            size: 22,
+                            label: editor.lang.mwplugin.selfromCategoryList, //Select category from list of existing categories
                             title: 'Category list',
                             required: false,
                             style: 'border: 1px; width:100%;',
@@ -342,12 +338,6 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
     		    ClearList(this, 'categoryList');
     		    ShowCategoriesSubTree(this, -1);
 
-    		    // clear old selection list from a previous call
-                var e = this.getContentElement( 'mwCategoryTab1', 'searchMsg' );
-                var message = editor.lang.mwplugin.startTyping;
-                e.html = message;
-                document.getElementById(e.domId).innerHTML = message;
-
 				/*This was taken from first simple dialog for category definitions.*/
 				this.editObj = false;
 				this.fakeObj = false;
@@ -364,7 +354,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
                 } else {
 				    var selection = editor.getSelection();
-                    this.setValueOf('mwCategoryTab1', 'categorySearch', selection.getSelectedText().replace(/ /g, '_')); //09.09.14 RL<- 
+                    this.setValueOf('mwCategoryTab1', 'categorySearch', selection.getSelectedText().replace(/ /g, '_')); //09.09.14 RL 
                 }
 
 				this.getContentElement('mwCategoryTab1', 'categorySearch').focus();
