@@ -256,13 +256,19 @@ CKEDITOR.plugins.add( 'mediawiki',
                                 if ( className == null )
                                     className = 'FCK__SMWquery';
                             case 'fck_smw_webservice' :
-                                if ( className == null )
-                                    className = 'FCK__SMWwebservice'
+                                if (className == null)
+                                    className = 'FCK__SMWwebservice';
                             case 'fck_smw_rule' :
-                                if ( className == null )
-                                    className = 'FCK__SMWrule'
-                                if ( className )
-                                   return editor.createFakeParserElement( element, className, 'span' );
+                                if (className == null)
+                                    className = 'FCK__SMWrule';
+                                if (className) {
+                                    var result = editor.createFakeParserElement(element, className, 'span');
+                                    if (className == "FCK__MWCategory") {
+                                        result.attributes.alt = element.children[0].value;
+                                        result.attributes.title = result.attributes.alt;
+                                    }
+                                    return result;
+                                }
                             break;
                         }
 					}

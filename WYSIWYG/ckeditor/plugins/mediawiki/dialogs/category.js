@@ -326,9 +326,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 						realElement.setText( category );
 											
 					//Are there any additional attributes used by html format?  
-					var fakeElement = editor.createFakeElement( realElement , 'FCK__MWCategory', 'span', false );
+					var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);
+					fakeElement.$.alt = category;
+					fakeElement.$.title = category;
 					editor.insertElement(fakeElement);
-				}
+                }
             },
 
     		onShow : function()
