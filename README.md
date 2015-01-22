@@ -35,9 +35,11 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 22.01.15  Merged tooltip modifications of new category -dialog (by DavidBeaumier). Version: 1.5.6_0 [B551+22.01.2015].
+
 - 20.01.15  Merged modifications of new category -dialog (by DavidBeaumier). Added support for selected user language. Version: 1.5.6_0 [B551+20.01.2015].
 
-- 19.01.15  Created new branch "CKeditor_v4_Category" for modifications of new category dialog by DavidBeaumierView.
+- 19.01.15  Created new branch "CKeditor_v4_Category" for modifications of new category dialog by DavidBeaumier.
 
 - 12.01.15  Modified wikitext to html conversions so that toHtml function is not called unnecessarily two times (with page is opening, source button and toggle link). Keep editor in read-only mode and buttons of wysiwyg menu disabled during wysiwyg-wikitext conversion in both directions (this has visible effect with big wiki pages, when conversion takes long time). Added partial support of text "Page is loading, please wait...". Version: 1.5.6_0 [B551+12.01.2015].
 
