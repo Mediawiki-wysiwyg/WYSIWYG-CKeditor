@@ -129,6 +129,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 	}
 
 	function UpdateSelection(dialog, cat) {
+	    cat = cat.replace(/_/g, ' ');
 	    if ( selectedCats[ cat ] )
 	        delete selectedCats[ cat ];
 	    else
@@ -184,16 +185,16 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
 	var OnClickCategoryList = function () {
 	    var dialog = this.getDialog();
-	    ShowCategoriesSubTree(dialog, event.srcElement.value);
+	    var select = GetControl(dialog, 'categoryList');
+	    ShowCategoriesSubTree(dialog, select.value);
 	}
 
 	var OnDblClickCategoryList = function () {
 	    var dialog = this.getDialog();
-	    var row = parseInt(event.srcElement.value);
-	    var select;
+	    var select = GetControl(dialog, 'categoryList');
+	    var row = parseInt(select.value);
 
 	    if ( row >= 0 ) {
-	        select = GetControl(dialog, 'categoryList');
 	        var cat = select.options[ row ].text;
 	        var lvl = 0;
 	        while ( cat.charAt( lvl ) == placeholder )
@@ -208,13 +209,14 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
 	var OnDblClickCategoryValues = function () {
 	    var dialog = this.getDialog();
-	    UpdateSelection(dialog, event.srcElement.value);
+	    var select = GetControl(dialog, 'categoryValues');
+	    UpdateSelection(dialog, select.value);
 	}
 
 	var OnClickAddButton = function () {
 	    var dialog = this.getDialog();
 	    var e = dialog.getContentElement('mwCategoryTab1', 'categorySearch');
-        var value = e.getValue().Trim().replace(/ /g, '_');
+	    var value = e.getValue().Trim();
         if (value != "")
             UpdateSelection(dialog, value);
         dialog.setValueOf('mwCategoryTab1', 'categorySearch', "");
@@ -234,7 +236,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 		element.editMode = true;
 
 		//Get values of category and sort key 
-		var category = element.getText().replace(/ /g, '_');  //08.09.14 RL Added replace
+		var category = element.getText().replace(/_/g, ' ');
 		var selectedCategories = GetControl(this, 'categoryValues');
 
 		if (category.length > 0) {
