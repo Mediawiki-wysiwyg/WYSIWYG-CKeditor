@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 23.01.15  Fixed doubleclick problem with selection lists in new dialog of categories (by DavidBeaumier). Version: 1.5.6_0 [B551+23.01.2015].
+
 - 22.01.15  Merged tooltip modifications of new category -dialog (by DavidBeaumier). Version: 1.5.6_0 [B551+22.01.2015].
 
 - 20.01.15  Merged modifications of new category -dialog (by DavidBeaumier). Added support for selected user language. Version: 1.5.6_0 [B551+20.01.2015].
