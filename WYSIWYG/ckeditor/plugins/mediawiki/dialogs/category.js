@@ -185,16 +185,16 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
 	var OnClickCategoryList = function () {
 	    var dialog = this.getDialog();
-	    ShowCategoriesSubTree(dialog, event.srcElement.value);
+	    var select = GetControl(dialog, 'categoryList');
+	    ShowCategoriesSubTree(dialog, select.value);
 	}
 
 	var OnDblClickCategoryList = function () {
 	    var dialog = this.getDialog();
-	    var row = parseInt(event.srcElement.value);
-	    var select;
+	    var select = GetControl(dialog, 'categoryList');
+	    var row = parseInt(select.value);
 
 	    if ( row >= 0 ) {
-	        select = GetControl(dialog, 'categoryList');
 	        var cat = select.options[ row ].text;
 	        var lvl = 0;
 	        while ( cat.charAt( lvl ) == placeholder )
@@ -209,7 +209,8 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 
 	var OnDblClickCategoryValues = function () {
 	    var dialog = this.getDialog();
-	    UpdateSelection(dialog, event.srcElement.value);
+	    var select = GetControl(dialog, 'categoryValues');
+	    UpdateSelection(dialog, select.value);
 	}
 
 	var OnClickAddButton = function () {
