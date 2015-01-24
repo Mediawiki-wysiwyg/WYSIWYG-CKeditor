@@ -2,119 +2,251 @@
 // File: WYSIWYG/ckeditor/plugins/mediawiki/dialogs/category.js
 //
 // Versions:
-// 08.01.14 RL  More advanced dialog based on link.js, selection list for existing categories
+// 08.01.14 RL  More advanced dialog based on link.js, selection list for existing categories.
+// 19.01.15 DB  Support for hierarchical categories, more user friendly dialog to work with categories.
+// 20.01.15 RL  Translations based on user preferences.
 //
 CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 {
     // need this to use the getSelectedLink function from the plugin
     var plugin = CKEDITOR.plugins.link;
     var searchTimer;
-	var OnCategoryChange = function() {
+    var catTree;
+    var selectedCats;
+	var placeholder = '.';
 
-        var dialog = this.getDialog();
+	function GetControl(dialog, controlName) {
+	    var e = dialog.getContentElement('mwCategoryTab1', controlName);
+	    var div = document.getElementById(e.domId);
+        return div.getElementsByTagName('select')[0];
+	}
 
-        var StartSearch = function() {
-            var	e = dialog.getContentElement( 'mwCategoryTab1', 'categoryValue' ),
-                value = e.getValue().Trim().replace(/ /g,'_'); //12.12.14 RL ' '=>'_'
+	function AddSelectOption(select, text, value) {
+	    var option = document.createElement("option");
+	    option.value = value;
+	    option.text = text;
+	    select.add(option);
+	    return option;
+	}
 
-			//Commented out to get list of categories when dialog is opened.
-            //if ( value.length < 1  )
-            //         return ;
+	function ShowCategoriesSubTree(dialog, rowInTree) {
 
-            SetSearchMessage( editor.lang.mwplugin.searching ) ;
+	    if (catTree == null)
+	        return;
 
-            // Make an Ajax search for the categories.
-            window.parent.sajax_request_type = 'GET' ;
-            window.parent.sajax_do_call( 'wfSajaxSearchCategoryCKeditor', [value], LoadSearchResults ) ;
-			
-        }
+	    var select = GetControl(dialog, 'categoryList');
+	    var row = parseInt(rowInTree);
+	    var root = 'root';
+	    var lvl = -1;
+	    var prefix = '';
+	    if (row >= 0) {
+	        root = select.options[row].text;
+	        lvl = 0;
+	        while (root.charAt(lvl) == placeholder)
+	            lvl++;
+	        root = root.slice(lvl);
+	        if (root.charAt(0) == '[' && root.charAt(root.length - 1) == ']')
+	            root = root.substring(1, root.length - 1);
+	        prefix = new Array(lvl + 1 + 3).join(placeholder);
+	    }
+	    if (!catTree[root])
+	        return;
 
-        var LoadSearchResults = function ( result ) {
-            var results = result.responseText.split( '\n' ),
-                select = dialog.getContentElement( 'mwCategoryTab1', 'categoryList' );
+	    var itCount = select.options.length;
+	    var itSkip = row + 1;
+	    var opts = new Array();
+	    for (var i = row + 1 ; i < itCount ; i++) {
+	        var t = select.options[i].text;
+	        var sublvl = 0;
+	        while (t.charAt(sublvl) == placeholder)
+	            sublvl++;
+	        if (sublvl > lvl)
+	            itSkip = i + 1;
+	        else
+	            break;
+	    }
+	    for (var i = itCount - 1 ; i > row ; i--) {
+	        var t = select.options[i].text;
+	        if (i >= itSkip)
+	            opts.push(t);
+	        select.remove(i);
+	    }
+	    if (itSkip == row + 1) {
+	        var cats = catTree[root].split(' ');
 
-            ClearSearch() ;
+	        for (var k in cats) {
+	            var p = cats[k];
+	            if (catTree[cats[k]])
+	                p = '[' + p + ']';
+	            var e = AddSelectOption(select, prefix + p, ++row);
+	            if (catTree[cats[k]])
+	                e.style.color = '#00f';
 
-            if ( results.length == 0 || ( results.length == 1 && results[0].length == 0 ) ) {
-                SetSearchMessage( editor.lang.mwplugin.noCategoryFound ) ;
-            }
-            else {
-                if ( results.length == 1 )
-                    SetSearchMessage( editor.lang.mwplugin.oneCategoryFound ) ;
-                else      //List contains one extra line... .why ?????
-                    SetSearchMessage( results.length - 1  + editor.lang.mwplugin.manyCategoryFound ) ;
+	        }
+	    }
+	    for (var i = opts.length - 1 ; i >= 0 ; i--) {
+	        var e = AddSelectOption(select, opts[i], ++row);
+	        if (opts[i].indexOf('[') >= 0)
+	            e.style.color = '#00f';
+	    }
+	}
 
-                for ( var i = 0 ; i < results.length ; i++ )
-                    select.add ( results[i], results[i] );  //Is this correct?
-					//select.add ( results[i].replace(/_/g, ' '), results[i] );
-            }
-        }
+	function ShowFilteredCategories(dialog, filter) {
 
-        var ClearSearch = function() {
-            var	e = dialog.getContentElement( 'mwCategoryTab1', 'categoryList' );
-            e.items = [];
-            var div = document.getElementById(e.domId),
-                select = div.getElementsByTagName('select')[0];
-            while ( select.options.length > 0 )
-                select.remove( 0 )
-        }
+	    var select = GetControl(dialog, 'categoryList');
+	    ClearList(dialog, 'categoryList');
 
-        var SetSearchMessage = function ( message ) {
-            var	e = dialog.getContentElement( 'mwCategoryTab1', 'searchMsg' );
-            e.html = message;
-            document.getElementById(e.domId).innerHTML = message;
-        }
+	    var found = new Object();
+	    if (filter.length == 0) {
+	        ShowCategoriesSubTree(dialog, -1);
+	        return;
+	    }
+	    filter = filter.toLowerCase();
+	    var row = -1;
+	    for (var folder in catTree) {
+	        var cats = catTree[folder].split(' ');
+	        for (var k in cats) {
+	            var p = cats[k].toLowerCase();
+	            if (p.indexOf(filter) >= 0) {
+	                if (found[cats[k]])
+	                    ;
+	                else {
+	                    found[cats[k]] = cats[k];
+	                    AddSelectOption(select, cats[k], ++row);
+	                }
+	            }
+	        }
+	    }
+	}
 
-        var e = dialog.getContentElement( 'mwCategoryTab1', 'categoryValue' );
-		var category = e.getValue().Trim();
+	function ClearList(dialog, controlName) {
+	    var e = dialog.getContentElement('mwCategoryTab1', controlName);
+	    e.items = [];
+	    var div = document.getElementById(e.domId),
+            select = div.getElementsByTagName('select')[0];
+	    while (select.options.length > 0)
+	        select.remove(0);
+	}
 
-        if ( searchTimer )
-            window.clearTimeout( searchTimer ) ;
-        
-        //Commented out to get list of categories when dialog is opened.
-        //if ( category.length < 1 ) {
-        //    ClearSearch() ;
-        //    SetSearchMessage( editor.lang.mwplugin.startTyping ) ;
-        //    return ;
-        //}
+	function UpdateSelection(dialog, cat) {
+	    cat = cat.replace(/_/g, ' ');
+	    if ( selectedCats[ cat ] )
+	        delete selectedCats[ cat ];
+	    else
+	        selectedCats[ cat ] = cat;
 
-        SetSearchMessage( editor.lang.mwplugin.stopTyping ) ;
-        searchTimer = window.setTimeout( StartSearch, 500 ) ;
-
+	    ClearList(dialog, 'categoryValues');
+	    var select = GetControl(dialog, 'categoryValues');
+	    for (cat in selectedCats)
+	        AddSelectOption( select, cat, cat );
     }
-    var CategorySelected = function() {
-        var dialog = this.getDialog(),
-            target = dialog.getContentElement( 'mwCategoryTab1', 'categoryValue' ),
-            select = dialog.getContentElement( 'mwCategoryTab1', 'categoryList' );
-        //target.setValue(select.getValue().replace(/_/g, ' '));
-		target.setValue(select.getValue());
-    }
-	var loadElements = function( editor, selection, element ) {
 
-	    var category = null;
-		var sortkey = null;
+	var OnDialogLoad = function () {
+	    var dialog = this.getDialog();
+
+	    window.parent.sajax_do_call('wfSajaxSearchCategoryCKeditor', [], InitCategoryTree);
+
+	    function InitCategoryTree(result) {
+	        catTree = new Object();
+	        var levelsHead = new Array('root');
+	        var levelsBody = new Array('');
+
+	        var results = result.responseText.Trim().split('\n');
+	        var previousLvl = -1;
+	        for (var i = 0 ; i < results.length ; i++) {
+	            var lvl = 0;
+	            while (results[i].charAt(lvl) == ' ')
+	                lvl++;
+	            var t = results[i].slice(lvl);
+	            for (var j = previousLvl ; j > lvl - 1 ; j--) {
+	                if (levelsBody[j + 1] != '')
+	                    catTree[levelsHead[j + 1]] = levelsBody[j + 1];
+	                delete levelsHead[j + 1];
+	                delete levelsBody[j + 1];
+	            }
+	            if (lvl > previousLvl)
+	                levelsBody[lvl] = t;
+	            else
+	                levelsBody[lvl] = levelsBody[lvl] + ' ' + t;
+	            levelsHead[lvl + 1] = t;
+	            levelsBody[lvl + 1] = '';
+	            previousLvl = lvl;
+	        }
+	        for (var j = previousLvl ; j >= -1 ; j--) {
+	            if (levelsBody[j + 1] != '')
+	                catTree[levelsHead[j + 1]] = levelsBody[j + 1];
+	            delete levelsHead[j + 1];
+	            delete levelsBody[j + 1];
+	        }
+
+	        ShowCategoriesSubTree(dialog , - 1);
+	    }
+	}
+
+	var OnClickCategoryList = function () {
+	    var dialog = this.getDialog();
+	    var select = GetControl(dialog, 'categoryList');
+	    ShowCategoriesSubTree(dialog, select.value);
+	}
+
+	var OnDblClickCategoryList = function () {
+	    var dialog = this.getDialog();
+	    var select = GetControl(dialog, 'categoryList');
+	    var row = parseInt(select.value);
+
+	    if ( row >= 0 ) {
+	        var cat = select.options[ row ].text;
+	        var lvl = 0;
+	        while ( cat.charAt( lvl ) == placeholder )
+	            lvl++;
+	        cat = cat.slice( lvl );
+	        if ( cat.charAt( 0 ) == '[' && cat.charAt( cat.length - 1 ) == ']' )
+	            cat = cat.substring(1, cat.length - 1);
+
+	        UpdateSelection(dialog, cat);
+	    }
+	}
+
+	var OnDblClickCategoryValues = function () {
+	    var dialog = this.getDialog();
+	    var select = GetControl(dialog, 'categoryValues');
+	    UpdateSelection(dialog, select.value);
+	}
+
+	var OnClickAddButton = function () {
+	    var dialog = this.getDialog();
+	    var e = dialog.getContentElement('mwCategoryTab1', 'categorySearch');
+	    var value = e.getValue().Trim();
+        if (value != "")
+            UpdateSelection(dialog, value);
+        dialog.setValueOf('mwCategoryTab1', 'categorySearch', "");
+	}
+
+	var OnSearchChange = function () {
+	
+	    var dialog = this.getDialog();
+
+	    var e = dialog.getContentElement('mwCategoryTab1', 'categorySearch'),
+        value = e.getValue().Trim().replace(/ /g, '_'); //12.12.14 RL ' '=>'_'
+	    ShowFilteredCategories(dialog, value);
+    }
+
+	var loadElements = function (element) {
 		
 		element.editMode = true;
 
 		//Get values of category and sort key 
-		category = element.getText().replace(/ /g, '_');  //08.09.14 RL Added replace
-		if ( element.hasAttribute('sort') ) { //12.12.14 RL
-			sortkey = element.getAttribute('sort');
+		var category = element.getText().replace(/_/g, ' ');
+		var selectedCategories = GetControl(this, 'categoryValues');
+
+		if (category.length > 0) {
+		    selectedCats[category] = category;
+		    AddSelectOption(selectedCategories, category, category);
 		}
-
-        if ( category.length > 0 )
-         this.setValueOf( 'mwCategoryTab1','categoryValue', category );
-        else
-         this.setValueOf( 'mwCategoryTab1','categoryValue', "" );
-
-        if ( sortkey.length > 0 )
-          this.setValueOf( 'mwCategoryTab1','sortkeyValue', sortkey );
-        else
-          this.setValueOf( 'mwCategoryTab1','sortkeyValue', "" );
 	}
 	   
         return {
-            title : editor.lang.mwplugin.categoryTitle, //'Add/modify category'
+            title : editor.lang.mwplugin.categoryTitle, //Modify categories of page
             minWidth : 350,
             minHeight : 500,
             resizable: CKEDITOR.DIALOG_RESIZE_BOTH,
@@ -126,129 +258,110 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 					elements :
 					[
                         {
-                            id: 'categoryValue',
-                            type: 'text',
-                            label: editor.lang.mwplugin.category,
-                            title: 'Write name of category',
-                            style: 'border: 1px;',
-                            onKeyUp: OnCategoryChange,
-							onChange: OnCategoryChange  
-							// ^---onChange was the only way to get list of categories updated when dialog was opened.
-							// Is there better way to do initial update of category list???
+                            id: 'categoryValues',
+                            type: 'select',
+                            size: 6,
+                            label: editor.lang.mwplugin.categorySelected, //Page belongs to these categories
+                            title: editor.lang.mwplugin.categorySelected,
+                            required: false,
+                            style: 'border: 1px; width: 100%;',
+                            onLoad: OnDialogLoad,
+                            onDblClick: OnDblClickCategoryValues,
+                            items: []
                         },
                         {
-                            id: 'searchMsg',
-                            type: 'html',
-                            style: 'font-size: smaller; font-style: italic;',
-                            html: editor.lang.mwplugin.startTyping
+                            id: 'categorySearch',
+                            type: 'text',
+                            label: editor.lang.mwplugin.category, //Type text to search for or to create a new category
+                            title: editor.lang.mwplugin.category,
+                            style: 'border: 1px;',
+                            onKeyUp: OnSearchChange,
+                            onChange: OnSearchChange
                         },
-						{
-							id : 'sortkeyValue',
-							type : 'text',
-							label : editor.lang.mwplugin.categorySort,
-							title : 'Sort key',
-							style: 'border: 1px;',
-							setup: function(element){
-								this.setValue(element.getAttribute('sortkeyValue'));
-							}
-						}, 
+                        {
+                            id: 'categoryAdd',
+                            type: 'button',
+                            label: editor.lang.mwplugin.categorybtn, //Create new category
+                            title: editor.lang.mwplugin.categorybtn,
+                            onClick: OnClickAddButton
+                        },
                         {
                             id: 'categoryList',
                             type: 'select',
-                            size: 25,
-                            label: editor.lang.mwplugin.selfromCategoryList, //'Select from list of existing categories:'
+                            size: 22,
+                            label: editor.lang.mwplugin.selfromCategoryList, //Select category from list of existing categories
                             title: 'Category list',
                             required: false,
                             style: 'border: 1px; width:100%;',
-                            onChange: CategorySelected,
-                            items: [  ]
+                            onClick: OnClickCategoryList,
+                            onDblClick: OnDblClickCategoryList,
+                            items: []
                         }
 		            ]
                 }
             ],
 
             onOk : function() {
-
-                //var editor = this.getContentElement( 'mwCategoryTab1', 'categoryValue'),
-                //    link = editor.getValue().Trim().replace(/ /g, '_'),
-                //    attributes = {href : link, _cke_saved_href : link};
 				
-				var editor = this.getParentEditor();
-				var category = this.getValueOf( 'mwCategoryTab1', 'categoryValue' ).Trim().replace(/_/g,' ');
-				var sortkey  = this.getValueOf( 'mwCategoryTab1', 'sortkeyValue' ).Trim().replace(/_/g,' ');
+                //Clear old categories
+                var catList = editor.document.find('.FCK__MWCategory');
+                if (catList.count() > 0) {
+                    for (var i = catList.count() - 1; i > -1  ; i--) {
+                        catList.getItem(i).remove();
+                    }
+                }
 
-				//Build html syntax fox category like this:
-				//  <span> class="fck_mw_category" sort="SName">CName</span>
-				//  <span> _fcknotitle="true" class="fck_mw_category" sort="PName">CName</span>
-	
-				if ( category.length > 0 ) {
+                // Move selection to the end of the editable element.
+                var range = editor.createRange();
+                range.moveToPosition(range.root, CKEDITOR.POSITION_BEFORE_END);
+                editor.getSelection().selectRanges([range]);
+
+                //Insert new categories
+				for ( var category in selectedCats ) {
 					var realElement = CKEDITOR.dom.element.createFromHtml('<span></span>');
 
 					//Name FCK class for category element.	
 					realElement.setAttribute('class','fck_mw_category');					
 					
-					//User gave only name of category => set sort key to be eq. to first letter of page name
-					if ( sortkey.length == 0 ) {
-						sortkey = mw.config.get( 'wgPageName' ).trim().substr(0,1).toUpperCase(); //12.12.14 RL
-						realElement.setAttribute('_fcknotitle','true'); //12.12.14 RL
-					}	
-
-					if ( sortkey.length > 0 )
-						realElement.setAttribute( 'sort', sortkey ); 
-						
 					//Name of category	 
 					if ( category.length > 0 )
 						realElement.setText( category );
 											
 					//Are there any additional attributes used by html format?  
-					var fakeElement = editor.createFakeElement( realElement , 'FCK__MWCategory', 'span', false );
+					var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);
+					fakeElement.$.alt = category;
+					fakeElement.$.title = category;
 					editor.insertElement(fakeElement);
-				}
+                }
             },
 
     		onShow : function()
-        	{
-				// clear old selection list from a previous call
-                var editor = this.getParentEditor(),
-                    e = this.getContentElement( 'mwCategoryTab1', 'categoryList' );
-                    e.items = [];
-                var div = document.getElementById(e.domId),
-                    select = div.getElementsByTagName('select')[0];
-                while ( select.options.length > 0 )
-                    select.remove( 0 );
-                e = this.getContentElement( 'mwCategoryTab1', 'searchMsg' );
-                var message = editor.lang.mwplugin.startTyping;
-                e.html = message;
-                document.getElementById(e.domId).innerHTML = message;
-	
+    		{
+    		    selectedCats = new Array();
+    		    ClearList(this, 'categoryValues');
+    		    ClearList(this, 'categoryList');
+    		    ShowCategoriesSubTree(this, -1);
+
 				/*This was taken from first simple dialog for category definitions.*/
 				this.editObj = false;
 				this.fakeObj = false;
 				this.editMode = false;
 		
-				var selection = editor.getSelection();
-				var ranges = selection.getRanges();
-				var element = selection.getSelectedElement();
-				var seltype = selection.getType();
+    		    //Load categories
+                var catList = editor.document.find('.FCK__MWCategory');
+                if (catList.count() > 0) {
+                    for (var i=0;i<catList.count();i++) {
+                        this.fakeObj = catList.getItem(i);
+                        var element = editor.restoreRealElement(this.fakeObj);
+				        loadElements.apply(this, [element]);
+				    }
 
-				//12.12.14 RL CKEDITOR.SELECTION_NONE=0 (no selection), CKEDITOR.SELECTION_TEXT=2, CKEDITOR.SELECTION_ELEMENT=3
-				if ( (seltype == CKEDITOR.SELECTION_TEXT || seltype == CKEDITOR.SELECTION_ELEMENT) && element.getAttribute( 'class' ) == 'FCK__MWCategory' )
-				{
-					this.fakeObj = element;
-					element = editor.restoreRealElement( this.fakeObj );
-					loadElements.apply( this, [ editor, selection, element ] );
-					selection.selectElement( this.fakeObj );
-				}
-				else if ( seltype == CKEDITOR.SELECTION_TEXT )
-				{
-                    //if ( CKEDITOR.env.ie ) //27.02.14 RL->				                                            //09.09.14 RL->   
-                    //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.document.$.selection.createRange().text ); 
-                    //else                   //27.02.14 RL<- 
-                    //    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getNative() );
-
-                    this.setValueOf( 'mwCategoryTab1','categoryValue', selection.getSelectedText().replace(/ /g,'_') ); //09.09.14 RL<- 
+                } else {
+				    var selection = editor.getSelection();
+                    this.setValueOf('mwCategoryTab1', 'categorySearch', selection.getSelectedText().replace(/ /g, '_')); //09.09.14 RL 
                 }
-				this.getContentElement( 'mwCategoryTab1', 'categoryValue' ).focus();
+
+				this.getContentElement('mwCategoryTab1', 'categorySearch').focus();
         	}
         }
 }

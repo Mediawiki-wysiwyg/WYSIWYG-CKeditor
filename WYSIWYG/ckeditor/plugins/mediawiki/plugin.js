@@ -256,13 +256,19 @@ CKEDITOR.plugins.add( 'mediawiki',
                                 if ( className == null )
                                     className = 'FCK__SMWquery';
                             case 'fck_smw_webservice' :
-                                if ( className == null )
-                                    className = 'FCK__SMWwebservice'
+                                if (className == null)
+                                    className = 'FCK__SMWwebservice';
                             case 'fck_smw_rule' :
-                                if ( className == null )
-                                    className = 'FCK__SMWrule'
-                                if ( className )
-                                   return editor.createFakeParserElement( element, className, 'span' );
+                                if (className == null)
+                                    className = 'FCK__SMWrule';
+                                if (className) {
+                                    var result = editor.createFakeParserElement(element, className, 'span');
+                                    if (className == "FCK__MWCategory") {
+                                        result.attributes.alt = element.children[0].value;
+                                        result.attributes.title = result.attributes.alt;
+                                    }
+                                    return result;
+                                }
                             break;
                         }
 					}
@@ -402,14 +408,16 @@ CKEDITOR.plugins.add( 'mediawiki',
 			ref				    : 'Add a reference',                              //03.01.14 RL
 			references		    : 'Add references block',                         //03.01.14 RL
             // category
-			categorybtn         : 'Add/edit category',
-			categoryTitle       : 'Add/edit category and sort key',               //07.01.14 RL
-			category            : 'Category: (empty field=>list all categories)', //07.01.14 RL
+			categorybtn         : 'Create new category',                          //20.01.15 RL   'Ajouter'
+			categoryTitle       : 'Add/edit categories',                          //20.01.15 RL
+			category            : 'Type text to search for or to create a new category:', //20.01.15 RL 'Recherche'
+			categorySelected    : 'Selected categories for the page:',            //20.01.15 RL
+            selfromCategoryList : 'Select category for the page:',                 //20.01.15 RL			
 			categorySort        : 'Sortkey within category',                      //07.01.14 RL
 			noCategoryFound     : 'Not found, category is new',                   //09.01.14 RL
             oneCategoryFound    : 'One category found',						      //09.01.14 RL
-            manyCategoryFound   : ' categories found',						      //09.01.14 RL
-            selfromCategoryList : 'Select from list of categories:'			      //09.01.14 RL
+            manyCategoryFound   : ' categories found'						      //09.01.14 RL
+
 		}
 
         MWpluginLang['fi'] = {  //07.01.14 RL->
@@ -470,14 +478,15 @@ CKEDITOR.plugins.add( 'mediawiki',
 			ref				: 'Viite',                                        //'Add a reference' for button of menu
 			references		: 'Lista viitteistä',                             //'Add references block' for button of menu
             // category
-			categorybtn    	    : 'Lisää/muuta luokkaa',                         //'Add/edit categories'
-			categoryTitle       : 'Sivun luokka',                                //'Add/edit categories'
-			category            : 'Luokka (tyhjä kenttä listaa kaikki luokat):', //'Category'
-			categorySort        : 'Lajitteluavain luokan sisällä:',              //'Sortkey within category'
-			noCategoryFound     : 'Luokkaa ei löydy, se on uusi',                //'no category found'			    //09.01.14 RL
-            oneCategoryFound    : 'Yksi luokka löytyi',                          //'one category found',            //09.01.14 RL
-            manyCategoryFound   : ' kpl',                                        //' categories found',			    //09.01.14 RL
-            selfromCategoryList : 'Valitse luokka listasta:'				     //'Select from list of categories  //09.01.14 RL
+			categorybtn    	    : 'Luo uusi luokka',                          //'Create new category' //20.01.15 RL
+			categoryTitle       : 'Sivun luokkien määritys',                  //'Add/edit categories' //20.01.15 RL 
+			category            : 'Etsi / luo uusi luokka (tyhjä kenttä listaa kaikki luokat):', //'Type text to search for or create a new category' //20.01.15 RL
+            categorySelected    : 'Sivu lisätään luokkiin:',                  //'Selected categories for the page:'  //20.01.15 RL
+            selfromCategoryList : 'Valitse luokka listalta:',                 //'Select category for the page //20.01.15 RL
+			categorySort        : 'Lajitteluavain luokan sisällä:',           //'Sortkey within category'
+			noCategoryFound     : 'Luokkaa ei löydy, se on uusi',             //'no category found'			  //09.01.14 RL
+            oneCategoryFound    : 'Yksi luokka löytyi',                       //'one category found',            //09.01.14 RL
+            manyCategoryFound   : ' kpl'                                      //' categories found',			  //09.01.14 RL
 		} //07.01.14 RL<-
 
 	MWpluginLang['fr'] = {
@@ -538,14 +547,15 @@ CKEDITOR.plugins.add( 'mediawiki',
 			ref				: 'Ajouter une référence',
 			references		: 'Ajouter le bloc des références',
 			// category
-			categorybtn		: 'Ajouter/modifier les catégories',
+			categorybtn		: 'Ajouter',
 			categoryTitle	: 'Ajouter/modifier une catégorie',
-			category		: 'Catégorie:',
+			category		: 'Recherche',
+			categorySelected : 'Catégories sélectionnées pour la page:',
+            selfromCategoryList : 'Sélectionner dans la liste:',			
 			categorySort	: 'categorySort',
 			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound    : 'Une catégorie trouvée',
-            manyCategoryFound   : ' catégories trouvées',
-            selfromCategoryList : 'Sélectionner dans la liste:'
+            manyCategoryFound   : ' catégories trouvées'
 	}
 
         MWpluginLang['de'] = {
@@ -605,14 +615,15 @@ CKEDITOR.plugins.add( 'mediawiki',
             ref                 : 'Referenz hinzufügen',
             references          : 'Referenzblock hinzufügen',
             // category
-            categorybtn         : 'Kategorien hinzufügen/bearbeiten',
+            categorybtn         : 'Neue Kategorie erstellen',
             categoryTitle       : 'Kategorie hinzufügen/bearbeiten',
-            category            : 'Kategorie:',
+            category            : 'Text nach dem gesucht oder um eine neue Kategorie zu erstellen:',
+			categorySelected    : 'Ausgewählte Kategorien zur Seite:',
+            selfromCategoryList : 'Aus Liste von Kategorien auswählen:',
             categorySort        : 'Sortierungsschlüssel innerhalb Kategorie',
             noCategoryFound     : 'Nicht gefunden, neue Kategorie',
             oneCategoryFound    : 'Eine Kategorie gefunden',
-            manyCategoryFound   : ' Kategorien gefunden',
-            selfromCategoryList : 'Aus Liste von Kategorien auswählen:'
+            manyCategoryFound   : ' Kategorien gefunden'
         }
         if (typeof MWpluginLang[editor.langCode] != 'undefined' )
             editor.lang.mwplugin = MWpluginLang[editor.langCode];
