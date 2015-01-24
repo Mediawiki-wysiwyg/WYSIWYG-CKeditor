@@ -35,6 +35,10 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 24.01.15  Created new branch "CKeditor_v4_HtmlComments": fix for html comment -tags when commented block contains incomplete html code, catch exceptions in _getNodeFromHtml; fix for location of image file when defining original size of image; disabled unknown object message of CKeditor; fix for spaces in external link. Version: 1.5.6_0 [B551+24.01.2015].
+
+- 24.01.15  Merged branch "CKeditor_v4_Category" to "CKeditor_v4" (=new dialog for category definitions). Version: 1.5.6_0 [B551+23.01.2015].
+
 - 23.01.15  Fixed doubleclick problem with selection lists in new dialog of categories (by DavidBeaumier). Version: 1.5.6_0 [B551+23.01.2015].
 
 - 22.01.15  Merged tooltip modifications of new category -dialog (by DavidBeaumier). Version: 1.5.6_0 [B551+22.01.2015].

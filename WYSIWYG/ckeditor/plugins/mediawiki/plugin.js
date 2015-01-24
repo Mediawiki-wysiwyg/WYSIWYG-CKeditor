@@ -625,10 +625,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             oneCategoryFound    : 'Eine Kategorie gefunden',
             manyCategoryFound   : ' Kategorien gefunden'
         }
-        if (typeof MWpluginLang[editor.langCode] != 'undefined' )
+        if (typeof MWpluginLang[editor.langCode] != 'undefined' ) {
             editor.lang.mwplugin = MWpluginLang[editor.langCode];
-        else
+			CKEDITOR.lang[editor.langCode].fakeobjects['unknown'] = ''; //21.01.15 RL: Disable mouseover 'Unknown Object'" 
+		} else {
             editor.lang.mwplugin = MWpluginLang['en'];
+			CKEDITOR.lang['en'].fakeobjects['unknown'] = ''; //21.01.15 RL 
+		}
 
         // define commands and dialogues
 
@@ -813,9 +816,18 @@ CKEDITOR.plugins.add( 'mediawiki',
             }
         )
 		
-		$(document).on('click', '.cke_button__source', function(){ //12.01.15 RL
+		/**
+		$(document).on('click', '.cke_button__source', function() //12.01.15 RL
+			{
 				showPageIsLoading(true, 'page_loading_wpTextbox1');
-		});		
+			}
+		)		
+		**/
+		editor.on('beforeModeUnload', function (evt) 
+			{
+				showPageIsLoading(true, 'page_loading_wpTextbox1');
+			}
+		)
 		
 		editor.on('mode', function( evt ) //12.01.15 RL Editor opened or source buttons pressed, selected editor mode is ready
 			{
@@ -834,8 +846,20 @@ CKEDITOR.plugins.add( 'mediawiki',
 				editor = evt.editor; //This is from CKeditor example of read-only mode.
 			} 
 		)
+
+		/**		
+		editor.on( 'contentDom', function () //21.01.15 RL 
+			{
+				editor.editable().attachListener( this.fakeObj, 'click', function() {
+						alert('test');
+					} 
+				);
+			} 
+		)
+		**/
     }
 });
+
 
 function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button and toggle link
 
@@ -943,6 +967,92 @@ function showPageIsLoading( disp, loadingId ) { //12.01.15 RL
 	}
 }
 
+function fck_mv_plg_addToStrtr( text, replaceLineBreaks ) { //16.01.15 RL 
+	// For html->wikitext, based on fck_addToStrtr.
+	// Store "text" to be replaced into array [key1:"text1", key2:"text2", ...] 
+	// and return "key" which is used to replace the original text.
+	
+	// Create key
+	key = 'Fckmw' + window.parent.fck_mv_plg_strtr_span_counter + 'fckmw'; 
+	window.parent.fck_mv_plg_strtr_span_counter++;
+
+	// Store text in array
+	if( replaceLineBreaks ) { 
+		window.parent.fck_mv_plg_strtr_span[key] = text.replace( array( "\r\n", "\n", "\r" ), 'fckLR');
+	} else {
+		window.parent.fck_mv_plg_strtr_span[key] = text;
+	}
+	return key;
+}
+
+function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL 
+	// For html->wikitext, based on revertEncapsulatedString.
+	// Restore original texts into page from array [key1:"text1", key2:"text2", ...]
+
+	if (matches = text.match(/Fckmw\d+fckmw/g)) { //Are there keys to be replaced.
+		is = matches.length;
+		//alert('commnets_qty:' + is + ' 1.key:' + matches[0] + ' value:' + window.parent.fck_mv_plg_strtr_span[matches[0]]);			
+		for (i = 0; i < is; i++ ) { // Replace each key with original text.
+			// comments are directly in the main key FckmwXfckmw
+			if ( (typeof window.parent.fck_mv_plg_strtr_span[matches[i]] != 'undefined' ) &&
+				 (window.parent.fck_mv_plg_strtr_span[matches[i]].substr(0, 4) == '<!--') ) {
+				text = text.replace( matches[i],
+									 window.parent.fck_mv_plg_strtr_span[matches[i]]);
+			}			
+			else if (typeof window.parent.fck_mv_plg_strtr_span['href="' + matches[i] + '"'] != 'undefined') {
+				text = text.replace( matches[i],
+									 window.parent.substr(fck_mv_plg_strtr_span['href="' + matches[i] + '"'], 6, -1) );
+			}
+		}
+	}
+	return text;
+}
+
+function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL 
+	// For html->wikitext, based on fck_replaceHTMLcomments.
+
+	window.parent.fck_mv_plg_strtr_span = [];
+	window.parent.fck_mv_plg_strtr_span_counter = 0;
+	
+	while( ( start = text.indexOf( '<!--' ) ) != -1 ) {
+	
+		end = text.indexOf( '-->', start + 4 );
+
+		if ( end == -1 ) {
+			// Unterminated comment; bail out
+			break;
+		}
+
+		end += 3;
+				
+		// Trim space and newline if the comment is both
+		// preceded and followed by a newline
+		spaceStart = Math.max( start - 1, 0 );
+		spaceLen = end - spaceStart;
+
+		while( text.substr( spaceStart, 1 ) == ' ' && spaceStart > 0 ) {
+			spaceStart--;
+			spaceLen++;
+		}
+		while( text.substr( spaceStart + spaceLen, 1 ) == ' ' )
+			spaceLen++;
+
+		if( text.substr( spaceStart, 1 ) == "\n" && text.substr( spaceStart + spaceLen, 1 ) == "\n" ) {
+			// Remove the comment, leading and trailing
+			// spaces, and leave only one newline.
+			replacement = fck_mv_plg_addToStrtr( text.substr( spaceStart, spaceLen + 1 ), false );
+			// text = text.replace( replacement + "\n", spaceStart, spaceLen + 1 ); // From php -code
+			text = text.substr(0,spaceStart) + replacement + "\n" + text.substr(spaceStart + spaceLen + 1) ;
+		} else {
+			// Remove just the comment.
+			replacement = fck_mv_plg_addToStrtr( text.substr( start, end - start ), false );
+			// text = text.replace( replacement, start, end - start ); // From php -code
+			text = text.substr(0,start) + replacement + text.substr(end) ;
+		}
+	}
+	return text;
+}
+
 CKEDITOR.customprocessor = function( editor )
 {
    this.editor = editor;
@@ -1014,7 +1124,7 @@ CKEDITOR.customprocessor.prototype =
 	 *            for human reading. Not all Data Processors may provide it.
 	 */
 	toDataFormat : function( data, fixForBody ){
-
+		
         if ( (window.parent.showFCKEditor &&
              !(window.parent.showFCKEditor & window.parent.RTE_VISIBLE)) )
              return window.parent.document.getElementById(window.parent.wgCKeditorInstance.name).value;
@@ -1027,7 +1137,7 @@ CKEDITOR.customprocessor.prototype =
 		if (CKEDITOR.env.ie) {
 			data = this.ieFixHTML(data);
 		}
-
+		
         data = '<body xmlns:x="http://excel">' + data.htmlEntities()+ '</body>';
         // fix <img> tags
         data = data.replace(/(<img[^>]*)([^/])>/gi, '$1$2/>' );
@@ -1047,32 +1157,52 @@ CKEDITOR.customprocessor.prototype =
         // 06.04.14 Varlin: remove <wbr> tags that causes parser to crash
         data = data.replace(/<wbr>/gi, '' );
 
+		// Replace html comments by "Fckmw<id>fckmw" -keys (where <id>=0,1,2..) 
+		// so that possible incomplete xml structure of commented block
+		// will not prevent page handling (f.ex <!-- 1. incomplete html comment -- <!-- 2. complete html comment -->)
+		// MW seems to work like this with wikitext -> html conversion.
+	    data = fck_mw_plg_replaceHTMLcomments( data ); //16.01.14 RL
+
         var rootNode = this._getNodeFromHtml( data );
+		if ( !rootNode ) return false; //16.01.14 RL IE catches some exeptions with page
+
 		// rootNode is <body>.
 		// Normalize the document for text node processing (except IE - #1586).
-
 		if ( !CKEDITOR.env.ie ) {
 			rootNode.normalize();
         }
 
 		var stringBuilder = new Array();
 		this._AppendNode( rootNode, stringBuilder, '' );  
-		return stringBuilder.join( '' ).Trim();
+
+		// Restore original html comments from "Fckmw<id>fckmw" -keys.
+		return fck_mv_plg_revertEncapsulatedString( stringBuilder.join( '' ).Trim() ); //16.01.15 RL
+		// return stringBuilder.join( '' ).Trim();  //16.01.15 RL Commented out
 	},
 
     _getNodeFromHtml : function( data ) {
-        if (window.DOMParser) {
+        if (window.DOMParser) {  // all browsers, except IE before version 9
             parser=new DOMParser();
-            var xmlDoc=parser.parseFromString(data,"text/xml");
+            try {         // 16.01.15 RL
+                var xmlDoc=parser.parseFromString(data,"text/xml");
+            } catch (e) { // 16.01.15 RL
+                // not well-formed text raises an exception in IE from version 9, others let it continue
+                alert ("XML parsing error [ plugin.js->_getNodeFromHtml (if) ]");
+                return false;
+			};
         }
-        else // Internet Explorer
+        else // Internet Explorer before version 9
         {
             data = this.ieFixHTML(data);
-            var xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-            xmlDoc.async="false";
+			try {         // 16.01.15 RL
+                var xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+            } catch (e) { // 16.01.15 RL
+                alert ("XML parsing error [ plugin.js->_getNodeFromHtml (else) ]");
+                return false;                
+            }
+			xmlDoc.async="false";
             xmlDoc.loadXML(data);
         }
-
         var rootNode = xmlDoc.documentElement;
         return rootNode;
     },
@@ -1301,8 +1431,8 @@ CKEDITOR.customprocessor.prototype =
 								href = htmlNode.getAttribute( 'href' ) || '';
 							}
 							
-							href = decodeURIComponent(href); //26.11.14 RL Decode here because hrefTypeRegexp below does not work with optional url encoded chars in the middle.
-							
+							href = decodeURIComponent(href); //26.11.14 RL Decode here because hrefTypeRegexp below does not always work with optional url encoded chars in the middle.
+
 							//fix: Issue 14792 - Link with anchor is changed
 							//hrefType is a substring of href from the beginning until the colon.
 							//it consists only of alphanumeric chars and optional url encoded chars in the middle.
@@ -1353,7 +1483,10 @@ CKEDITOR.customprocessor.prototype =
 								href = href.substring(8);
 							}
 
-                            //if ( isWikiUrl ) href = decodeURIComponent(href); //26.11.14 RL Already done abowe
+                            //if ( isWikiUrl ) href = decodeURIComponent(href); //26.11.14 RL Already done above
+							if ( !isWikiUrl ) href = href.replace(/ /g,'%20');  //24.01.15 RL http link may contain spaces, keep them.
+							else href = href.replace(/ /g,'_');                 //24.01.15 RL Internal links spaces are converted to underscores. 
+								
 							stringBuilder.push( href );
 
                             var innerHTML = this._GetNodeText(htmlNode)
@@ -1837,7 +1970,7 @@ CKEDITOR.customprocessor.prototype =
 					stringBuilder.push( htmlNode.nodeValue );
 				} catch( e ) { /* Do nothing... probably this is a wrong format comment. */ }
 
-				stringBuilder.push( "-->" );
+				stringBuilder.push( "-->" );							
 				return;
 		}
 	},

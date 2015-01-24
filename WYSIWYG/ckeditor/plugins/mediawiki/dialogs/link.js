@@ -152,7 +152,7 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
 
             onOk : function() {
                 var e = this.getContentElement( 'mwLinkTab1', 'linkTarget'),
-                    link = e.getValue().Trim().replace(/ /g, '_'); 
+					link = e.getValue().Trim();  //24.01.15 RL Removed .replace(/ /g, '_');
 
 				var redir = this.getContentElement( 'mwLinkTab1', 'linkAsRedirect').getValue(); //01.03.14 RL
                 if ( redir == true ) editor.insertHtml( '#REDIRECT ' );                         //01.03.14 RL
