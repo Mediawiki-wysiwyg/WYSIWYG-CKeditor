@@ -489,7 +489,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             manyCategoryFound   : ' kpl'                                      //' categories found',			  //09.01.14 RL
 		} //07.01.14 RL<-
 
-	MWpluginLang['fr'] = {
+	    MWpluginLang['fr'] = {
             invalidContent  : 'contenu invalide',
             searching       : 'recherche...',
             externalLink    : 'lien externe... pas de recherche',
@@ -556,7 +556,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound    : 'Une catégorie trouvée',
             manyCategoryFound   : ' catégories trouvées'
-	}
+	    }
 
         MWpluginLang['de'] = {
             invalidContent  : 'invalid content',
@@ -625,13 +625,16 @@ CKEDITOR.plugins.add( 'mediawiki',
             oneCategoryFound    : 'Eine Kategorie gefunden',
             manyCategoryFound   : ' Kategorien gefunden'
         }
+
+        // Define language for wysiwyg, editor.langCode is eq. to language of ckeditor
         if (typeof MWpluginLang[editor.langCode] != 'undefined' ) {
             editor.lang.mwplugin = MWpluginLang[editor.langCode];
-			CKEDITOR.lang[editor.langCode].fakeobjects['unknown'] = ''; //21.01.15 RL: Disable mouseover 'Unknown Object'" 
 		} else {
             editor.lang.mwplugin = MWpluginLang['en'];
-			CKEDITOR.lang['en'].fakeobjects['unknown'] = ''; //21.01.15 RL 
 		}
+		
+		// Disable mouseover 'Unknown Object'".
+		// CKEDITOR.lang[editor.langCode].fakeobjects['unknown'] = ''; 
 
         // define commands and dialogues
 
