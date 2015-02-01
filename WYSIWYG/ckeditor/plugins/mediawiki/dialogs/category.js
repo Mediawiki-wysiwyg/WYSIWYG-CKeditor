@@ -329,8 +329,8 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 											
 					//Are there any additional attributes used by html format?  
 					var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);
-					fakeElement.$.alt = category;
-					fakeElement.$.title = category;
+					fakeElement.$.alt = category.replace(/"/g,'');   //31.01.15 RL Replace quotes
+					fakeElement.$.title = category.replace(/"/g,''); //31.01.15 RL Replace quotes
 					editor.insertElement(fakeElement);
                 }
             },

@@ -257,11 +257,14 @@ class CKeditorLinker {
               }
 
               if( isset( $fp['alt'] ) && !empty( $fp['alt'] ) && $fp['alt'] != 'Image:' . $orginal ) {
-                      $ret .= "alt=\"" . htmlspecialchars( $fp['alt'] ) . "\" ";					  
-              } else if( isset( $fp['caption'] ) ) {                                 //22.12.14 RL 
-                      $ret .= "alt=\"" . htmlspecialchars( $fp['caption'] ) . "\" "; //22.12.14 RL (by Aarakast)            
+                      $ret .= "alt=\""  . htmlspecialchars( $fp['alt'] ) . "\" " 
+						   . "title=\"" . htmlspecialchars( $fp['alt'] ) . "\" ";     //31.01.15 RL
+              } else if( isset( $fp['caption'] ) ) {  //22.12.14 RL
+                      $ret .= "alt=\""  . htmlspecialchars( $fp['caption'] ) . "\" "  //22.12.14 RL (by Aarakast)
+						   . "title=\"" . htmlspecialchars( $fp['caption'] ) . "\" "; //31.01.15 RL
               } else {
-                      $ret .= "alt=\"\" ";
+                      $ret .= "alt=\"\" " 
+                           . "title=\"\" "; //31.01.15 RL
               }
 
               if( $class ) {
@@ -284,15 +287,15 @@ class CKeditorLinker {
               return false;
       }
 
-      static function makeExternalLink( $url, $text, &$link, &$attribs, $linktype ) {               
-
+      static function makeExternalLink( $url, $text, &$link, &$attribs, $linktype ) {
+		  
 			  $url = htmlspecialchars( $url );
               
 			  // Following html encoding of $text destroys formats inside link text (italic, bold, underline) 
 			  // f.ex. [http://test.com ''bbb''] => <a href="http://test.com"><i>bbb<i></a>.
 			  // If needed, encoding is parameter controlled action already in MW in Linker::makeExternalLink.
 			  // => 04.01.15 RL commented out (by vadamovsky) 
-              //$text = htmlspecialchars( $text );  
+              // $text = htmlspecialchars( $text );  
 			  
               $url = preg_replace( "/^RTECOLON/", ":", $url ); // change 'RTECOLON' => ':'
               
@@ -301,7 +304,8 @@ class CKeditorLinker {
                       $args .= '_fcknotitle="true" ';
                       $text = $url;
               }
-              $link= '<a ' . $args . 'href="' . $url . '">' . $text . '</a>';
+              //$link= '<a ' . $args . 'href="' . $url . '">' . $text . '</a>'; //31.01.15 RL: Added alt + title
+			  $link= '<a ' . $args . 'href="' . $url . '" alt="' . $url . '" title="' . $url . '">' . $text . '</a>';
 
               return false;
       }

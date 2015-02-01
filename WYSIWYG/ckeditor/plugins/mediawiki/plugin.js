@@ -264,7 +264,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                                 if (className) {
                                     var result = editor.createFakeParserElement(element, className, 'span');
                                     if (className == "FCK__MWCategory") {
-                                        result.attributes.alt = element.children[0].value;
+                                        result.attributes.alt = element.children[0].value.replace(/&quot;/g,''); //31.01.15 RL Quotes cause problems
                                         result.attributes.title = result.attributes.alt;
                                     }
                                     return result;
@@ -416,8 +416,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			categorySort        : 'Sortkey within category',                      //07.01.14 RL
 			noCategoryFound     : 'Not found, category is new',                   //09.01.14 RL
             oneCategoryFound    : 'One category found',						      //09.01.14 RL
-            manyCategoryFound   : ' categories found'						      //09.01.14 RL
-
+            manyCategoryFound   : ' categories found',                            //09.01.14 RL
+			mouseOverUnknownObj : 'Double-click to edit the value'                //31.01.15 RL
 		}
 
         MWpluginLang['fi'] = {  //07.01.14 RL->
@@ -484,9 +484,10 @@ CKEDITOR.plugins.add( 'mediawiki',
             categorySelected    : 'Sivu lisätään luokkiin:',                  //'Selected categories for the page:'  //20.01.15 RL
             selfromCategoryList : 'Valitse luokka listalta:',                 //'Select category for the page //20.01.15 RL
 			categorySort        : 'Lajitteluavain luokan sisällä:',           //'Sortkey within category'
-			noCategoryFound     : 'Luokkaa ei löydy, se on uusi',             //'no category found'			  //09.01.14 RL
+			noCategoryFound     : 'Luokkaa ei löydy, se on uusi',             //'no category found'			     //09.01.14 RL
             oneCategoryFound    : 'Yksi luokka löytyi',                       //'one category found',            //09.01.14 RL
-            manyCategoryFound   : ' kpl'                                      //' categories found',			  //09.01.14 RL
+            manyCategoryFound   : ' kpl',                                     //' categories found',			 //09.01.14 RL
+			mouseOverUnknownObj : 'Tuplaklikkaa editoidaksesi arvoa'          //'Double-click to edit the value' //31.01.15 RL
 		} //07.01.14 RL<-
 
 	    MWpluginLang['fr'] = {
@@ -555,7 +556,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			categorySort	: 'categorySort',
 			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound    : 'Une catégorie trouvée',
-            manyCategoryFound   : ' catégories trouvées'
+            manyCategoryFound   : ' catégories trouvées',
+			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein' //'Double-click to edit the value' //31.01.15 RL
 	    }
 
         MWpluginLang['de'] = {
@@ -623,7 +625,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             categorySort        : 'Sortierungsschlüssel innerhalb Kategorie',
             noCategoryFound     : 'Nicht gefunden, neue Kategorie',
             oneCategoryFound    : 'Eine Kategorie gefunden',
-            manyCategoryFound   : ' Kategorien gefunden'
+            manyCategoryFound   : ' Kategorien gefunden',
+			mouseOverUnknownObj : 'Double-cliquez sur pour modifier la valeur' //'Double-click to edit the value' //31.01.15 RL			
         }
 
         // Define language for wysiwyg, editor.langCode is eq. to language of ckeditor
@@ -633,8 +636,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             editor.lang.mwplugin = MWpluginLang['en'];
 		}
 		
-		// Disable mouseover 'Unknown Object'".
-		// CKEDITOR.lang[editor.langCode].fakeobjects['unknown'] = ''; 
+		// Change mouseover text 'Unknown Object'" to "Double-click to edit the value' with elements.
+		CKEDITOR.lang[editor.langCode].fakeobjects['unknown'] = editor.lang.mwplugin.mouseOverUnknownObj; //31.01.15 RL
 
         // define commands and dialogues
 
