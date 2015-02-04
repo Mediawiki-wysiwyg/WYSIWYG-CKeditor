@@ -604,6 +604,8 @@ var RTE_POPUP = ' . RTE_POPUP . ';
 var wgCKeditorInstance = null;
 var wgCKeditorCurrentMode = "wysiwyg";
 var editorForceReadOnly = false; //12.01.15 RL To disable source button and toggle link for prolonged time.
+var fck_mv_plg_strtr_span = []; //16.01.15 RL
+var fck_mv_plg_strtr_span_counter = 0; //16.01.15 RL
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
 

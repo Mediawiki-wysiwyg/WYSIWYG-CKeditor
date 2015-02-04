@@ -94,6 +94,7 @@ class CKeditorLinker {
          * @return String: HTML for an image, with links, wrappers, etc.
        */
       static function makeImageLink2( $skin, Title $nt, $file, $frameParams = array(), $handlerParams = array(), $time, &$ret ) {	          
+			  global $IP, $wgUploadDirectory;
 			  $orginal = $nt->getText();
               $file = RepoGroup::singleton()->getLocalRepo()->newFile( $nt );
               $found = $file->exists();
@@ -140,7 +141,20 @@ class CKeditorLinker {
 							[bits] => 8
 							[mime] => image/png
 					  **/
-					  $imgSize = getimagesize( dirname(__FILE__) . '/../../..' . $url); //30.12.14 RL
+					  if ($type == 'image') {
+						  // 22.01.15 RL Check also $wgUploadDirectory
+						  // '/..' tests are because of case where $url depends somehow on local configuration or possible filesystem links.
+						  if     ( isset($wgUploadDirectory) && file_exists($wgUploadDirectory . '/..' . $url) ) $imgDir = $wgUploadDirectory . '/..';
+						  elseif ( isset($wgUploadDirectory) && file_exists($wgUploadDirectory .         $url) ) $imgDir = $wgUploadDirectory;
+						  elseif ( isset($IP) && file_exists($IP . '/..' . $url) ) $imgDir = $IP . '/..';
+						  elseif ( isset($IP) && file_exists($IP .         $url) ) $imgDir = $IP;
+						  else {
+							  $imgDir = '';
+							  error_log(sprintf("ERROR: Image file not found! IP:%s url:%s", $IP, $url) );
+							  if ( isset($wgUploadDirectory) ) error_log(sprintf("ERROR: Image file not found! wgUploadDirectory:%s", $wgUploadDirectory));
+						  }
+						  if ( $imgDir != '' ) $imgSize = getimagesize( $imgDir . $url ); 
+					  }					  
               } else {
                       $ret .= "_fck_mw_valid=\"false"."\" ";
               }
@@ -173,7 +187,7 @@ class CKeditorLinker {
 						$imgHeight = $hp['height'];     //30.12.14 RL
 					}
 					
-					/**31.12.14 RL*** MW does not necessarily need both width and height info of image so we do nto use this. 
+					/**31.12.14 RL*** MW does not necessarily need both width and height info of image so we do not use this. 
 					
 					// F.ex. [[image:picture.png|none|120px]] => missing value is then calculated automatically by MW.
 					// In case we want size to be displayed in image dialog calculate missing proportional values here:
@@ -205,7 +219,7 @@ class CKeditorLinker {
 				    $ret .= "height=\"" . $imgHeight . "\" "; //10.01.14 RL To resize image properly in edit mode of wysiwyg
               }                                               //30.12.14 RL<-
 			  
-			  if ( $found ) {                                 //30.12.14 RL->  
+			  if ( $found && $type == 'image' && $imgDir != '' ) { //22.01.15 RL  //30.12.14 RL->  
 			        //Inform image dialog about original size of the image
 			        $ret .= "_fck_mw_origimgwidth=\"" . $imgSize['0'] . "\" _fck_mw_origimgheight=\"" . $imgSize['1'] . "\" ";
               }                                               //30.12.14 RL<-
@@ -243,11 +257,14 @@ class CKeditorLinker {
               }
 
               if( isset( $fp['alt'] ) && !empty( $fp['alt'] ) && $fp['alt'] != 'Image:' . $orginal ) {
-                      $ret .= "alt=\"" . htmlspecialchars( $fp['alt'] ) . "\" ";					  
-              } else if( isset( $fp['caption'] ) ) {                                 //22.12.14 RL 
-                      $ret .= "alt=\"" . htmlspecialchars( $fp['caption'] ) . "\" "; //22.12.14 RL (by Aarakast)            
+                      $ret .= "alt=\""  . htmlspecialchars( $fp['alt'] ) . "\" " 
+						   . "title=\"" . htmlspecialchars( $fp['alt'] ) . "\" ";     //31.01.15 RL
+              } else if( isset( $fp['caption'] ) ) {  //22.12.14 RL
+                      $ret .= "alt=\""  . htmlspecialchars( $fp['caption'] ) . "\" "  //22.12.14 RL (by Aarakast)
+						   . "title=\"" . htmlspecialchars( $fp['caption'] ) . "\" "; //31.01.15 RL
               } else {
-                      $ret .= "alt=\"\" ";
+                      $ret .= "alt=\"\" " 
+                           . "title=\"\" "; //31.01.15 RL
               }
 
               if( $class ) {
@@ -270,8 +287,8 @@ class CKeditorLinker {
               return false;
       }
 
-      static function makeExternalLink( $url, $text, &$link, &$attribs, $linktype ) {               
-              
+      static function makeExternalLink( $url, $text, &$link, &$attribs, $linktype ) {
+		  
 			  $url = htmlspecialchars( $url );
               
 			  // Following html encoding of $text destroys formats inside link text (italic, bold, underline) 
@@ -287,7 +304,8 @@ class CKeditorLinker {
                       $args .= '_fcknotitle="true" ';
                       $text = $url;
               }
-              $link= '<a ' . $args . 'href="' . $url . '">' . $text . '</a>';
+              //$link= '<a ' . $args . 'href="' . $url . '">' . $text . '</a>'; //31.01.15 RL: Added alt + title
+			  $link= '<a ' . $args . 'href="' . $url . '" alt="' . $url . '" title="' . $url . '">' . $text . '</a>';
 
               return false;
       }

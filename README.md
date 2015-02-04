@@ -35,6 +35,14 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 02.02.15  Fix with new category dialog in case name of category contains double quotes. Show text "Double-click to edit the value" with editable elements in wysiwyg mode. Show link target as tooltip with external links. Show text of caption as tooltip with images. Version: 1.5.6_0 [B551+02.02.2015].
+
+- 31.01.15  Removed modification "disabled unknown object message of CKeditor" which is not needed after new category dialog. Version: 1.5.6_0 [B551+31.01.2015].
+
+- 24.01.15  Created new branch "CKeditor_v4_HtmlComments": fix for html comment -tags when commented block contains incomplete html code, catch exceptions in _getNodeFromHtml; fix for location of image file when defining original size of image; disabled unknown object message of CKeditor; fix for spaces in external link. Version: 1.5.6_0 [B551+24.01.2015].
+
+- 24.01.15  Merged branch "CKeditor_v4_Category" to "CKeditor_v4" (=new dialog for category definitions). Version: 1.5.6_0 [B551+23.01.2015].
+
 - 23.01.15  Fixed doubleclick problem with selection lists in new dialog of categories (by DavidBeaumier). Version: 1.5.6_0 [B551+23.01.2015].
 
 - 22.01.15  Merged tooltip modifications of new category -dialog (by DavidBeaumier). Version: 1.5.6_0 [B551+22.01.2015].

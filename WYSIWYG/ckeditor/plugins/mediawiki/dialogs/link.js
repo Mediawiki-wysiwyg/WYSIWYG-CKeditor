@@ -151,8 +151,9 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
             ],
 
             onOk : function() {
-                var e = this.getContentElement( 'mwLinkTab1', 'linkTarget'),
-                    link = e.getValue().Trim().replace(/ /g, '_'); 
+                var e       = this.getContentElement( 'mwLinkTab1', 'linkTarget'),
+					link    = e.getValue().Trim(),  //24.01.15 RL Removed .replace(/ /g, '_');
+					tooltip = link.replace(/"/g,''); //31.01.15 RL
 
 				var redir = this.getContentElement( 'mwLinkTab1', 'linkAsRedirect').getValue(); //01.03.14 RL
                 if ( redir == true ) editor.insertHtml( '#REDIRECT ' );                         //01.03.14 RL
@@ -160,7 +161,8 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
 				var linkasmedia = this.getContentElement( 'mwLinkTab1', 'linkAsMedia').getValue();               //09.05.14 RL
 				if ( (linkasmedia == true) && !(/^[mM][eE][dD][iI][aA]:/.test( link )) ) link = 'Media:' + link; //09.05.14 RL
 				
-				var attributes = {href : link, _cke_saved_href : link};                           
+				var attributes = {href : link, _cke_saved_href : link, 
+								  alt : tooltip, title : tooltip}; //31.01.15 RL "mouseover" -text
 
 				//Related to CKeditor Ticket #8493, 8719.patch: IE needs focus sent back to the parent document if a dialog is launched.
 				if ( CKEDITOR.env.ie ) editor.focus(); //05.03.14 RL Needed with IE to merge link text with selected text of page.				

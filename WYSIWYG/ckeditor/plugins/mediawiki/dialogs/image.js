@@ -343,13 +343,18 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 							commit : function( type, element ) {
 								if ( type == IMAGE ) {
 									if ( this.getValue() || this.isChanged() ) {
-										element.setAttribute( 'alt', this.getValue() );
+										element.setAttribute( 'alt',   this.getValue() );
+										element.setAttribute( 'title', this.getValue() ); //31.01.15 RL
                                     }
 								}
-								else if ( type == PREVIEW )
-									element.setAttribute( 'alt', this.getValue() );
-								else if ( type == CLEANUP )
+								else if ( type == PREVIEW ) {
+									element.setAttribute( 'alt',   this.getValue() );
+									element.setAttribute( 'title', this.getValue() ); //31.01.15 RL
+								}
+								else if ( type == CLEANUP ) {
 									element.removeAttribute( 'alt' );
+									element.removeAttribute( 'title' ); //31.01.15 RL
+								}
 							}
                         },
                        { //31.12.14 RL
