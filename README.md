@@ -35,6 +35,10 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 05.02.14  Created branch "CKeditor_v4_preTag" for tests of pre -tag etc. Version: 1.5.6_0 [B551++02.02.2015].
+
+- 04.02.15  Merged branch "CKeditor_v4_HtmlComments" to "CKeditor_v4". Version: 1.5.6_0 [B551+02.02.2015].
+
 - 02.02.15  Fix with new category dialog in case name of category contains double quotes. Show text "Double-click to edit the value" with editable elements in wysiwyg mode. Show link target as tooltip with external links. Show text of caption as tooltip with images. Version: 1.5.6_0 [B551+02.02.2015].
 
 - 31.01.15  Removed modification "disabled unknown object message of CKeditor" which is not needed after new category dialog. Version: 1.5.6_0 [B551+31.01.2015].

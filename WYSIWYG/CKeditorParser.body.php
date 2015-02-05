@@ -412,6 +412,10 @@ class CKeditorParser extends CKeditorParserWrapper {
 				$tagName = strtolower( $element );
 				wfProfileIn( __METHOD__ . "-render-$tagName" );
 				switch( $tagName ) {
+					case 'pre-rchouine':
+						// Keep original data, replace all inner tags to avoid further interpretation //04.02.15 RL (by rchouine)
+						$output = '<pre>' . htmlentities($content) . '</pre>';
+						break;
 					case '!--':
 						// Comment
 						if( substr( $tag, -3 ) == '-->' ) {
@@ -464,6 +468,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 						//$output = $this->renderImageGallery( $content, $params );
 						break;
 					default: //case 'calendar': case 'poll':  ..etc...                   //17.11.14 RL 
+						$content = str_replace( ' ', 'fckSPACE', $content );             //04.02.15 RL fckSPACE
 						$output = $this->fck_wikiTag( $tagName, $content, $params );     //17.11.14 RL  
 
 						//$this->fck_mw_taghook = $tagName;                              //17.11.14 RL->This works too, but is ~3 times slower

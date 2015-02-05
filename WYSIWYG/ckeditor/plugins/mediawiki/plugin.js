@@ -1791,7 +1791,7 @@ CKEDITOR.customprocessor.prototype =
                                                 stringBuilder.push( attribs ) ;
 
                 							stringBuilder.push( '>' ) ;
-                                			stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '') );
+                                			stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
                                             stringBuilder.push( '<\/' + tagName + '>' ) ;
 
 								            break;
@@ -1805,11 +1805,11 @@ CKEDITOR.customprocessor.prototype =
 								        case 'p' :
 								            stringBuilder.push( '{{' + tagName );
 								            if (this._GetNodeText(htmlNode).length > 0)
-								                stringBuilder.push( ':' + this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '') );
+								                stringBuilder.push( ':' + this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
 								            stringBuilder.push( '}}');
 								            break;
                                         case 'sf' :
-                                            stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
+                                            stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
                                             break;
 								    }
 								    return;
@@ -1888,7 +1888,7 @@ CKEDITOR.customprocessor.prototype =
 									stringBuilder.push( '>' );
 								}
 							}
-
+							
 							break;
 						default :
                             this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix )
