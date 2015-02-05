@@ -412,9 +412,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 				$tagName = strtolower( $element );
 				wfProfileIn( __METHOD__ . "-render-$tagName" );
 				switch( $tagName ) {
-					case 'pre-rchouine':
+					case 'pre':
 						// Keep original data, replace all inner tags to avoid further interpretation //04.02.15 RL (by rchouine)
-						$output = '<pre>' . htmlentities($content) . '</pre>';
+                        $strParams = '';
+                        foreach( $params as $key => $value ) {
+                            $strParams .= " " . $key . "=\"" . $value . "\"";				
+                        }
+						$output = '<pre' . $strParams . '>' . htmlentities($content) . '</pre>';
 						break;
 					case '!--':
 						// Comment
