@@ -407,18 +407,33 @@ class CKeditorParser extends CKeditorParserWrapper {
 		}
 
 		foreach( $matches as $marker => $data ) {
+			global $wgFCKEditorSpecialElementWithPreTag;
 			list( $element, $content, $params, $tag ) = $data;
 			if( $render ) {
 				$tagName = strtolower( $element );
 				wfProfileIn( __METHOD__ . "-render-$tagName" );
 				switch( $tagName ) {
 					case 'pre':
-						// Keep original data, replace all inner tags to avoid further interpretation //04.02.15 RL (by rchouine)
-                        $strParams = '';
-                        foreach( $params as $key => $value ) {
-                            $strParams .= " " . $key . "=\"" . $value . "\"";				
-                        }
-						$output = '<pre' . $strParams . '>' . htmlentities($content) . '</pre>';
+						// Keep original data, replace all inner tags to avoid further interpretation
+						$strParams = '';
+						foreach( $params as $key => $value ) { //04.02.15 rchouine
+							$strParams .= " " . $key . "=\"" . $value . "\"";				
+						}
+						// Variable wgFCKEditorSpecialElementWithPreTag in LocalSettings.php can be used to customise pre- tag handling
+						if ( isset($wgFCKEditorSpecialElementWithPreTag) && $wgFCKEditorSpecialElementWithPreTag == 1 ) {
+							// Use special- element with pre- tags if there are attributes included.
+							if ( empty($strParams) ) { 
+							    // No attributes, show text directly in wysiwyg
+								$output = '<pre' . $strParams . '>' . htmlentities($content) . '</pre>'; 
+							} else { // pre- tags with attributes are displayed as special- element
+								$content = str_replace( ' ', 'fckSPACE', $content );
+								$output = $this->fck_wikiTag( $tagName, $content, $params );
+							}
+						} else {
+							// Put text with pre- tags always directly into wysiwyg window. 
+							// Possible attributes of pre tag are not supported by CKeditor text format buttons.
+							$output = '<pre' . $strParams . '>' . htmlentities($content) . '</pre>'; //04.02.15 rchouine
+						}
 						break;
 					case '!--':
 						// Comment

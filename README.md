@@ -35,7 +35,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 05.02.14  Created branch "CKeditor_v4_preTag" for tests of pre -tag etc. Version: 1.5.6_0 [B551++02.02.2015].
+- 05.02.14  Created branch "CKeditor_v4_preTag" for tests of pre -tag etc and merged modifications of pre- tag (by rchouine). Fixed text corruption with sequential pre- tags. Use special element with pre- tags in case $wgFCKEditorSpecialElementWithPreTag = 1 in LocalSettings.php. Fixed extra line break with magic words like __TOC__ etc. Version: 1.5.6_0 [B551+05.02.2015].
 
 - 04.02.15  Merged branch "CKeditor_v4_HtmlComments" to "CKeditor_v4". Version: 1.5.6_0 [B551+02.02.2015].
 
@@ -270,7 +270,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 -----------------
 **File: LocalSettings.php**
 
-Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together.
+Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together. Activation of wysiwyg -extension using require_once( ... ) should be the last of all extensions in your LocalSettings.pgp so that wysiwyg will know all possible tag names of other extensions.
 
 
     #13.11.13->
@@ -370,8 +370,8 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.x - 33.x)
-- Chrome  (v.32.x, v.38.x)
+- FireFox (v26.x - 35.x)
+- Chrome  (v.32.x, v.40.x)
 
 - Recommended browser: FireFox
 

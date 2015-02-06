@@ -853,11 +853,11 @@ CKEDITOR.plugins.add( 'mediawiki',
 			} 
 		)
 
-		/**		
+		/**
 		editor.on( 'contentDom', function () //21.01.15 RL 
 			{
 				editor.editable().attachListener( this.fakeObj, 'click', function() {
-						alert('test');
+						//alert('test');
 					} 
 				);
 			} 
@@ -927,7 +927,8 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 		window.parent.editorForceReadOnly = false;
 		editor.commands.source.enable(); //This is here on purpose			
 		//editor.setReadOnly( false ); //Seems to crash in this call!!! ...
-		editor.readOnly = false;       //...use this as temporary fix, undo-redo buttons won't work
+		editor.readOnly = false;       //...use this as temporary fix, undo-, redo-, text and bg.color- buttons won't work
+
 		if ( oToggleLink ) {
 			oToggleLink.style.visibility = '';
 			if ( editor.mode == 'wysiwyg' ) 
@@ -1776,7 +1777,7 @@ CKEDITOR.customprocessor.prototype =
 									return;
 								case 'fck_mw_magic' :
                                     var magicWord = htmlNode.getAttribute( '_fck_mw_tagname' ) || '';
-                                    if ( magicWord ) stringBuilder.push( '__' + magicWord + '__\n' );
+                                    if ( magicWord ) stringBuilder.push( '__' + magicWord + '__' ); //04.02.15 RL Was + '__\n' = unnecessary extra line break
 									return;
 
                                 case 'fck_mw_special' :
@@ -1886,9 +1887,10 @@ CKEDITOR.customprocessor.prototype =
 									stringBuilder.push( '<\/' );
 									stringBuilder.push( sNodeName );
 									stringBuilder.push( '>' );
+
+									stringBuilder.push( "\n" );  //04.02.14 RL Required by sequential pre- tags.
 								}
 							}
-							
 							break;
 						default :
                             this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix )
