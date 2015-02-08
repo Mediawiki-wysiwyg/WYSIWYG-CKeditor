@@ -177,6 +177,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
+			/***
 			'span.fck_mw_category' +    //07.01.14 RL Original element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
@@ -185,6 +186,12 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'background-color: #94b0f3;' +
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
+			'}\n' +
+			****/
+			'pre' +  //08.02.15 RL For paragraph format "Formatted" of CKeditor which is using <pre> -tag
+			'{' +
+				'background-color:rgb(245,245,245);' + 
+				'border: 1px solid rgb(224,224,224);' +
 			'}\n';
         return str;
     },
