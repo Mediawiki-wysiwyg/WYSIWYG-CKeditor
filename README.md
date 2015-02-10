@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 10.02.15  Fixed activation of undo/redo buttons when switching from source to wysiwyg view.  Version: 1.5.6_0 [B551+10.02.2015].
+
 - 08.02.15  Show paragraph format "Formatted" with light grey background. Version: 1.5.6_0 [B551+08.02.2015].
 
 - 05.02.14  Created branch "CKeditor_v4_preTag" for tests of pre -tag etc and merged modifications of pre- tag (by rchouine). Fixed text corruption with sequential pre- tags. Use special element with pre- tags in case $wgFCKEditorSpecialElementWithPreTag = 1 in LocalSettings.php. Fixed extra line break with magic words like __TOC__ etc. Version: 1.5.6_0 [B551+05.02.2015].

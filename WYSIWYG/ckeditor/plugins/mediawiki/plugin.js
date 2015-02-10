@@ -873,6 +873,15 @@ CKEDITOR.plugins.add( 'mediawiki',
     }
 });
 
+/**
+function printObject(o) { //For debug purposes
+  var out = '';
+  for (var p in o) {
+    out += p + ': ' + o[p] + '\n';
+  }
+  alert(out);
+}
+**/
 
 function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button and toggle link
 
@@ -915,6 +924,7 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 
 	if ( mode == '' ) mode = 'wysiwyg'; //In source->wysiwyg direction wysiwyg may not be ready yet => force mode
 
+	
 	for ( var name in editor.commands ) {
 		command = editor.commands[name];
 		//command.disable();  //command.enable();
@@ -933,8 +943,13 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 	} else {	
 		window.parent.editorForceReadOnly = false;
 		editor.commands.source.enable(); //This is here on purpose			
-		//editor.setReadOnly( false ); //Seems to crash in this call!!! ...
-		editor.readOnly = false;       //...use this as temporary fix, undo-, redo-, text and bg.color- buttons won't work
+
+		//editor.setReadOnly( false ); //This seems to crash for some reason! => other plugins will not react to cancel of read-only mode
+		editor.readOnly = false;                           //...use this as temporary fix, but ...
+		if ( typeof editor.undoManager !== 'undefined' ) { //.. in case undo plugin is enabled we have to manually... //10.02.15 RL->
+			editor.undoManager.enabled = true;             //...enable undo/redo functions after canceling of read-only mode... 
+			editor.undoManager.reset();                    //...and clear old undo snapshots. //10.02.15 RL<-
+		}
 
 		if ( oToggleLink ) {
 			oToggleLink.style.visibility = '';
