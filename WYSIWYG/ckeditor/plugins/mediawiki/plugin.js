@@ -177,6 +177,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
+			/***
 			'span.fck_mw_category' +    //07.01.14 RL Original element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
@@ -185,6 +186,12 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'background-color: #94b0f3;' +
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
+			'}\n' +
+			****/
+			'pre' +  //08.02.15 RL For paragraph format "Formatted" of CKeditor which is using <pre> -tag
+			'{' +
+				'background-color:rgb(245,245,245);' + 
+				'border: 1px solid rgb(224,224,224);' +
 			'}\n';
         return str;
     },
@@ -853,11 +860,11 @@ CKEDITOR.plugins.add( 'mediawiki',
 			} 
 		)
 
-		/**		
+		/**
 		editor.on( 'contentDom', function () //21.01.15 RL 
 			{
 				editor.editable().attachListener( this.fakeObj, 'click', function() {
-						alert('test');
+						//alert('test');
 					} 
 				);
 			} 
@@ -866,6 +873,15 @@ CKEDITOR.plugins.add( 'mediawiki',
     }
 });
 
+/**
+function printObject(o) { //For debug purposes
+  var out = '';
+  for (var p in o) {
+    out += p + ': ' + o[p] + '\n';
+  }
+  alert(out);
+}
+**/
 
 function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button and toggle link
 
@@ -908,6 +924,7 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 
 	if ( mode == '' ) mode = 'wysiwyg'; //In source->wysiwyg direction wysiwyg may not be ready yet => force mode
 
+	
 	for ( var name in editor.commands ) {
 		command = editor.commands[name];
 		//command.disable();  //command.enable();
@@ -926,8 +943,14 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 	} else {	
 		window.parent.editorForceReadOnly = false;
 		editor.commands.source.enable(); //This is here on purpose			
-		//editor.setReadOnly( false ); //Seems to crash in this call!!! ...
-		editor.readOnly = false;       //...use this as temporary fix, undo-redo buttons won't work
+
+		//editor.setReadOnly( false ); //This seems to crash for some reason! => other plugins will not react to cancel of read-only mode
+		editor.readOnly = false;                           //...use this as temporary fix, but ...
+		if ( typeof editor.undoManager !== 'undefined' ) { //.. in case undo plugin is enabled we have to manually... //10.02.15 RL->
+			editor.undoManager.enabled = true;             //...enable undo/redo functions after canceling of read-only mode... 
+			editor.undoManager.reset();                    //...and clear old undo snapshots. //10.02.15 RL<-
+		}
+
 		if ( oToggleLink ) {
 			oToggleLink.style.visibility = '';
 			if ( editor.mode == 'wysiwyg' ) 
@@ -1776,7 +1799,7 @@ CKEDITOR.customprocessor.prototype =
 									return;
 								case 'fck_mw_magic' :
                                     var magicWord = htmlNode.getAttribute( '_fck_mw_tagname' ) || '';
-                                    if ( magicWord ) stringBuilder.push( '__' + magicWord + '__\n' );
+                                    if ( magicWord ) stringBuilder.push( '__' + magicWord + '__' ); //04.02.15 RL Was + '__\n' = unnecessary extra line break
 									return;
 
                                 case 'fck_mw_special' :
@@ -1791,7 +1814,7 @@ CKEDITOR.customprocessor.prototype =
                                                 stringBuilder.push( attribs ) ;
 
                 							stringBuilder.push( '>' ) ;
-                                			stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '') );
+                                			stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
                                             stringBuilder.push( '<\/' + tagName + '>' ) ;
 
 								            break;
@@ -1805,11 +1828,11 @@ CKEDITOR.customprocessor.prototype =
 								        case 'p' :
 								            stringBuilder.push( '{{' + tagName );
 								            if (this._GetNodeText(htmlNode).length > 0)
-								                stringBuilder.push( ':' + this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '') );
+								                stringBuilder.push( ':' + this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
 								            stringBuilder.push( '}}');
 								            break;
                                         case 'sf' :
-                                            stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
+                                            stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
                                             break;
 								    }
 								    return;
@@ -1886,9 +1909,10 @@ CKEDITOR.customprocessor.prototype =
 									stringBuilder.push( '<\/' );
 									stringBuilder.push( sNodeName );
 									stringBuilder.push( '>' );
+
+									stringBuilder.push( "\n" );  //04.02.14 RL Required by sequential pre- tags.
 								}
 							}
-
 							break;
 						default :
                             this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix )

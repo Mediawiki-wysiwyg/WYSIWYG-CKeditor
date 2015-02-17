@@ -26,7 +26,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 - history of modifications (in reverse order)
 - supported languages
 - version info of compatible components required with this extension and Mediawiki
-- short installation instructions (MediaWiki, WYSIWYG, WikiEditor, SemanticForms)
+- installation instructions (MediaWiki, WYSIWYG, WikiEditor, SemanticForms)
 - compatible browsers and browser settings
 
 ================
@@ -34,6 +34,14 @@ More information about MediaWiki extension WYSIWYG can be found here:
 ------------
 History of modifications:
 ===
+
+- 10.02.15  Fixed activation of undo/redo buttons when switching from source to wysiwyg view.  Version: 1.5.6_0 [B551+10.02.2015].
+
+- 08.02.15  Show paragraph format "Formatted" with light grey background. Version: 1.5.6_0 [B551+08.02.2015].
+
+- 05.02.14  Created branch "CKeditor_v4_preTag" for tests of pre -tag etc and merged modifications of pre- tag (by rchouine). Fixed text corruption with sequential pre- tags. Use special element with pre- tags in case $wgFCKEditorSpecialElementWithPreTag = 1 in LocalSettings.php. Fixed extra line break with magic words like __TOC__ etc. Version: 1.5.6_0 [B551+05.02.2015].
+
+- 04.02.15  Merged branch "CKeditor_v4_HtmlComments" to "CKeditor_v4". Version: 1.5.6_0 [B551+02.02.2015].
 
 - 02.02.15  Fix with new category dialog in case name of category contains double quotes. Show text "Double-click to edit the value" with editable elements in wysiwyg mode. Show link target as tooltip with external links. Show text of caption as tooltip with images. Version: 1.5.6_0 [B551+02.02.2015].
 
@@ -257,7 +265,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 ----------------
 **Compatible MediaWiki environment:**
 
-- MediaWiki: 1.21.2, 1.22.0 - 1.22.12, 1.23.0-1.23.5
+- MediaWiki: 1.21, 1.22, 1.23, 1.24
 - SemanticForms: 2.7
 - SyntaxHighlight GeSHi: version must be >= rev:50696
 - PHP 5.5.6,  MySQL 5.6.14, Apache 2.4.7  (=XAMPP for Linux 1.8.3-2)
@@ -266,7 +274,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 -----------------
 **File: LocalSettings.php**
 
-Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together.
+Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together. Activation of wysiwyg -extension using require_once( ... ) should be the last of all extensions in your LocalSettings.pgp so that wysiwyg will know all possible tag names of other extensions.
 
 
     #13.11.13->
@@ -317,6 +325,16 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     $wgFCKEditorExcludedNamespaces[] = SMW_NS_PROPERTY;
     #27.03.14<-
 
+    #06.02.15->
+    #Setting $wgFCKEditorSpecialElementWithPreTag = 1; will cause text blocks
+    #within pre- tags to be displayed as special -element, in case there are any
+    #attirubutes included with pre- tag. In case value of paremeter is eq. to 0 or
+    #pre- tag does not have any attributes, text block is placed directly on page
+    #as text in wysiwyg mode.
+    $wgFCKEditorSpecialElementWithPreTag = 0;
+    #06.02.15<-
+
+
 --------------
 **WikiEditor:**
 
@@ -366,8 +384,8 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE8
 - IE11
-- FireFox (v26.x - 33.x)
-- Chrome  (v.32.x, v.38.x)
+- FireFox (v26.x - 35.x)
+- Chrome  (v.32.x, v.40.x)
 
 - Recommended browser: FireFox
 

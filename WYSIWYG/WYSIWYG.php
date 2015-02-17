@@ -41,7 +41,7 @@ if ((!array_key_exists('SERVER_NAME', $_SERVER) || $_SERVER['SERVER_NAME'] == NU
     (strpos($_SERVER['PHP_SELF'], 'run-test.php') === false) )
 	return;
 
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+02.02.2015]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+10.02.2015]');
 
 // define to check with {{#isExtensionInstalled:wysiwyg}} if extension is installed
 // the parser function comes in the SMWHalo extension
