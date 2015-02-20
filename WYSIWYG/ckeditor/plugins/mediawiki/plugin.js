@@ -564,7 +564,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound    : 'Une catégorie trouvée',
             manyCategoryFound   : ' catégories trouvées',
-			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein' //'Double-click to edit the value' //31.01.15 RL
+			mouseOverUnknownObj : 'Double-cliquer pour éditer'
 	    }
 
         MWpluginLang['de'] = {
