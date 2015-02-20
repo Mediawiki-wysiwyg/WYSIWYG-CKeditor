@@ -405,9 +405,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail link... no search for it',
             anchorLink      : 'anchor link... no search for it',
             linkAsRedirect  : 'Redirect to target page (#REDIRECT)',              //01.03.14 RL
+			linkAsRedirectTitle : 'Use only one #REDIRECT to linked page as first element on page.',
 			linkAsMedia     : 'Internal link to an image or a file of other types, [[Media:<link>]]', //09.05.14 RL
-            defineTarget    : 'Define the wiki page for the link target:',        
+			linkAsMediaTitle : 'Internal link to an image or a file of other types [[Media:<link>]]',
+            defineTarget    : 'Define the wiki page for the link target:',   
+			defineTargetTitle : 'Link target',
             chooseTarget    : 'Choose an existing wikipage for the link target:',
+			chooseTargetTitle : 'Page list',
 			// references (citation)
 			referenceTitle 	    : 'Add/edit reference (citation)',                //03.01.14 RL
 			refDefTxt  		    : 'Reference text',                               //03.01.14 RL
@@ -475,9 +479,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'sposti linkki... ei etsintää',                 //'e-mail link... no search for it',
             anchorLink      : 'ankkuri linkki... ei etsintää',                //'anchor link... no search for it',
             linkAsRedirect  : 'Pakko-ohjaus kohdesivulle (#REDIRECT)',        //'Redirect to target page',          //01.03.14 RL
+			linkAsRedirectTitle  : 'Use only one #REDIRECT to linked page as first element on page.', 
 			linkAsMedia     : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',            //09.05.14 RL
+			linkAsMediaTitle : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',
             defineTarget    : 'Määritä wikin sivu linkin kohteeksi',          //'Define the wiki page for the link target:',
+			defineTargetTitle : 'Link target',
             chooseTarget    : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
+			chooseTargetTitle : 'Page list',
 			// references (citation)
 			referenceTitle 	: 'Lisää viite / muuta viitettä',                 //'Add/edit reference (citation)',
 			refDefTxt  		: 'Viitteen teksti',                              //'Reference text',
@@ -545,9 +553,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail... pas de recherche',
             anchorLink      : 'ancre... pas de recherche',
             linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',
+			linkAsRedirectTitle : 'Utiliser un seul #REDIRECT vers la cible au début de la page',
 			linkAsMedia     : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', //09.05.14 RL
+			linkAsMediaTitle : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', 
 			defineTarget    : 'Entrer la page cible:',
+			defineTargetTitle : 'Cible du lien',
             chooseTarget    : 'Choisissez la page :',
+			chooseTargetTitle : 'Liste de page',
 			// references (citation)
 			referenceTitle 	: 'Ajouter/modifier une référence',
 			refDefTxt    	: 'Texte de la référence',
