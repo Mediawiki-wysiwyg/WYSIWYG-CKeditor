@@ -534,9 +534,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_middle      : 'Milieu',
 			img_bottom      : 'Bas',
 			img_text_bottom : 'Bas-texte',
-			img_upright     : 'Redimensionner pour se adapter (upright)',
+			img_upright     : 'Redimensionner pour adapter (upright)',
 			img_link_title  : 'Entrer la page cible',
-			img_link_disable: 'Un lien est désactivée',
+			img_link_disable: 'Désactiver le lien',
 			imgVertAlign    : 'Alignement (vert.)', //31.12.14 RL<-
             // signature
             signature       : 'Signature',
