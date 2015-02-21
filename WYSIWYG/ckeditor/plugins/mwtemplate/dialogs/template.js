@@ -38,7 +38,7 @@ CKEDITOR.dialog.add( 'MWTemplate', function( editor ) {
                     className = 'FCK__MWTemplate';
                 }
                 else {
-                    alert ('invalid content');
+                    alert (editor.lang.mwtemplateplugin.invalid);
                     return;
                 }
                 var element = CKEDITOR.dom.element.createFromHtml(tag, editor.document),
