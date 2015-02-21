@@ -237,7 +237,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             id: 'imgFilename',
                                             type: 'text',
                                             label: imgLabelField,
-                                            title: 'image file name',
+                                            title: imgLabelFieldTitle,   // 'image file name'
                                             style: 'border: 1px;',
                                             onKeyUp: function () {
                                                 OnUrlChange( this.getDialog() );
@@ -292,7 +292,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             //size: 5,    //07.01.14 RL
                                             size: 11,     //07.01.14 RL
                                             label: editor.lang.mwplugin.startSearch,
-                                            title: 'image list',
+                                            title: editor.lang.mwplugin.startSearchTitle, // 'image list'
                                             required: false,
                                             style: 'border: 1px; width:100%;',
                                             items: [  ],
