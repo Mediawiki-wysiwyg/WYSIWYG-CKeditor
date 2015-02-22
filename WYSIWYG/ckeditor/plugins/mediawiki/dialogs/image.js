@@ -237,7 +237,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             id: 'imgFilename',
                                             type: 'text',
                                             label: imgLabelField,
-                                            title: imgLabelFieldTitle,   // 'image file name'
+                                            title: imgLabelField,   
                                             style: 'border: 1px;',
                                             onKeyUp: function () {
                                                 OnUrlChange( this.getDialog() );
