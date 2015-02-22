@@ -390,6 +390,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Link',
 			img_link_disable: 'Disable link', 
 			imgVertAlign    : 'Alignment (vert.)', //31.12.14 RL<-
+			imgLabelFieldTitle: 'image file name',
+			startSearchTitle: 'image list',
             // signature
             signature       : 'Signature', 
             // special tags
@@ -463,7 +465,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_upright     : 'Sovita kuvan koko (upright)',
 			img_link_title  : 'Linkki',
 			img_link_disable: 'Estä linkin toiminta',
-			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-			
+			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-
+			imgLabelFieldTitle: 'image file name',
+			startSearchTitle: 'image list',
             // signature
             signature       : 'Allekirjoitus',                                //'Signature',
             // special tags
@@ -538,6 +542,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Entrer la page cible',
 			img_link_disable: 'Désactiver le lien',
 			imgVertAlign    : 'Alignement (vert.)', //31.12.14 RL<-
+			imgLabelFieldTitle: 'nom de fichier image',
+			startSearchTitle: 'Liste d’images',
             // signature
             signature       : 'Signature',
             // special tags
@@ -567,7 +573,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			ref				: 'Ajouter une référence',
 			references		: 'Ajouter le bloc des références',
 			// category
-			categorybtn		: 'Ajouter',
+			categorybtn		: 'Ajouter/modifier une catégorie',
 			categoryTitle	: 'Ajouter/modifier une catégorie',
 			category		: 'Recherche',
 			categorySelected : 'Catégories sélectionnées pour la page:',
@@ -612,6 +618,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Verweis',
 			img_link_disable: 'Verweis deaktiviert',
 			imgVertAlign    : 'Ausrichtung (vert.)', //31.12.14 RL<-
+			imgLabelFieldTitle: 'image file name',
+			startSearchTitle: 'image list',
             // signature
             signature       : 'Signatur',
             // special tags
