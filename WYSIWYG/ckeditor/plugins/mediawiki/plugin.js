@@ -390,7 +390,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Link',
 			img_link_disable: 'Disable link', 
 			imgVertAlign    : 'Alignment (vert.)', //31.12.14 RL<-
-			imgLabelFieldTitle: 'image file name',
 			startSearchTitle: 'image list',
             // signature
             signature       : 'Signature', 
@@ -466,7 +465,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Linkki',
 			img_link_disable: 'Estä linkin toiminta',
 			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-
-			imgLabelFieldTitle: 'image file name',
 			startSearchTitle: 'image list',
             // signature
             signature       : 'Allekirjoitus',                                //'Signature',
@@ -542,7 +540,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Entrer la page cible',
 			img_link_disable: 'Désactiver le lien',
 			imgVertAlign    : 'Alignement (vert.)', //31.12.14 RL<-
-			imgLabelFieldTitle: 'nom de fichier image',
 			startSearchTitle: 'Liste d’images',
             // signature
             signature       : 'Signature',
@@ -618,7 +615,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Verweis',
 			img_link_disable: 'Verweis deaktiviert',
 			imgVertAlign    : 'Ausrichtung (vert.)', //31.12.14 RL<-
-			imgLabelFieldTitle: 'image file name',
 			startSearchTitle: 'image list',
             // signature
             signature       : 'Signatur',
