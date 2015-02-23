@@ -90,14 +90,14 @@ CKEDITOR.plugins.add( 'mwtemplate',
         MWpluginLang['de'] = {
             title      : 'Mediawiki Template Dialog',
             defineTmpl : 'Templateaufruf in Wikitext',
-			defineTmplTitle : 'Template Tag definition',
-			invalid : 'invalid content'
+			defineTmplTitle : 'Template Tag-Definition',
+			invalid : 'ungültiger Inhalt'
         }
-        MWpluginLang['fi'] = {     //01.03.14 RL
+        MWpluginLang['fi'] = {
             title      : 'Mediawikin template -dialogi',
             defineTmpl : 'Määritä template -kutsu',
-			defineTmplTitle : 'Template Tag definition',
-			invalid : 'invalid content'
+			defineTmplTitle : 'Template- tag määritys',
+			invalid : 'virheellinen sisältö'
         }
         MWpluginLang['fr'] = {     
             title      : 'Modèles Mediawiki',

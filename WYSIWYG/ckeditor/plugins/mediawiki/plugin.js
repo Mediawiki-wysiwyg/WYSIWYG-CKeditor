@@ -406,30 +406,30 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail link... no search for it',
             anchorLink      : 'anchor link... no search for it',
             linkAsRedirect  : 'Redirect to target page (#REDIRECT)',              //01.03.14 RL
-			linkAsRedirectTitle : 'Use only one #REDIRECT to linked page as first element on page.',
-			linkAsMedia     : 'Internal link to an image or a file of other types, [[Media:<link>]]', //09.05.14 RL
-			linkAsMediaTitle : 'Internal link to an image or a file of other types [[Media:<link>]]',
-            defineTarget    : 'Define the wiki page for the link target:',   
-			defineTargetTitle : 'Link target',
-            chooseTarget    : 'Choose an existing wikipage for the link target:',
-			chooseTargetTitle : 'Page list',
+			linkAsRedirectTitle: 'Use only one #REDIRECT to linked page as first element on page.',
+			linkAsMedia        : 'Internal link to an image or a file of other types, [[Media:<link>]]', //09.05.14 RL
+			linkAsMediaTitle   : 'Internal link to an image or a file of other types [[Media:<link>]]',
+            defineTarget       : 'Define the wiki page for the link target:',   
+			defineTargetTitle  : 'Link target',
+            chooseTarget       : 'Choose an existing wikipage for the link target:',
+			chooseTargetTitle  : 'Page list',
 			// references (citation)
-			referenceTitle 	    : 'Add/edit reference (citation)',                //03.01.14 RL
-			refDefTxt  		    : 'Reference text',                               //03.01.14 RL
-			refDefName          : 'Name of reference (if same text is referenced at multible places on page, if not, leave empty):',
-			ref				    : 'Add a reference',                              //03.01.14 RL
-			references		    : 'Add references block',                         //03.01.14 RL
+			referenceTitle 	   : 'Add/edit reference (citation)',                //03.01.14 RL
+			refDefTxt  		   : 'Reference text',                               //03.01.14 RL
+			refDefName         : 'Name of reference (if same text is referenced at multible places on page, if not, leave empty):',
+			ref				   : 'Add a reference',                              //03.01.14 RL
+			references		   : 'Add references block',                         //03.01.14 RL
             // category
-			categorybtn         : 'Create new category',                          //20.01.15 RL   'Ajouter'
-			categoryTitle       : 'Add/edit categories',                          //20.01.15 RL
-			category            : 'Type text to search for or to create a new category:', //20.01.15 RL 'Recherche'
-			categorySelected    : 'Selected categories for the page:',            //20.01.15 RL
-            selfromCategoryList : 'Select category for the page:',                 //20.01.15 RL			
-			categorySort        : 'Sortkey within category',                      //07.01.14 RL
-			noCategoryFound     : 'Not found, category is new',                   //09.01.14 RL
-            oneCategoryFound    : 'One category found',						      //09.01.14 RL
-            manyCategoryFound   : ' categories found',                            //09.01.14 RL
-			mouseOverUnknownObj : 'Double-click to edit the value'                //31.01.15 RL
+			categorybtn        : 'Create new category',                          //20.01.15 RL   'Ajouter'
+			categoryTitle      : 'Add/edit categories',                          //20.01.15 RL
+			category           : 'Type text to search for or to create a new category:', //20.01.15 RL 'Recherche'
+			categorySelected   : 'Selected categories for the page:',            //20.01.15 RL
+            selfromCategoryList: 'Select category for the page:',                 //20.01.15 RL			
+			categorySort       : 'Sortkey within category',                      //07.01.14 RL
+			noCategoryFound    : 'Not found, category is new',                   //09.01.14 RL
+            oneCategoryFound   : 'One category found',						      //09.01.14 RL
+            manyCategoryFound  : ' categories found',                            //09.01.14 RL
+			mouseOverUnknownObj: 'Double-click to edit the value'                //31.01.15 RL
 		}
 
         MWpluginLang['fi'] = {  //07.01.14 RL->
@@ -465,7 +465,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Linkki',
 			img_link_disable: 'Estä linkin toiminta',
 			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-
-			startSearchTitle: 'image list',
+			startSearchTitle: 'lista kuvista',                                //'image list' 
             // signature
             signature       : 'Allekirjoitus',                                //'Signature',
             // special tags
@@ -481,30 +481,30 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'sposti linkki... ei etsintää',                 //'e-mail link... no search for it',
             anchorLink      : 'ankkuri linkki... ei etsintää',                //'anchor link... no search for it',
             linkAsRedirect  : 'Pakko-ohjaus kohdesivulle (#REDIRECT)',        //'Redirect to target page',          //01.03.14 RL
-			linkAsRedirectTitle  : 'Use only one #REDIRECT to linked page as first element on page.', 
-			linkAsMedia     : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',            //09.05.14 RL
-			linkAsMediaTitle : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',
-            defineTarget    : 'Määritä wikin sivu linkin kohteeksi',          //'Define the wiki page for the link target:',
-			defineTargetTitle : 'Link target',
-            chooseTarget    : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
-			chooseTargetTitle : 'Page list',
+			linkAsRedirectTitle: 'Lisää vain yksi #REDIRECT -ohjaus sivun ensimmäiselle riville.', //'Use only one #REDIRECT to linked page as first element on page.'
+			linkAsMedia        : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',            //09.05.14 RL
+			linkAsMediaTitle   : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',
+            defineTarget       : 'Määritä wikin sivu linkin kohteeksi',       //'Define the wiki page for the link target:',
+			defineTargetTitle  : 'Linkin kohde',                               //'Link target'
+            chooseTarget       : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
+			chooseTargetTitle  : 'Sivut',                                      //'Page list'
 			// references (citation)
-			referenceTitle 	: 'Lisää viite / muuta viitettä',                 //'Add/edit reference (citation)',
-			refDefTxt  		: 'Viitteen teksti',                              //'Reference text',
-			refDefName      : 'Viitteen nimi (anna nimi vain jos samaan viitetekstiin viitataan useasta paikasta):', //'Name of reference'
-			ref				: 'Viite',                                        //'Add a reference' for button of menu
-			references		: 'Lista viitteistä',                             //'Add references block' for button of menu
+			referenceTitle 	   : 'Lisää viite / muuta viitettä',                 //'Add/edit reference (citation)',
+			refDefTxt  		   : 'Viitteen teksti',                              //'Reference text',
+			refDefName         : 'Viitteen nimi (anna nimi vain jos samaan viitetekstiin viitataan useasta paikasta):', //'Name of reference'
+			ref				   : 'Viite',                                        //'Add a reference' for button of menu
+			references		   : 'Lista viitteistä',                             //'Add references block' for button of menu
             // category
-			categorybtn    	    : 'Luo uusi luokka',                          //'Create new category' //20.01.15 RL
-			categoryTitle       : 'Sivun luokkien määritys',                  //'Add/edit categories' //20.01.15 RL 
-			category            : 'Etsi / luo uusi luokka (tyhjä kenttä listaa kaikki luokat):', //'Type text to search for or create a new category' //20.01.15 RL
-            categorySelected    : 'Sivu lisätään luokkiin:',                  //'Selected categories for the page:'  //20.01.15 RL
-            selfromCategoryList : 'Valitse luokka listalta:',                 //'Select category for the page //20.01.15 RL
-			categorySort        : 'Lajitteluavain luokan sisällä:',           //'Sortkey within category'
-			noCategoryFound     : 'Luokkaa ei löydy, se on uusi',             //'no category found'			     //09.01.14 RL
-            oneCategoryFound    : 'Yksi luokka löytyi',                       //'one category found',            //09.01.14 RL
-            manyCategoryFound   : ' kpl',                                     //' categories found',			 //09.01.14 RL
-			mouseOverUnknownObj : 'Tuplaklikkaa editoidaksesi arvoa'          //'Double-click to edit the value' //31.01.15 RL
+			categorybtn    	   : 'Luo uusi luokka',                          //'Create new category' //20.01.15 RL
+			categoryTitle      : 'Sivun luokkien määritys',                  //'Add/edit categories' //20.01.15 RL 
+			category           : 'Etsi / luo uusi luokka (tyhjä kenttä listaa kaikki luokat):', //'Type text to search for or create a new category' //20.01.15 RL
+            categorySelected   : 'Sivu lisätään luokkiin:',                  //'Selected categories for the page:'  //20.01.15 RL
+            selfromCategoryList: 'Valitse luokka listalta:',                 //'Select category for the page //20.01.15 RL
+			categorySort       : 'Lajitteluavain luokan sisällä:',           //'Sortkey within category'
+			noCategoryFound    : 'Luokkaa ei löydy, se on uusi',             //'no category found'			     //09.01.14 RL
+            oneCategoryFound   : 'Yksi luokka löytyi',                       //'one category found',            //09.01.14 RL
+            manyCategoryFound  : ' kpl',                                     //' categories found',			 //09.01.14 RL
+			mouseOverUnknownObj: 'Tuplaklikkaa editoidaksesi arvoa'          //'Double-click to edit the value' //31.01.15 RL
 		} //07.01.14 RL<-
 
 	    MWpluginLang['fr'] = {
@@ -556,34 +556,34 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail... pas de recherche',
             anchorLink      : 'ancre... pas de recherche',
             linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',
-			linkAsRedirectTitle : 'Utiliser un seul #REDIRECT vers la cible au début de la page',
-			linkAsMedia     : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', //09.05.14 RL
-			linkAsMediaTitle : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', 
-			defineTarget    : 'Entrer la page cible:',
-			defineTargetTitle : 'Cible du lien',
-            chooseTarget    : 'Choisissez la page :',
-			chooseTargetTitle : 'Liste de page',
+			linkAsRedirectTitle: 'Utiliser un seul #REDIRECT vers la cible au début de la page',
+			linkAsMedia        : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', //09.05.14 RL
+			linkAsMediaTitle   : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', 
+			defineTarget       : 'Entrer la page cible:',
+			defineTargetTitle  : 'Cible du lien',
+            chooseTarget       : 'Choisissez la page :',
+			chooseTargetTitle  : 'Liste de page',
 			// references (citation)
-			referenceTitle 	: 'Ajouter/modifier une référence',
-			refDefTxt    	: 'Texte de la référence',
-			refDefName      : 'Nom de la référence :',
-			ref				: 'Ajouter une référence',
-			references		: 'Ajouter le bloc des références',
-			// category
-			categorybtn		: 'Ajouter/modifier une catégorie',
-			categoryTitle	: 'Ajouter/modifier une catégorie',
-			category		: 'Recherche',
-			categorySelected : 'Catégories sélectionnées pour la page:',
-            selfromCategoryList : 'Sélectionner dans la liste:',			
-			categorySort	: 'categorySort',
-			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
-            oneCategoryFound    : 'Une catégorie trouvée',
-            manyCategoryFound   : ' catégories trouvées',
-			mouseOverUnknownObj : 'Double-cliquer pour éditer'
+			referenceTitle 	   : 'Ajouter/modifier une référence',
+			refDefTxt    	   : 'Texte de la référence',
+			refDefName         : 'Nom de la référence :',
+			ref				   : 'Ajouter une référence',
+			references		   : 'Ajouter le bloc des références',
+			// category        
+			categorybtn		   : 'Ajouter/modifier une catégorie',
+			categoryTitle	   : 'Ajouter/modifier une catégorie',
+			category		   : 'Recherche',
+			categorySelected   : 'Catégories sélectionnées pour la page:',
+            selfromCategoryList: 'Sélectionner dans la liste:',			
+			categorySort	   : 'categorySort',
+			noCategoryFound    : 'Non trouvé, la catégorie est nouvelle',
+            oneCategoryFound   : 'Une catégorie trouvée',
+            manyCategoryFound  : ' catégories trouvées',
+			mouseOverUnknownObj: 'Double-cliquer pour éditer'
 	    }
 
         MWpluginLang['de'] = {
-            invalidContent  : 'invalid content',
+            invalidContent  : 'ungültiger Inhalt',
             searching       : 'suche...',
             externalLink    : 'externer Link... es wird nicht danach gesucht',
             startTyping     : 'Eingabe im oberen Feld',
@@ -625,14 +625,19 @@ CKEDITOR.plugins.add( 'mediawiki',
             // link
             linkTitle       : 'Mediawiki Link',
 			simplelink	    : 'Convert text to link',                                                //27.08.14 Varlin 
-			linkAsMedia     : 'Internal link to an image or a file of other types [[Media:<link>]]', //09.05.14 RL
             noPageFound     : 'keinen Artikel gefunden',
             onePageFound    : '1 Artikel gefunden',
             manyPageFound   : ' Artikel gefunden',
             emailLink       : 'e-mail link... es wird nicht danach gesucht',
             anchorLink      : 'anchor link... es wird nicht danach gesucht',
-            defineTarget    : 'Definiere eine Wikiseite als Linkziel:',
-            chooseTarget    : 'Wähle eine existierende Wikiseite als Linkziel:',
+            linkAsRedirect  : 'Umleitung auf Seite Ziel (#REDIRECT)',              //01.03.14 RL
+            linkAsRedirectTitle : 'Verwenden Sie nur einen #REDIRECT verlinkten Seite als erstes Element auf Seite.',
+			linkAsMedia         : 'Interner Link zu einem Bild oder eine Datei von anderen Arten [[Media:<link>]]', //09.05.14 RL
+            linkAsMediaTitle    : 'Interner Link zu einem Bild oder eine Datei von anderen Arten [[Media:<link>]]',
+            defineTarget        : 'Definiere eine Wikiseite als Linkziel:',
+            defineTargetTitle   : 'Link-Ziel',
+            chooseTarget        : 'Wähle eine existierende Wikiseite als Linkziel:',
+            chooseTargetTitle   : 'Seitenliste',
             // references (citation)
             referenceTitle      : 'Referenz hinzufügen/bearbeiten',
             refDefTxt           : 'Text für Referenz',
@@ -649,7 +654,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             noCategoryFound     : 'Nicht gefunden, neue Kategorie',
             oneCategoryFound    : 'Eine Kategorie gefunden',
             manyCategoryFound   : ' Kategorien gefunden',
-			mouseOverUnknownObj : 'Double-cliquez sur pour modifier la valeur' //'Double-click to edit the value' //31.01.15 RL			
+			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein' //'Double-click to edit the value' //31.01.15 RL
         }
 
         // Define language for wysiwyg, editor.langCode is eq. to language of ckeditor

@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 23.02.15  Added language variables for link- and template- dialogs (by Varlin). Modified translations: fi, de. Version: 1.5.6_0  [B551+23.02.2015].
+
 - 10.02.15  Fixed activation of undo/redo buttons when switching from source to wysiwyg view.  Version: 1.5.6_0 [B551+10.02.2015].
 
 - 08.02.15  Show paragraph format "Formatted" with light grey background. Version: 1.5.6_0 [B551+08.02.2015].
