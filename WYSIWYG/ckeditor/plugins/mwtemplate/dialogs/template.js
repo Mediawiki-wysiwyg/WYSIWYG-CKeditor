@@ -17,7 +17,7 @@ CKEDITOR.dialog.add( 'MWTemplate', function( editor ) {
                             type: 'textarea',
                             rows: 16, 
                             label: editor.lang.mwtemplateplugin.defineTmpl,
-                            title: 'Template Tag definition',
+                            title: editor.lang.mwtemplateplugin.defineTmplTitle,
                             className: 'swmf_class',
                             style: 'border: 1px;'
                         }
@@ -38,7 +38,7 @@ CKEDITOR.dialog.add( 'MWTemplate', function( editor ) {
                     className = 'FCK__MWTemplate';
                 }
                 else {
-                    alert ('invalid content');
+                    alert (editor.lang.mwtemplateplugin.invalid);
                     return;
                 }
                 var element = CKEDITOR.dom.element.createFromHtml(tag, editor.document),

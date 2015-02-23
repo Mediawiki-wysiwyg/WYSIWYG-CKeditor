@@ -390,6 +390,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Link',
 			img_link_disable: 'Disable link', 
 			imgVertAlign    : 'Alignment (vert.)', //31.12.14 RL<-
+			startSearchTitle: 'image list',
             // signature
             signature       : 'Signature', 
             // special tags
@@ -405,9 +406,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail link... no search for it',
             anchorLink      : 'anchor link... no search for it',
             linkAsRedirect  : 'Redirect to target page (#REDIRECT)',              //01.03.14 RL
+			linkAsRedirectTitle : 'Use only one #REDIRECT to linked page as first element on page.',
 			linkAsMedia     : 'Internal link to an image or a file of other types, [[Media:<link>]]', //09.05.14 RL
-            defineTarget    : 'Define the wiki page for the link target:',        
+			linkAsMediaTitle : 'Internal link to an image or a file of other types [[Media:<link>]]',
+            defineTarget    : 'Define the wiki page for the link target:',   
+			defineTargetTitle : 'Link target',
             chooseTarget    : 'Choose an existing wikipage for the link target:',
+			chooseTargetTitle : 'Page list',
 			// references (citation)
 			referenceTitle 	    : 'Add/edit reference (citation)',                //03.01.14 RL
 			refDefTxt  		    : 'Reference text',                               //03.01.14 RL
@@ -459,7 +464,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_upright     : 'Sovita kuvan koko (upright)',
 			img_link_title  : 'Linkki',
 			img_link_disable: 'Estä linkin toiminta',
-			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-			
+			imgVertAlign    : 'Kohdistus (pystys.)', //31.12.14 RL<-
+			startSearchTitle: 'image list',
             // signature
             signature       : 'Allekirjoitus',                                //'Signature',
             // special tags
@@ -475,9 +481,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'sposti linkki... ei etsintää',                 //'e-mail link... no search for it',
             anchorLink      : 'ankkuri linkki... ei etsintää',                //'anchor link... no search for it',
             linkAsRedirect  : 'Pakko-ohjaus kohdesivulle (#REDIRECT)',        //'Redirect to target page',          //01.03.14 RL
+			linkAsRedirectTitle  : 'Use only one #REDIRECT to linked page as first element on page.', 
 			linkAsMedia     : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',            //09.05.14 RL
+			linkAsMediaTitle : 'Sisäinen linkki kuvaan tai muun tyyppiseen tiedostoon, [[Media:<link>]]',
             defineTarget    : 'Määritä wikin sivu linkin kohteeksi',          //'Define the wiki page for the link target:',
+			defineTargetTitle : 'Link target',
             chooseTarget    : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
+			chooseTargetTitle : 'Page list',
 			// references (citation)
 			referenceTitle 	: 'Lisää viite / muuta viitettä',                 //'Add/edit reference (citation)',
 			refDefTxt  		: 'Viitteen teksti',                              //'Reference text',
@@ -526,10 +536,11 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_middle      : 'Milieu',
 			img_bottom      : 'Bas',
 			img_text_bottom : 'Bas-texte',
-			img_upright     : 'Redimensionner pour se adapter (upright)',
+			img_upright     : 'Redimensionner pour adapter (upright)',
 			img_link_title  : 'Entrer la page cible',
-			img_link_disable: 'Un lien est désactivée',
+			img_link_disable: 'Désactiver le lien',
 			imgVertAlign    : 'Alignement (vert.)', //31.12.14 RL<-
+			startSearchTitle: 'Liste d’images',
             // signature
             signature       : 'Signature',
             // special tags
@@ -545,9 +556,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             emailLink       : 'e-mail... pas de recherche',
             anchorLink      : 'ancre... pas de recherche',
             linkAsRedirect  : 'Rediriger vers la cible (#REDIRECT)',
+			linkAsRedirectTitle : 'Utiliser un seul #REDIRECT vers la cible au début de la page',
 			linkAsMedia     : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', //09.05.14 RL
+			linkAsMediaTitle : 'Lien interne vers une image ou un autre fichier [[Media:<lien>]]', 
 			defineTarget    : 'Entrer la page cible:',
+			defineTargetTitle : 'Cible du lien',
             chooseTarget    : 'Choisissez la page :',
+			chooseTargetTitle : 'Liste de page',
 			// references (citation)
 			referenceTitle 	: 'Ajouter/modifier une référence',
 			refDefTxt    	: 'Texte de la référence',
@@ -555,7 +570,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			ref				: 'Ajouter une référence',
 			references		: 'Ajouter le bloc des références',
 			// category
-			categorybtn		: 'Ajouter',
+			categorybtn		: 'Ajouter/modifier une catégorie',
 			categoryTitle	: 'Ajouter/modifier une catégorie',
 			category		: 'Recherche',
 			categorySelected : 'Catégories sélectionnées pour la page:',
@@ -564,7 +579,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			noCategoryFound     : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound    : 'Une catégorie trouvée',
             manyCategoryFound   : ' catégories trouvées',
-			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein' //'Double-click to edit the value' //31.01.15 RL
+			mouseOverUnknownObj : 'Double-cliquer pour éditer'
 	    }
 
         MWpluginLang['de'] = {
@@ -600,6 +615,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			img_link_title  : 'Verweis',
 			img_link_disable: 'Verweis deaktiviert',
 			imgVertAlign    : 'Ausrichtung (vert.)', //31.12.14 RL<-
+			startSearchTitle: 'image list',
             // signature
             signature       : 'Signatur',
             // special tags

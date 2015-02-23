@@ -17,7 +17,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                             type:  'textarea',
                             rows:  16,
                             label: editor.lang.mwplugin.specialTagDef,
-                            title: 'Special Tag definition',
+                            title: editor.lang.mwplugin.specialTagDef,
                             className: 'swmf_class',
                             style: 'border: 1px;'
                         }

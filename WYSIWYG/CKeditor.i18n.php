@@ -479,7 +479,7 @@ $messages['fr'] = array(
 	'tog-riched_use_toggle' => "Donner la possibilité de changer entre l'éditeur original WikiText et l'éditeur enrichi",
 	'tog-riched_toggle_remember_state' => "Se souvenir de la dernière selection de l'éditeur",
     'tog-riched_link_paste_text' => "Reprendre la sélection comme texte de lien dans la fenêtre de lien",
-    'tog-riched_wait_page_load' => 'La page de chargement, se il vous plaît patienter...',
+    'tog-riched_wait_page_load' => 'Chargement de la page, patienter...',
 );
 
 /** Galician (Galego)

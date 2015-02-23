@@ -110,7 +110,7 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             id: 'linkTarget',
                             type: 'text',
                             label: editor.lang.mwplugin.defineTarget,
-                            title: 'Link target',
+                            title: editor.lang.mwplugin.defineTargetTitle, 
                             style: 'border: 1px;',
 							onKeyUp: OnUrlChange,
                             onChange: OnUrlChange  //01.03.14 RL
@@ -126,7 +126,7 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             type: 'select',
                             size: 5,
                             label: editor.lang.mwplugin.chooseTarget,
-                            title: 'Page list',
+                            title: editor.lang.mwplugin.chooseTargetTitle,
                             required: false,
                             style: 'border: 1px; width:100%;',
                             onChange: WikiPageSelected,
@@ -136,14 +136,14 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             id : 'linkAsMedia',
                             type : 'checkbox',
                             label : editor.lang.mwplugin.linkAsMedia,
-                            title : 'Internal link to an image or a file of other types [[Media:<link>]]',
+                            title : editor.lang.mwplugin.linkAsMediaTitle,
                             'default' : false
                         },						
                         { //01.03.14 RL
                             id : 'linkAsRedirect',
                             type : 'checkbox',
                             label : editor.lang.mwplugin.linkAsRedirect,
-                            title : 'Use only one #REDIRECT to linked page as first element on page.',
+                            title : editor.lang.mwplugin.linkAsRedirectTitle,
                             'default' : false
                         }                        
 		            ]

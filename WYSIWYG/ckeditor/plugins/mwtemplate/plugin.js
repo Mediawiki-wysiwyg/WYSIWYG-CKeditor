@@ -83,20 +83,28 @@ CKEDITOR.plugins.add( 'mwtemplate',
         var MWpluginLang = []
         MWpluginLang['en'] = {
             title      : 'Mediawiki Template Dialogue',
-            defineTmpl : 'Define any template calls for Mediawiki'
+            defineTmpl : 'Define any template calls for Mediawiki',
+			defineTmplTitle : 'Template Tag definition',
+			invalid : 'invalid content'
         }
         MWpluginLang['de'] = {
             title      : 'Mediawiki Template Dialog',
-            defineTmpl : 'Templateaufruf in Wikitext'
+            defineTmpl : 'Templateaufruf in Wikitext',
+			defineTmplTitle : 'Template Tag definition',
+			invalid : 'invalid content'
         }
         MWpluginLang['fi'] = {     //01.03.14 RL
             title      : 'Mediawikin template -dialogi',
-            defineTmpl : 'Määritä template -kutsu'
+            defineTmpl : 'Määritä template -kutsu',
+			defineTmplTitle : 'Template Tag definition',
+			invalid : 'invalid content'
         }
         MWpluginLang['fr'] = {     
             title      : 'Modèles Mediawiki',
-            defineTmpl : 'Utiliser un modèle'
-        } 
+            defineTmpl : 'Utiliser un modèle',
+			defineTmplTitle : 'Définition du modèle',
+			invalid : 'Syntaxe invalide'
+        }  
 
         if (typeof MWpluginLang[editor.langCode] != 'undefined' )
             editor.lang.mwtemplateplugin = MWpluginLang[editor.langCode];
