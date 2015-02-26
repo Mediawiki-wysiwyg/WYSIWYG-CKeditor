@@ -345,6 +345,45 @@ class CKeditorParser extends CKeditorParserWrapper {
 
 		return $replacement;
 	}
+	
+	/**
+	 * Callback function for wiki tags using paragraph format "Formatted" <pre> -tag.
+	 *
+	 * @param string $tagName tag name, eg. nowiki, math
+	 * @param string $str Input
+	 * @param array $argv Arguments
+	 * @return string
+	 */
+	function fck_pre_wikiTag( $tagName, $str, $argv = array() ) { //TEST_syntaxhighlight
+	
+		if( in_array( $tagName, $this->FCKeditorImageWikiTags ) ) {
+			$className = $tagName; 
+		} 
+		else {
+			$className = 'special';  //All others like <calendar>, <poll> ,etc...
+		} 
+		
+		if( empty( $argv ) ) {
+			$ret = '<pre class="fck_mw_' . $className . '"><' . $tagName . '>';
+		} else {
+			$ret = '<pre class="fck_mw_' . $className . '"><' . $tagName;
+			foreach( $argv as $key => $value ) {
+				$ret .= " " . $key . "=\"" . $value . "\"";				
+			}
+			$ret .= '>'; 
+		}
+		
+		if( !is_null( $str ) && $str != '' ) { 
+            $ret .= htmlspecialchars( $str );
+        } else {
+			$ret .= '_';
+		}	
+		$ret .= '</' . $tagName . '></pre>';
+		
+		$replacement = $this->fck_addToStrtr( $ret, false ); // false = do not convert LF
+
+		return $replacement;
+	}
 
 	/**
 	 * Strips and renders nowiki, pre, math, hiero
@@ -407,7 +446,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 		}
 
 		foreach( $matches as $marker => $data ) {
-			global $wgFCKEditorSpecialElementWithPreTag;
+			global $wgFCKEditorSpecialElementWithPreTag, 
+				   $wgFCKEditorSpecialElementWithTextTags; //TEST_syntaxhighlight
+
 			list( $element, $content, $params, $tag ) = $data;
 			if( $render ) {
 				$tagName = strtolower( $element );
@@ -454,8 +495,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 					case 'source':                                                            //02.11.14 RL   
 						//Treat tag source equal to tag syntaxhighlight and continue below.   //30.10.14 Wingsofcourage
 					case 'syntaxhighlight':
-						$content = str_replace( ' ', 'fckSPACE', $content );                  //30.10.14 RL To preserve indents
-						$output = $this->fck_wikiTag( 'syntaxhighlight', $content, $params ); //02.11.14 RL Was source
+						// Variable $wgFCKEditorSpecialElementWithTextTags in LocalSettings.php can be used to customise syntaxhighlight- tag handling
+						if ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ) {
+							$content = str_replace( ' ', 'fckSPACE', $content );                  //30.10.14 RL To preserve indents
+							$output = $this->fck_wikiTag( 'syntaxhighlight', $content, $params ); //02.11.14 RL Was source
+						} else {
+							$output = $this->fck_pre_wikiTag( 'syntaxhighlight', $content, $params ); //TEST_syntaxhighlight
+						}
 						break;
 					case 'html':
 						if( $wgRawHtml ) {
@@ -463,7 +509,12 @@ class CKeditorParser extends CKeditorParserWrapper {
 						}
 						break;
 					case 'nowiki':
-						$output = $this->fck_wikiTag( 'nowiki', $content, $params ); // required by FCKeditor
+						// Variable $wgFCKEditorSpecialElementWithTextTags in LocalSettings.php can be used to customise nowiki- tag handling
+						if ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ) {
+							$output = $this->fck_wikiTag( 'nowiki', $content, $params ); // required by FCKeditor
+						} else {
+							$output = $this->fck_pre_wikiTag( 'nowiki', $content, $params ); //TEST_syntaxhighlight
+						}
 						break;
 					case 'math':
 						
@@ -764,7 +815,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 
 		// Use MW function Parser.php->internalParse for wikitext->html conversion. 
         $finalString = parent::internalParse( $text, $isMain );	
-
+		
 		/*** 04.01.15 RL This code is unnecessary, fix has been applied in CKeditorLinker.php::makeExternalLink instead. ****
 		// In case there are html code in link data f.ex. italic format in link text like
 		// [http://test.com ''bbb''] => <a href="http://test.com"><i>bbb<i></a>, 
@@ -1104,7 +1155,10 @@ class CKeditorParser extends CKeditorParserWrapper {
 						// paragraph
 						if ( '' == trim( $t ) ) {
 							if ( $paragraphStack ) {
-								$output .= $paragraphStack . '<br />';
+								// TEST_syntaxhighlight In case there were one empty line between rows,
+								// following ". '<br />';" seemed to cause extra line feed to be added 
+								// by each source-wysiwyg toggle.
+								$output .= $paragraphStack; // . '<br />'; //TEST_syntaxhighlight
 								$paragraphStack = false;
 								$this->mLastSection = 'p';
 							} else {

@@ -192,7 +192,19 @@ CKEDITOR.plugins.add( 'mediawiki',
 			'{' +
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
-			'}\n';
+			'}\n' +  
+			'pre.fck_mw_nowiki' +           //fck_mw_nowiki,FCK__MWNowiki           //TEST_syntaxhighlight->
+			'{' +
+				'background-color:rgb(235,235,235);' + 
+				'border: 1px solid rgb(224,224,224);' +
+				'display: inline;' +
+				'float: none' +
+			'}\n' +  
+			'pre.fck_mw_syntaxhighlight' +  //fck_mw_syntaxhighlight, FCK__MWSyntaxhighlight
+			'{' +
+				'background-color:rgb(245,245,245);' + 
+				'border: 1px solid rgb(224,224,224);' +
+			'}\n';                                                                  //TEST_syntaxhighlight<-
         return str;
     },
 
@@ -427,9 +439,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             selfromCategoryList: 'Select category for the page:',                 //20.01.15 RL			
 			categorySort       : 'Sortkey within category',                      //07.01.14 RL
 			noCategoryFound    : 'Not found, category is new',                   //09.01.14 RL
-            oneCategoryFound   : 'One category found',						      //09.01.14 RL
+            oneCategoryFound   : 'One category found',                           //09.01.14 RL
             manyCategoryFound  : ' categories found',                            //09.01.14 RL
-			mouseOverUnknownObj: 'Double-click to edit the value'                //31.01.15 RL
+			mouseOverUnknownObj: 'Double-click to edit the value',               //31.01.15 RL
+			speSpecialTexts    : 'Special Texts',                                //Special Texts 
+			speOperation       : 'Select type / operation',                      //Select type / operation
+			speRemoveTag       : 'Remove tag',                                   //Remove tag
+			speAttrValue       : 'Value of attribute'                            //Value of attribute 
 		}
 
         MWpluginLang['fi'] = {  //07.01.14 RL->
@@ -495,16 +511,20 @@ CKEDITOR.plugins.add( 'mediawiki',
 			ref				   : 'Viite',                                        //'Add a reference' for button of menu
 			references		   : 'Lista viitteistä',                             //'Add references block' for button of menu
             // category
-			categorybtn    	   : 'Luo uusi luokka',                          //'Create new category' //20.01.15 RL
-			categoryTitle      : 'Sivun luokkien määritys',                  //'Add/edit categories' //20.01.15 RL 
+			categorybtn    	   : 'Luo uusi luokka',                           //'Create new category' //20.01.15 RL
+			categoryTitle      : 'Sivun luokkien määritys',                 //'Add/edit categories' //20.01.15 RL 
 			category           : 'Etsi / luo uusi luokka (tyhjä kenttä listaa kaikki luokat):', //'Type text to search for or create a new category' //20.01.15 RL
-            categorySelected   : 'Sivu lisätään luokkiin:',                  //'Selected categories for the page:'  //20.01.15 RL
-            selfromCategoryList: 'Valitse luokka listalta:',                 //'Select category for the page //20.01.15 RL
-			categorySort       : 'Lajitteluavain luokan sisällä:',           //'Sortkey within category'
+            categorySelected   : 'Sivu lisätään luokkiin:',                //'Selected categories for the page:'  //20.01.15 RL
+            selfromCategoryList: 'Valitse luokka listalta:',                  //'Select category for the page //20.01.15 RL
+			categorySort       : 'Lajitteluavain luokan sisällä:',          //'Sortkey within category'
 			noCategoryFound    : 'Luokkaa ei löydy, se on uusi',             //'no category found'			     //09.01.14 RL
             oneCategoryFound   : 'Yksi luokka löytyi',                       //'one category found',            //09.01.14 RL
-            manyCategoryFound  : ' kpl',                                     //' categories found',			 //09.01.14 RL
-			mouseOverUnknownObj: 'Tuplaklikkaa editoidaksesi arvoa'          //'Double-click to edit the value' //31.01.15 RL
+            manyCategoryFound  : ' kpl',                                      //' categories found',			 //09.01.14 RL
+			mouseOverUnknownObj: 'Tuplaklikkaa editoidaksesi arvoa',          //'Double-click to edit the value' //31.01.15 RL
+			speSpecialTexts    : 'Tekstin tyyppi',                            //Special Texts 
+			speOperation       : 'Valitse tyyppi / toiminta',                 //Select type / operation
+			speRemoveTag       : 'Poista ohjaus',                             //Remove tag
+			speAttrValue       : 'Atribuutin arvo'                            //Value of attribute   
 		} //07.01.14 RL<-
 
 	    MWpluginLang['fr'] = {
@@ -579,7 +599,11 @@ CKEDITOR.plugins.add( 'mediawiki',
 			noCategoryFound    : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound   : 'Une catégorie trouvée',
             manyCategoryFound  : ' catégories trouvées',
-			mouseOverUnknownObj: 'Double-cliquer pour éditer'
+			mouseOverUnknownObj: 'Double-cliquer pour éditer',
+            speSpecialTexts    : 'Le type de texte',
+			speOperation       : 'Sélectionnez le type / opération',               //Select type / operation
+			speRemoveTag       : 'Retirer la commande',                            //Remove tag
+			speAttrValue       : 'La valeur de les attributes'                     //Value of attribute 
 	    }
 
         MWpluginLang['de'] = {
@@ -654,7 +678,11 @@ CKEDITOR.plugins.add( 'mediawiki',
             noCategoryFound     : 'Nicht gefunden, neue Kategorie',
             oneCategoryFound    : 'Eine Kategorie gefunden',
             manyCategoryFound   : ' Kategorien gefunden',
-			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein' //'Double-click to edit the value' //31.01.15 RL
+			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein', //'Double-click to edit the value' //31.01.15 RL
+			speSpecialTexts     : 'Spezialtexte',                                    //Special Texts 
+			speOperation        : 'Wählen die Art oder Tätigkeit',                 //Select type / operation
+			speRemoveTag        : 'Entfernen die Kontrolle',                         //Remove tag
+			speAttrValue        : 'Attribute, den Wert'                              //Value of attribute  			
         }
 
         // Define language for wysiwyg, editor.langCode is eq. to language of ckeditor
@@ -695,6 +723,35 @@ CKEDITOR.plugins.add( 'mediawiki',
         editor.addCommand( 'MWSignature', signatureCommand);
 
 		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
+
+		if ( !is_special_elem_with_text_tags ) {
+			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); //TEST_syntaxhighlight->
+			CKEDITOR.dialog.add( 'MWTextTagsD', this.path + 'dialogs/texttags.js' ); 
+
+			if ( editor.contextMenu ) {
+				editor.addMenuGroup( 'MWTextTagsGroup' );
+			
+				editor.addMenuItem( 'MWTextTagsItem', {
+					label: editor.lang.mwplugin.speSpecialTexts, //'Special Texts'
+					//icon: this.path + 'icons/abbr.png',
+					icon: this.path + 'images/icon_texttags.png',
+					command: 'MWTextTags',
+					group: 'MWTextTagsGroup'
+				});
+
+				editor.contextMenu.addListener( function( element ) {
+					/***
+					if ( element.hasAscendant( 'pre', true ) ) 
+						alert(element.getAscendant( 'pre', true ).hasClass( 'fck_mw_syntaxhighlight' ) + ' ' +
+							element.getAscendant( 'pre', true ).getName() + ' ' + element.getName()
+							);
+					***/
+					if ( element.hasAscendant( 'pre', true ) ) {
+						return { MWTextTagsItem: CKEDITOR.TRISTATE_OFF };
+					}
+				});
+			}                                                                   //TEST_syntaxhighlight<-
+		}
 	
         if (editor.addMenuItem) {
             // A group menu is required
@@ -709,6 +766,15 @@ CKEDITOR.plugins.add( 'mediawiki',
         }
 		if ( editor.ui.addButton )
 		{
+			if ( !is_special_elem_with_text_tags ) {
+				editor.ui.addButton( 'MWTextTags', {       //TEST_syntaxhighlight->
+					label: editor.lang.mwplugin.speSpecialTexts, //'Special Texts'
+					command: 'MWTextTags',
+					toolbar: 'insert',
+					icon: this.path + 'images/icon_texttags.png'
+				});                                        //TEST_syntaxhighlight<-
+			}
+
 			editor.ui.addButton( 'MWSpecialTags',
 				{
 					label : editor.lang.mwplugin.specialTags,
@@ -801,7 +867,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 			{
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
-				if ( element.is( 'img' ) &&                             //07.01.14 RL->
+				if ( element.hasAscendant( 'pre', true ) ) {            //TEST_syntaxhighlight 
+					evt.data.dialog = 'MWTextTagsD';
+				} else if ( element.is( 'img' ) &&                      //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
 					 element.getAttribute( 'class' ).InArray( [         //03.02.14 RL Modified to use InArray(..)
 								'FCK__MWReferences'   
@@ -1891,12 +1959,30 @@ CKEDITOR.customprocessor.prototype =
 							// Change the node name and fell in the "default" case.
 							if ( htmlNode.getAttribute( '_fck_mw_customtag' ) )
 								sNodeName = htmlNode.getAttribute( '_fck_mw_tagname' );
-                            this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix )
+                            this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix );
 							break;
 						case 'pre' :
 							var attribs = this._GetAttributesStr( htmlNode );
-                            var eClassName = htmlNode.getAttribute('class')
-							if ( eClassName == "_fck_mw_lspace" ){
+                            var eClassName = htmlNode.getAttribute('class');
+
+							if ( eClassName == "fck_mw_nowiki" ){ //TEST_syntaxhighlight
+							    // Edit code directly on page: <pre><syntaxhighlight lang="xxx">....</syntaxhighlight></pre>
+								//var nodeChild = htmlNode.firstChild;
+								stringBuilder.push( '<nowiki>' );
+								stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode() ); //.replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') );
+								stringBuilder.push( '</nowiki>\n' ); 
+							}							
+							else if ( eClassName == "fck_mw_syntaxhighlight" ){ //TEST_syntaxhighlight
+							    // Edit code directly on page: <pre><syntaxhighlight lang="xxx">....</syntaxhighlight></pre>
+								var nodeChild = htmlNode.firstChild,
+									refLang = nodeChild.getAttribute( 'lang' );
+								stringBuilder.push( '<syntaxhighlight' );
+								stringBuilder.push( ' lang="' + refLang + '"' );
+								stringBuilder.push( '>' );
+								stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode() ); //.replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') );
+								stringBuilder.push( '</syntaxhighlight>' ); 
+							}
+							else if ( eClassName == "_fck_mw_lspace" ){
 								stringBuilder.push( "\n " );
 								this._inLSpace = true;
 								this._AppendChildNodes( htmlNode, stringBuilder, prefix );
@@ -1916,7 +2002,6 @@ CKEDITOR.customprocessor.prototype =
 							} else {
 								stringBuilder.push( '<' );
 								stringBuilder.push( sNodeName );
-
 								if ( attribs.length > 0 )
 									stringBuilder.push( attribs );
 								if( this._GetNodeText(htmlNode) == '' )

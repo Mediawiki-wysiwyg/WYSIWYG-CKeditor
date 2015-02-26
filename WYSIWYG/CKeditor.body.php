@@ -470,6 +470,7 @@ class CKeditor_MediaWiki {
 		global $wgFCKWikiTextBeforeParse, $wgFCKEditorIsCompatible;
 		global $wgFCKEditorExtDir, $wgFCKEditorDir, $wgFCKEditorHeight, $wgFCKEditorToolbarSet;
         global $wgCKEditorUrlparamMode, $wgRequest;
+		global $wgFCKEditorSpecialElementWithTextTags; //TEST_syntaxhighlight
 
 		if( !isset( $this->showFCKEditor ) ){
 			$this->showFCKEditor = 0;
@@ -606,6 +607,7 @@ var wgCKeditorCurrentMode = "wysiwyg";
 var editorForceReadOnly = false; //12.01.15 RL To disable source button and toggle link for prolonged time.
 var fck_mv_plg_strtr_span = []; //16.01.15 RL
 var fck_mv_plg_strtr_span_counter = 0; //16.01.15 RL
+var is_special_elem_with_text_tags = ' . ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ? 1 : 0 ) . '; //TEST_syntaxhighlight
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
 

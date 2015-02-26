@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page; toolbar button to create/remove nowiki/syntaxhighlight format; variable "$wgFCKEditorSpecialElementWithTextTags = 1" in LocalSettings.php to get img- element with nowiki/syntaxhighlight tags. Icon of toolbar button for template- dialog changed. Version: 1.5.6_0  [B551+26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
+
 - 23.02.15  Added language variables for link- and template- dialogs (by Varlin). Modified translations: fi, de. Version: 1.5.6_0  [B551+23.02.2015].
 
 - 10.02.15  Fixed activation of undo/redo buttons when switching from source to wysiwyg view.  Version: 1.5.6_0 [B551+10.02.2015].
@@ -328,13 +330,16 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     #27.03.14<-
 
     #06.02.15->
-    #Setting $wgFCKEditorSpecialElementWithPreTag = 1; will cause text blocks
-    #within pre- tags to be displayed as special -element, in case there are any
-    #attirubutes included with pre- tag. In case value of paremeter is eq. to 0 or
-    #pre- tag does not have any attributes, text block is placed directly on page
-    #as text in wysiwyg mode.
-    $wgFCKEditorSpecialElementWithPreTag = 0;
+    #Setting value of following variables eq. to 1 will cause wikitext text blocks
+    #within specified tags to be displayed as image- element in wysiwyg mode.
+    #Value eq. to 0 makes texts inside these tags editable directly as text in wysiwyg mode
+    #using pre- parent tag + child tag.
+    $wgFCKEditorSpecialElementWithPreTag   = 0; // 1= <pre> tags with attributes only => img- element
     #06.02.15<-
+
+    #26.02.15->
+    $wgFCKEditorSpecialElementWithTextTags = 0; // 1= <nowiki>, <source> and <syntaxhighlight> tags => img- element
+    #26.02.15<-
 
 
 --------------
