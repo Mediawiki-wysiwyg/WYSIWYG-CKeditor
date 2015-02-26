@@ -193,7 +193,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
 			'}\n' +  
-			'pre.fck_mw_nowiki' +           //fck_mw_nowiki,FCK__MWNowiki           //TEST_syntaxhighlight->
+			'pre.fck_mw_nowiki' +           //fck_mw_nowiki,FCK__MWNowiki           //Syntaxhighlight-Nowiki-Pre->
 			'{' +
 				'background-color:rgb(235,235,235);' + 
 				'border: 1px solid rgb(224,224,224);' +
@@ -204,7 +204,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			'{' +
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
-			'}\n';                                                                  //TEST_syntaxhighlight<-
+			'}\n';                                                                  //Syntaxhighlight-Nowiki-Pre<-
         return str;
     },
 
@@ -725,7 +725,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
 
 		if ( !is_special_elem_with_text_tags ) {
-			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); //TEST_syntaxhighlight->
+			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); //Syntaxhighlight-Nowiki-Pre->
 			CKEDITOR.dialog.add( 'MWTextTagsD', this.path + 'dialogs/texttags.js' ); 
 
 			if ( editor.contextMenu ) {
@@ -750,7 +750,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 						return { MWTextTagsItem: CKEDITOR.TRISTATE_OFF };
 					}
 				});
-			}                                                                   //TEST_syntaxhighlight<-
+			}                                                                   //Syntaxhighlight-Nowiki-Pre<-
 		}
 	
         if (editor.addMenuItem) {
@@ -767,12 +767,12 @@ CKEDITOR.plugins.add( 'mediawiki',
 		if ( editor.ui.addButton )
 		{
 			if ( !is_special_elem_with_text_tags ) {
-				editor.ui.addButton( 'MWTextTags', {       //TEST_syntaxhighlight->
+				editor.ui.addButton( 'MWTextTags', {       //Syntaxhighlight-Nowiki-Pre->
 					label: editor.lang.mwplugin.speSpecialTexts, //'Special Texts'
 					command: 'MWTextTags',
 					toolbar: 'insert',
 					icon: this.path + 'images/icon_texttags.png'
-				});                                        //TEST_syntaxhighlight<-
+				});                                        //Syntaxhighlight-Nowiki-Pre<-
 			}
 
 			editor.ui.addButton( 'MWSpecialTags',
@@ -867,7 +867,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			{
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
-				if ( element.hasAscendant( 'pre', true ) ) {            //TEST_syntaxhighlight 
+				if ( element.hasAscendant( 'pre', true ) ) {            //Syntaxhighlight-Nowiki-Pre 
 					evt.data.dialog = 'MWTextTagsD';
 				} else if ( element.is( 'img' ) &&                      //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
@@ -1965,21 +1965,21 @@ CKEDITOR.customprocessor.prototype =
 							var attribs = this._GetAttributesStr( htmlNode );
                             var eClassName = htmlNode.getAttribute('class');
 
-							if ( eClassName == "fck_mw_nowiki" ){ //TEST_syntaxhighlight
-							    // Edit code directly on page: <pre><syntaxhighlight lang="xxx">....</syntaxhighlight></pre>
+							if ( eClassName == "fck_mw_nowiki" ){ //Syntaxhighlight-Nowiki-Pre
+							    // Edit text directly on page: <pre><nowiki>....</nowiki></pre>
 								//var nodeChild = htmlNode.firstChild;
 								stringBuilder.push( '<nowiki>' );
-								stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode() ); //.replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') );
+								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
 								stringBuilder.push( '</nowiki>\n' ); 
 							}							
-							else if ( eClassName == "fck_mw_syntaxhighlight" ){ //TEST_syntaxhighlight
-							    // Edit code directly on page: <pre><syntaxhighlight lang="xxx">....</syntaxhighlight></pre>
+							else if ( eClassName == "fck_mw_syntaxhighlight" ){ //Syntaxhighlight-Nowiki-Pre
+							    // Edit text directly on page: <pre><syntaxhighlight lang="xxx">....</syntaxhighlight></pre>
 								var nodeChild = htmlNode.firstChild,
 									refLang = nodeChild.getAttribute( 'lang' );
 								stringBuilder.push( '<syntaxhighlight' );
 								stringBuilder.push( ' lang="' + refLang + '"' );
 								stringBuilder.push( '>' );
-								stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode() ); //.replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') );
+								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
 								stringBuilder.push( '</syntaxhighlight>' ); 
 							}
 							else if ( eClassName == "_fck_mw_lspace" ){

@@ -97,7 +97,7 @@ CKEDITOR.dialog.add( 'MWTextTagsD', function( editor ) {
 			}
 
 			if (this.hasPre || this.hasSyntaxhighlight  || this.hasNowiki ) {
-				this.hasText = convFromHTML(element.getText()); //Remember text
+				this.hasText = element.getText(); //Remember text
 			}
 			else {
 				if ( CKEDITOR.env.ie ) 				
@@ -105,7 +105,7 @@ CKEDITOR.dialog.add( 'MWTextTagsD', function( editor ) {
 				else
 					this.hasText = selection.getNative(); //Remember text
 			}
-
+			
 			if ( !this.hasPre ) {
 				element = editor.document.createElement( 'pre' ); 
 				this.insertMode = true;   //Plain text selected, insert pre tag
@@ -144,7 +144,7 @@ CKEDITOR.dialog.add( 'MWTextTagsD', function( editor ) {
 							hasMWTag = false;
 						}
 						mwtag.setAttribute( 'lang', this.getValueOf( 'tab-basic','attribute') );
-						mwtag.setText( convToHTML(this.hasText) );
+						mwtag.setText( this.hasText );
 						if ( element.hasClass('fck_mw_nowiki')           ) element.removeClass('fck_mw_nowiki');
 						if ( !element.hasClass('fck_mw_syntaxhighlight') ) element.addClass('fck_mw_syntaxhighlight');
 						break;
@@ -154,7 +154,7 @@ CKEDITOR.dialog.add( 'MWTextTagsD', function( editor ) {
 							mwtag = new CKEDITOR.dom.element( 'nowiki' ); // New element
 							hasMWTag = false;
 						}
-						mwtag.setText( convToHTML(this.hasText) );
+						mwtag.setText( this.hasText );
 						if ( element.hasClass('fck_mw_syntaxhighlight') ) element.removeClass('fck_mw_syntaxhighlight');
 						if ( !element.hasClass('fck_mw_nowiki')         ) element.addClass('fck_mw_nowiki');
 						break;
@@ -162,7 +162,7 @@ CKEDITOR.dialog.add( 'MWTextTagsD', function( editor ) {
 						if ( element ) {
 							if ( element.hasClass('fck_mw_nowiki') )          element.removeClass('fck_mw_nowiki');
 							if ( element.hasClass('fck_mw_syntaxhighlight') ) element.removeClass('fck_mw_syntaxhighlight');
-							mwtag.setText( convToHTML(this.hasText) );
+							mwtag.setText( this.hasText );
 							if ( this.hasNowiki || this.hasSyntaxhighlight ) {
 								mwtag.remove( true );  //Remove nowiki/syntaxhighlight child tag
 								if ( this.hasPre ) {

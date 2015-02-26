@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page; toolbar button to create/remove nowiki/syntaxhighlight format; variable "$wgFCKEditorSpecialElementWithTextTags = 1" in LocalSettings.php to get img- element with nowiki/syntaxhighlight tags. Icon of toolbar button for template- dialog changed. Version: 1.5.6_0  [B551+26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
+- 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page: removed unnecessary html decode/encode calls. Version: 1.5.6_0  [B551++26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
+
+- 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page: toolbar button to create/remove nowiki/syntaxhighlight format; variable "$wgFCKEditorSpecialElementWithTextTags = 1" in LocalSettings.php to get img- element with nowiki/syntaxhighlight tags. Icon of toolbar button for template- dialog changed. Version: 1.5.6_0  [B551+26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
 
 - 23.02.15  Added language variables for link- and template- dialogs (by Varlin). Modified translations: fi, de. Version: 1.5.6_0  [B551+23.02.2015].
 
