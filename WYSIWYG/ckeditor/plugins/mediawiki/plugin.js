@@ -1590,7 +1590,8 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( attribs );
 							stringBuilder.push( '\n' );
 
-							if ( htmlNode.caption && this._GetNodeText(htmlNode.caption).length > 0 ){
+                                                        if (htmlNode.childNodes[0].nodeName == 'caption') var captiontag = htmlNode.childNodes[0];
+							if ( captiontag && captiontag.contentText != '' ){
 								stringBuilder.push( '|+ ' );
 								this._AppendChildNodes( htmlNode.caption, stringBuilder, prefix );
 								stringBuilder.push( '\n' );
