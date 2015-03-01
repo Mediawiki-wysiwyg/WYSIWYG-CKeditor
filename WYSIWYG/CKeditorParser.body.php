@@ -586,6 +586,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	}
 
 	function replaceInternalLinks( $text ) {
+		$text = preg_replace( "/\[\[([^|\:\[\]]*?)\]\]/", "[[$1|$1]]", $text); // avoid getting an upper case to selflink - do not apply to Category / Property
 		$text = preg_replace( "/\[\[([^|\[\]]*?)\]\]/", "[[$1|RTENOTITLE]]", $text ); // #2223: [[()]]	=>	[[%1|RTENOTITLE]]
 		$text = preg_replace( "/\[\[:(.*?)\]\]/", "[[RTECOLON$1]]", $text ); // change ':' => 'RTECOLON' in links
 		$text = parent::replaceInternalLinks( $text );
