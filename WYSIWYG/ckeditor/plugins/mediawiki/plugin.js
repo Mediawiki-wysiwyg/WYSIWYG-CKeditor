@@ -309,7 +309,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 					selection.selectRanges( ranges );
 					editor.document.$.execCommand( 'unlink', false, null );
 					selection.selectBookmarks( bookmarks );
-            }
+            },
+            startDisabled: true
         };
         //28.03.14 RL<-
 
@@ -352,7 +353,8 @@ CKEDITOR.plugins.add( 'mediawiki',
                         style.type = CKEDITOR.STYLE_INLINE;		// need to override... dunno why. 
                         style.apply( editor.document ); 
 				}		
-            } 
+            },
+            startDisabled: true
         }; 
 		
         // language logic for additional messages
