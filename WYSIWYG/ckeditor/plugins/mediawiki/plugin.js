@@ -309,7 +309,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 					selection.selectRanges( ranges );
 					editor.document.$.execCommand( 'unlink', false, null );
 					selection.selectBookmarks( bookmarks );
-            }
+            },
+            startDisabled: true
         };
         //28.03.14 RL<-
 
@@ -352,7 +353,8 @@ CKEDITOR.plugins.add( 'mediawiki',
                         style.type = CKEDITOR.STYLE_INLINE;		// need to override... dunno why. 
                         style.apply( editor.document ); 
 				}		
-            } 
+            },
+            startDisabled: true
         }; 
 		
         // language logic for additional messages
@@ -773,29 +775,43 @@ CKEDITOR.plugins.add( 'mediawiki',
             });
         }
 
-		editor.on( 'selectionChange', function( evt )                   //28.03.14 RL For overridden 'unlink' button
-  			{
-				//To enable / disable unlink button, taken from
-				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
-  				if ( editor.readOnly )
-  					return;
+	//To enable / disable unlink button, taken from
+		//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
+		
+		// editor.on( 'selectionChange', function( evt ) {} )      //28.03.14 RL For overridden 'unlink' button     
+		// This event is fired only on tag change (and not within a same <p> )
+		// Moved to the following event which test all kind of selection
+		editor.on( 'contentDom', function( evt ) // Necessary to get onMouseUp / onKeyUp events
+			{
+				buttons_on_off = function(sel) 
+				{				
+					if ( editor.readOnly ) return;
 
-  				/*
-  				 * Despite our initial hope, document.queryCommandEnabled() does not work
-  				 * for this in Firefox. So we must detect the state by element paths.
-  				 */
-  				var cmd_unlink = editor.getCommand( 'unlink' ),
-                    cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' ),  //05.09.14 RL
-  					element = evt.data.path.lastElement && evt.data.path.lastElement.getAscendant( 'a', true );
-  				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() ) {
-  					cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable
-                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED ); //05.09.14 RL
-                }    
-  				else {
-  					cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED );       //Disable 
-                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //05.09.14 RL  
-                }    
-  			} )
+					var cmd_unlink = editor.getCommand( 'unlink' ),
+						cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' );  //05.09.14 RL
+  								
+
+					// get html in selection and search for links (can't be donne with sel)
+					var iframe2 = document.getElementsByClassName('cke_wysiwyg_frame cke_reset')[0];
+					var sel2 = iframe2.contentDocument.getSelection();
+					if (sel2.rangeCount > 0) var clonedSelection = sel2.getRangeAt(0).cloneContents();
+	
+					cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED ); //Disable Simplelink
+   
+					// if selection is inside a link or has a link inside...     
+					if (editor.elementPath().contains('a') || clonedSelection.querySelectorAll('a').length > 0)
+						cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable Unlink
+					else {
+						cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED ); 		 //Disable Unlink
+						// if selection is a text (not an element), at least one character
+						if (sel.getType() != CKEDITOR.SELECTION_ELEMENT && sel.getSelectedText().length > 0)
+						cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //Enable Simplelink
+					}
+				}
+				editor.document.on('keyup',  function() { buttons_on_off( editor.getSelection() ) } );
+				editor.document.on('mouseup',  function() { buttons_on_off( editor.getSelection() ) } );
+			}
+		)
 
         editor.on( 'doubleclick', function( evt )
 			{
