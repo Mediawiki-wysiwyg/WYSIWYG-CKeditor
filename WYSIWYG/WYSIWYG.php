@@ -141,7 +141,7 @@ $wgHooks['EditPageBeforeEditButtons'][]         = 'CKeditor_MediaWiki::onEditPag
 global $wgDefaultUserOptions;
 $wgDefaultUserOptions['riched_use_toggle'] = 1;
 $wgDefaultUserOptions['riched_start_disabled'] = 0;
-$wgDefaultUserOptions['riched_use_popup'] = 1;
+$wgDefaultUserOptions['riched_use_popup'] = 0;
 $wgDefaultUserOptions['riched_toggle_remember_state'] = 1;
 $wgDefaultUserOptions['riched_link_paste_text'] = 1;       //08.09.14 RL
 
