@@ -465,7 +465,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 							// Use special- element with pre- tags if there are attributes included.
 							if ( empty($strParams) ) { 
 							    // No attributes, show text directly in wysiwyg
-								$output = '<pre' . $strParams . '>' . htmlentities($content) . '</pre>'; 
+								$output = '<pre' . $strParams . '>' . htmlentities( $content ) . '</pre>'; 
 							} else { // pre- tags with attributes are displayed as special- element
 								$content = str_replace( ' ', 'fckSPACE', $content );
 								$output = $this->fck_wikiTag( $tagName, $content, $params );

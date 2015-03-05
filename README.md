@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 05.03.15  Wysiwyg does not support IE versions below or eq. to IE8. Fixed double click error of pre- element when "$wgFCKEditorSpecialElementWithTextTags = 1". Fixed test when wikitext to html conversion can be started "editorSrcToWswTrigger = true". Removed one br- tag which caused extra line feeds when toggling source-wysiwyg mode. Version: 1.5.6_0 [B551+05.03.2015], branch CKeditor_v4_Nowiki-Synt-Pre (tags: Syntaxhighlight-Nowiki-Pre, "03.03.15").
+
 - 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page: removed unnecessary html decode/encode calls. Version: 1.5.6_0  [B551++26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
 
 - 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page: toolbar button to create/remove nowiki/syntaxhighlight format; variable "$wgFCKEditorSpecialElementWithTextTags = 1" in LocalSettings.php to get img- element with nowiki/syntaxhighlight tags. Icon of toolbar button for template- dialog changed. Version: 1.5.6_0  [B551+26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
@@ -386,12 +388,11 @@ About browser compatibility
 ===
 
 **About versions of IE:**
-- IE versions 7 or below will not work with this bundle.
+- IE versions 8 or below may not fully work with this bundle.
 
-- With IE8, IE9, IE10, IE11 browsers, DO NOT ENABLE browsers compatibility settings for your wiki site, if you do have them enabled then wysiwyg will not work.
+- With IE9, IE10, IE11 browsers, DO NOT ENABLE browsers compatibility settings for your wiki site, if you do have them enabled then wysiwyg will not work.
 
 **Browser versions known to work with this bundle of WYSIWYG:**
-- IE8
 - IE11
 - FireFox (v26.x - 35.x)
 - Chrome  (v.32.x, v.40.x)

@@ -724,8 +724,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 
 		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
 
-		if ( !is_special_elem_with_text_tags ) {
-			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); //Syntaxhighlight-Nowiki-Pre->
+		if ( !is_special_elem_with_text_tags ) {                                //Syntaxhighlight-Nowiki-Pre->       
+			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); 
 			CKEDITOR.dialog.add( 'MWTextTagsD', this.path + 'dialogs/texttags.js' ); 
 
 			if ( editor.contextMenu ) {
@@ -818,7 +818,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                     icon: this.path + 'images/tb_icon_simplelink.gif' 
                 }); 
 		}
-
+		
         // context menu
         if (editor.contextMenu) {
             editor.contextMenu.addListener(function(element, selection) {
@@ -867,7 +867,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			{
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
-				if ( element.hasAscendant( 'pre', true ) ) {            //Syntaxhighlight-Nowiki-Pre 
+				if ( element.hasAscendant( 'pre', true ) && !is_special_elem_with_text_tags ) { //Syntaxhighlight-Nowiki-Pre 
 					evt.data.dialog = 'MWTextTagsD';
 				} else if ( element.is( 'img' ) &&                      //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
@@ -931,15 +931,27 @@ CKEDITOR.plugins.add( 'mediawiki',
 			}
 		)
 		
-		editor.on('mode', function( evt ) //12.01.15 RL Editor opened or source buttons pressed, selected editor mode is ready
+		editor.on('mode', function( evt ) // Editor opened or source buttons pressed, selected editor mode is ready
 			{
-				setSourceToggle( editor ); //This is required by source button (source->wysiwyg). 				
+				setSourceToggle( editor ); // 12.01.15 RL: This is required by source button (source->wysiwyg). 				
 			} 
 		)
 		
-		editor.on( 'readOnly', function () //12.01.15 RL: Event fired when the readOnly property changes.
+		editor.on( 'readOnly', function () // Event fired when the readOnly property changes.
 			{
-				setSourceToggle( editor ); //This is required by toggle link (wikieditor->wysiwyg).
+				setSourceToggle( editor ); // 12.01.15 RL: This is required by toggle link (wikieditor->wysiwyg).
+			} 
+		)
+		
+		editor.on( 'beforeSetMode', function () // Fired before the editor mode is set.
+			{
+				if ( editor.mode == 'source' ) {
+					// 03.03.15 RL: 
+					// Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
+					// by event beforeSetMode or toggle link) is used to allow only one call of 
+					// 'wfSajaxWikiToHTML' in function toHtml.
+					window.parent.editorSrcToWswTrigger = true;
+				}
 			} 
 		)
 		
@@ -1185,7 +1197,7 @@ CKEDITOR.customprocessor.prototype =
 	_inLSpace : false,
 
    toHtml : function( data, fixForBody )
-   {  
+   {
         // all converting to html (like: data = data.replace( /</g, '&lt;' );)
         var loadHTMLFromAjax = function( result ){
 			if ( window.parent.popup &&
@@ -1204,18 +1216,25 @@ CKEDITOR.customprocessor.prototype =
 
         // Prevent double transformation because of some weird runtime issues
         // with the event dataReady in the smwtoolbar plugin 
-		// 12.01.15 RL-> 
-		//   There are two calls to toHtml when source button or toggle link is pressed in wikitext mode.
-		//   Rule below tries to test when page is in wikitext mode. Inserted html code inside page may make this test fail.
-        //if (!(data.indexOf('<p>') == 0 && 
-        //      data.match(/<.*?_fck_mw/) || data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL Commented out
-		if ( (data.match('<p>') == null) && 
-			 (data.match(/<.*?_fck_mw/) == null) &&
-			 (data.match(/class="fck_mw_\w+"/i) == null) &&
-			  window.parent.wgCKeditorInstance &&                //Because of TransformTextSwitcher plugin
-			  window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
+		// 12.01.15 RL, 03.03.15 RL:
+		//   There are two calls to toHtml when source button or toggle link is pressed in source mode.
+		//   Rule below tests when page still has wikitext and is in source mode.
+		//   Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
+		//   by event beforeSetMode or toggle link) is used to allow only one call of 'wfSajaxWikiToHTML' below.
+        // if ( !(data.indexOf('<p>') == 0 && //12.01.15 RL->Commented out
+        //        data.match(/<.*?_fck_mw/) || 
+		//        data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL<-
+		//
+		// if ( (data.match('<p>') == null) && //03.03.15 RL->Commented out
+		//	    (data.match(/<.*?_fck_mw/) == null) &&
+		//	    (data.match(/class="fck_mw_\w+"/i) == null) && //03.03.15 RL<-
+		
+		if ( window.parent.editorSrcToWswTrigger && //03.03.15 RL
+			 window.parent.wgCKeditorInstance &&                //Because of TransformTextSwitcher plugin
+			 window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
 		{				
-			toggleReadOnly( true );                   //12.01.15 RL<-
+			window.parent.editorSrcToWswTrigger = false; //03.03.15 RL
+			toggleReadOnly( true );                      //12.01.15 RL
 			// Use Ajax to transform the Wikitext to HTML.
 			if( window.parent.popup ){
 				window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
@@ -1225,7 +1244,7 @@ CKEDITOR.customprocessor.prototype =
 		}
 		var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
 		writer = new CKEDITOR.htmlParser.basicWriter();
-
+		
 		fragment.writeHtml( writer, this.dataFilter );
 		data = writer.getHtml( true );
 
