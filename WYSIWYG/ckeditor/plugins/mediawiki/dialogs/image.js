@@ -1,203 +1,341 @@
+/*
+Different image objects invisible :
+	element = the real selected element in CKeditor
+	imageElement = image going to be inserted in CKeditor
+	cleanImageElement = image buffer when in edit mode, becomes imageElement
+	
+For preview :
+	preview = shortcut to img previewImageId = cke_64_previewImage
+	previewPreloader = invisible img object
+
+TODO : insert stopTyping ('stop typing to search')
+TODO : disallow validation if image name is not found
+TODO : replace deprecated Ajax call by jQuery ?
+TODO : remove MW attributes that can be simply read in style ( _fck_mw_location  _fck_mw_vertical-align ... )
+
+*/
+
 CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 {
+	
 	// Load image preview.
 	var IMAGE = 1,
 		LINK = 2,
 		PREVIEW = 4,
 		CLEANUP = 8,
 		regexGetSize = /^\s*(\d+)((px)|\%)?\s*$/i,
-		regexGetSizeOrEmpty = /(^\s*(\d+)((px)|\%)?\s*$)|^$/i,
-		pxLengthRegex = /^\d+px$/,
 		SrcInWiki,
+		previewPreloader,
+		searchTimer,
         imgLabelField = (window.parent.wgAllowExternalImages || window.parent.wgAllowExternalImagesFrom )
             ? editor.lang.mwplugin.fileNameExtUrl
             : editor.lang.mwplugin.fileName;
+			
+	var numbering = function( id ) { return CKEDITOR.tools.getNextId() + '_' + id; }, // e.g 'cke_64_previewImage' -> Why ?
+		btnLockSizesId = numbering( 'btnLockSizes' ),
+		btnResetSizeId = numbering( 'btnResetSize' ),
+		imagePreviewLoaderId = numbering( 'ImagePreviewLoader' ),
+		imagePreviewBoxId = numbering( 'ImagePreviewBox' ),
+		previewLinkId = numbering( 'previewLink' ),
+		previewImageId = numbering( 'previewImage' );		
+			
+	
+	var onSizeChange = function() {
+					var value = this.getValue(),	// This = input element.
+						aMatch = value.match( regexGetSize ); // Check value
+					if ( aMatch ) {
+						if ( aMatch[ 2 ] == '%' ) // % is allowed - > unlock ratio.
+						switchLockRatio( false ); // Unlock.
+						value = aMatch[ 1 ];
+					}
 
+					// Only if ratio is locked
+					if ( dialog.lockRatio ) {
+						var origWidth = previewPreloader.$.naturalWidth,
+							origHeight = previewPreloader.$.naturalHeight;
+						
+							if ( this.id == 'txtHeight' ) {
+								if ( value && value != '0' )
+									value = Math.round( origWidth * ( value / origHeight ) );
+								if ( !isNaN( value ) )
+									dialog.setValueOf( 'info', 'txtWidth', value );
+							}
+							else {
+								if ( value && value != '0' )
+									value = Math.round( origHeight * ( value / origWidth ) );
+								if ( !isNaN( value ) )
+									dialog.setValueOf( 'info', 'txtHeight', value );
+							}
+					}
+					updatePreview();  	
+	};
+	
+	var SetupRatioLock = function() {
+			// Activate Reset button
+			var resetButton = CKEDITOR.document.getById( btnResetSizeId ),
+			ratioButton = CKEDITOR.document.getById( btnLockSizesId );
+			if ( resetButton ) {
+				resetButton.on( 'click', function( evt ) {
+					resetSize();
+					evt.data && evt.data.preventDefault();
+				} );
+				resetButton.on( 'mouseover', function() { this.addClass( 'cke_btn_over' ); }, resetButton );
+				resetButton.on( 'mouseout', function() { this.removeClass( 'cke_btn_over' );}, resetButton );
+			}
+			// Activate (Un)LockRatio button
+			if ( ratioButton ) {
+				ratioButton.on( 'click', function( evt ) {
+					switchLockRatio();
+
+					var origWidth = previewPreloader.$.naturalWidth,
+						origHeight = previewPreloader.$.naturalHeight,
+						width = dialog.getValueOf( 'info', 'txtWidth' );
+
+						var height = origHeight / origWidth * width;
+						if ( !isNaN( height ) ) {
+							dialog.setValueOf( 'info', 'txtHeight', Math.round( height ) );
+							updatePreview();
+						}	
+				evt.data && evt.data.preventDefault();
+				} );
+				ratioButton.on( 'mouseover', function() {this.addClass( 'cke_btn_over' );}, ratioButton );
+				ratioButton.on( 'mouseout', function() {this.removeClass( 'cke_btn_over' );}, ratioButton );
+			}
+	}
+				
+	var switchLockRatio = function( value ) {
+			// no argument value (undefined) = user set preference
+			// 'check' value = 
+			
+			if ( !dialog.getContentElement( 'info', 'ratioLock' ) )	return null;
+
+			// Check image ratio and original image ratio, but respecting user's preference.
+			if ( value == 'check' ) {
+				if ( !dialog.userlockRatio ) {
+						var width = dialog.getValueOf( 'info', 'txtWidth' ),
+							height = dialog.getValueOf( 'info', 'txtHeight' ),
+							originalRatio = previewPreloader.$.naturalWidth * 1000 /  previewPreloader.$.naturalHeight,
+							thisRatio = width * 1000 / height;
+						dialog.lockRatio = false; // Default: unlock ratio
+
+						if ( !width && !height ) dialog.lockRatio = true;
+						else if ( !isNaN( originalRatio ) && !isNaN( thisRatio ) ) 
+							if ( Math.round( originalRatio ) == Math.round( thisRatio ) )
+								dialog.lockRatio = true;
+				}
+			} else if ( value !== undefined )
+				dialog.lockRatio = value;
+			else {
+				dialog.userlockRatio = 1;			  // the user has defined a preference
+				dialog.lockRatio = !dialog.lockRatio; // true <> false
+			}
+
+			var ratioButton = CKEDITOR.document.getById( btnLockSizesId );
+			if ( dialog.lockRatio )	ratioButton.removeClass( 'cke_btn_unlocked' ); else ratioButton.addClass( 'cke_btn_unlocked' );
+
+			// Ratio button hc presentation - WHITE SQUARE / BLACK SQUARE
+			if ( CKEDITOR.env.hc ) {
+				var icon = ratioButton.getChild( 0 );
+				icon.setHtml( dialog.lockRatio ? CKEDITOR.env.ie ? '\u25A0' : '\u25A3' : CKEDITOR.env.ie ? '\u25A1' : '\u25A2' );
+			}
+
+			return dialog.lockRatio;
+	};	
+
+
+	// initialize width or height in the dialog (field txtWidth or txtHeight)
+	var setupDimension = function( type, element ) {
+					if ( type != IMAGE ) return;
+
+					function checkDimension( size, defaultValue ) {
+						var aMatch = size.match( regexGetSize );
+						if ( aMatch ) {
+							if ( aMatch[ 2 ] == '%' ) // % is allowed.
+							{
+								aMatch[ 1 ] += '%';
+								switchLockRatio( false ); // Unlock ratio
+							}
+							return aMatch[ 1 ];
+						}
+						return defaultValue;
+					}
+
+					var value = '',
+						dimension = ((this.id == 'txtWidth') ? 'width' : 'height'),
+						size = element.getAttribute( dimension );
+
+					if (size)	value = checkDimension( size, value );
+					
+					value = checkDimension( element.getStyle( dimension ), value );
+
+					// set given dimension, or default natural width / height		
+					if (value != '') this.setValue( value );
+					else if (dimension == 'width') this.setValue( previewPreloader.$.naturalWidth );
+											 else this.setValue( previewPreloader.$.naturalHeight );
+	};
+	
+	
+	var resetSize = function() {
+						
+			var widthField = dialog.getContentElement( 'info', 'txtWidth' ),
+			heightField = dialog.getContentElement( 'info', 'txtHeight' );
+						
+			widthField && widthField.setValue( previewPreloader.$.naturalWidth );  
+			heightField && heightField.setValue( previewPreloader.$.naturalHeight ); 
+						
+			updatePreview();  
+	};	
+
+			
 	var onImgLoadEvent = function()	{
 		// Image is ready.
-		var original = this.originalElement;
-		original.setCustomData( 'isReady', 'true' );
-		original.removeListener( 'load', onImgLoadEvent );
-		original.removeListener( 'error', onImgLoadErrorEvent );
-		original.removeListener( 'abort', onImgLoadErrorEvent );
+		dialog.preview.setCustomData( 'isReady', 'true' );
+		dialog.preview.removeListener( 'load', onImgLoadEvent );
+		dialog.preview.removeListener( 'error', onImgLoadErrorEvent );
+		dialog.preview.removeListener( 'abort', onImgLoadErrorEvent );
 
 		// Hide loader
 		CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
 
 		// New image -> new dimensions
-		if ( !this.dontResetSize )
-			resetSize( this );
+		resetSize();
 
-		if ( this.firstLoad )
-			CKEDITOR.tools.setTimeout( function(){switchLockRatio( this, 'check' );}, 0, this );
-
-		this.firstLoad = false;
-		this.dontResetSize = false;
+/*		if ( this.firstLoad )
+			CKEDITOR.tools.setTimeout( function(){switchLockRatio( 'check' );}, 0, this );
+		this.firstLoad = false;*/
+		
+		// Possible fix for #12818.
+		updatePreview();
 	};
 
 	var onImgLoadErrorEvent = function(){
 		// Error. Image is not loaded.
-		var original = this.originalElement;
-		original.removeListener( 'load', onImgLoadEvent );
-		original.removeListener( 'error', onImgLoadErrorEvent );
-		original.removeListener( 'abort', onImgLoadErrorEvent );
+		dialog.preview.removeListener( 'load', onImgLoadEvent );
+		dialog.preview.removeListener( 'error', onImgLoadErrorEvent );
+		dialog.preview.removeListener( 'abort', onImgLoadErrorEvent );
 
 		// Set Error image.
 		var noimage = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
 
-		if ( this.preview )
-			this.preview.setAttribute( 'src', noimage );
+		if ( dialog.preview ) dialog.preview.setAttribute( 'src', noimage );
 
 		// Hide loader
 		CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
+		
+		switchLockRatio( false ); // Unlock.
 	};
-
-    var searchTimer,
-        searchLabel = editor.lang.mwplugin.searchLabel,
-        numbering = function( id )
-		{
-			return CKEDITOR.tools.getNextId() + '_' + id;
-		},
-		imagePreviewLoaderId = numbering( 'ImagePreviewLoader' ),
-		imagePreviewBoxId = numbering( 'ImagePreviewBox' ),
-		previewLinkId = numbering( 'previewLink' ),
-		previewImageId = numbering( 'previewImage' );
-
-    var previewPreloader;
+		
 	
-    var ClearImage = function( dialog ) { //23.11.14 RL
-        url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
-        SrcInWiki = url;
-        previewPreloader.setAttribute( 'src', url );
-		dialog.preview.setAttribute( 'src', previewPreloader.$.src );
-		updatePreview( dialog );
-    }	
-    
-    var GetImageUrl = function( dialog, img ) {
+	var DispImgPView = function ( imgname ) {  //23.12.14 RL
+	
+        if ( imgname == editor.lang.mwplugin.tooManyResults || imgname == '' ) return;
+		
         var LoadPreviewImage = function(result) {
             var url = result.responseText.Trim();
-            if (! url)
-                url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
+            if (! url) url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
             SrcInWiki = url;
             // Query the preloader to figure out the url impacted by based href.
             previewPreloader.setAttribute( 'src', url );
 			dialog.preview.setAttribute( 'src', previewPreloader.$.src );
-			updatePreview( dialog );
+			updatePreview();
+			dialog.preview.setAttribute( 'src', SrcInWiki );
         }
         window.parent.sajax_request_type = 'GET' ;
-        window.parent.sajax_do_call( 'wfSajaxGetImageUrl', [img], LoadPreviewImage ) ;
-    }
-
-	var DispImgPView = function ( dialog, img ) {  //23.12.14 RL
-	
-        if ( img == editor.lang.mwplugin.tooManyResults || img == '' ) return;
-
-        GetImageUrl( dialog, img );
-
-        var original = dialog.originalElement;
-
-		dialog.preview.removeStyle( 'display' );
-
-		original.setCustomData( 'isReady', 'false' );
+        window.parent.sajax_do_call( 'wfSajaxGetImageUrl', [imgname], LoadPreviewImage ) ; 
+		
         // Show loader
+		dialog.preview.removeStyle( 'display' );
 		var loader = CKEDITOR.document.getById( imagePreviewLoaderId );
-		if ( loader )
-            loader.setStyle( 'display', '' );
+		if ( loader ) loader.setStyle( 'display', '' );
 
-        original.on( 'load', onImgLoadEvent, dialog );
-		original.on( 'error', onImgLoadErrorEvent, dialog );
-		original.on( 'abort', onImgLoadErrorEvent, dialog );
-		original.setAttribute( 'src', img );
+        dialog.preview.on( 'load', onImgLoadEvent, dialog );
+		dialog.preview.on( 'error', onImgLoadErrorEvent, dialog );
+		dialog.preview.on( 'abort', onImgLoadErrorEvent, dialog );
 	}
 
-    var updatePreview = function( dialog ) {
-		//Don't load before onShow.
-		if ( !dialog.originalElement || !dialog.preview )
-			return 1;
-
-		// Read attributes and update imagePreview;
-		dialog.commitContent( PREVIEW, dialog.preview );
-		return 0;
-	}
-
-    var SetSearchMessage = function ( dialog, message ) {
-        message = searchLabel.replace(/%s/, message);
-        var	e = dialog.getContentElement( 'mwImgTab1', 'imgList' ),
-        label = document.getElementById(e.domId).getElementsByTagName('label')[0];
-        e.html = message;
-        label.innerHTML = message;
-    }
-
-    var ClearSearch = function(dialog) {
-        var	e = dialog.getContentElement( 'mwImgTab1', 'imgList' );
+	// Clear imgList
+    var ClearSearch = function() {
+        var	e = dialog.getContentElement( 'info', 'imgList' );
         e.items = [];
         var div = document.getElementById(e.domId),
             select = div.getElementsByTagName('select')[0];
         while ( select.options.length > 0 )
             select.remove( 0 )
     }
+	
+	// Clear Image preview
+    var ClearImage = function() { //23.11.14 RL
+        url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
+        SrcInWiki = url;
+        previewPreloader.setAttribute( 'src', url );
+		dialog.preview.setAttribute( 'src', previewPreloader.$.src );
+		updatePreview();
+    }	
+	
+	// When imgFilename changes
+    var OnUrlChange = function() {
+		
+		var SetSearchMessage = function ( message ) {
+			message = editor.lang.mwplugin.searchLabel.replace(/%s/, message);
+			var	e = dialog.getContentElement( 'info', 'imgList' ),
+			label = document.getElementById(e.domId).getElementsByTagName('label')[0];
+			label.innerHTML = message;
+		}
 
-    var OnUrlChange = function( dialog ) {
-
-        //var dialog = this.getDialog();
-
+		// Start searching images in db corresponding to imgFilename
         var StartSearch = function() {
-            var	e = dialog.getContentElement( 'mwImgTab1', 'imgFilename' ),
-                link = e.getValue().Trim();
-            
-			if ( link == '' ) ClearImage( dialog ); //23.12.14 RL
+			if ( imgname == '' ) ClearImage(); //23.12.14 RL
 			
-            SetSearchMessage( dialog, editor.lang.mwplugin.searching ) ;
+            SetSearchMessage( editor.lang.mwplugin.searching ) ;
             
             // Make an Ajax search for the pages.
             window.parent.sajax_request_type = 'GET' ;
-            window.parent.sajax_do_call( 'wfSajaxSearchImageCKeditor', [link], LoadSearchResults ) ;
+            window.parent.sajax_do_call( 'wfSajaxSearchImageCKeditor', [imgname], LoadSearchResults ) ;
         }
 
-        var LoadSearchResults = function(result) {
+		// Displaying the results of the search
+		var LoadSearchResults = function(result) {
             var results = result.responseText.split( '\n' ),
-                select = dialog.getContentElement( 'mwImgTab1', 'imgList' );
+                select = dialog.getContentElement( 'info', 'imgList' );
 
-            ClearSearch(dialog) ;
+            ClearSearch() ;		
 
-            if ( results.length == 0 || ( results.length == 1 && results[0].length == 0 ) ) {
-                SetSearchMessage( dialog, editor.lang.mwplugin.noImgFound ) ;
-            }
+            if ( results.length == 0 || ( results.length == 1 && results[0].length == 0 ) ) // no image found
+                SetSearchMessage( editor.lang.mwplugin.noImgFound ) ;
             else {
-                if ( results.length == 1 )
-                    SetSearchMessage( dialog, editor.lang.mwplugin.oneImgFound ) ;
-                else
-                    SetSearchMessage( dialog, results.length + editor.lang.mwplugin.manyImgFound ) ;
-
-                for ( var i = 0 ; i < results.length ; i++ ) {
+                if ( results.length == 1 ) {										// 1 image found
+					SetSearchMessage( editor.lang.mwplugin.oneImgFound ) ;
+					if (imgname == results[0]) DispImgPView(results[0]);	// if file name match, load it
+				}
+                else																// several images found
+                    SetSearchMessage( results.length + editor.lang.mwplugin.manyImgFound ) ;
+		
+                for ( var i = 0 ; i < results.length ; i++ ) {		//imgList is filled from db
                     if (results[i] == '___TOO__MANY__RESULTS___')
-                        select.add ( editor.lang.mwplugin.tooManyResults );
+                        select.add( editor.lang.mwplugin.tooManyResults );
                     else
-                        select.add ( results[i].replace(/_/g, ' '), results[i] );
-
-                }
+                        select.add( results[i].replace(/_/g, ' '), results[i] );			
+                }	
             }
-
         }
 
-        var e = dialog.getContentElement( 'mwImgTab1', 'imgFilename' ),
-        link = e.getValue().Trim();
+		var	imgname = dialog.getContentElement( 'info', 'imgFilename' ).getValue().Trim();
 
-        if ( searchTimer )
-            window.clearTimeout( searchTimer ) ;
+        if ( searchTimer ) window.clearTimeout( searchTimer ) ;
 
-        if( /^(http|https):\/\//.test( link ) ) {
-            SetSearchMessage( dialog, editor.lang.mwplugin.externalLink ) ;
+        if( /^(http|https):\/\//.test( imgname ) ) {
+            SetSearchMessage( editor.lang.mwplugin.externalLink ) ;
             return ;
         }
 
-        if ( link.length < 1  )
-            SetSearchMessage( dialog, editor.lang.mwplugin.startTyping ) ;
-        else
-            SetSearchMessage( dialog, editor.lang.mwplugin.searching ) ;
-        searchTimer = window.setTimeout( StartSearch, 500 ) ;
-
+        if ( imgname.length < 1  )
+            SetSearchMessage( editor.lang.mwplugin.startTyping ) ;
+        else {
+            SetSearchMessage( editor.lang.mwplugin.searching ) ;
+		    searchTimer = window.setTimeout( StartSearch, 500 ) ; // refresh search
+		}
     }
+	
     // return 0 create no image link, 1 image with local url, 2 image link with ext. url
     var createImageLink = function ( uri ) {
         uri = decodeURI( uri ).toLowerCase();
@@ -214,15 +352,40 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
             }
         }
         return 0;
-
     }
+	
+	var updatePreview = function() {
+			//Don't load before onShow
+			if ( !dialog.preview )
+			return 1;
+
+			// Read attributes and use it to update imagePreview
+			dialog.commitContent( PREVIEW, dialog.preview );
+			return 0;
+	}
+			
+	// Custom commit dialog logic, that give inline style field (txtdlgGenStyle) 
+	// higher priority to avoid overwriting styles contribute by other fields.
+	// This style field is in 'advanced' tab of dialog, not presently integrated
+	function commitContent() {
+			var args = arguments;
+			// var inlineStyleField = this.getContentElement( 'advanced', 'txtdlgGenStyle' ); 
+			// inlineStyleField && inlineStyleField.commit.apply( inlineStyleField, args );
+
+			this.foreach( function( widget ) {
+				if ( widget.commit && widget.id != 'txtdlgGenStyle' )
+					widget.commit.apply( widget, args );
+				} );
+	}
+	
+	
         return {
             title : editor.lang.mwplugin.imgTitle,
             minWidth : 420,
             minHeight : 310,
 			contents : [
 				{
-					id : 'mwImgTab1', 
+					id : 'info', 
 					label : 'Tab info',
 					elements :
 					[
@@ -231,17 +394,15 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                             children: [
                                 {
                                     type: 'vbox',
-                                    style : 'width:40%;',
+                                    style : 'width:95%;',
                                     children: [
                                         {
                                             id: 'imgFilename',
                                             type: 'text',
                                             label: imgLabelField,
-                                            title: imgLabelField,   
+                                            title: imgLabelField,
                                             style: 'border: 1px;',
-                                            onKeyUp: function () {
-                                                OnUrlChange( this.getDialog() );
-                                            },
+                                            onKeyUp: function () { OnUrlChange(); },
                                             setup : function( type, element )
 											{
 												if ( type == IMAGE )
@@ -250,8 +411,6 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                                               element.getAttribute( '_cke_saved_src' ) ||
                                                               element.getAttribute( 'src' );
 													var field = this;
-
-													this.getDialog().dontResetSize = true;
 
 													field.setValue( url );		// And call this.onChange()
 													// Manually set the initial value.(#4191)
@@ -271,9 +430,8 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                                         else
                                                             element.setAttribute( 'src', SrcInWiki );
                                                     }
-                                                    else {
+                                                    else
                                                         element.setAttribute( 'href', decodeURI( this.getValue() ) );
-                                                    }
 												}
 												else if ( type == CLEANUP )
 												{
@@ -292,18 +450,17 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             //size: 5,    //07.01.14 RL
                                             size: 11,     //07.01.14 RL
                                             label: editor.lang.mwplugin.startSearch,
-                                            title: editor.lang.mwplugin.startSearchTitle, // 'image list'
+                                            title: editor.lang.mwplugin.startSearchTitle,
                                             required: false,
                                             style: 'border: 1px; width:100%;',
                                             items: [  ],
                                             onChange: function () {
-                                                var dialog = this.getDialog(),
                                                     newImg = this.getValue(),
-                                                    e = dialog.getContentElement( 'mwImgTab1', 'imgFilename' );
-                                                if ( newImg == editor.lang.mwplugin.tooManyResults ) return;
-                                                e.setValue(newImg.replace(/_/g, ' '));
-												DispImgPView( dialog, newImg); //23.12.14 RL
-                                            }
+                                                    e = dialog.getContentElement( 'info', 'imgFilename' );
+													if ( newImg == editor.lang.mwplugin.tooManyResults ) return;
+													e.setValue(newImg.replace(/_/g, ' '));
+													DispImgPView( newImg ); //23.12.14 RL
+													}
                                         }
                                     ]
                                 },
@@ -322,7 +479,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 											'<img id="' + previewImageId + '" alt="" /></a>' +
 											'</td></tr></table></div></div>'
 										}
-									]
+									]	
                                 }
 
                             ]
@@ -334,7 +491,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                             style: 'border: 1px;',
 							onChange : function()
 							{
-								//updatePreview( this.getDialog() );
+								//updatePreview();
 							},
 							setup : function( type, element ) {
 								if ( type == IMAGE )
@@ -365,7 +522,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                             style: 'border: 1px;',
 							onChange : function()
 							{
-								//alert('imgLink:');
+								// ...
 							},
 							setup : function( type, element ) {
 								if ( type == IMAGE )
@@ -476,21 +633,13 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                     {
                                         id: 'imgAlign',
                                         type: 'select',
-                                        //07.01.14 RL  label: editor.lang.image.align,
-                                        label: editor.lang.common.align,        //07.01.14 RL
+                                        label: editor.lang.common.align, 
                                         items: [
-                                            /*07.01.14 RL->****
-                                            [ ' ' ],
-                                            [ editor.lang.image.alignRight, 'Right' ],
-                                            [ editor.lang.image.alignLeft , 'Left' ],
-                                            [ editor.lang.mwplugin.alignCenter, 'Center' ]
-                                            ****/
 											[ editor.lang.common.notSet,     ' '      ],
-											[ editor.lang.common.alignNone,  'None'   ], //31.12.14 RL											
+											[ editor.lang.common.alignNone,  'None'   ], 										
                                             [ editor.lang.common.alignLeft,  'Left'   ],
                                             [ editor.lang.common.alignCenter,'Center' ],
 											[ editor.lang.common.alignRight, 'Right'  ]
-                                            /*07.01.14 RL<-*/
                                         ],
                                         setup : function( type, element ) {
 											//var className = element.getAttribute( 'class') || '',            //07.01.14 RL  
@@ -527,8 +676,10 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 														}
 													}
                                                 }
-                                            }
-                                        }
+                                            } else if ( type == CLEANUP )
+                                                if ( element.hasAttribute( '_fck_mw_location' ) )
+													element.removeAttribute( '_fck_mw_location' );
+											}
                                     },
                                     { //31.12.14 RL
                                         id: 'imgVAlign',
@@ -568,7 +719,9 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 														}
                                                     }
                                                 }
-                                            }
+                                            } else if ( type == CLEANUP )
+                                                if ( element.hasAttribute( '_fck_mw_vertical-align' ) ) 
+													element.removeAttribute( '_fck_mw_vertical-align' );
                                         }
                                     },
 									{ //31.12.14 RL
@@ -577,9 +730,10 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 										label : editor.lang.mwplugin.img_upright, 
 										title : editor.lang.mwplugin.img_upright,
 										'default' : false,
-										onChange : function()
+										onChange : function() // upright => remove dimensions
 										{
-											//alert('linkDisabled:');
+											dialog.setValueOf( 'info', 'txtWidth', '' );
+											dialog.setValueOf( 'info', 'txtHeight', '' );
 										},
 										setup : function( type, element ) {
 											if ( type == IMAGE )
@@ -599,35 +753,19 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 										}							
 									},									
                                     {
-                                        id: 'imgWidth',
+                                        id: 'txtWidth',
                                         type: 'text',
                                         //label: editor.lang.image.width,   //07.01.14 RL
                                         label: editor.lang.common.width,    //07.01.14 RL
                                         size: '4',
-                                        setup : function( type, element ) {
-                                            var imgWidth = '',  //element.getAttribute( '_fck_mw_width') || '', //30.12.14 RL, 10.01.14 RL	
-												imgStyle = element.getAttribute( 'style') || '',            
-                                                match = /(?:^|\s)width\s*:\s*(\d+)/i.exec( imgStyle ),
-                                                imgStyleWidth = match && match[1] || 0,
-												imgRealWidth  = ( element.getAttribute( 'width' ) || '' ) + ''; //10.01.14 RL
-												//imgOrigWidth  = ( element.getAttribute( '_fck_mw_origimgwidth' ) || '' ) + ''; //31.12.14 RL
-													
-											if ( imgStyleWidth.length > 0 )     //10.01.14 RL->
-												imgWidth = imgStyleWidth;                                        
-											else if ( imgRealWidth.length > 0 ) //26.08.14
-												imgWidth = imgRealWidth;        //10.01.14 RL<-
-											//else if ( imgOrigWidth.length > 0 )
-											//    imgWidth = imgOrigWidth;
-											
-                                            if ( type == IMAGE && imgWidth )    //10.01.14 RL Was imgStyleWidth
-                                                this.setValue( imgWidth );		//10.01.14 RL Was imgStyleWidth		
-                                        },
+                                        setup : setupDimension,
+										onKeyUp: onSizeChange,
                                         commit : function( type, element, internalCommit ) {
 											var value = this.getValue();
 											if ( type == IMAGE )
 											{
 												if ( value )
-													element.setStyle( 'width', CKEDITOR.tools.cssLength( value ) );
+													element.setStyle( 'width', CKEDITOR.tools.cssLength( value ) );	
 												else if ( !value && this.isChanged( ) )
 													element.removeStyle( 'width' );
                                                 
@@ -639,11 +777,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 											{
 												var aMatch = value.match( regexGetSize );
 												if ( !aMatch )
-												{
-													var oImageOriginal = this.getDialog().originalElement;
-													if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
-														element.setStyle( 'width',  oImageOriginal.$.width + 'px');
-												}
+													element.setStyle( 'width',  previewPreloader.$.naturalWidth + 'px');
 												else
 													element.setStyle( 'width', CKEDITOR.tools.cssLength( value ) );
 											}
@@ -656,29 +790,13 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
                                     },
                                     {
-                                        id: 'imgHeight',
+                                        id: 'txtHeight',
                                         type: 'text',
                                         //label: editor.lang.image.height,   //07.01.14 RL
                                         label: editor.lang.common.height,    //07.01.14 RL
                                         size: '4',
-                                        setup : function( type, element ) {
-                                            var imgHeight = '' //element.getAttribute( '_fck_mw_height') || '',    //30.12.14 RL, 10.01.14 RL
-												imgStyle = element.getAttribute( 'style') || '',             
-                                                match = /(?:^|\s)height\s*:\s*(\d+)/i.exec( imgStyle ),      
-                                                imgStyleHeight = match && match[1] || 0,
-												imgRealHeight  = ( element.getAttribute( 'height' ) || '' ) + '';  //10.01.14 RL
-												//imgOrigHeight  = ( element.getAttribute( '_fck_mw_origimgheight' ) || '' ) + ''; //31.12.14 RL
-
-											if ( imgStyleHeight.length > 0 )     //10.01.14 RL->
-												imgHeight = imgStyleHeight;
-											else if ( imgRealHeight.length > 0 ) //26.08.14
-												imgHeight = imgRealHeight;       //10.01.14 RL<-
-											//else if ( imgOrigHeight.length > 0 )
-											//	imgHeight = imgOrigHeight;
-								
-                                            if ( type == IMAGE && imgHeight )	 //10.01.14 RL Was imgStyleHight
-                                                this.setValue( imgHeight ); 	 //10.01.14 RL Was imgStyleHight
-                                        },
+                                        setup : setupDimension,
+										onKeyUp: onSizeChange,
 										commit : function( type, element, internalCommit )
 										{
 											var value = this.getValue();
@@ -698,9 +816,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 												var aMatch = value.match( regexGetSize );
 												if ( !aMatch )
 												{
-													var oImageOriginal = this.getDialog().originalElement;
-													if ( oImageOriginal.getCustomData( 'isReady' ) == 'true' )
-														element.setStyle( 'height', oImageOriginal.$.height + 'px' );
+													element.setStyle( 'height', previewPreloader.$.naturalHeight + 'px' );
 												}
 												else
 													element.setStyle( 'height',  CKEDITOR.tools.cssLength( value ) );
@@ -713,11 +829,19 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 										}
 
                                     },
-                                    {
-                                        type: 'html',
-                                        width: '100%',
-                                        html: ''
-                                    }
+									{
+										id: 'ratioLock',
+										type: 'html',
+										style: 'margin-top:30px;width:40px;height:40px;',
+										onLoad: SetupRatioLock,
+										html: '<div>' +
+											'<a href="javascript:void(0)" tabindex="-1" title="' + editor.lang.image.lockRatio +
+											'" class="cke_btn_locked" id="' + btnLockSizesId + '" role="checkbox"><span class="cke_icon"></span><span class="cke_label">' + editor.lang.image.lockRatio + '</span></a>' +
+											'<a href="javascript:void(0)" tabindex="-1" title="' + editor.lang.image.resetSize +
+											'" class="cke_btn_reset" id="' + btnResetSizeId + '" role="button"><span class="cke_label">' + editor.lang.image.resetSize + '</span></a>' +
+											'</div>'
+									}
+
                                 ]
                         }
                     ]
@@ -727,12 +851,13 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
             onOk : function() {
 
                 if (this.imageEditMode && this.imageEditMode == "img" ) {
+					// get back imageElement from the buffer
                     this.imageElement = this.cleanImageElement;
 					delete this.cleanImageElement;
                 }
-                else {
+                else 
                     this.imageElement = editor.document.createElement( 'img' );
-                }
+
                 // Set attributes.
 				this.commitContent( IMAGE, this.imageElement );
 
@@ -744,7 +869,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                     link.setText( text );
                     this.imageElement = link;
                 }
-				/****** //31.12.14 RL Do not overwrite any of user made settings.
+				/******* //31.12.14 RL Do not overwrite any of user made settings.
                 else {
                     // set some default classes for alignment and border if this is not defined
                     var attrClass = this.imageElement.getAttribute('class');
@@ -753,12 +878,16 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                     if ( !( attrClass && attrClass.match(/fck_mw_(left|right|center)/) ) )
                         this.imageElement.addClass('fck_mw_right');
                 }
-				********/
+				********/ 
 				
-				if ( this.imageElement.getAttribute('_fck_mw_upright') ) { //31.12.14 RL
+				// if size is the same as original, no need to attribute a size
+				if (this.imageElement.$.width == previewPreloader.$.naturalWidth
+				 && this.imageElement.$.height == previewPreloader.$.naturalHeight)
+					 var has_original_size = true;
+				else var has_original_size = false;
+				
+				if ( this.imageElement.getAttribute('_fck_mw_upright') || has_original_size) {	//31.12.14 RL
 					// Check-box upright overrules width/height in this dialog.
-					// I was unable to find out how width/height elements of dialog could be accessed from
-					// upright element, so remove width and height here.
 					this.imageElement.removeAttribute('width');
 					this.imageElement.removeAttribute('height');
 					this.imageElement.$.style.removeProperty( 'width' );  //For IE
@@ -766,97 +895,81 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                 }
 
                 // Remove empty style attribute.
-				if ( !this.imageElement.getAttribute( 'style' ) ) {
+				if ( !this.imageElement.getAttribute( 'style' ) )
 					this.imageElement.removeAttribute( 'style' );
-				}
 
                 // Insert a new Image.
 				if ( !this.imageEditMode )
-				{
 					editor.insertElement( this.imageElement );
-				}
             },
 
     		onShow : function()
         	{
-                this.imageEditMode = false;
-                this.dontResetSize = false;
+				dialog = this;
+				dialog.imageElement = false;
+				dialog.imageEditMode = false; 	// Default: create a new element.
+				dialog.lockRatio = true;		// Default : lock ratio
+				dialog.userlockRatio = 0;		// The user has not yet set ratio preference
+				// dialog.firstLoad = true;	
                 
                 // clear old selection list from a previous call
-                var	e = this.getContentElement( 'mwImgTab1', 'imgList' );
-                    e.items = [];
-                var div = document.getElementById(e.domId),
-                    select = div.getElementsByTagName('select')[0];
-                while ( select.options.length > 0 )
-                    select.remove( 0 );
+				ClearSearch();			
                 // and set correct label for image list
-                e = this.getContentElement( 'mwImgTab1', 'imgList' ),
-                    label = document.getElementById(e.domId).getElementsByTagName('label')[0];
-                var editor = this.getParentEditor(),
-                    message = editor.lang.mwplugin.searchLabel.replace(/%s/, editor.lang.mwplugin.startTyping);
-                e.html = message;
+				var editor = this.getParentEditor(),
+					message = editor.lang.mwplugin.searchLabel.replace(/%s/, editor.lang.mwplugin.startTyping),
+					e = this.getContentElement( 'info', 'imgList' );  
+				label = document.getElementById(e.domId).getElementsByTagName('label')[0];
                 label.innerHTML = message;
 
-                var selection = editor.getSelection(),
-    				element = selection.getSelectedElement();
+                var element = editor.getSelection().getSelectedElement();
 
                 // Hide loader.
 				CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
+				
 				// Create the preview before setup the dialog contents.
 				previewPreloader = new CKEDITOR.dom.element( 'img', editor.document );
-				this.preview = CKEDITOR.document.getById( previewImageId );
+				dialog.preview = CKEDITOR.document.getById( previewImageId );
 
-                // Copy of the image
-				this.originalElement = editor.document.createElement( 'img' );
-				this.originalElement.setAttribute( 'alt', '' );
-				this.originalElement.setCustomData( 'isReady', 'false' );
-
+				// Check if an image -and not a fake element- is selected (=> edit mode)
+				// or if dialog comes from a file input -> which case ??
 				if ( element && element.getName() == 'img' && !element.getAttribute( 'data-cke-realelement' )
 					|| element && element.getName() == 'input' && element.getAttribute( 'type' ) == 'image' )
 				{
-					this.imageEditMode = element.getName();
-					this.imageElement = element;
-					SrcInWiki = element.getAttribute( 'src' );
-					OnUrlChange( this ); //23.12.14 RL imgList contains only name of existing image					
+					dialog.imageEditMode = element.getName();
+					dialog.imageElement = element;
+					SrcInWiki = element.getAttribute( 'src' );			
 				}
-                else {
-					OnUrlChange( this ); //imgList is filled from db
-                }
 
-				if ( this.imageEditMode )
+				if ( dialog.imageEditMode )
 				{	// Use the original element as a buffer from  since we don't want
 					// temporary changes to be committed, e.g. if the dialog is canceled.
-					this.cleanImageElement = this.imageElement;
-					this.imageElement = this.cleanImageElement.clone( true, true );
-					// Fill out all fields.
-					this.setupContent( IMAGE, this.imageElement );
+					dialog.cleanImageElement = dialog.imageElement;
+					dialog.imageElement = dialog.cleanImageElement.clone( true, true );
+					
+					// load image immediately (no need Ajax call)
+					previewPreloader.setAttribute( 'src', SrcInWiki );
+					dialog.preview.setAttribute( 'src', previewPreloader.$.src );
+
+					// Fill out all fields & preview
+					dialog.setupContent( IMAGE, dialog.imageElement );
+					updatePreview();
 				}
 				else
-					this.imageElement =  editor.document.createElement( 'img' );
+					dialog.imageElement =  editor.document.createElement( 'img' );
 
-				// Dont show preview if no URL given.
-				if ( !CKEDITOR.tools.trim( this.getValueOf( 'mwImgTab1', 'imgFilename' ) ) )
-				{
-					this.preview.removeAttribute( 'src' );
-					this.preview.setStyle( 'display', 'none' );
-				} else { // Preview existing image //30.12.14 RL Added "else"
-					e = this.getContentElement( 'mwImgTab1', 'imgFilename' ); //23.12.14 RL-> 
-					var newImg = e.getValue().replace(/ /g, '_');
-					DispImgPView( this, newImg);   //23.12.14 RL<-
-				}				
+				// Refresh LockRatio button
+				switchLockRatio( true );	
 			},
+			
 			onHide : function()
 			{
 				if ( this.preview )
-					this.commitContent( CLEANUP, this.preview );
-
-				if ( this.originalElement )
 				{
-					this.originalElement.removeListener( 'load', onImgLoadEvent );
-					this.originalElement.removeListener( 'error', onImgLoadErrorEvent );
-					this.originalElement.removeListener( 'abort', onImgLoadErrorEvent );
-					this.originalElement.remove();
-					this.originalElement = false;		// Dialog is closed.
+					this.commitContent( CLEANUP, this.preview );	// clean form fields
+					this.preview.removeListener( 'load', onImgLoadEvent );
+					this.preview.removeListener( 'error', onImgLoadErrorEvent );
+					this.preview.removeListener( 'abort', onImgLoadErrorEvent );
+					this.preview = false;		// Dialog is closed.
 				}
 
 				delete this.imageElement;
