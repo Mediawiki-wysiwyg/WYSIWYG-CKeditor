@@ -317,11 +317,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 		else {  //17.11.14 RL
 			$className = 'special';  //All others like <calendar>, <poll> ,etc...
 		} 
+		
+		$className = 'fck_mw_' . $className; //06.03.15 RL
 	    
 		if( empty( $argv ) ) {
-			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t">'; //17.11.14 RL _fck_mw_tagtype
+			$ret = '<span _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t" class="' . $className . '">'; //17.11.14 RL _fck_mw_tagtype 06.03.15 RL: class as last element
 		} else {
-			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t"';  //17.11.14 RL _fck_mw_tagtype
+			$ret = '<span _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t"';  //17.11.14 RL _fck_mw_tagtype
 			foreach( $argv as $key => $value ) {
 				$ret .= " " . $key . "=\"" . $value . "\"";				
 				$attrstr .= $key . ",";  //23.11.14 RL
@@ -329,7 +331,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 			if( ! empty( $attrstr ) ) {  //23.11.14 RL List of attribute names for special.js
 				$ret .= ' _fck_mw_tagattributes="' . substr( $attrstr,0,strlen($attrstr) - 1 ) . '"';
 			}	
-			$ret .= '>';
+			$ret .= ' class="' . $className . '">'; //06.03.15 RL: Moved class definition as last so that it will override possible user defined attributes (named "class"), which are not supported by wysiwyg
 		}
 	
 		if( !is_null( $str ) && $str != '' ) { //20.11.14 RL Added $str != ''

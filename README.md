@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 07.03.15  Modified place of class attribute "fck_mv_" with img-elements to be last one (tag:06.03.15). Version 1.5.6_0 [B551+07.03.2015].
+
 - 06.03.15  Allow every kind of templates (batch-18 #51). Fix <caption> support ("titles" of tables, batch-20 #55). Set "$wgDefaultUserOptions['riched_use_popup'] = 0;" by default (batch-23 #58). Avoid getting an upper case to selflink, do not apply to category/property (batch-21 #56). Modified enabling/disabling link buttons (batch-22 #57).  All prev. modications by Varlin (tag:06.03.15). Version 1.5.6_0 [B551+06.03.2015].
 
 - 05.03.15  Wysiwyg does not support IE versions below or eq. to IE8. Fixed double click error of pre- element when "$wgFCKEditorSpecialElementWithTextTags = 1". Fixed test when wikitext to html conversion can be started "editorSrcToWswTrigger = true". Removed one br- tag which caused extra line feeds when toggling source-wysiwyg mode. Version: 1.5.6_0 [B551+05.03.2015], branch CKeditor_v4_Nowiki-Synt-Pre (tags: Syntaxhighlight-Nowiki-Pre, "03.03.15").
