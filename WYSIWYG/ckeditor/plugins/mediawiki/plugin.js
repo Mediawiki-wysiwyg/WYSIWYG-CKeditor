@@ -321,7 +321,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 					selection.selectRanges( ranges );
 					editor.document.$.execCommand( 'unlink', false, null );
 					selection.selectBookmarks( bookmarks );
-            }
+            },
+			startDisabled: true // 06.03.15 Varlin
         };
         //28.03.14 RL<-
 
@@ -364,7 +365,8 @@ CKEDITOR.plugins.add( 'mediawiki',
                         style.type = CKEDITOR.STYLE_INLINE;		// need to override... dunno why. 
                         style.apply( editor.document ); 
 				}		
-            } 
+            },
+			startDisabled: true // 06.03.15 Varlin
         }; 
 		
         // language logic for additional messages
@@ -838,30 +840,45 @@ CKEDITOR.plugins.add( 'mediawiki',
                    ) return {MWSpecialTags: CKEDITOR.TRISTATE_ON};
             });
         }
+		
+		editor.on( 'contentDom', function( evt ) // Necessary to get onMouseUp / onKeyUp events 
+			{ 
+				//To enable / disable unlink button, taken from 
+				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html 
 
-		editor.on( 'selectionChange', function( evt )                   //28.03.14 RL For overridden 'unlink' button
-  			{
-				//To enable / disable unlink button, taken from
-				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
-  				if ( editor.readOnly )
-  					return;
-
-  				/*
-  				 * Despite our initial hope, document.queryCommandEnabled() does not work
-  				 * for this in Firefox. So we must detect the state by element paths.
-  				 */
-  				var cmd_unlink = editor.getCommand( 'unlink' ),
-                    cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' ),  //05.09.14 RL
-  					element = evt.data.path.lastElement && evt.data.path.lastElement.getAscendant( 'a', true );
-  				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() ) {
-  					cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable
-                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED ); //05.09.14 RL
-                }    
-  				else {
-  					cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED );       //Disable 
-                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //05.09.14 RL  
-                }    
-  			} )
+				// 06.03.15 Varlin: 
+				// Event editor.on( 'selectionChange' is fired only on selection change (and not within a same <p>)
+				// Enabling/disabling link buttons moved from event "editor.on( 'selectionChange'...)" here,
+				// which test all kind of selections. 
+				
+				buttons_on_off = function(sel)  
+				{				 
+					if ( editor.readOnly ) return; 
+		
+					var cmd_unlink = editor.getCommand( 'unlink' ), 
+						cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' );
+		
+					// get html in selection and search for links (can't be donne with sel) 
+					var iframe2 = document.getElementsByClassName('cke_wysiwyg_frame cke_reset')[0]; 
+					var sel2 = iframe2.contentDocument.getSelection(); 
+					if (sel2.rangeCount > 0) var clonedSelection = sel2.getRangeAt(0).cloneContents(); 
+		
+					cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED );     //Disable Simplelink 
+			
+					// if selection is inside a link or has a link inside...      
+					if ( typeof clonedSelection != 'undefined' && ( editor.elementPath().contains('a') || clonedSelection.querySelectorAll('a').length > 0 ) ) 
+						cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable Unlink 
+					else { 
+						cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED ); 		 //Disable Unlink 
+						// if selection is a text (not an element), at least one character 
+						if (sel.getType() != CKEDITOR.SELECTION_ELEMENT && sel.getSelectedText().length > 0) 
+						cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //Enable Simplelink 
+					} 
+				} 
+				editor.document.on('keyup',    function() { buttons_on_off( editor.getSelection() ) } ); 
+				editor.document.on('mouseup',  function() { buttons_on_off( editor.getSelection() ) } ); 
+			} 
+		) 		
 
         editor.on( 'doubleclick', function( evt )
 			{
@@ -1274,7 +1291,7 @@ CKEDITOR.customprocessor.prototype =
 		if (CKEDITOR.env.ie) {
 			data = this.ieFixHTML(data);
 		}
-		
+
         data = '<body xmlns:x="http://excel">' + data.htmlEntities()+ '</body>';
         // fix <img> tags
         data = data.replace(/(<img[^>]*)([^/])>/gi, '$1$2/>' );
@@ -1297,7 +1314,7 @@ CKEDITOR.customprocessor.prototype =
 		// Replace html comments by "Fckmw<id>fckmw" -keys (where <id>=0,1,2..) 
 		// so that possible incomplete xml structure of commented block
 		// will not prevent page handling (f.ex <!-- 1. incomplete html comment -- <!-- 2. complete html comment -->)
-		// MW seems to work like this with wikitext -> html conversion.
+		// MW seems to work like this with wikitext -> html conversion.		
 	    data = fck_mw_plg_replaceHTMLcomments( data ); //16.01.14 RL
 
         var rootNode = this._getNodeFromHtml( data );
@@ -1677,7 +1694,9 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( attribs );
 							stringBuilder.push( '\n' );
 
-							if ( htmlNode.caption && this._GetNodeText(htmlNode.caption).length > 0 ){
+							// if ( htmlNode.caption && this._GetNodeText(htmlNode.caption).length > 0 ){ // 06.03.15 Varlin patch-20 Fix <caption> support ("titles" of tables)
+							if (htmlNode.childNodes[0].nodeName == 'caption') var captiontag = htmlNode.childNodes[0]; // 06.03.15 Varlin
+							if ( typeof captiontag != 'undefined' && captiontag.contentText != '' ){ // 06.03.15 Varlin
 								stringBuilder.push( '|+ ' );
 								this._AppendChildNodes( htmlNode.caption, stringBuilder, prefix );
 								stringBuilder.push( '\n' );

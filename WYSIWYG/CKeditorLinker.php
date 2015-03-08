@@ -257,7 +257,7 @@ class CKeditorLinker {
               }
 
               if( isset( $fp['alt'] ) && !empty( $fp['alt'] ) && $fp['alt'] != 'Image:' . $orginal ) {
-                      $ret .= "alt=\""  . htmlspecialchars( $fp['alt'] ) . "\" " 
+                      $ret .= "alt=\""  . htmlspecialchars( $fp['alt'] ) . "\" "
 						   . "title=\"" . htmlspecialchars( $fp['alt'] ) . "\" ";     //31.01.15 RL
               } else if( isset( $fp['caption'] ) ) {  //22.12.14 RL
                       $ret .= "alt=\""  . htmlspecialchars( $fp['caption'] ) . "\" "  //22.12.14 RL (by Aarakast)
