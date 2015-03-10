@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 10.03.15  Merged modifications of branch Syntaxhighlight-Nowiki-Pre into branch CKeditor_v4. Version 1.5.6_0 [B551+07.03.2015].
+
 - 07.03.15  Modified place of class attribute "fck_mv_" with img-elements to be last one (tag:06.03.15). Version 1.5.6_0 [B551+07.03.2015].
 
 - 06.03.15  Allow every kind of templates (batch-18 #51). Fix <caption> support ("titles" of tables, batch-20 #55). Set "$wgDefaultUserOptions['riched_use_popup'] = 0;" by default (batch-23 #58). Avoid getting an upper case to selflink, do not apply to category/property (batch-21 #56). Modified enabling/disabling link buttons (batch-22 #57).  All prev. modications by Varlin (tag:06.03.15). Version 1.5.6_0 [B551+06.03.2015].
