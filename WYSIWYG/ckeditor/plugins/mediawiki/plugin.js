@@ -602,7 +602,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             oneCategoryFound   : 'Une catégorie trouvée',
             manyCategoryFound  : ' catégories trouvées',
 			mouseOverUnknownObj: 'Double-cliquer pour éditer',
-            speSpecialTexts    : 'Le type de texte',
+            speSpecialTexts    : 'Textes spéciaux',
 			speOperation       : 'Sélectionnez le type / opération',               //Select type / operation
 			speRemoveTag       : 'Retirer la commande',                            //Remove tag
 			speAttrValue       : 'La valeur de les attributes'                     //Value of attribute 
