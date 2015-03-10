@@ -317,11 +317,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 		else {  //17.11.14 RL
 			$className = 'special';  //All others like <calendar>, <poll> ,etc...
 		} 
+		
+		$className = 'fck_mw_' . $className; //06.03.15 RL
 	    
 		if( empty( $argv ) ) {
-			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t">'; //17.11.14 RL _fck_mw_tagtype
+			$ret = '<span _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t" class="' . $className . '">'; //17.11.14 RL _fck_mw_tagtype 06.03.15 RL: class as last element
 		} else {
-			$ret = '<span class="fck_mw_' . $className . '" _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t"';  //17.11.14 RL _fck_mw_tagtype
+			$ret = '<span _fck_mw_customtag="true" _fck_mw_tagname="' . $tagName . '" _fck_mw_tagtype="t"';  //17.11.14 RL _fck_mw_tagtype
 			foreach( $argv as $key => $value ) {
 				$ret .= " " . $key . "=\"" . $value . "\"";				
 				$attrstr .= $key . ",";  //23.11.14 RL
@@ -329,7 +331,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 			if( ! empty( $attrstr ) ) {  //23.11.14 RL List of attribute names for special.js
 				$ret .= ' _fck_mw_tagattributes="' . substr( $attrstr,0,strlen($attrstr) - 1 ) . '"';
 			}	
-			$ret .= '>';
+			$ret .= ' class="' . $className . '">'; //06.03.15 RL: Moved class definition as last so that it will override possible user defined attributes (named "class"), which are not supported by wysiwyg
 		}
 	
 		if( !is_null( $str ) && $str != '' ) { //20.11.14 RL Added $str != ''
@@ -342,6 +344,45 @@ class CKeditorParser extends CKeditorParserWrapper {
 		//if ($tagName == 'comments') printf("debug_tag_0 %s", preg_replace("/</","",$ret) ); //20.11.14 RL 
 		
 		$replacement = $this->fck_addToStrtr( $ret );
+
+		return $replacement;
+	}
+	
+	/**
+	 * Callback function for wiki tags using paragraph format "Formatted" <pre> -tag.
+	 *
+	 * @param string $tagName tag name, eg. nowiki, math
+	 * @param string $str Input
+	 * @param array $argv Arguments
+	 * @return string
+	 */
+	function fck_pre_wikiTag( $tagName, $str, $argv = array() ) { //Syntaxhighlight-Nowiki-Pre
+	
+		if( in_array( $tagName, $this->FCKeditorImageWikiTags ) ) {
+			$className = $tagName; 
+		} 
+		else {
+			$className = 'special';  //All others like <calendar>, <poll> ,etc...
+		} 
+		
+		if( empty( $argv ) ) {
+			$ret = '<pre class="fck_mw_' . $className . '"><' . $tagName . '>';
+		} else {
+			$ret = '<pre class="fck_mw_' . $className . '"><' . $tagName;
+			foreach( $argv as $key => $value ) {
+				$ret .= " " . $key . "=\"" . $value . "\"";				
+			}
+			$ret .= '>'; 
+		}
+		
+		if( !is_null( $str ) && $str != '' ) { 
+            $ret .= htmlspecialchars( $str );
+        } else {
+			$ret .= '_';
+		}	
+		$ret .= '</' . $tagName . '></pre>'; 
+
+		$replacement = $this->fck_addToStrtr( $ret, false ); // false = do not convert LF
 
 		return $replacement;
 	}
@@ -407,7 +448,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 		}
 
 		foreach( $matches as $marker => $data ) {
-			global $wgFCKEditorSpecialElementWithPreTag;
+			global $wgFCKEditorSpecialElementWithPreTag, 
+				   $wgFCKEditorSpecialElementWithTextTags; //Syntaxhighlight-Nowiki-Pre
+
 			list( $element, $content, $params, $tag ) = $data;
 			if( $render ) {
 				$tagName = strtolower( $element );
@@ -424,7 +467,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 							// Use special- element with pre- tags if there are attributes included.
 							if ( empty($strParams) ) { 
 							    // No attributes, show text directly in wysiwyg
-								$output = '<pre' . $strParams . '>' . htmlentities($content) . '</pre>'; 
+								$output = '<pre' . $strParams . '>' . htmlentities( $content ) . '</pre>'; 
 							} else { // pre- tags with attributes are displayed as special- element
 								$content = str_replace( ' ', 'fckSPACE', $content );
 								$output = $this->fck_wikiTag( $tagName, $content, $params );
@@ -454,8 +497,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 					case 'source':                                                            //02.11.14 RL   
 						//Treat tag source equal to tag syntaxhighlight and continue below.   //30.10.14 Wingsofcourage
 					case 'syntaxhighlight':
-						$content = str_replace( ' ', 'fckSPACE', $content );                  //30.10.14 RL To preserve indents
-						$output = $this->fck_wikiTag( 'syntaxhighlight', $content, $params ); //02.11.14 RL Was source
+						// Variable $wgFCKEditorSpecialElementWithTextTags in LocalSettings.php can be used to customise syntaxhighlight- tag handling
+						if ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ) {
+							$content = str_replace( ' ', 'fckSPACE', $content );                  //30.10.14 RL To preserve indents
+							$output = $this->fck_wikiTag( 'syntaxhighlight', $content, $params ); //02.11.14 RL Was source
+						} else {
+							$output = $this->fck_pre_wikiTag( 'syntaxhighlight', $content, $params ); //Syntaxhighlight-Nowiki-Pre
+						}
 						break;
 					case 'html':
 						if( $wgRawHtml ) {
@@ -463,7 +511,12 @@ class CKeditorParser extends CKeditorParserWrapper {
 						}
 						break;
 					case 'nowiki':
-						$output = $this->fck_wikiTag( 'nowiki', $content, $params ); // required by FCKeditor
+						// Variable $wgFCKEditorSpecialElementWithTextTags in LocalSettings.php can be used to customise nowiki- tag handling
+						if ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ) {
+							$output = $this->fck_wikiTag( 'nowiki', $content, $params ); // required by FCKeditor
+						} else {
+							$output = $this->fck_pre_wikiTag( 'nowiki', $content, $params ); //Syntaxhighlight-Nowiki-Pre
+						}
 						break;
 					case 'math':
 						
@@ -586,6 +639,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	}
 
 	function replaceInternalLinks( $text ) {
+		$text = preg_replace( "/\[\[([^|\:\[\]]*?)\]\]/", "[[$1|$1]]", $text); // 06.03.15 Varlin batch-21 #56. Avoid getting an upper case to selflink, do not apply to category/property
 		$text = preg_replace( "/\[\[([^|\[\]]*?)\]\]/", "[[$1|RTENOTITLE]]", $text ); // #2223: [[()]]	=>	[[%1|RTENOTITLE]]
 		$text = preg_replace( "/\[\[:(.*?)\]\]/", "[[RTECOLON$1]]", $text ); // change ':' => 'RTECOLON' in links
 		$text = parent::replaceInternalLinks( $text );
@@ -764,7 +818,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 
 		// Use MW function Parser.php->internalParse for wikitext->html conversion. 
         $finalString = parent::internalParse( $text, $isMain );	
-
+		
 		/*** 04.01.15 RL This code is unnecessary, fix has been applied in CKeditorLinker.php::makeExternalLink instead. ****
 		// In case there are html code in link data f.ex. italic format in link text like
 		// [http://test.com ''bbb''] => <a href="http://test.com"><i>bbb<i></a>, 
@@ -1104,7 +1158,10 @@ class CKeditorParser extends CKeditorParserWrapper {
 						// paragraph
 						if ( '' == trim( $t ) ) {
 							if ( $paragraphStack ) {
-								$output .= $paragraphStack . '<br />';
+								// Syntaxhighlight-Nowiki-Pre In case there were one empty line between rows,
+								// following ". '<br />';" seemed to cause extra line feed to be added 
+								// by each source-wysiwyg toggle.
+								$output .= $paragraphStack; // . '<br />'; //Syntaxhighlight-Nowiki-Pre
 								$paragraphStack = false;
 								$this->mLastSection = 'p';
 							} else {

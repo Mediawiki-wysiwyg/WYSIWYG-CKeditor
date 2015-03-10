@@ -41,7 +41,7 @@ if ((!array_key_exists('SERVER_NAME', $_SERVER) || $_SERVER['SERVER_NAME'] == NU
     (strpos($_SERVER['PHP_SELF'], 'run-test.php') === false) )
 	return;
 
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+23.02.2015]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+06.03.2015]');
 
 // define to check with {{#isExtensionInstalled:wysiwyg}} if extension is installed
 // the parser function comes in the SMWHalo extension
@@ -135,15 +135,15 @@ $wgHooks['DoEditSectionLink'][]					= 'CKeditor_MediaWiki::onDoEditSectionLink';
 // bugfix for http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13511
 $wgHooks['OutputPageParserOutput'][]            = 'CKeditor_MediaWiki::onOutputPageParserOutput';
 $wgHooks['BeforePageDisplay'][]                 = 'CKeditor_MediaWiki::onBeforePageDisplay';
-$wgHooks['EditPageBeforeEditButtons'][]         = 'CKeditor_MediaWiki::onEditPageBeforeEditButtons'; //13.04.14 RL
+$wgHooks['EditPageBeforeEditButtons'][]         = 'CKeditor_MediaWiki::onEditPageBeforeEditButtons'; // 13.04.14 RL
 
 // Defaults for new preferences options
 global $wgDefaultUserOptions;
 $wgDefaultUserOptions['riched_use_toggle'] = 1;
 $wgDefaultUserOptions['riched_start_disabled'] = 0;
-$wgDefaultUserOptions['riched_use_popup'] = 1;
+$wgDefaultUserOptions['riched_use_popup'] = 0; // 06.03.15 Varlin 1=>0. Popup is unsupported/untested and will most likely fail with this branch of wysiwyg.
 $wgDefaultUserOptions['riched_toggle_remember_state'] = 1;
-$wgDefaultUserOptions['riched_link_paste_text'] = 1;       //08.09.14 RL
+$wgDefaultUserOptions['riched_link_paste_text'] = 1; // 08.09.14 RL
 
 // when SMWHalo is used then the QueryInterface opens in an Iframe
 // also add setting that the Semantic toobar is loaded by default

@@ -192,7 +192,19 @@ CKEDITOR.plugins.add( 'mediawiki',
 			'{' +
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
-			'}\n';
+			'}\n' +  
+			'pre.fck_mw_nowiki' +           //fck_mw_nowiki,FCK__MWNowiki           //Syntaxhighlight-Nowiki-Pre->
+			'{' +
+				'background-color:rgb(235,235,235);' + 
+				'border: 1px solid rgb(224,224,224);' +
+				'display: inline;' +
+				'float: none' +
+			'}\n' +  
+			'pre.fck_mw_syntaxhighlight' +  //fck_mw_syntaxhighlight, FCK__MWSyntaxhighlight
+			'{' +
+				'background-color:rgb(245,245,245);' + 
+				'border: 1px solid rgb(224,224,224);' +
+			'}\n';                                                                  //Syntaxhighlight-Nowiki-Pre<-
         return str;
     },
 
@@ -309,7 +321,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 					selection.selectRanges( ranges );
 					editor.document.$.execCommand( 'unlink', false, null );
 					selection.selectBookmarks( bookmarks );
-            }
+            },
+			startDisabled: true // 06.03.15 Varlin
         };
         //28.03.14 RL<-
 
@@ -352,7 +365,8 @@ CKEDITOR.plugins.add( 'mediawiki',
                         style.type = CKEDITOR.STYLE_INLINE;		// need to override... dunno why. 
                         style.apply( editor.document ); 
 				}		
-            } 
+            },
+			startDisabled: true // 06.03.15 Varlin
         }; 
 		
         // language logic for additional messages
@@ -427,9 +441,13 @@ CKEDITOR.plugins.add( 'mediawiki',
             selfromCategoryList: 'Select category for the page:',                 //20.01.15 RL			
 			categorySort       : 'Sortkey within category',                      //07.01.14 RL
 			noCategoryFound    : 'Not found, category is new',                   //09.01.14 RL
-            oneCategoryFound   : 'One category found',						      //09.01.14 RL
+            oneCategoryFound   : 'One category found',                           //09.01.14 RL
             manyCategoryFound  : ' categories found',                            //09.01.14 RL
-			mouseOverUnknownObj: 'Double-click to edit the value'                //31.01.15 RL
+			mouseOverUnknownObj: 'Double-click to edit the value',               //31.01.15 RL
+			speSpecialTexts    : 'Special Texts',                                //Special Texts 
+			speOperation       : 'Select type / operation',                      //Select type / operation
+			speRemoveTag       : 'Remove tag',                                   //Remove tag
+			speAttrValue       : 'Value of attribute'                            //Value of attribute 
 		}
 
         MWpluginLang['fi'] = {  //07.01.14 RL->
@@ -495,16 +513,20 @@ CKEDITOR.plugins.add( 'mediawiki',
 			ref				   : 'Viite',                                        //'Add a reference' for button of menu
 			references		   : 'Lista viitteistä',                             //'Add references block' for button of menu
             // category
-			categorybtn    	   : 'Luo uusi luokka',                          //'Create new category' //20.01.15 RL
-			categoryTitle      : 'Sivun luokkien määritys',                  //'Add/edit categories' //20.01.15 RL 
+			categorybtn    	   : 'Luo uusi luokka',                           //'Create new category' //20.01.15 RL
+			categoryTitle      : 'Sivun luokkien määritys',                 //'Add/edit categories' //20.01.15 RL 
 			category           : 'Etsi / luo uusi luokka (tyhjä kenttä listaa kaikki luokat):', //'Type text to search for or create a new category' //20.01.15 RL
-            categorySelected   : 'Sivu lisätään luokkiin:',                  //'Selected categories for the page:'  //20.01.15 RL
-            selfromCategoryList: 'Valitse luokka listalta:',                 //'Select category for the page //20.01.15 RL
-			categorySort       : 'Lajitteluavain luokan sisällä:',           //'Sortkey within category'
+            categorySelected   : 'Sivu lisätään luokkiin:',                //'Selected categories for the page:'  //20.01.15 RL
+            selfromCategoryList: 'Valitse luokka listalta:',                  //'Select category for the page //20.01.15 RL
+			categorySort       : 'Lajitteluavain luokan sisällä:',          //'Sortkey within category'
 			noCategoryFound    : 'Luokkaa ei löydy, se on uusi',             //'no category found'			     //09.01.14 RL
             oneCategoryFound   : 'Yksi luokka löytyi',                       //'one category found',            //09.01.14 RL
-            manyCategoryFound  : ' kpl',                                     //' categories found',			 //09.01.14 RL
-			mouseOverUnknownObj: 'Tuplaklikkaa editoidaksesi arvoa'          //'Double-click to edit the value' //31.01.15 RL
+            manyCategoryFound  : ' kpl',                                      //' categories found',			 //09.01.14 RL
+			mouseOverUnknownObj: 'Tuplaklikkaa editoidaksesi arvoa',          //'Double-click to edit the value' //31.01.15 RL
+			speSpecialTexts    : 'Tekstin tyyppi',                            //Special Texts 
+			speOperation       : 'Valitse tyyppi / toiminta',                 //Select type / operation
+			speRemoveTag       : 'Poista ohjaus',                             //Remove tag
+			speAttrValue       : 'Atribuutin arvo'                            //Value of attribute   
 		} //07.01.14 RL<-
 
 	    MWpluginLang['fr'] = {
@@ -579,7 +601,11 @@ CKEDITOR.plugins.add( 'mediawiki',
 			noCategoryFound    : 'Non trouvé, la catégorie est nouvelle',
             oneCategoryFound   : 'Une catégorie trouvée',
             manyCategoryFound  : ' catégories trouvées',
-			mouseOverUnknownObj: 'Double-cliquer pour éditer'
+			mouseOverUnknownObj: 'Double-cliquer pour éditer',
+            speSpecialTexts    : 'Le type de texte',
+			speOperation       : 'Sélectionnez le type / opération',               //Select type / operation
+			speRemoveTag       : 'Retirer la commande',                            //Remove tag
+			speAttrValue       : 'La valeur de les attributes'                     //Value of attribute 
 	    }
 
         MWpluginLang['de'] = {
@@ -654,7 +680,11 @@ CKEDITOR.plugins.add( 'mediawiki',
             noCategoryFound     : 'Nicht gefunden, neue Kategorie',
             oneCategoryFound    : 'Eine Kategorie gefunden',
             manyCategoryFound   : ' Kategorien gefunden',
-			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein' //'Double-click to edit the value' //31.01.15 RL
+			mouseOverUnknownObj : 'Doppelklicken Sie auf den gewünschten Wert ein', //'Double-click to edit the value' //31.01.15 RL
+			speSpecialTexts     : 'Spezialtexte',                                    //Special Texts 
+			speOperation        : 'Wählen die Art oder Tätigkeit',                 //Select type / operation
+			speRemoveTag        : 'Entfernen die Kontrolle',                         //Remove tag
+			speAttrValue        : 'Attribute, den Wert'                              //Value of attribute  			
         }
 
         // Define language for wysiwyg, editor.langCode is eq. to language of ckeditor
@@ -695,6 +725,35 @@ CKEDITOR.plugins.add( 'mediawiki',
         editor.addCommand( 'MWSignature', signatureCommand);
 
 		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
+
+		if ( !is_special_elem_with_text_tags ) {                                //Syntaxhighlight-Nowiki-Pre->       
+			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); 
+			CKEDITOR.dialog.add( 'MWTextTagsD', this.path + 'dialogs/texttags.js' ); 
+
+			if ( editor.contextMenu ) {
+				editor.addMenuGroup( 'MWTextTagsGroup' );
+			
+				editor.addMenuItem( 'MWTextTagsItem', {
+					label: editor.lang.mwplugin.speSpecialTexts, //'Special Texts'
+					//icon: this.path + 'icons/abbr.png',
+					icon: this.path + 'images/icon_texttags.png',
+					command: 'MWTextTags',
+					group: 'MWTextTagsGroup'
+				});
+
+				editor.contextMenu.addListener( function( element ) {
+					/***
+					if ( element.hasAscendant( 'pre', true ) ) 
+						alert(element.getAscendant( 'pre', true ).hasClass( 'fck_mw_syntaxhighlight' ) + ' ' +
+							element.getAscendant( 'pre', true ).getName() + ' ' + element.getName()
+							);
+					***/
+					if ( element.hasAscendant( 'pre', true ) ) {
+						return { MWTextTagsItem: CKEDITOR.TRISTATE_OFF };
+					}
+				});
+			}                                                                   //Syntaxhighlight-Nowiki-Pre<-
+		}
 	
         if (editor.addMenuItem) {
             // A group menu is required
@@ -709,6 +768,15 @@ CKEDITOR.plugins.add( 'mediawiki',
         }
 		if ( editor.ui.addButton )
 		{
+			if ( !is_special_elem_with_text_tags ) {
+				editor.ui.addButton( 'MWTextTags', {       //Syntaxhighlight-Nowiki-Pre->
+					label: editor.lang.mwplugin.speSpecialTexts, //'Special Texts'
+					command: 'MWTextTags',
+					toolbar: 'insert',
+					icon: this.path + 'images/icon_texttags.png'
+				});                                        //Syntaxhighlight-Nowiki-Pre<-
+			}
+
 			editor.ui.addButton( 'MWSpecialTags',
 				{
 					label : editor.lang.mwplugin.specialTags,
@@ -752,7 +820,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                     icon: this.path + 'images/tb_icon_simplelink.gif' 
                 }); 
 		}
-
+		
         // context menu
         if (editor.contextMenu) {
             editor.contextMenu.addListener(function(element, selection) {
@@ -772,36 +840,53 @@ CKEDITOR.plugins.add( 'mediawiki',
                    ) return {MWSpecialTags: CKEDITOR.TRISTATE_ON};
             });
         }
+		
+		editor.on( 'contentDom', function( evt ) // Necessary to get onMouseUp / onKeyUp events 
+			{ 
+				//To enable / disable unlink button, taken from 
+				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html 
 
-		editor.on( 'selectionChange', function( evt )                   //28.03.14 RL For overridden 'unlink' button
-  			{
-				//To enable / disable unlink button, taken from
-				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html
-  				if ( editor.readOnly )
-  					return;
-
-  				/*
-  				 * Despite our initial hope, document.queryCommandEnabled() does not work
-  				 * for this in Firefox. So we must detect the state by element paths.
-  				 */
-  				var cmd_unlink = editor.getCommand( 'unlink' ),
-                    cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' ),  //05.09.14 RL
-  					element = evt.data.path.lastElement && evt.data.path.lastElement.getAscendant( 'a', true );
-  				if ( element && element.getName() == 'a' && element.getAttribute( 'href' ) && element.getChildCount() ) {
-  					cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable
-                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED ); //05.09.14 RL
-                }    
-  				else {
-  					cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED );       //Disable 
-                    cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //05.09.14 RL  
-                }    
-  			} )
+				// 06.03.15 Varlin: 
+				// Event editor.on( 'selectionChange' is fired only on selection change (and not within a same <p>)
+				// Enabling/disabling link buttons moved from event "editor.on( 'selectionChange'...)" here,
+				// which test all kind of selections. 
+				
+				buttons_on_off = function(sel)  
+				{				 
+					if ( editor.readOnly ) return; 
+		
+					var cmd_unlink = editor.getCommand( 'unlink' ), 
+						cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' );
+		
+					// get html in selection and search for links (can't be donne with sel) 
+					var iframe2 = document.getElementsByClassName('cke_wysiwyg_frame cke_reset')[0]; 
+					var sel2 = iframe2.contentDocument.getSelection(); 
+					if (sel2.rangeCount > 0) var clonedSelection = sel2.getRangeAt(0).cloneContents(); 
+		
+					cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED );     //Disable Simplelink 
+			
+					// if selection is inside a link or has a link inside...      
+					if ( typeof clonedSelection != 'undefined' && ( editor.elementPath().contains('a') || clonedSelection.querySelectorAll('a').length > 0 ) ) 
+						cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable Unlink 
+					else { 
+						cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED ); 		 //Disable Unlink 
+						// if selection is a text (not an element), at least one character 
+						if (sel.getType() != CKEDITOR.SELECTION_ELEMENT && sel.getSelectedText().length > 0) 
+						cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //Enable Simplelink 
+					} 
+				} 
+				editor.document.on('keyup',    function() { buttons_on_off( editor.getSelection() ) } ); 
+				editor.document.on('mouseup',  function() { buttons_on_off( editor.getSelection() ) } ); 
+			} 
+		) 		
 
         editor.on( 'doubleclick', function( evt )
 			{
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
-				if ( element.is( 'img' ) &&                             //07.01.14 RL->
+				if ( element.hasAscendant( 'pre', true ) && !is_special_elem_with_text_tags ) { //Syntaxhighlight-Nowiki-Pre 
+					evt.data.dialog = 'MWTextTagsD';
+				} else if ( element.is( 'img' ) &&                      //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
 					 element.getAttribute( 'class' ).InArray( [         //03.02.14 RL Modified to use InArray(..)
 								'FCK__MWReferences'   
@@ -863,15 +948,27 @@ CKEDITOR.plugins.add( 'mediawiki',
 			}
 		)
 		
-		editor.on('mode', function( evt ) //12.01.15 RL Editor opened or source buttons pressed, selected editor mode is ready
+		editor.on('mode', function( evt ) // Editor opened or source buttons pressed, selected editor mode is ready
 			{
-				setSourceToggle( editor ); //This is required by source button (source->wysiwyg). 				
+				setSourceToggle( editor ); // 12.01.15 RL: This is required by source button (source->wysiwyg). 				
 			} 
 		)
 		
-		editor.on( 'readOnly', function () //12.01.15 RL: Event fired when the readOnly property changes.
+		editor.on( 'readOnly', function () // Event fired when the readOnly property changes.
 			{
-				setSourceToggle( editor ); //This is required by toggle link (wikieditor->wysiwyg).
+				setSourceToggle( editor ); // 12.01.15 RL: This is required by toggle link (wikieditor->wysiwyg).
+			} 
+		)
+		
+		editor.on( 'beforeSetMode', function () // Fired before the editor mode is set.
+			{
+				if ( editor.mode == 'source' ) {
+					// 03.03.15 RL: 
+					// Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
+					// by event beforeSetMode or toggle link) is used to allow only one call of 
+					// 'wfSajaxWikiToHTML' in function toHtml.
+					window.parent.editorSrcToWswTrigger = true;
+				}
 			} 
 		)
 		
@@ -1117,7 +1214,7 @@ CKEDITOR.customprocessor.prototype =
 	_inLSpace : false,
 
    toHtml : function( data, fixForBody )
-   {  
+   {
         // all converting to html (like: data = data.replace( /</g, '&lt;' );)
         var loadHTMLFromAjax = function( result ){
 			if ( window.parent.popup &&
@@ -1136,18 +1233,25 @@ CKEDITOR.customprocessor.prototype =
 
         // Prevent double transformation because of some weird runtime issues
         // with the event dataReady in the smwtoolbar plugin 
-		// 12.01.15 RL-> 
-		//   There are two calls to toHtml when source button or toggle link is pressed in wikitext mode.
-		//   Rule below tries to test when page is in wikitext mode. Inserted html code inside page may make this test fail.
-        //if (!(data.indexOf('<p>') == 0 && 
-        //      data.match(/<.*?_fck_mw/) || data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL Commented out
-		if ( (data.match('<p>') == null) && 
-			 (data.match(/<.*?_fck_mw/) == null) &&
-			 (data.match(/class="fck_mw_\w+"/i) == null) &&
-			  window.parent.wgCKeditorInstance &&                //Because of TransformTextSwitcher plugin
-			  window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
+		// 12.01.15 RL, 03.03.15 RL:
+		//   There are two calls to toHtml when source button or toggle link is pressed in source mode.
+		//   Rule below tests when page still has wikitext and is in source mode.
+		//   Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
+		//   by event beforeSetMode or toggle link) is used to allow only one call of 'wfSajaxWikiToHTML' below.
+        // if ( !(data.indexOf('<p>') == 0 && //12.01.15 RL->Commented out
+        //        data.match(/<.*?_fck_mw/) || 
+		//        data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL<-
+		//
+		// if ( (data.match('<p>') == null) && //03.03.15 RL->Commented out
+		//	    (data.match(/<.*?_fck_mw/) == null) &&
+		//	    (data.match(/class="fck_mw_\w+"/i) == null) && //03.03.15 RL<-
+		
+		if ( window.parent.editorSrcToWswTrigger && //03.03.15 RL
+			 window.parent.wgCKeditorInstance &&                //Because of TransformTextSwitcher plugin
+			 window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
 		{				
-			toggleReadOnly( true );                   //12.01.15 RL<-
+			window.parent.editorSrcToWswTrigger = false; //03.03.15 RL
+			toggleReadOnly( true );                      //12.01.15 RL
 			// Use Ajax to transform the Wikitext to HTML.
 			if( window.parent.popup ){
 				window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
@@ -1157,7 +1261,7 @@ CKEDITOR.customprocessor.prototype =
 		}
 		var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
 		writer = new CKEDITOR.htmlParser.basicWriter();
-
+		
 		fragment.writeHtml( writer, this.dataFilter );
 		data = writer.getHtml( true );
 
@@ -1187,7 +1291,7 @@ CKEDITOR.customprocessor.prototype =
 		if (CKEDITOR.env.ie) {
 			data = this.ieFixHTML(data);
 		}
-		
+
         data = '<body xmlns:x="http://excel">' + data.htmlEntities()+ '</body>';
         // fix <img> tags
         data = data.replace(/(<img[^>]*)([^/])>/gi, '$1$2/>' );
@@ -1210,7 +1314,7 @@ CKEDITOR.customprocessor.prototype =
 		// Replace html comments by "Fckmw<id>fckmw" -keys (where <id>=0,1,2..) 
 		// so that possible incomplete xml structure of commented block
 		// will not prevent page handling (f.ex <!-- 1. incomplete html comment -- <!-- 2. complete html comment -->)
-		// MW seems to work like this with wikitext -> html conversion.
+		// MW seems to work like this with wikitext -> html conversion.		
 	    data = fck_mw_plg_replaceHTMLcomments( data ); //16.01.14 RL
 
         var rootNode = this._getNodeFromHtml( data );
@@ -1590,7 +1694,9 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( attribs );
 							stringBuilder.push( '\n' );
 
-							if ( htmlNode.caption && this._GetNodeText(htmlNode.caption).length > 0 ){
+							// if ( htmlNode.caption && this._GetNodeText(htmlNode.caption).length > 0 ){ // 06.03.15 Varlin patch-20 Fix <caption> support ("titles" of tables)
+							if (htmlNode.childNodes[0].nodeName == 'caption') var captiontag = htmlNode.childNodes[0]; // 06.03.15 Varlin
+							if ( typeof captiontag != 'undefined' && captiontag.contentText != '' ){ // 06.03.15 Varlin
 								stringBuilder.push( '|+ ' );
 								this._AppendChildNodes( htmlNode.caption, stringBuilder, prefix );
 								stringBuilder.push( '\n' );
@@ -1891,12 +1997,30 @@ CKEDITOR.customprocessor.prototype =
 							// Change the node name and fell in the "default" case.
 							if ( htmlNode.getAttribute( '_fck_mw_customtag' ) )
 								sNodeName = htmlNode.getAttribute( '_fck_mw_tagname' );
-                            this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix )
+                            this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix );
 							break;
 						case 'pre' :
 							var attribs = this._GetAttributesStr( htmlNode );
-                            var eClassName = htmlNode.getAttribute('class')
-							if ( eClassName == "_fck_mw_lspace" ){
+                            var eClassName = htmlNode.getAttribute('class');
+
+							if ( eClassName == "fck_mw_nowiki" ){ //Syntaxhighlight-Nowiki-Pre
+							    // Edit text directly on page: <pre><nowiki>....</nowiki></pre>
+								//var nodeChild = htmlNode.firstChild;
+								stringBuilder.push( '<nowiki>' );
+								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
+								stringBuilder.push( '</nowiki>\n' ); 
+							}							
+							else if ( eClassName == "fck_mw_syntaxhighlight" ){ //Syntaxhighlight-Nowiki-Pre
+							    // Edit text directly on page: <pre><syntaxhighlight lang="xxx">....</syntaxhighlight></pre>
+								var nodeChild = htmlNode.firstChild,
+									refLang = nodeChild.getAttribute( 'lang' );
+								stringBuilder.push( '<syntaxhighlight' );
+								stringBuilder.push( ' lang="' + refLang + '"' );
+								stringBuilder.push( '>' );
+								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
+								stringBuilder.push( '</syntaxhighlight>' ); 
+							}
+							else if ( eClassName == "_fck_mw_lspace" ){
 								stringBuilder.push( "\n " );
 								this._inLSpace = true;
 								this._AppendChildNodes( htmlNode, stringBuilder, prefix );
@@ -1916,7 +2040,6 @@ CKEDITOR.customprocessor.prototype =
 							} else {
 								stringBuilder.push( '<' );
 								stringBuilder.push( sNodeName );
-
 								if ( attribs.length > 0 )
 									stringBuilder.push( attribs );
 								if( this._GetNodeText(htmlNode) == '' )

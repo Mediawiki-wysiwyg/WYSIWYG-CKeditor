@@ -35,6 +35,16 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 07.03.15  Modified place of class attribute "fck_mv_" with img-elements to be last one (tag:06.03.15). Version 1.5.6_0 [B551+07.03.2015].
+
+- 06.03.15  Allow every kind of templates (batch-18 #51). Fix <caption> support ("titles" of tables, batch-20 #55). Set "$wgDefaultUserOptions['riched_use_popup'] = 0;" by default (batch-23 #58). Avoid getting an upper case to selflink, do not apply to category/property (batch-21 #56). Modified enabling/disabling link buttons (batch-22 #57).  All prev. modications by Varlin (tag:06.03.15). Version 1.5.6_0 [B551+06.03.2015].
+
+- 05.03.15  Wysiwyg does not support IE versions below or eq. to IE8. Fixed double click error of pre- element when "$wgFCKEditorSpecialElementWithTextTags = 1". Fixed test when wikitext to html conversion can be started "editorSrcToWswTrigger = true". Removed one br- tag which caused extra line feeds when toggling source-wysiwyg mode. Version: 1.5.6_0 [B551+05.03.2015], branch CKeditor_v4_Nowiki-Synt-Pre (tags: Syntaxhighlight-Nowiki-Pre, "03.03.15").
+
+- 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page: removed unnecessary html decode/encode calls. Version: 1.5.6_0  [B551++26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
+
+- 26.02.15  Edit texts inside nowiki and syntaxhighlight tags directly on page: toolbar button to create/remove nowiki/syntaxhighlight format; variable "$wgFCKEditorSpecialElementWithTextTags = 1" in LocalSettings.php to get img- element with nowiki/syntaxhighlight tags. Icon of toolbar button for template- dialog changed. Version: 1.5.6_0  [B551+26.02.2015]. Branch CKeditor_v4_Nowiki-Synt-Pre (Syntaxhighlight-Nowiki-Pre).
+
 - 23.02.15  Added language variables for link- and template- dialogs (by Varlin). Modified translations: fi, de. Version: 1.5.6_0  [B551+23.02.2015].
 
 - 10.02.15  Fixed activation of undo/redo buttons when switching from source to wysiwyg view.  Version: 1.5.6_0 [B551+10.02.2015].
@@ -328,13 +338,16 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     #27.03.14<-
 
     #06.02.15->
-    #Setting $wgFCKEditorSpecialElementWithPreTag = 1; will cause text blocks
-    #within pre- tags to be displayed as special -element, in case there are any
-    #attirubutes included with pre- tag. In case value of paremeter is eq. to 0 or
-    #pre- tag does not have any attributes, text block is placed directly on page
-    #as text in wysiwyg mode.
-    $wgFCKEditorSpecialElementWithPreTag = 0;
+    #Setting value of following variables eq. to 1 will cause wikitext text blocks
+    #within specified tags to be displayed as image- element in wysiwyg mode.
+    #Value eq. to 0 makes texts inside these tags editable directly as text in wysiwyg mode
+    #using pre- parent tag + child tag.
+    $wgFCKEditorSpecialElementWithPreTag   = 0; // 1= <pre> tags with attributes only => img- element
     #06.02.15<-
+
+    #26.02.15->
+    $wgFCKEditorSpecialElementWithTextTags = 0; // 1= <nowiki>, <source> and <syntaxhighlight> tags => img- element
+    #26.02.15<-
 
 
 --------------
@@ -379,12 +392,11 @@ About browser compatibility
 ===
 
 **About versions of IE:**
-- IE versions 7 or below will not work with this bundle.
+- IE versions 8 or below may not fully work with this bundle.
 
-- With IE8, IE9, IE10, IE11 browsers, DO NOT ENABLE browsers compatibility settings for your wiki site, if you do have them enabled then wysiwyg will not work.
+- With IE9, IE10, IE11 browsers, DO NOT ENABLE browsers compatibility settings for your wiki site, if you do have them enabled then wysiwyg will not work.
 
 **Browser versions known to work with this bundle of WYSIWYG:**
-- IE8
 - IE11
 - FireFox (v26.x - 35.x)
 - Chrome  (v.32.x, v.40.x)
