@@ -605,7 +605,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             speSpecialTexts    : 'Textes spéciaux',
 			speOperation       : 'Sélectionnez le type / opération',               //Select type / operation
 			speRemoveTag       : 'Retirer la commande',                            //Remove tag
-			speAttrValue       : 'La valeur de les attributes'                     //Value of attribute 
+			speAttrValue       : 'Valeur des attributs'                     //Value of attribute 
 	    }
 
         MWpluginLang['de'] = {
