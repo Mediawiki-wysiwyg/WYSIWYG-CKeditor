@@ -398,6 +398,12 @@ class CKeditor_MediaWiki {
 			'section' => 'editing/fckeditor',
 			'label-message' => 'tog-riched_link_paste_text',
 		);        
+		
+		$preferences['riched_link_to_media'] = array(      // 11.03.15
+			'type' => 'toggle',
+			'section' => 'editing/fckeditor',
+			'label-message' => 'tog-riched_link_to_media',
+		); 
         
         if (defined('SMW_HALO_VERSION')) {
             $preferences['riched_load_semantic_toolbar'] = array(
@@ -420,6 +426,8 @@ class CKeditor_MediaWiki {
 			$user->setOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state'] );
 		if( !array_key_exists( 'riched_link_paste_text', $user->mOptions ) && !empty( $wgDefaultUserOptions['riched_link_paste_text'] ) ) //08.09.14 RL
 			$user->setOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text'] );                                //08.09.14 RL 
+                if( !array_key_exists( 'riched_link_to_media', $user->mOptions ) && !empty( $wgDefaultUserOptions['riched_link_to_media'] ) ) // 11.03.15
+			$user->setOption( 'riched_link_to_media', $wgDefaultUserOptions['riched_link_to_media'] );                               
             
 		// Add the "disable rich editor on namespace X" toggles too
 		foreach( self::$nsToggles as $newToggle ){
@@ -611,6 +619,7 @@ var fck_mv_plg_strtr_span_counter = 0; //16.01.15 RL
 var is_special_elem_with_text_tags = ' . ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ? 1 : 0 ) . '; //Syntaxhighlight-Nowiki-Pre
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
+var linkToMedia = ' . ( $wgUser->getOption( 'riched_link_to_media', $wgDefaultUserOptions['riched_link_to_media']  ) ?  1 : 0 ) . ';  // 11.03.15
 
 CKEDITOR.ready=true;
 ';
