@@ -35,7 +35,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 11.03.15  Created branch CKeditor_V4_Test for easier management of merged contributions. Version 1.5.6_0 [B551+07.03.2015].
+- 11.03.15  Created branch CKeditor_V4_Test for easier management of merged contributions. Fixed display of right version number. Version 1.5.6_0 [B551+07.03.2015].
 
 - 10.03.15  Merged modifications of branch Syntaxhighlight-Nowiki-Pre into branch CKeditor_v4. Version 1.5.6_0 [B551+07.03.2015].
 
