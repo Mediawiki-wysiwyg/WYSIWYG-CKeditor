@@ -144,6 +144,7 @@ $wgDefaultUserOptions['riched_start_disabled'] = 0;
 $wgDefaultUserOptions['riched_use_popup'] = 0; // 06.03.15 Varlin 1=>0. Popup is unsupported/untested and will most likely fail with this branch of wysiwyg.
 $wgDefaultUserOptions['riched_toggle_remember_state'] = 1;
 $wgDefaultUserOptions['riched_link_paste_text'] = 1; // 08.09.14 RL
+$wgDefaultUserOptions['riched_link_to_media'] = 1;   // 11.03.15
 
 // when SMWHalo is used then the QueryInterface opens in an Iframe
 // also add setting that the Semantic toobar is loaded by default
