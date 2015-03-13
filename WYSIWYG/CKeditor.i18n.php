@@ -37,7 +37,8 @@ $messages['en'] = array(
 	'tog-riched_toggle_remember_state' => 'Remember last toggle state',
     'load-stb-on-startup' => 'Open Semantic Toolbar automatically',
     'tog-riched_link_paste_text' => 'Paste selected text as link text into link -dialog',
-    'tog-riched_wait_page_load' => 'Loading page, please wait...',	
+    'tog-riched_wait_page_load' => 'Loading page, please wait...',
+    'tog-riched_link_to_media' => 'Use links to files [[Media:<link>]]',
 );
 
 /** Message documentation (Message documentation)
@@ -480,6 +481,7 @@ $messages['fr'] = array(
 	'tog-riched_toggle_remember_state' => "Se souvenir de la dernière selection de l'éditeur",
     'tog-riched_link_paste_text' => "Reprendre la sélection comme texte de lien dans la fenêtre de lien",
     'tog-riched_wait_page_load' => 'Chargement de la page, patienter...',
+    'tog-riched_link_to_media' => 'Utiliser les liens vers les fichiers [[Media:<link>]]',
 );
 
 /** Galician (Galego)
