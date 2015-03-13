@@ -218,11 +218,7 @@ class CKeditorLinker {
                     //$ret .= "_fck_mw_height=\"" . $imgHeight . "\" "; //30.12.14 RL Not used
 				    $ret .= "height=\"" . $imgHeight . "\" "; //10.01.14 RL To resize image properly in edit mode of wysiwyg
               }                                               //30.12.14 RL<-
-			  
-			  if ( $found && $type == 'image' && $imgDir != '' ) { //22.01.15 RL  //30.12.14 RL->  
-			        //Inform image dialog about original size of the image
-			        $ret .= "_fck_mw_origimgwidth=\"" . $imgSize['0'] . "\" _fck_mw_origimgheight=\"" . $imgSize['1'] . "\" ";
-              }                                               //30.12.14 RL<-
+ 
 			  
               if( isset( $fp['thumbnail'] ) ) {
                       $ret .= "_fck_mw_type=\"thumb" . "\" ";
