@@ -215,8 +215,13 @@ class CKeditorParser extends CKeditorParserWrapper {
 		return $key;
 	}
 
-    function htmlDecode ( $string ) { //27.12.14 RL	
-		$string = str_replace( array( '&amp;', '&quot;', '#039', '&lt;', '&gt;'  ), array( '&', '"', '\'', '<', '>' ), $string );
+//    function htmlDecode ( $string ) { //27.12.14 RL	
+//		$string = str_replace( array( '&amp;', '&quot;', '#039', '&lt;', '&gt;'  ), array( '&', '"', '\'', '<', '>' ), $string );
+//        return $string;
+//    }
+    
+    function EscapeImgInternalLink ( $string ) {
+		$string = preg_replace('/\[\[File:([^\]]*)\[\[(.*?)\]\](.*?)\]\]/', '[[File:$1--OPENINTLINK--$2--CLOSEINTLINK--$3]]'  , $string );
         return $string;
     }
 	
@@ -815,6 +820,8 @@ class CKeditorParser extends CKeditorParserWrapper {
         // this doesn't work when inside tables. So leave this for later.
 		
         $text = $this->parseExternalLinksWithTmpl($text); //26.11.14 RL Parses both external and internal links
+        
+        $text = $this->EscapeImgInternalLink($text); //12.05.2015 Workaround to avoid breaking of internal links in images
 
 		// Use MW function Parser.php->internalParse for wikitext->html conversion. 
         $finalString = parent::internalParse( $text, $isMain );	
