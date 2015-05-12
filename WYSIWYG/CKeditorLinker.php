@@ -120,6 +120,14 @@ class CKeditorLinker {
               $fp =& $frameParams;
               $hp =& $handlerParams;
 
+		// 12.05.2015 RestoreImgInternalLink
+		$fp['caption'] = str_replace('--OPENINTLINK--','[[', $fp['caption']);
+		$fp['caption'] = str_replace('--CLOSEINTLINK--',']]', $fp['caption']);
+		$fp['alt'] = str_replace('--OPENINTLINK--','[[', $fp['alt']);
+		$fp['alt'] = str_replace('--CLOSEINTLINK--',']]', $fp['alt']);
+		$fp['title'] = str_replace('--OPENINTLINK--','[[', $fp['title']);
+		$fp['title'] = str_replace('--CLOSEINTLINK--',']]', $fp['title']);	
+
               if( !isset( $fp['align'] ) ) {
                       $fp['align'] = '';
               }
