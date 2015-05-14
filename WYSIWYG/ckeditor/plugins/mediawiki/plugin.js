@@ -152,11 +152,11 @@ CKEDITOR.plugins.add( 'mediawiki',
 			'}\n' +
 			'img.FCK__MWCategory' +     //07.01.14 RL New element
 			'{' +
-				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
-				'background-position: center center;' +
+				//'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');'	// 14.05.2015
+				'background-position: left center, right center;' +	// 14.05.2015 alignement for "C" icon and category title
 				'background-repeat: no-repeat;' +
 				'border: 1px solid #a9a9a9;' +
-				'width: 18px !important;' +
+				'min-width: 18px !important;' +	// 14.05.2015 width changed to min-width (min = "C" icon width)
 				'height: 15px !important;' +
 			'}\n' +
 			'img.FCK__MWMath' +         //19.11.14 RL
@@ -285,6 +285,10 @@ CKEDITOR.plugins.add( 'mediawiki',
                                     if (className == "FCK__MWCategory") {
                                         result.attributes.alt = element.children[0].value.replace(/&quot;/g,''); //31.01.15 RL Quotes cause problems
                                         result.attributes.title = result.attributes.alt;
+                                        
+                                        // 15.05.2015 Show "C" icon + img-transformed category title
+					var widthtxt = 9*result.attributes.alt.length;
+					result.attributes.style = "background-image : url('"+ CKEDITOR.getUrl('plugins/mediawiki/images/icon_category.gif') +"'), url('http://ipsumimage.appspot.com/"+ widthtxt +"x25,ffffff?s=14&l=" + result.attributes.alt.toUpperCase() + "'); width: "+ eval(20+widthtxt) +"px";
                                     }
                                     return result;
                                 }

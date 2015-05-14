@@ -331,6 +331,12 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 					var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);
 					fakeElement.$.alt = category.replace(/"/g,'');   //31.01.15 RL Replace quotes
 					fakeElement.$.title = category.replace(/"/g,''); //31.01.15 RL Replace quotes
+					
+					// 15.05.2015 Show "C" icon + img-transformed category title
+					var widthtxt = 9*fakeElement.$.alt.length;
+					var string = "background-image : url('"+ CKEDITOR.getUrl('plugins/mediawiki/images/icon_category.gif') +"'), url('http://ipsumimage.appspot.com/"+ widthtxt +"x25,ffffff?s=14&l=" + fakeElement.$.alt.toUpperCase() + "'); width: "+ eval(20+widthtxt) +"px";						
+					fakeElement.setAttribute('style',string);
+					
 					editor.insertElement(fakeElement);
                 }
             },
