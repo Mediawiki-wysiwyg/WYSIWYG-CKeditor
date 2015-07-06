@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -27,7 +27,7 @@
 				outdentblock: new commandDefinition( editor, 'outdentblock' )
 			} );
 
-			function commandDefinition( editor, name ) {
+			function commandDefinition() {
 				globalHelpers.specificDefinition.apply( this, arguments );
 
 				this.allowedContent = {
@@ -43,15 +43,20 @@
 					this.allowedContent.div = true;
 
 				this.requiredContent = ( this.enterBr ? 'div' : 'p' ) +
-					( classes ?
-							'(' + classes.join( ',' ) + ')'
-						:
-							'{margin-left}' );
+					( classes ? '(' + classes.join( ',' ) + ')' : '{margin-left}' );
 
 				this.jobs = {
 					'20': {
 						refresh: function( editor, path ) {
 							var firstBlock = path.block || path.blockLimit;
+
+							// Switch context from somewhere inside list item to list item,
+							// if not found just assign self (doing nothing).
+							if ( !firstBlock.is( $listItem ) ) {
+								var ascendant = firstBlock.getAscendant( $listItem );
+
+								firstBlock = ( ascendant && path.contains( ascendant ) ) || firstBlock;
+							}
 
 							// Switch context from list item to list
 							// because indentblock can indent entire list
@@ -59,17 +64,6 @@
 
 							if ( firstBlock.is( $listItem ) )
 								firstBlock = firstBlock.getParent();
-
-							// If firstBlock isn't list item, but still there's
-							// some ascendant (i.e. <ul>), then this is not
-							// a job for indentblock, e.g.:
-							//
-							//		<ul>
-							//			<li><p>foo</p></li>
-							//		</ul>
-
-							else if ( firstBlock.getAscendant( $listItem ) )
-								return TRISTATE_DISABLED;
 
 							//	[-] Context in the path or ENTER_BR
 							//
@@ -128,10 +122,8 @@
 
 								else {
 									return CKEDITOR[
-										( getIndent( firstBlock ) || 0 ) <= 0 ?
-												'TRISTATE_DISABLED'
-											:
-												'TRISTATE_OFF' ];
+										( getIndent( firstBlock ) || 0 ) <= 0 ? 'TRISTATE_DISABLED' : 'TRISTATE_OFF'
+									];
 								}
 							}
 						},
@@ -175,10 +167,7 @@
 
 				// A regex built on config#indentClasses to detect whether an
 				// element has some indentClass or not.
-				classNameRegex: classes ?
-					new RegExp( '(?:^|\\s+)(' + classes.join( '|' ) + ')(?=$|\\s)' )
-						:
-					null
+				classNameRegex: classes ? new RegExp( '(?:^|\\s+)(' + classes.join( '|' ) + ')(?=$|\\s)' ) : null
 			} );
 		}
 	} );
@@ -229,10 +218,10 @@
 			currentOffset = Math.max( currentOffset, 0 );
 			currentOffset = Math.ceil( currentOffset / indentOffset ) * indentOffset;
 
-			element.setStyle( indentCssProperty, currentOffset ?
-					currentOffset + ( editor.config.indentUnit || 'px' )
-				:
-					'' );
+			element.setStyle(
+				indentCssProperty,
+				currentOffset ? currentOffset + ( editor.config.indentUnit || 'px' ) : ''
+			);
 
 			if ( element.getAttribute( 'style' ) === '' )
 				element.removeAttribute( 'style' );

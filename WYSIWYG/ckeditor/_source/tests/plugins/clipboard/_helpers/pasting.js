@@ -1,7 +1,10 @@
+/* exported assertPasteEvent, pasteFiles */
+
+'use strict';
+
 function assertPasteEvent( editor, eventData, expected, message, async ) {
 	var priority = 999,
-		executed = false,
-		onPaste;
+		executed = false;
 
 	message = message ? message + ' - ' : '';
 
@@ -14,6 +17,12 @@ function assertPasteEvent( editor, eventData, expected, message, async ) {
 	// Type doesn't have to be specified.
 	if ( !eventData.type )
 		eventData.type = 'auto';
+
+	eventData.method = 'paste';
+	// Allow passing a dataTransfer mock.
+	if ( !eventData.dataTransfer ) {
+		eventData.dataTransfer = new CKEDITOR.plugins.clipboard.dataTransfer();
+	}
 
 	editor.once( 'paste', onPaste, null, null, priority );
 	editor.fire( 'paste', eventData );
@@ -42,9 +51,22 @@ function assertPasteEvent( editor, eventData, expected, message, async ) {
 
 		if ( async )
 			resume( function() {
-				 assertPaste( data );
+				assertPaste( data );
 			} );
 		else
 			assertPaste( data );
 	}
+}
+
+function pasteFiles( editor, files, dataValue ) {
+	var	nativeData = bender.tools.mockNativeDataTransfer();
+
+	nativeData.files = files;
+
+	var dataTransfer = new CKEDITOR.plugins.clipboard.dataTransfer( nativeData );
+
+	editor.fire( 'paste', {
+		dataTransfer: dataTransfer,
+		dataValue: dataValue ? dataValue : ''
+	} );
 }

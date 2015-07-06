@@ -237,7 +237,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             id: 'imgFilename',
                                             type: 'text',
                                             label: imgLabelField,
-                                            title: 'image file name',
+                                            title: imgLabelField,   
                                             style: 'border: 1px;',
                                             onKeyUp: function () {
                                                 OnUrlChange( this.getDialog() );
@@ -292,7 +292,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                             //size: 5,    //07.01.14 RL
                                             size: 11,     //07.01.14 RL
                                             label: editor.lang.mwplugin.startSearch,
-                                            title: 'image list',
+                                            title: editor.lang.mwplugin.startSearchTitle, // 'image list'
                                             required: false,
                                             style: 'border: 1px; width:100%;',
                                             items: [  ],
@@ -343,13 +343,18 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 							commit : function( type, element ) {
 								if ( type == IMAGE ) {
 									if ( this.getValue() || this.isChanged() ) {
-										element.setAttribute( 'alt', this.getValue() );
+										element.setAttribute( 'alt',   this.getValue() );
+										element.setAttribute( 'title', this.getValue() ); //31.01.15 RL
                                     }
 								}
-								else if ( type == PREVIEW )
-									element.setAttribute( 'alt', this.getValue() );
-								else if ( type == CLEANUP )
+								else if ( type == PREVIEW ) {
+									element.setAttribute( 'alt',   this.getValue() );
+									element.setAttribute( 'title', this.getValue() ); //31.01.15 RL
+								}
+								else if ( type == CLEANUP ) {
 									element.removeAttribute( 'alt' );
+									element.removeAttribute( 'title' ); //31.01.15 RL
+								}
 							}
                         },
                        { //31.12.14 RL

@@ -1,5 +1,7 @@
-/* bender-tags: editor,unit,widgetcore */
+/* bender-tags: widgetcore */
 /* bender-ckeditor-plugins: widget,undo,dialog,basicstyles,clipboard */
+/* bender-include: _helpers/tools.js */
+/* global widgetTestsTools */
 
 ( function() {
 	'use strict';
@@ -23,20 +25,6 @@
 		},
 		widgetData2 = '<p id="p1">X</p><div data-widget="test2" id="w1">Y</div>';
 
-	function dropEvent( data, range ) {
-		var evt = new CKEDITOR.dom.event( {
-			dataTransfer: {
-				getData: function( type ) {
-					return data;
-				}
-			}
-		} );
-
-		evt.testRange = range;
-
-		return evt;
-	}
-
 	bender.editor = {
 		config: {
 			allowedContent: true,
@@ -47,7 +35,7 @@
 					evt.editor.widgets.add( 'test1', widgetDefinition1 );
 					evt.editor.widgets.add( 'test2', widgetDefinition2 );
 
-					CKEDITOR.dialog.add( 'test2', function( editor ) {
+					CKEDITOR.dialog.add( 'test2', function() {
 						return {
 							title: 'Test2',
 							contents: [
@@ -334,7 +322,7 @@
 				range.collapse( true );
 				range.select();
 
-				editor.on( 'afterPaste', function() {
+				editor.once( 'afterPaste', function() {
 					resume( function() {
 						assert.areSame( 1, obj2Array( editor.widgets.instances ).length, 'widget was moved' );
 						assert.areSame( '<p id="p1"><span data-widget="test1" id="w1">Y</span>xx</p>', editor.getData() );
@@ -354,11 +342,20 @@
 
 				// Ensure async.
 				wait( function() {
-					var dropContainer = CKEDITOR.env.ie && CKEDITOR.env.version < 9 ? editor.editable() : editor.document;
-					dropContainer.fire( 'drop', dropEvent(
-						JSON.stringify( { type: 'cke-widget', editor: editor.name, id: getWidgetById( editor, 'w1' ).id } ),
-						range
-					) );
+					var dropTarget = CKEDITOR.plugins.clipboard.getDropTarget( editor ),
+						evt = bender.tools.mockDropEvent();
+
+					evt.setTarget( editor.document.findOne( 'img.cke_widget_drag_handler' ) );
+					dropTarget.fire( 'dragstart', evt );
+
+					// Use a realistic drop target for drop.
+					evt.setTarget( range.startContainer );
+					evt.testRange = range;
+					dropTarget.fire( 'drop', evt );
+
+					evt.setTarget( editor.document.findOne( 'img.cke_widget_drag_handler' ) );
+					evt.testRange = undefined;
+					dropTarget.fire( 'dragend', evt );
 				} );
 			} );
 		},
@@ -383,35 +380,42 @@
 				editor.resetUndo();
 				editor.focus();
 
-				try {
-					// Simulate widget drag.
-					img.fire( 'mousedown' );
+				editor.once( 'afterPaste', function() {
+					resume( function() {
+						assert.areSame( 1, obj2Array( editor.widgets.instances ).length, 'widget was moved' );
+						assert.areSame( '<div data-widget="test1" id="w1">Y<p class="e">Z</p></div><p id="a">x</p>', editor.getData() );
+						assertCommands( editor, true, false, 'after d&d' );
 
-					// Create dummy line and pretend it's visible to cheat drop listener
-					// making if feel that there's a place for the widget to be dropped.
-					editor.widgets.liner.showLine( editor.widgets.liner.addLine() );
+						editor.execCommand( 'undo' );
+						assert.areSame( 1, obj2Array( editor.widgets.instances ).length, 'one widget after undo' );
+						assert.areSame( '<p id="a">x</p><div data-widget="test1" id="w1">Y<p class="e">Z</p></div>', editor.getData() );
+						assertCommands( editor, false, true, 'after undo' );
 
-					// Simulate widget drop.
-					editor.document.fire( 'mouseup' );
-				} catch ( e ) {
-					throw e;
-				} finally {
-					revert();
-				}
+						editor.execCommand( 'redo' );
+						assert.areSame( 1, obj2Array( editor.widgets.instances ).length, 'one widgets after redo' );
+						assert.areSame( '<div data-widget="test1" id="w1">Y<p class="e">Z</p></div><p id="a">x</p>', editor.getData() );
+						assertCommands( editor, true, false, 'after redo' );
+					} );
+				} );
 
-				assert.areSame( 1, obj2Array( editor.widgets.instances ).length, 'widget was moved' );
-				assert.areSame( '<div data-widget="test1" id="w1">Y<p class="e">Z</p></div><p id="a">x</p>', editor.getData() );
-				assertCommands( editor, true, false, 'after d&d' );
+				// Ensure async.
+				wait( function() {
+					try {
+						// Simulate widget drag.
+						img.fire( 'mousedown' );
 
-				editor.execCommand( 'undo' );
-				assert.areSame( 1, obj2Array( editor.widgets.instances ).length, 'one widget after undo' );
-				assert.areSame( '<p id="a">x</p><div data-widget="test1" id="w1">Y<p class="e">Z</p></div>', editor.getData() );
-				assertCommands( editor, false, true, 'after undo' );
+						// Create dummy line and pretend it's visible to cheat drop listener
+						// making if feel that there's a place for the widget to be dropped.
+						editor.widgets.liner.showLine( editor.widgets.liner.addLine() );
 
-				editor.execCommand( 'redo' );
-				assert.areSame( 1, obj2Array( editor.widgets.instances ).length, 'one widgets after redo' );
-				assert.areSame( '<div data-widget="test1" id="w1">Y<p class="e">Z</p></div><p id="a">x</p>', editor.getData() );
-				assertCommands( editor, true, false, 'after redo' );
+						// Simulate widget drop.
+						editor.document.fire( 'mouseup' );
+					} catch ( e ) {
+						throw e;
+					} finally {
+						revert();
+					}
+				} );
 			} );
 		},
 
@@ -438,6 +442,6 @@
 				assert.areSame( 0, obj2Array( editor.widgets.instances ).length, '0 widgets after redo' );
 				assertCommands( editor, true, false, 'after redo' );
 			} );
-		},
+		}
 	} );
 } )();

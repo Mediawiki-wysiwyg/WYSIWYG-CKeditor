@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -10,7 +10,7 @@
 
 if ( !CKEDITOR.event ) {
 	/**
-	 * Creates an event class instance. This constructor is rearely used, being
+	 * Creates an event class instance. This constructor is rarely used, being
 	 * the {@link #implementOn} function used in class prototypes directly
 	 * instead.
 	 *

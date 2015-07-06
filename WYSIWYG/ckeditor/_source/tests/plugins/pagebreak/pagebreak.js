@@ -5,7 +5,10 @@
 	'use strict';
 
 	bender.editor = {
-		creator: 'inline' // Speeeeeed...
+		creator: 'inline', // Speeeeeed...
+		config: {
+			pasteFilter: null
+		}
 	};
 
 	bender.test( {
@@ -75,7 +78,7 @@
 					extraPlugins: 'divarea'
 				}
 			},
-			function( bot ) {
+			function() {
 				// If we get here it means that nothing fails :)
 				assert.pass();
 			} );

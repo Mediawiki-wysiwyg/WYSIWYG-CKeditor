@@ -1,4 +1,5 @@
 /* bender-tags: editor,unit,autoparagraphing */
+/* global doc, checkRangeEqual, assertSelectionsAreEqual */
 
 'use strict';
 
@@ -6,83 +7,65 @@ function noSelectionOnBlur( editor ) {
 	return editor.elementMode == CKEDITOR.ELEMENT_MODE_INLINE || CKEDITOR.env.ie;
 }
 
-bender.test( {
-	'async:init': function() {
-		var that = this;
-		bender.tools.setUpEditors( {
-			editor: {
-				startupData: '<p>foo</p>',
-				config: {
-					autoParagraph: false,
-					fillEmptyBlocks: false,
-					allowedContent: true
-				}
-			},
-			editor2: {
-				creator: 'inline',
-				name: 'test_editor2'
-			},
-		}, function( editors, bots ) {
-			that.editorBot = bots.editor;
-			that.editor = editors.editor;
-			that.editorBot2 = bots.editor2;
-			that.editor2 = editors.editor2;
-			that.callback();
-		} );
-	},
+var htmlMatchingOpts = {
+	compareSelection: true,
+	normalizeSelection: true
+};
 
-	assertGetSelection : function( source, expected ) {
-		var ed = this.editor;
+bender.editors = {
+	editor: {
+		startupData: '<p>foo</p>',
+		config: {
+			autoParagraph: false,
+			fillEmptyBlocks: false,
+			allowedContent: true
+		}
+	},
+	editorInline: {
+		creator: 'inline',
+		name: 'test_editor_inline'
+	},
+	editorFramed: {
+		name: 'test_editor_framed'
+	}
+};
+
+bender.test( {
+	assertGetSelection: function( source, expected ) {
+		var ed = this.editors.editor;
 		bender.tools.setHtmlWithSelection( ed, source );
 		assert.areSame( expected || source, bender.tools.getHtmlWithSelection( ed ) );
 	},
 
-	'test editor selection with no focus' : function() {
-		var ed = this.editor;
+	setSelectionInEmptyInlineElement: function( editor ) {
+		var editable = editor.editable(),
+			range = editor.createRange();
 
-		// Make selection outside of editable.
-		var docSel = doc.getSelection();
-		docSel.selectElement( doc.getById( 'p1' ) );
+		editable.setHtml( '<p>x<u></u>x</p>' );
 
-		var sel = ed.getSelection();
+		var uEl = editable.findOne( 'u' );
 
-		// Empty selection retrieved for :
-		// 1. Inline instance where document selection is made outside of editable.
-		// 2. IE when editable doesn't have focus.
-		if ( noSelectionOnBlur( ed ) ) {
-			assert.areSame( CKEDITOR.SELECTION_NONE, sel.getType(), 'selection type' );
-			arrayAssert.isEmpty( sel.getRanges(), 'selection ranges' );
-			assert.isNull( sel.getStartElement(), 'selection start element' );
-			assert.isNull( sel.getSelectedElement(), 'selection selected element' );
-			assert.areSame( '', sel.getSelectedText(), 'selection selected text ' );
-		}
-		// Text selection collapsed at the *start* of editable for theme instance.
-		else
-		{
-			assert.areSame( CKEDITOR.SELECTION_TEXT, sel.getType(), 'selection type' );
-			var ranges = sel.getRanges(), range = ranges[ 0 ];
-			assert.areSame( ranges.length, 1 );
-			assert.isTrue( range.collapsed );
-			assert.isTrue( range.checkBoundaryOfElement( ed.editable().getFirst(), CKEDITOR.START ) );
-		}
+		range.moveToPosition( uEl, CKEDITOR.POSITION_AFTER_START );
+		editor.getSelection().selectRanges( [ range ] );
+	},
 
-		ed.focus();
-		// Test editor selection received.
-		sel = ed.getSelection();
-		var editable = ed.editable();
-		assert.isTrue( sel instanceof CKEDITOR.dom.selection, 'get selection should return dom selection instance.' );
-		assert.areSame( editable.getDocument().$, sel.document.$, 'selection.document is equivalent to editor\'s document' );
-		assert.areSame( editable.$, sel.root.$, 'selection.boundary is equivalent to the editable element' );
+	assertFillingChar: function( editable, parent, contents, msg ) {
+		var fillingChar = editable.getCustomData( 'cke-fillingChar' );
+		assert.isTrue( !!fillingChar, 'Filling char exists - ' + msg );
+		assert.areSame( parent, fillingChar.getParent(), 'Filling char parent - ' + msg );
+		assert.areSame( contents, fillingChar.getText(), 'Filling char contents - ' + msg );
+
+		return fillingChar;
 	},
 
 	'test selection on initial focus': function() {
-		var ed = this.editor;
+		var ed = this.editors.editor;
 		ed.editable().focus();
 		assert.areEqual( '<p>^foo</p>', bender.tools.getHtmlWithSelection( ed ), 'Selection goes into editable on focus (#9507).' );
 	},
 
 	'test selection on initial focus - ensure new doc': function() {
-		var ed = this.editor;
+		var ed = this.editors.editor;
 
 		// Ensure async.
 		setTimeout( function() {
@@ -97,8 +80,8 @@ bender.test( {
 	},
 
 	// Lock lock/unlock selection.
-	'test editor selection lock on blur' : function() {
-		var ed = this.editor, editable = ed.editable();
+	'test editor selection lock on blur': function() {
+		var ed = this.editors.editor, editable = ed.editable();
 
 		if ( !noSelectionOnBlur( ed ) )
 			assert.ignore();
@@ -111,32 +94,29 @@ bender.test( {
 		range.select();
 
 		this.wait( function() {
-			   doc.getById( 'input1' ).focus();
-			   var sel = ed.getSelection();
-			   assert.isNotNull( sel, 'should be able to retrieve locked selection' );
-			   assert.isTrue( !!sel.isLocked, 'selection should be locked' );
+			doc.getById( 'input1' ).focus();
+			var sel = ed.getSelection();
+			assert.isNotNull( sel, 'should be able to retrieve locked selection' );
+			assert.isTrue( !!sel.isLocked, 'selection should be locked' );
 
-			   var savedRange = sel.getRanges()[ 0 ];
-			   // Check saved range.
-			   assert.isTrue( checkRangeEqual( range, savedRange ),
-							  "saved range doesn't match original" );
+			var savedRange = sel.getRanges()[ 0 ];
+			// Check saved range.
+			assert.isTrue( checkRangeEqual( range, savedRange ), 'saved range does not match original' );
 
-			   ed.focus();
-			   sel = ed.getSelection();
-			   assert.isFalse( !!sel.isLocked, 'selection should be unlocked' );
+			ed.focus();
+			sel = ed.getSelection();
+			assert.isFalse( !!sel.isLocked, 'selection should be unlocked' );
 
-			   var restoredRange = sel.getRanges()[ 0 ];
-			   // Check range is restored.
-			   assert.isTrue( checkRangeEqual( range, restoredRange ),
-							  "restored range doesn't match original" );
-
-		   }, 200 );		// 200ms delay for triggering selection change.
+			var restoredRange = sel.getRanges()[ 0 ];
+			// Check range is restored.
+			assert.isTrue( checkRangeEqual( range, restoredRange ), 'restored range does not match original' );
+		}, 200 ); // 200ms delay for triggering selection change.
 	},
 
-	'test "selectionChange" fires properly' : function() {
-		var ed = this.editor, editable = ed.editable(), firedTimes = 0;
+	'test "selectionChange" fires properly': function() {
+		var ed = this.editors.editor, editable = ed.editable(), firedTimes = 0;
 		var onSelectionChange = function( evt ) {
-			firedTimes ++;
+			firedTimes += 1;
 			ed.forceNextSelectionCheck();
 
 			// selection and path provided on the event obj
@@ -150,7 +130,7 @@ bender.test( {
 		};
 
 		// Avoid swallowing assertion errors inside event handler.
-		ed.define( 'selectionChange', { errorProof : 0 } );
+		ed.define( 'selectionChange', { errorProof: 0 } );
 		ed.on( 'selectionChange', onSelectionChange );
 
 		ed.forceNextSelectionCheck();
@@ -160,13 +140,13 @@ bender.test( {
 
 		// selection change has a 200ms delay.
 		this.wait( function() {
-			   ed.removeListener( 'selectionChange', onSelectionChange );
-			   assert.areSame( 2, firedTimes, 'times of selectionChange fired doesn\'t match.' );
-		   }, 200 );
+			ed.removeListener( 'selectionChange', onSelectionChange );
+			assert.areSame( 2, firedTimes, 'times of selectionChange fired doesn\'t match.' );
+		}, 200 );
 	},
 
-	'test "selectionChange" not fired when editor selection is locked' : function() {
-		var ed = this.editor, editable = ed.editable();
+	'test "selectionChange" not fired when editor selection is locked': function() {
+		var ed = this.editors.editor, editable = ed.editable();
 
 		if ( !noSelectionOnBlur( ed ) )
 			assert.ignore();
@@ -179,21 +159,21 @@ bender.test( {
 
 		doc.getById( 'input1' ).focus();
 
-		function shouldFail( evt ) {
+		function shouldFail() {
 			// No "selectionChange" when editor is blurred.
 			assert.fail( 'selection change should\'t be fired.' );
 		}
 
 		ed.on( 'selectionChange', shouldFail );
-		ed.selectionChange( true )
+		ed.selectionChange( true );
 		ed.removeListener( 'selectionChange', shouldFail );
 
 		assert.isTrue( true );
 	},
 
 	'test "selectionChange" fired on empty data loaded': function() {
-		var bot = this.editorBot,
-			editor = this.editor,
+		var bot = this.editorBots.editor,
+			editor = this.editors.editor,
 			selectionChange = 0,
 			sel;
 
@@ -215,8 +195,8 @@ bender.test( {
 	},
 
 	'test "selectionChange" fired on non-empty data loaded': function() {
-		var bot = this.editorBot,
-			editor = this.editor,
+		var bot = this.editorBots.editor,
+			editor = this.editors.editor,
 			selectionChange = 0,
 			sel;
 
@@ -240,8 +220,8 @@ bender.test( {
 
 	// #7174
 	'test "selectionChange" fired after the same selection set after data loaded': function() {
-		var bot = this.editorBot,
-			editor = this.editor,
+		var bot = this.editorBots.editor,
+			editor = this.editors.editor,
 			selectionChange = 0;
 
 		bot.setData( '<p>foo<strong>bar</strong></p>', function() {
@@ -254,7 +234,7 @@ bender.test( {
 
 			assert.areSame( 0, selectionChange, 'Selection was up to date' );
 			bot.setData( '<p>foo<strong>bar</strong></p>', function() {
-				var listener = editor.on( 'selectionChange', function( evt ) {
+				var listener = editor.on( 'selectionChange', function() {
 					selectionChange++;
 				} );
 
@@ -277,18 +257,18 @@ bender.test( {
 	},
 
 	'test "selectionChange" fired on editor focus': function() {
-		 var ed = this.editor;
-		 ed.on( 'selectionChange', function( evt ) {
-			 evt.removeListener();
-			 assert.isTrue( true );
-		 } );
+		var ed = this.editors.editor;
+		ed.on( 'selectionChange', function( evt ) {
+			evt.removeListener();
+			assert.isTrue( true );
+		} );
 
-		 doc.getById( 'input1' ).focus();
-		 ed.forceNextSelectionCheck();
-		 ed.focus();
-	 },
+		doc.getById( 'input1' ).focus();
+		ed.forceNextSelectionCheck();
+		ed.focus();
+	},
 
-	'test collapsed text selection' : function() {
+	'test collapsed text selection': function() {
 		this.assertGetSelection( '^' );
 		this.assertGetSelection( '<p>^</p>' );
 		this.assertGetSelection( '<h1>^</h1>' );
@@ -319,9 +299,8 @@ bender.test( {
 		}
 	},
 
-	'test selection after DOM unload' : function() {
-		var bot = this.editorBot,
-			editor = this.editor;
+	'test selection after DOM unload': function() {
+		var editor = this.editors.editor;
 
 		editor.focus();
 		bender.tools.setHtmlWithSelection( editor, '<p>foo^bar</p>' );
@@ -345,37 +324,56 @@ bender.test( {
 
 	// #10115
 	// Of course this test doesn't check if caret is visible.
-	// It only verifies if fixDom works correctly and does not confilct
+	// It only verifies if fixInitialSelection works correctly and does not confilct
 	// with browser or editor (#9507) fixing selection.
-	'test selection after set data on autoparagraphing editor': function() {
+	'test initial selection after set data in autoparagraphing editor': function() {
 		doc.getById( 'input1' ).focus();
 
-		bender.editorBot.create( {
-			name: 'test_editor_10115'
-		}, function( bot ) {
-			var editor = bot.editor;
+		var editor = this.editors.editorFramed;
 
-			// Ensure async.
-			setTimeout( function() {
-				editor.setData( '', function() {
-					resume( function() {
-						var editable = editor.editable(),
-							dataOnFocus;
+		// Ensure async.
+		setTimeout( function() {
+			editor.setData( '', function() {
+				resume( function() {
+					var editable = editor.editable();
 
-						editable.once( 'focus', function() {
-							dataOnFocus = editable.getHtml();
-						} );
-						editable.focus();
-						assert.isMatching( /<p>\^.*<\/p>/, bender.tools.getHtmlWithSelection( editor ), 'Selection is in the right place.' );
+					editable.focus();
+					assert.isInnerHtmlMatching( '<p>^@</p>', bender.tools.selection.getWithHtml( editor ),
+						htmlMatchingOpts, 'Selection is in the right place.' );
 
-						// Check if DOM was fixed before focus is fired.
-						assert.isMatching( /<p>.*<\/p>/i, dataOnFocus, 'DOM is already fixed on focus.' );
-					} );
+					editor.insertText( 'foo' );
+					assert.isInnerHtmlMatching( '<p>foo^@</p>', bender.tools.selection.getWithHtml( editor ),
+						htmlMatchingOpts, 'Text was inserted in the right place.' );
 				} );
 			} );
-
-			wait();
 		} );
+
+		wait();
+	},
+
+	'test initial selection after set data in autoparagraphing inline editor': function() {
+		doc.getById( 'input1' ).focus();
+
+		var editor = this.editors.editorInline;
+
+		// Ensure async.
+		setTimeout( function() {
+			editor.setData( '', function() {
+				resume( function() {
+					var editable = editor.editable();
+
+					editable.focus();
+					assert.isInnerHtmlMatching( '<p>^@</p>', bender.tools.selection.getWithHtml( editor ),
+						htmlMatchingOpts, 'Selection is in the right place.' );
+
+					editor.insertText( 'foo' );
+					assert.isInnerHtmlMatching( '<p>foo^@</p>', bender.tools.selection.getWithHtml( editor ),
+						htmlMatchingOpts, 'Text was inserted in the right place.' );
+				} );
+			} );
+		} );
+
+		wait();
 	},
 
 	// #10315
@@ -413,15 +411,19 @@ bender.test( {
 
 						// TC2 - on getData
 						// <p>foo^<em>...
-						var range = editor.createRange();
+						range = editor.createRange();
 						range.setStart( editor.document.getById( 'p' ), 1 );
 						editor.getSelection().selectRanges( [ range ] );
 
 						assert.isMatching( /^<p id="p">foo\u200b<em>bar<\/em><\/p>$/, editor.editable().getHtml(), 'Filling char was inserted 2' );
 
 						editor.dataProcessor = {
-							toHtml: function( html ) { return html },
-							toDataFormat: function( html ) { return html }
+							toHtml: function( html ) {
+								return html;
+							},
+							toDataFormat: function( html ) {
+								return html;
+							}
 						};
 
 						assert.isMatching( /^<p id="p">foo<em>bar<\/em><\/p>$/, editor.getData(), 'Filling char was removed on getData' );
@@ -429,7 +431,7 @@ bender.test( {
 
 						// TC3 - on undo image
 						// <p>foo^<em>...
-						var range = editor.createRange();
+						range = editor.createRange();
 						range.setStart( editor.document.getById( 'p' ), 1 );
 						editor.getSelection().selectRanges( [ range ] );
 
@@ -442,6 +444,201 @@ bender.test( {
 
 			wait();
 		} );
+	},
+
+	'test filling char is removed and restored when taking snapshot': function() {
+		if ( !CKEDITOR.env.webkit )
+			assert.ignore();
+
+		var editor = this.editors.editor,
+			editable = editor.editable(),
+			range = editor.createRange();
+
+		this.setSelectionInEmptyInlineElement( editor );
+
+		var uEl = editable.findOne( 'u' ),
+			fillingChar = this.assertFillingChar( editable, uEl, '\u200b', 'after set selection' );
+
+		editor.fire( 'beforeUndoImage' );
+		this.assertFillingChar( editable, uEl, '', 'after beforeUndoImage' );
+
+		editor.fire( 'afterUndoImage' );
+		fillingChar = this.assertFillingChar( editable, uEl, '\u200b', 'after afterUndoImage' );
+
+		range = editor.getSelection().getRanges()[ 0 ];
+		assert.areSame( fillingChar, range.startContainer, 'Selection was restored - container' );
+		assert.areSame( 1, range.startOffset, 'Selection was restored - offset after ZWS' );
+	},
+
+	// #12489
+	'test filling char is removed and restored when taking snapshot if selection is not right after the filling char': function() {
+		if ( !CKEDITOR.env.webkit )
+			assert.ignore();
+
+		var editor = this.editors.editor,
+			editable = editor.editable(),
+			range = editor.createRange();
+
+		this.setSelectionInEmptyInlineElement( editor );
+
+		var uEl = editable.findOne( 'u' ),
+			fillingChar = this.assertFillingChar( editable, uEl, '\u200b', 'after set selection' );
+
+		// Happens when typing and navigating...
+		// Setting selection using native API to avoid losing the filling char on selection.setRanges().
+		fillingChar.setText( fillingChar.getText() + 'abcd' );
+		editor.document.$.getSelection().setPosition( fillingChar.$, 3 ); // ZWSab^cd
+
+		this.assertFillingChar( editable, uEl, '\u200babcd', 'after type' );
+
+		editor.fire( 'beforeUndoImage' );
+		this.assertFillingChar( editable, uEl, 'abcd', 'after beforeUndoImage' );
+
+		editor.fire( 'afterUndoImage' );
+		fillingChar = this.assertFillingChar( editable, uEl, '\u200babcd', 'after afterUndoImage' );
+
+		range = editor.getSelection().getRanges()[ 0 ];
+		assert.areSame( fillingChar, range.startContainer, 'Selection was restored - container' );
+		assert.areSame( 3, range.startOffset, 'Selection was restored - offset in ZWSab^cd' );
+	},
+
+	// #8617
+	'test selection is preserved when removing filling char on left-arrow': function() {
+		if ( !CKEDITOR.env.webkit )
+			assert.ignore();
+
+		var editor = this.editors.editor,
+			editable = editor.editable(),
+			range = editor.createRange();
+
+		this.setSelectionInEmptyInlineElement( editor );
+
+		var uEl = editable.findOne( 'u' ),
+			fillingChar = this.assertFillingChar( editable, uEl, '\u200b', 'after setting selection' );
+
+		// Happens when typing and navigating...
+		// Setting selection using native API to avoid losing the filling char on selection.setRanges().
+		fillingChar.setText( fillingChar.getText() + 'abc' );
+		editor.document.$.getSelection().setPosition( fillingChar.$, 4 ); // ZWSabc^
+
+		this.assertFillingChar( editable, uEl, '\u200babc', 'after typing' );
+
+		// Mock LEFT arrow.
+		editor.document.fire( 'keydown', new CKEDITOR.dom.event( { keyCode: 37 } ) );
+
+		assert.areSame( 'abc', uEl.getHtml(), 'Filling char is removed on left-arrow press' );
+
+		range = editor.getSelection().getRanges()[ 0 ];
+		assert.areSame( uEl.getFirst(), range.startContainer, 'Selection was restored - container' );
+		assert.areSame( 3, range.startOffset, 'Selection was restored - offset in abc^' );
+	},
+
+	// #12419
+	'test selection is preserved when removing filling char on select all': function() {
+		if ( !CKEDITOR.env.webkit )
+			assert.ignore();
+
+		var editor = this.editors.editor,
+			editable = editor.editable(),
+			range = editor.createRange();
+
+		this.setSelectionInEmptyInlineElement( editor );
+
+		var uEl = editable.findOne( 'u' ),
+			fillingChar = this.assertFillingChar( editable, uEl, '\u200b', 'after setting selection' );
+
+		// Happens when typing and navigating...
+		// Setting selection using native API to avoid losing the filling char on selection.setRanges().
+		fillingChar.setText( fillingChar.getText() + 'abc' );
+		editor.document.$.getSelection().setPosition( fillingChar.$, 4 ); // ZWSabc^
+
+		this.assertFillingChar( editable, uEl, '\u200babc', 'after typing' );
+
+		// Select all contents.
+		range.selectNodeContents( editable.findOne( 'p' ) );
+		editor.getSelection().selectRanges( [ range ] );
+
+		assert.areSame( 'abc', uEl.getHtml(), 'Filling char is removed on selection change' );
+		assert.isInnerHtmlMatching( '<p>[x<u>abc</u>x]</p>', bender.tools.selection.getWithHtml( editor ),
+			htmlMatchingOpts, 'Selection is correctly set' );
+	},
+
+	'test direction of selection is preserved when removing filling char': function() {
+		if ( !CKEDITOR.env.webkit )
+			assert.ignore();
+
+		var editor = this.editors.editor,
+			editable = editor.editable(),
+			range = editor.createRange();
+
+		this.setSelectionInEmptyInlineElement( editor );
+
+		var uEl = editable.findOne( 'u' ),
+			fillingChar = this.assertFillingChar( editable, uEl, '\u200b', 'after setting selection' );
+
+		// Happens when typing and making selection from right to left...
+		// Setting selection using native API to avoid losing the filling char on selection.setRanges().
+		fillingChar.setText( fillingChar.getText() + 'abc' );
+		range = editor.document.$.createRange();
+		// ZWSabc]
+		range.setStart( fillingChar.$, 4 );
+		var nativeSel = editor.document.$.getSelection();
+		nativeSel.removeAllRanges();
+		nativeSel.addRange( range );
+		// ZWSa[bc
+		nativeSel.extend( fillingChar.$, 2 );
+
+		this.assertFillingChar( editable, uEl, '\u200babc', 'after typing' );
+
+		// Mock LEFT arrow.
+		editor.document.fire( 'keydown', new CKEDITOR.dom.event( { keyCode: 37 } ) );
+
+		assert.areSame( 'abc', uEl.getHtml(), 'Filling char is removed on left-arrow press' );
+
+		nativeSel = editor.document.$.getSelection();
+		assert.areSame( 3, nativeSel.anchorOffset, 'sel.anchorOffset' );
+		assert.areSame( 1, nativeSel.focusOffset, 'sel.focusOffset' );
+	},
+
+	// This particular scenario is reproducible when after typing in an empty inline element
+	// user tries to select text by mouse from right to left in that element - selection is lost.
+	// #12491 comment:3
+	'test direction of selection is preserved when taking snapshot': function() {
+		if ( !CKEDITOR.env.webkit )
+			assert.ignore();
+
+		var editor = this.editors.editor,
+			editable = editor.editable(),
+			range = editor.createRange();
+
+		this.setSelectionInEmptyInlineElement( editor );
+
+		var uEl = editable.findOne( 'u' ),
+			fillingChar = this.assertFillingChar( editable, uEl, '\u200b', 'after set selection' );
+
+		// Happens when typing and making selection from right to left...
+		// Setting selection using native API to avoid losing the filling char on selection.setRanges().
+		fillingChar.setText( fillingChar.getText() + 'abc' );
+		range = editor.document.$.createRange();
+		// ZWSabc]
+		range.setStart( fillingChar.$, 4 );
+		var nativeSel = editor.document.$.getSelection();
+		nativeSel.removeAllRanges();
+		nativeSel.addRange( range );
+		// ZWSa[bc
+		nativeSel.extend( fillingChar.$, 2 );
+
+		this.assertFillingChar( editable, uEl, '\u200babc', 'after type' );
+
+		editor.fire( 'beforeUndoImage' );
+		this.assertFillingChar( editable, uEl, 'abc', 'after beforeUndoImage' );
+
+		editor.fire( 'afterUndoImage' );
+		this.assertFillingChar( editable, uEl, '\u200babc', 'after afterUndoImage' );
+
+		nativeSel = editor.document.$.getSelection();
+		assert.areSame( 4, nativeSel.anchorOffset, 'sel.anchorOffset' );
+		assert.areSame( 2, nativeSel.focusOffset, 'sel.focusOffset' );
 	},
 
 	'test selection in source mode': function() {
@@ -482,8 +679,8 @@ bender.test( {
 	// selection is locked when blurring framed editor.
 	// But the more cases we test the better, so let's see.
 	'test selection unlocked on setData in framed editor': function() {
-		var editor = this.editor,
-			bot = this.editorBot;
+		var editor = this.editors.editor,
+			bot = this.editorBots.editor;
 
 		editor.focus();
 		bot.setHtmlWithSelection( '<p>foo[bar]bom</p>' );
@@ -499,8 +696,8 @@ bender.test( {
 
 	// #11500 & #5217#comment:32
 	'test selection unlocked on setData in inline editor': function() {
-		var editor = this.editor2,
-			bot = this.editorBot2;
+		var editor = this.editors.editorInline,
+			bot = this.editorBots.editorInline;
 
 		editor.focus();
 		bot.setHtmlWithSelection( '<p>foo[bar]bom</p>' );

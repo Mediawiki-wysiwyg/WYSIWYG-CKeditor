@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------
-Versions of _source directory (updated 09.01.15 RL):
-  Wysiwyg  1.5.6_0 [B551+09.01.2015]
-  CKeditor 4.4.5 revision 25cdcad
+Versions of _source directory (updated 06.07.15 RL):
+  Wysiwyg  1.5.6_0 [B551+13.03.2015]
+  CKeditor 4.5.1   (2.7.2015 11:47 timestamp of version in git repository)
 
 ---------------------------------------------------------------------------------
 This directory is intended for development and debug purposes only.

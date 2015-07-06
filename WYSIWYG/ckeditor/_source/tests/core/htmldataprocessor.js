@@ -26,14 +26,14 @@
 			output = output ? output.replace( /%xss%/g, 'testXss()' ) : input;
 
 		tcs[ name ] = function() {
-			var editor = this.editor2,
+			var editor = this.editors.editor2,
 				xssed = false;
 
 			window.testXss = function() {
 				xssed = true;
 			};
 
-			this.editorBot2.setData( input, function() {
+			this.editorBots.editor2.setData( input, function() {
 				// Wait, because onxxx may not be synchronous.
 				wait( function() {
 					assert.isFalse( xssed, 'XSSed!' );
@@ -51,7 +51,7 @@
 	function addProtectedSourceTC( bodyHtml, title ) {
 		return function() {
 			title = title || 'foo';
-			var input = '<!DOCTYPE html>' + "\n" +
+			var input = '<!DOCTYPE html>' + '\n' +
 					'<html>' +
 					'<head>' +
 					'<title>' + title + '</title>' +
@@ -60,13 +60,59 @@
 					bodyHtml +
 					'</body>' +
 					'</html>',
-				editor = this.editor3;
+				editor = this.editors.editor3;
 
-			this.editorBot3.setData( input, function() {
+			this.editorBots.editor3.setData( input, function() {
 				this.assertHtml( input, editor.getData(), 'Editor data does not match.' );
 			} );
 		};
 	}
+
+	bender.editor = {
+		name: 'test_editor',
+		config: {
+			enterMode: CKEDITOR.ENTER_BR,
+			allowedContent: true
+		}
+	};
+
+	bender.editors = {
+		editor2: {
+			creator: 'inline',
+			name: 'test_editor2',
+			config: {
+				allowedContent: true
+			}
+		},
+		editor3: {
+			name: 'test_editor3',
+			config: {
+				protectedSource: [ /\[\[[^\]]*?\]\]/g ],
+				fullPage: true,
+				allowedContent: true
+			}
+		},
+		editor4: {
+			creator: 'inline',
+			name: 'test_editor4',
+			config: {
+				fillEmptyBlocks: false,
+				allowedContent: true
+			}
+		},
+		editor5: {
+			creator: 'inline',
+			name: 'test_editor5',
+			config: {
+				fillEmptyBlocks: function( el ) {
+					// Do not refactor - should return undefined in other cases.
+					if ( el.name == 'h1' )
+						return false;
+				},
+				allowedContent: true
+			}
+		}
+	};
 
 	var tcs = {
 		// These tests go far beyond the strict htmlDataProcessor code testing. We
@@ -75,68 +121,6 @@
 		// sense.
 
 //		shouldIgnoreAllBut : [ 'test_toDataFormat_ticket_2886_1' ],
-
-		'async:init': function() {
-			var that = this;
-
-			bender.tools.setUpEditors( {
-				editor: {
-					name: 'test_editor',
-					config: {
-						enterMode: CKEDITOR.ENTER_BR,
-						allowedContent: true
-					}
-				},
-				editor2: {
-					creator: 'inline',
-					name: 'test_editor2',
-					config: {
-						allowedContent: true
-					}
-				},
-				editor3: {
-					name: 'test_editor3',
-					config: {
-						protectedSource: [ /\[\[[^\]]*?\]\]/g ],
-						fullPage: true,
-						allowedContent: true
-					}
-				},
-				editor4: {
-					creator: 'inline',
-					name: 'test_editor4',
-					config: {
-						fillEmptyBlocks: false,
-						allowedContent: true
-					}
-				},
-				editor5: {
-					creator: 'inline',
-					name: 'test_editor5',
-					config: {
-						fillEmptyBlocks: function( el ) {
-							// Do not refactor - should return undefined in other cases.
-							if ( el.name == 'h1' )
-								return false;
-						},
-						allowedContent: true
-					}
-				}
-			}, function( editors, bots ) {
-				var num, name;
-
-				for ( name in editors ) {
-					num = name.match( /\d+/ );
-					num = num ? num[ 0 ] : '';
-
-					that[ name ] = editors[ name ];
-					that[ 'editorBot' + num ] = bots[ name ];
-				}
-
-				that.callback();
-			} );
-		},
-
 		setUp: function() {
 			// Force result data un-formatted.
 			this.editor.dataProcessor.writer._.rules = {};
@@ -170,23 +154,23 @@
 			return CKEDITOR.env.needsNbspFiller ? ( toHtml ? '\u00a0' : '&nbsp;' ) : '<br />';
 		},
 
-		test_toDataFormat_ticket_2886_1 : function() {
+		test_toDataFormat_ticket_2886_1: function() {
 			assert.areSame( '<p>&nbsp;</p>', this.editor.dataProcessor.toDataFormat( '<p></p>' ) );
 		},
 
-		test_toDataFormat_1a : function() {
+		test_toDataFormat_1a: function() {
 			var element = new CKEDITOR.dom.element.createFromHtml( '<div><p>Test</p></div>' );
 
 			assert.areSame( '<p>Test</p>', this.editor.dataProcessor.toDataFormat( element.getHtml() ) );
 		},
 
-		test_toDataFormat_1b : function() {
+		test_toDataFormat_1b: function() {
 			var element = new CKEDITOR.dom.element.createFromHtml( '<div><x:x>Test</x:x></div>' );
 
 			assert.areSame( '<x:x>Test</x:x>', this.editor.dataProcessor.toDataFormat( element.getHtml() ) );
 		},
 
-		'test bogus nodes output in pseudo block' : function() {
+		'test bogus nodes output in pseudo block': function() {
 			var o = this.createProcessorAssertion( 'output' );
 
 			o( '<div>&nbsp;<p>foo</p></div>', '<div>@<p>foo</p></div>', 'Converted filler (1)' );
@@ -197,7 +181,7 @@
 			o( '<hr />foo<hr />', '<hr />foo@<hr />', 'Removed bogus (2)' );
 		},
 
-		'test bogus nodes input in pseudo block' : function() {
+		'test bogus nodes input in pseudo block': function() {
 			var i = this.createProcessorAssertion( 'input' );
 
 			i( '<div>@<p>foo</p></div>', '<div><br /><p>foo</p></div>', 'Converted filler (1)' );
@@ -217,33 +201,33 @@
 			i( '<p>foo&nbsp;</p>', '<p>foo&nbsp;</p>', 'Kept non-filler NBSP (2)' );
 		},
 
-		test_toDataFormat_2b : function() {
+		test_toDataFormat_2b: function() {
 			var element = new CKEDITOR.dom.element.createFromHtml( '<div><x:x></x:x><p>Test</p></div>' );
 
 			assert.areSame( '<x:x></x:x><p>Test</p>', this.editor.dataProcessor.toDataFormat( element.getHtml() ) );
 		},
 
-		test_toDataFormat_3 : function() {
+		test_toDataFormat_3: function() {
 			assert.areSame( '<div><x:x><p>Test</p></x:x></div>', this.editor.dataProcessor.toDataFormat( '<div><x:x><p>Test</p></div>' ) );
 		},
 
-		test_toDataFormat_ticket_2774 : function() {
+		test_toDataFormat_ticket_2774: function() {
 			var element = new CKEDITOR.dom.element.createFromHtml( '<div><P class=MsoNormal><B><I><SPAN lang=EN-US><o:p>Test</o:p></SPAN></I></B></P></div>' );
 
 			assert.areSame( '<p class="MsoNormal"><b><i><span lang="EN-US"><o:p>Test</o:p></span></i></b></p>', this.editor.dataProcessor.toDataFormat( element.getHtml() ) );
 		},
 
-		test_toDataFormat_ticket_3036_1 : function() {
+		test_toDataFormat_ticket_3036_1: function() {
 			assert.areSame( '<input autocomplete="off" checked="checked" type="checkbox" />',
 				this.editor.dataProcessor.toDataFormat( '<INPUT type="checkbox" CHECKED  autocomplete=off>' ) );
 		},
 
-		test_toDataFormat_ticket_3036_2 : function() {
+		test_toDataFormat_ticket_3036_2: function() {
 			assert.areSame( '<input autocomplete="off" type="checkbox" unknown="" />',
 				this.editor.dataProcessor.toDataFormat( '<INPUT type="checkbox" UNKNOWN  autocomplete=off>' ) );
 		},
 
-		test_toDataFormat_ticket_2886_2 : function() {
+		test_toDataFormat_ticket_2886_2: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			var source = '<p>Some text<br><br><br></p>';
@@ -253,21 +237,21 @@
 				dataProcessor.toDataFormat( source ) );
 		},
 
-		test_toDataFormat_ticket_2886_3 : function() {
+		test_toDataFormat_ticket_2886_3: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			assert.areSame( '<p>Some text<br /><br /><br />Some more text</p>',
 				dataProcessor.toDataFormat( '<p>Some text<br><br><br>Some more text</p>' ) );
 		},
 
-		test_toDataFormat_ticket_2886_4 : function() {
+		test_toDataFormat_ticket_2886_4: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			assert.areSame( '<p>Some text<br /><br />&nbsp;</p>',
 				dataProcessor.toDataFormat( '<p>Some text<br><br>&nbsp;</p>' ) );
 		},
 
-		test_toDataFormat_ticket_2886_5 : function() {
+		test_toDataFormat_ticket_2886_5: function() {
 			CKEDITOR.env.ie && assert.ignore();
 
 			var dataProcessor = this.editor.dataProcessor;
@@ -276,7 +260,7 @@
 				dataProcessor.toDataFormat( '<p><br></p>' ) );
 		},
 
-		test_toDataFormat_ticket_2886_6 : function() {
+		test_toDataFormat_ticket_2886_6: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			var source = '<p><br><br></p>';
@@ -287,7 +271,7 @@
 				dataProcessor.toDataFormat( source ) );
 		},
 
-		test_toHtml_ticket_2886_1 : function() {
+		test_toHtml_ticket_2886_1: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			var expected = '<p><br /></p>';
@@ -299,28 +283,28 @@
 			assert.areSame( expected, dataProcessor.toHtml( '<p></p>' ) );
 		},
 
-		test_toHtml_ticket_2886_2 : function() {
+		test_toHtml_ticket_2886_2: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			var expected = '<p>Some text<br />Some other text</p>';
 			assert.areSame( expected, dataProcessor.toHtml( '<p>Some text<br>Some other text</p>' ) );
 		},
 
-		test_toHtml_ticket_2886_3 : function() {
+		test_toHtml_ticket_2886_3: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			var expected = '<p>Some text<br />' + this.createBogus( 1 ) + '</p>';
 			assert.areSame( expected, dataProcessor.toHtml( '<p>Some text<br>&nbsp;</p>' ) );
 		},
 
-		test_toHtml_ticket_2886_4 : function() {
+		test_toHtml_ticket_2886_4: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			var expected = '<p>Some text</p>';
 			assert.areSame( expected, dataProcessor.toHtml( '<p>Some text<br></p>' ) );
 		},
 
-		test_toHtml_ticket_7243 : function() {
+		test_toHtml_ticket_7243: function() {
 			var dataProcessor = this.editor.dataProcessor;
 
 			var input = '<p><img onmouseout="this.src=\'out.png\'" onmouseover="this.src=\'over.png\'" src="http://t/image.png" /></p>',
@@ -330,14 +314,14 @@
 		},
 
 		// Spaces between filler brs should be ignored.(#4344)
-		test_spaces_between_filler_br : function() {
+		test_spaces_between_filler_br: function() {
 			var dataProcessor = this.editor.dataProcessor;
 			assert.areSame( '<p><br />&nbsp;</p>',
 				dataProcessor.toDataFormat( dataProcessor.toHtml( '<p><br /><br /></p>' ) ) );
 		},
 
 
-/*		test_ticket_3407 : function()
+/*		test_ticket_3407: function()
 		{
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor,
@@ -352,7 +336,7 @@
 			assert.areSame( html , dataProcessor.toDataFormat( protectedHtml ) );
 		},
 
-		test_ticket_3591 : function()
+		test_ticket_3591: function()
 		{
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor;
@@ -365,7 +349,7 @@
 			assert.areSame( getTextAreaValue( '_TEXTAREA_3591' ), dataProcessor.toDataFormat( protectedHtml ) );
 		}, */
 
-		test_ticket_3591_2 : function() {
+		test_ticket_3591_2: function() {
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor;
 
@@ -379,7 +363,7 @@
 				dataProcessor.toDataFormat( protectedHtml ) );
 		},
 
-		test_ticket_3869_1 : function() {
+		test_ticket_3869_1: function() {
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor;
 
@@ -390,7 +374,7 @@
 			assert.areSame( html , dataProcessor.toDataFormat( protectedHtml ) );
 		},
 
-		test_ticket_3869_2 : function() {
+		test_ticket_3869_2: function() {
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor,
 				config = editor.config;
@@ -410,7 +394,7 @@
 		/**
 		 * Test empty value attributes.
 		 */
-		test_ticket_3884 : function() {
+		test_ticket_3884: function() {
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor;
 			dataProcessor.writer = new CKEDITOR.htmlParser.basicWriter();
@@ -420,7 +404,7 @@
 				dataProcessor.toDataFormat( dataProcessor.toHtml( '<p><a href="" name="">emptylink</a></p>' ) ) );
 		},
 
-		test_innerHtmlComments_ticket_3801 : function() {
+		test_innerHtmlComments_ticket_3801: function() {
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor;
 
@@ -438,7 +422,7 @@
 		/**
 		 *	 Leading spaces in <pre> should be well preserved.
 		 */
-		test_pre_leading_whitespaces_toHtml : function() {
+		test_pre_leading_whitespaces_toHtml: function() {
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor,
 				source = '<pre>\n\n\tOne visible line break.</pre>';
@@ -449,7 +433,7 @@
 		/**
 		 *	 Leading spaces in <pre> should be well preserved.
 		 */
-		test_pre_leading_whitespaces_toDataFormat : function() {
+		test_pre_leading_whitespaces_toDataFormat: function() {
 			var editor = this.editor,
 				dataProcessor = editor.dataProcessor,
 				source = '<pre>\n\tOne visible line break.</pre>\n',
@@ -480,13 +464,13 @@
 		},
 
 		// #4096
-		'test output embedded/object element' : function() {
+		'test output embedded/object element': function() {
 			assert.areSame( '<div>some<object classid="id1"><param /><param /><embed /></object>text</div>',
 				this.editor.dataProcessor.toDataFormat( '<div>some<object classid="id1"><param><param><embed /></object>text</div>' ) );
 		},
 
 		// #4614
-		'test protect "href" attributes' : function() {
+		'test protect "href" attributes': function() {
 			assert.areSame( '<a data-cke-saved-href="http://ckeditor.com" href="http://ckeditor.com">foo</a>',
 							bender.tools.fixHtml( this.editor.dataProcessor.toHtml( '<a\n href="http://ckeditor.com">foo</a>' ) ) );
 		},
@@ -514,8 +498,14 @@
 			}
 		},
 
-		 // #4243
-		'test custom protected source' : function() {
+		// #13233
+		'test don\'t protect foo:href attributes': function() {
+			assert.areSame( '<a foo:href="http://ckeditor.com">foo</a>',
+				bender.tools.fixHtml( this.editor.dataProcessor.toHtml( '<a foo:href="http://ckeditor.com">foo</a>' ) ) );
+		},
+
+		// #4243
+		'test custom protected source': function() {
 			var source = '<p>some<protected>protected</protected>text</p>';
 			var org = this.editor.config.protectedSource;
 			this.editor.config.protectedSource = [ ( /<protected>.*?<\/protected>/g ) ];
@@ -554,6 +544,40 @@
 					'tc ' + i
 				);
 			}
+		},
+
+		// #13292
+		'test protected source in attribute in self-closing tag': function() {
+			var processor = this.editors.editor3.dataProcessor,
+				source = '<p><img src="[[image]]"/></a></p>',
+				expectedHtml = '<p><img data-cke-saved-src="{cke_protected_1}" src="{cke_protected_1}" /></p>',
+				expectedOutput = '<p><img src="[[image]]" /></p>';
+
+			var html = processor.toHtml( source );
+
+			assert.isInnerHtmlMatching( expectedHtml, html, 'toHtml' );
+
+			assert.areSame( expectedOutput, processor.toDataFormat( html ), 'toDataFormat' );
+		},
+
+		// #11754
+		'test malformed HTML does not hang the processor': function() {
+			var processor = this.editor.dataProcessor,
+				source = '<table border=0 cellspacing=0 cellpadding=0 style=\'border-collapse:collapse;></table>',
+				expectedHtml = '@';
+
+			assert.isInnerHtmlMatching( expectedHtml, processor.toHtml( source ) );
+		},
+
+		// #11846
+		'test malformed HTML does not hang the processor 2': function() {
+			var processor = this.editor.dataProcessor,
+				source =
+					'<span id="sample" overflow="hidden" ;"="" style="font-size:8pt; font-weight:normal; ' +
+						'font-style:normal; color:#808080; background:transparent">Text</span>';
+
+			processor.toHtml( source );
+			assert.isTrue( true, 'happy to be here' );
 		},
 
 		// Some elements should not have protected source markup inside. (#11223)
@@ -611,34 +635,34 @@
 		},
 
 		// #7243
-		'test protect inline event handlers' : function() {
+		'test protect inline event handlers': function() {
 			var source = '<img onmouseout="this.src=\'out.png\'" onmouseover="this.src=\'over.png\'" src="http://t/image.png" />';
 			var processor = this.editor.dataProcessor;
 			assert.areSame( source, processor.toDataFormat( processor.toHtml( source ) ) );
 		},
 
 		// #5305
-		'test processing br in front of inline' : function() {
+		'test processing br in front of inline': function() {
 			var source = '<p>line one<br /><br /><img src="http://a.cksource.com/c/1/inc/img/demo-little-red.jpg" /><br />line four</p>';
 			var processor = this.editor.dataProcessor;
 			assert.areSame( source, processor.toDataFormat( processor.toHtml( source ) ) );
 		},
 
 		// #6975
-		'test process definition list' : function() {
+		'test process definition list': function() {
 			var source = '<dl><dt>foo</dt><dd>bar</dd><dt>baz</dt><dd>quz</dd></dl>';
 			var processor = this.editor.dataProcessor;
 			assert.areSame( source, processor.toDataFormat( processor.toHtml( source ) ) );
 		},
 
-		'test toHtml preserves cases inside of attribute value ' : function() {
+		'test toHtml preserves cases inside of attribute value ': function() {
 			var source = 'background-image: url(http://somedomain/SomeBackground.jpg);';
 			var processor = this.editor.dataProcessor;
 			assert.areSame( source, processor.toHtml( source ) );
 		},
 
 		// #9312
-		'test process table with multiple tbody keeps order' : function() {
+		'test process table with multiple tbody keeps order': function() {
 			var processor = this.editor.dataProcessor;
 			bender.tools.testInputOut( 'table-multi-tbody', function( source, expected ) {
 				assert.areSame( bender.tools.compatHtml( expected ), processor.toDataFormat( source ) );
@@ -712,6 +736,22 @@
 
 			assert.areSame( '<p><a data-cke-saved-href="#" data-href="x" href="#" src-foo="y">a</a></p>',
 				bender.tools.fixHtml( dataP.toHtml( '<p><a data-href="x" href="#" src-foo="y">a</a></p>' ) ) );
+		},
+
+		// #13393
+		'test process malformed script': function() {
+			var dataP = this.editor.dataProcessor;
+
+			// What we check is that unclosed <script> tag will be protected.
+			assert.areSame( '<p>x</p><!--{cke_protected}%3Cscript%3E%3Ciframe%20src%3D%22foo%22%3E%3C%2Fiframe%3E-->',
+				dataP.toHtml( '<p>x</p><script><iframe src="foo"></iframe>' ) );
+			assert.areSame( '<p>x</p><!--{cke_protected}%3Cscript%3Ealert(1)%3B%3Cp%3Efoo%3C%2Fp%3E%3Cp%3Ebar%3C%2Fp%3E-->',
+				dataP.toHtml( '<p>x</p><script>alert(1);<p>foo</p><p>bar</p>' ) );
+			// Just to be sure that we don't swallow too much.
+			assert.areSame(
+				'<p>x</p><!--{cke_protected}%3Cscript%3Ealert(1)%3B%3C%2Fscript%3E-->' +
+				'<p>foo</p><!--{cke_protected}%3Cscript%3Ealert(2)%3B%3C%2Fscript%3E--><p>bar</p>',
+				dataP.toHtml( '<p>x</p><script>alert(1);</scr' + 'ipt><p>foo</p><script>alert(2);</scr' + 'ipt><p>bar</p>' ) );
 		},
 
 		'test toHtml event': function() {
@@ -1026,6 +1066,16 @@
 			} ), 'br mode' );
 		},
 
+		'test toHtml options.protectedWhitespaces defaults falsy': function() {
+			var editor = this.editor;
+
+			editor.once( 'toHtml', function( evt ) {
+				assert.isUndefined( evt.data.protectedWhitespaces );
+			} );
+
+			editor.dataProcessor.toHtml( 'foo', {} );
+		},
+
 		'test leading br is removed by toDataFormat in ENTER_P and ENTER_DIV': function() {
 			var htmlDP = this.editor.dataProcessor,
 				opts = { enterMode: CKEDITOR.ENTER_P };
@@ -1061,31 +1111,79 @@
 
 			bogus = '&nbsp;';
 
-			assert.areSame( '<p>' + bogus  + '</p>', htmlDP.toDataFormat( '<p></p>' ), 'toDF 1' );
+			assert.areSame( '<p>' + bogus + '</p>', htmlDP.toDataFormat( '<p></p>' ), 'toDF 1' );
 			assert.areSame( '<div><h1>' + bogus + '</h1></div>', htmlDP.toDataFormat( '<div><h1></h1></div>' ), 'toDF 2' );
 		},
 
 		'test config.fillEmptyBlocks - false': function() {
-			var htmlDP = this.editor4.dataProcessor;
+			var htmlDP = this.editors.editor4.dataProcessor,
+				bogus = CKEDITOR.env.needsBrFiller ? '<br />' : '';
 
-			assert.areSame( '<p></p>', htmlDP.toHtml( '<p></p>' ), 'toHtml 1' );
-			assert.areSame( '<div><h1></h1></div>', htmlDP.toHtml( '<div><h1></h1></div>' ), 'toHtml 1' );
+			// Even though filler fillEmptyBlocks is set to false, we should still put bogus to HTML,
+			// which will be displayed in editable. (#12735)
+			assert.areSame( '<p>' + bogus + '</p>', htmlDP.toHtml( '<p></p>' ), 'toHtml 1' );
+			assert.areSame( '<div><h1>' + bogus + '</h1></div>', htmlDP.toHtml( '<div><h1></h1></div>' ), 'toHtml 1' );
 
 			assert.areSame( '<p></p>', htmlDP.toDataFormat( '<p></p>' ), 'toDF 1' );
 			assert.areSame( '<div><h1></h1></div>', htmlDP.toDataFormat( '<div><h1></h1></div>' ), 'toDF 2' );
 		},
 
 		'test config.fillEmptyBlocks - callback': function() {
-			var htmlDP = this.editor5.dataProcessor,
+			var htmlDP = this.editors.editor5.dataProcessor,
 				bogus = CKEDITOR.env.needsBrFiller ? '<br />' : '';
 
 			assert.areSame( '<p>' + bogus + '</p>', htmlDP.toHtml( '<p></p>' ), 'toHtml 1' );
-			assert.areSame( '<h1></h1>', htmlDP.toHtml( '<h1></h1>' ), 'toHtml 1' );
+			assert.areSame( '<h1>' + bogus + '</h1>', htmlDP.toHtml( '<h1></h1>' ), 'toHtml 2' );
 
 			bogus = '&nbsp;';
 
 			assert.areSame( '<p>' + bogus + '</p>', htmlDP.toDataFormat( '<p></p>' ), 'toDF 1' );
 			assert.areSame( '<h1></h1>', htmlDP.toDataFormat( '<h1></h1>' ), 'toDF 2' );
+		},
+
+		'test empty root - context: body, enterMode: P': function() {
+			var htmlDP = this.editor.dataProcessor;
+
+			assert.isInnerHtmlMatching( '<p>@</p>', htmlDP.toHtml( '', {
+				context: 'body',
+				enterMode: CKEDITOR.ENTER_P
+			} ), 'toHtml' );
+		},
+
+		'test empty root - context: body, enterMode: DIV': function() {
+			var htmlDP = this.editor.dataProcessor;
+
+			assert.isInnerHtmlMatching( '<div>@</div>', htmlDP.toHtml( '', {
+				context: 'body',
+				enterMode: CKEDITOR.ENTER_DIV
+			} ), 'toHtml' );
+		},
+
+		'test empty root - context: body, enterMode: BR': function() {
+			var htmlDP = this.editor.dataProcessor;
+
+			assert.isInnerHtmlMatching( '@', htmlDP.toHtml( '', {
+				context: 'body',
+				enterMode: CKEDITOR.ENTER_BR
+			} ), 'toHtml' );
+		},
+
+		'test empty root - context: div, enterMode: P': function() {
+			var htmlDP = this.editor.dataProcessor;
+
+			assert.isInnerHtmlMatching( '<p>@</p>', htmlDP.toHtml( '', {
+				context: 'div',
+				enterMode: CKEDITOR.ENTER_P
+			} ), 'toHtml' );
+		},
+
+		'test empty root - context: h1, enterMode: BR': function() {
+			var htmlDP = this.editor.dataProcessor;
+
+			assert.isInnerHtmlMatching( '@', htmlDP.toHtml( '', {
+				context: 'h1',
+				enterMode: CKEDITOR.ENTER_BR
+			} ), 'toHtml' );
 		}
 	};
 
@@ -1103,8 +1201,6 @@
 		'<p><img onerror="%xss%" src="produce404" /></p>' );
 
 	// #11635
-
-	bender.test( tcs );
 	addXssTC( tcs, 'video onerror', '<p><video onerror="%xss%">foo</video></p>' );
 	addXssTC( tcs, 'video onerror + src', '<p><video onerror="%xss%" src="produce404">foo</video></p>' );
 	addXssTC( tcs, 'video src + onerror',
@@ -1162,4 +1258,5 @@
 			'<p><onxxx>foo</onxxx>bar</p>' );
 	}
 
+	bender.test( tcs );
 } )();

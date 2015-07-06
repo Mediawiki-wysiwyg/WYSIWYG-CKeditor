@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -18,8 +18,8 @@
  */
 CKEDITOR.lang[ 'ku' ] = {
 	// ARIA description.
-	editor: 'سەرنووسەی دەقی بە پیت',
-	editorPanel: 'Rich Text Editor panel', // MISSING
+	editor: 'سەرنووسەی دەقی تەواو',
+	editorPanel: 'بڕگەی سەرنووسەی دەقی تەواو',
 
 	// Common messages and labels.
 	common: {
@@ -55,7 +55,7 @@ CKEDITOR.lang[ 'ku' ] = {
 		advisoryTitle: 'ڕاوێژکاری سەردێڕ',
 		cssStyle: 'شێواز',
 		ok: 'باشە',
-		cancel: 'هەڵوەشاندن',
+		cancel: 'پاشگەزبوونەوە',
 		close: 'داخستن',
 		preview: 'پێشبینین',
 		resize: 'گۆڕینی ئەندازە',
@@ -84,7 +84,7 @@ CKEDITOR.lang[ 'ku' ] = {
 		alignTop: 'سەرەوە',
 		alignMiddle: 'ناوەند',
 		alignBottom: 'ژێرەوە',
-		alignNone: 'None', // MISSING
+		alignNone: 'هیچ',
 		invalidValue	: 'نرخێکی نادرووست.',
 		invalidHeight: 'درێژی دەبێت ژمارە بێت.',
 		invalidWidth: 'پانی دەبێت ژمارە بێت.',

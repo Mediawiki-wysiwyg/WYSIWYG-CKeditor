@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -327,7 +327,8 @@
 
 			var node, element, check,
 				toBeChecked = [],
-				enterTag = enterModeTags[ enterMode || ( this.editor ? this.editor.enterMode : CKEDITOR.ENTER_P ) ];
+				enterTag = enterModeTags[ enterMode || ( this.editor ? this.editor.enterMode : CKEDITOR.ENTER_P ) ],
+				parentDtd;
 
 			// Remove elements in reverse order - from leaves to root, to avoid conflicts.
 			while ( ( node = toBeRemoved.pop() ) ) {
@@ -345,6 +346,9 @@
 				if ( !element.parent )
 					continue;
 
+				// Handle custom elements as inline elements (#12683).
+				parentDtd = DTD[ element.parent.name ] || DTD.span;
+
 				switch ( check.check ) {
 					// Check if element itself is correct.
 					case 'it':
@@ -359,17 +363,13 @@
 					// Check if element is in correct context. If not - remove element.
 					case 'el-up':
 						// Check if e.g. li is a child of body after ul has been removed.
-						if ( element.parent.type != CKEDITOR.NODE_DOCUMENT_FRAGMENT &&
-							!DTD[ element.parent.name ][ element.name ]
-						)
+						if ( element.parent.type != CKEDITOR.NODE_DOCUMENT_FRAGMENT && !parentDtd[ element.name ] )
 							removeElement( element, enterTag, toBeChecked );
 						break;
 
 					// Check if element is in correct context. If not - remove parent.
 					case 'parent-down':
-						if ( element.parent.type != CKEDITOR.NODE_DOCUMENT_FRAGMENT &&
-							!DTD[ element.parent.name ][ element.name ]
-						)
+						if ( element.parent.type != CKEDITOR.NODE_DOCUMENT_FRAGMENT && !parentDtd[ element.name ] )
 							removeElement( element.parent, enterTag, toBeChecked );
 						break;
 				}
@@ -808,7 +808,7 @@
 		/**
 		 * Destroys the filter instance and removes it from the global {@link CKEDITOR.filter#instances} object.
 		 *
-		 * @since 4.4.4
+		 * @since 4.4.5
 		 */
 		destroy: function() {
 			delete CKEDITOR.filter.instances[ this.id ];
@@ -1369,8 +1369,8 @@
 		}
 	}
 
-	//                  <   elements   ><                      styles, attributes and classes                       >< separator >
-	var rulePattern = /^([a-z0-9*\s]+)((?:\s*\{[!\w\-,\s\*]+\}\s*|\s*\[[!\w\-,\s\*]+\]\s*|\s*\([!\w\-,\s\*]+\)\s*){0,3})(?:;\s*|$)/i,
+	//                  <   elements   ><                       styles, attributes and classes                        >< separator >
+	var rulePattern = /^([a-z0-9\-*\s]+)((?:\s*\{[!\w\-,\s\*]+\}\s*|\s*\[[!\w\-,\s\*]+\]\s*|\s*\([!\w\-,\s\*]+\)\s*){0,3})(?:;\s*|$)/i,
 		groupsPatterns = {
 			styles: /{([^}]+)}/,
 			attrs: /\[([^\]]+)\]/,
@@ -1779,10 +1779,8 @@
 			else
 				stripBlock( element, enterTag, toBeChecked );
 		}
-		// Special case - elements that may contain CDATA
-		// should be removed completely. <script> is handled
-		// by processProtectedElement().
-		else if ( name == 'style' )
+		// Special case - elements that may contain CDATA should be removed completely.
+		else if ( name in { style: 1, script: 1 } )
 			element.remove();
 		// The rest of inline elements. May also be the last resort
 		// for some special elements.
@@ -1813,7 +1811,7 @@
 
 		var parent = element.parent,
 			shouldAutoP = parent.type == CKEDITOR.NODE_DOCUMENT_FRAGMENT || parent.name == 'body',
-			i, child, p;
+			i, child, p, parentDtd;
 
 		for ( i = children.length; i > 0; ) {
 			child = children[ --i ];
@@ -1834,12 +1832,14 @@
 			// Child which doesn't need to be auto paragraphed.
 			else {
 				p = null;
+				parentDtd = DTD[ parent.name ] || DTD.span;
+
 				child.insertAfter( element );
 				// If inserted into invalid context, mark it and check
 				// after removing all elements.
 				if ( parent.type != CKEDITOR.NODE_DOCUMENT_FRAGMENT &&
 					child.type == CKEDITOR.NODE_ELEMENT &&
-					!DTD[ parent.name ][ child.name ]
+					!parentDtd[ child.name ]
 				)
 					toBeChecked.push( { check: 'el-up', el: child } );
 			}

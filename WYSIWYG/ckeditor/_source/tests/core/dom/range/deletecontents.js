@@ -4,15 +4,15 @@
 	'use strict';
 
 	var getInnerHtml = bender.tools.getInnerHtml,
-		doc = CKEDITOR.document;
+		doc = CKEDITOR.document,
+		html1 = document.getElementById( 'playground' ).innerHTML;
 
-	var tests =
-	{
+	var tests = {
 		setUp: function() {
-			 document.getElementById( 'playground' ).innerHTML = html1;
+			document.getElementById( 'playground' ).innerHTML = html1;
 		},
 
-		test_deleteContents_W3C_1 : function() {
+		test_deleteContents_W3C_1: function() {
 			// W3C DOM Range Specs - Section 2.6 - Example 1
 
 			var range = new CKEDITOR.dom.range( doc );
@@ -30,7 +30,7 @@
 			assert.isTrue( range.collapsed, 'range.collapsed' );
 		},
 
-		test_deleteContents_W3C_2 : function() {
+		test_deleteContents_W3C_2: function() {
 			// W3C DOM Range Specs - Section 2.6 - Example 2
 
 			var range = new CKEDITOR.dom.range( doc );
@@ -48,7 +48,7 @@
 			assert.isTrue( range.collapsed, 'range.collapsed' );
 		},
 
-		test_deleteContents_W3C_3 : function() {
+		test_deleteContents_W3C_3: function() {
 			// W3C DOM Range Specs - Section 2.6 - Example 3
 
 			var range = new CKEDITOR.dom.range( doc );
@@ -66,7 +66,7 @@
 			assert.isTrue( range.collapsed, 'range.collapsed' );
 		},
 
-		test_deleteContents_W3C_4 : function() {
+		test_deleteContents_W3C_4: function() {
 			// W3C DOM Range Specs - Section 2.6 - Example 4
 
 			var range = new CKEDITOR.dom.range( doc );
@@ -84,7 +84,7 @@
 			assert.isTrue( range.collapsed, 'range.collapsed' );
 		},
 
-		test_deleteContents_Other : function() {
+		test_deleteContents_Other: function() {
 			var range = new CKEDITOR.dom.range( doc );
 			range.setStart( doc.getById( '_H1' ), 0 );
 			range.setEnd( doc.getById( 'playground' ).getLast(), 1 );
@@ -100,7 +100,7 @@
 			assert.isTrue( range.collapsed, 'range.collapsed' );
 		},
 
-		test_deleteContents_Other_2 : function() {
+		test_deleteContents_Other_2: function() {
 			var range = new CKEDITOR.dom.range( doc );
 			range.setStart( doc.getById( 'playground' ), 0 );
 			range.setEnd( doc.getById( 'playground' ), 2 );
@@ -116,7 +116,7 @@
 			assert.isTrue( range.collapsed, 'range.collapsed' );
 		},
 
-		test_deleteContents_Other_3 : function() {
+		test_deleteContents_Other_3: function() {
 			var range = new CKEDITOR.dom.range( doc );
 			range.selectNodeContents( doc.getById( '_B' ) );
 
@@ -144,14 +144,68 @@
 			assert.areSame( document.getElementById( '_Para' ), range.endContainer.$, 'range.endContainer' );
 			assert.areSame( 0, range.endOffset, 'range.endOffset' );
 			assert.isTrue( range.collapsed, 'range.collapsed' );
+		},
+
+		'test deleteContents - mergeThen': function() {
+			var root = doc.createElement( 'div' ),
+				range = new CKEDITOR.dom.range( doc );
+
+			root.setHtml( '<p><b>foo</b>xxx<b>bar</b></p>' );
+			doc.getBody().append( root );
+
+			range.setStart( root.getFirst().getFirst().getFirst(), 1 ); // f[oo
+			range.setEnd( root.getFirst().getLast().getFirst(), 2 ); // ba}r
+
+			range.deleteContents( true );
+
+			assert.isInnerHtmlMatching( '<p><b>f[]r</b></p>', bender.tools.range.getWithHtml( root, range ) );
+		},
+
+		'test deleteContents - mergeThen (nothing to merge)': function() {
+			var root = doc.createElement( 'div' ),
+				range = new CKEDITOR.dom.range( doc );
+
+			root.setHtml( '<p><b>foo</b>xxx<u>bar</u></p>' );
+			doc.getBody().append( root );
+
+			range.setStart( root.getFirst().getFirst().getFirst(), 1 ); // f[oo
+			range.setEnd( root.getFirst().getLast().getFirst(), 2 ); // ba}r
+
+			range.deleteContents( true );
+
+			assert.isInnerHtmlMatching( '<p><b>f</b>[]<u>r</u></p>', bender.tools.range.getWithHtml( root, range ) );
+		},
+
+		'test deleteContents - empty containers': function() {
+			var root = doc.createElement( 'div' ),
+				range = new CKEDITOR.dom.range( doc );
+
+			root.setHtml( 'x<h1></h1><p>foo</p><h2></h2>y' );
+			doc.getBody().append( root );
+
+			range.setStart( root.findOne( 'h1' ), 0 ); // <h1>[</h1>
+			range.setEnd( root.findOne( 'h2' ), 0 ); // <h2>]</h2>
+
+			range.deleteContents();
+
+			assert.isInnerHtmlMatching( 'x<h1></h1>[]<h2></h2>y', bender.tools.range.getWithHtml( root, range ) );
+		},
+
+		'test deleteContents - empty container, non-empty container': function() {
+			var root = doc.createElement( 'div' ),
+				range = new CKEDITOR.dom.range( doc );
+
+			root.setHtml( '<h1></h1><h2><br /></h2>' );
+			doc.getBody().append( root );
+
+			range.setStart( root.findOne( 'h1' ), 0 ); // <h1>[</h1>
+			range.setEnd( root.findOne( 'h2' ), 0 ); // <h2>]<br /></h2>
+
+			range.deleteContents();
+
+			assert.isInnerHtmlMatching( '<h1></h1>[]<h2><br /></h2>', bender.tools.range.getWithHtml( root, range ) );
 		}
 	};
 
 	bender.test( tests );
 } )();
-
-	//<![CDATA[
-
-html1 = document.getElementById( 'playground' ).innerHTML;
-
-	//]]>

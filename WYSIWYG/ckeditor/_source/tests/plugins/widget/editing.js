@@ -1,5 +1,7 @@
-/* bender-tags: editor,unit,widgetcore */
+/* bender-tags: widgetcore */
 /* bender-ckeditor-plugins: widget,dialog */
+/* bender-include: _helpers/tools.js */
+/* global widgetTestsTools */
 
 ( function() {
 	'use strict';
@@ -19,7 +21,7 @@
 					evt.editor.widgets.add( 'test2', {
 					} );
 
-					CKEDITOR.dialog.add( 'widgettest1', function( editor ) {
+					CKEDITOR.dialog.add( 'widgettest1', function() {
 						return {
 							title: 'Test1',
 							contents: [
@@ -51,7 +53,7 @@
 									]
 								}
 							]
-						}
+						};
 					} );
 				}
 			}
@@ -59,7 +61,6 @@
 	};
 
 	var fixHtml = widgetTestsTools.fixHtml,
-		data2Attr = widgetTestsTools.data2Attribute,
 		getWidgetById = widgetTestsTools.getWidgetById,
 		replaceMethod = bender.tools.replaceMethod;
 
@@ -455,7 +456,7 @@
 					},
 					template: '<div id="w1">{foo}</div>',
 					init: function() {
-						this.on( 'edit', function( evt ) {
+						this.on( 'edit', function() {
 							editFired += 1;
 						}, null, null, 999 );
 					}
@@ -597,7 +598,7 @@
 
 				data: function() {
 					// Trigger transformation after closing dialog.
-					if ( editFired == 0 )
+					if ( editFired === 0 )
 						return;
 
 					// Control whether test case works correctly.
@@ -640,7 +641,7 @@
 
 				widget.focus();
 
-				widget.on( 'edit', function( evt ) {
+				widget.once( 'edit', function( evt ) {
 					editFired += 1;
 					evt.cancel();
 				} );
@@ -648,6 +649,46 @@
 				editor.execCommand( 'test1' );
 
 				assert.areSame( 1, editFired, 'Widget.edit was called' );
+			} );
+		},
+
+		'test cancelling cancel widget dialog does not destroy widget (#13158).': function() {
+			var editor = this.editor,
+				originalConfirm = window.confirm;
+
+			// Setup.
+			window.confirm = function() {
+				return false;
+			};
+
+			this.editorBot.setData( '<p>foo</p>', function() {
+				editor.once( 'dialogShow', function( evt ) {
+					var spy = sinon.stub( editor.widgets, 'destroy' ),
+						dialog = evt.data;
+
+					dialog.once( 'cancel', function() {
+						resume( function() {
+							assert.isFalse( spy.called );
+
+							// Teardown.
+							window.confirm = function() {
+								return true;
+							};
+							dialog.getButton( 'cancel' ).click();
+							window.confirm = originalConfirm;
+						} );
+					} );
+
+					// We have to wait here because of this:
+					// https://github.com/cksource/ckeditor-dev/blob/4fbe94b5fb4be9b1d440462cbc8f0c75e00350a5/plugins/dialog/plugin.js#L910
+					setTimeout( function() {
+						dialog.getContentElement( 'info', 'value1' ).setValue( 'bar' );
+						dialog.getButton( 'cancel' ).click();
+					}, 200 );
+				} );
+
+				editor.execCommand( 'test1' );
+				wait();
 			} );
 		}
 	} );

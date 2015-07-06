@@ -1,10 +1,16 @@
-/* bender-tags: editor,unit,pastefromword */
+/* bender-tags: editor,unit,clipboard,pastefromword */
 /* bender-ckeditor-plugins: clipboard,pastefromword,format,ajax,basicstyles */
+/* global assertPasteEvent */
 
 ( function() {
 	'use strict';
 
-	bender.editor = true;
+	bender.editor = {
+		config: {
+			// Disable pasteFilter on Webkits (pasteFilter defaults semantic-text on Webkits).
+			pasteFilter: null
+		}
+	};
 
 	var compat = bender.tools.compatHtml,
 		engineName = CKEDITOR.env.webkit ? 'webkit' :
@@ -16,9 +22,9 @@
 		return function( input, output ) {
 			assertPasteEvent( editor, { dataValue: input },
 			function( data, msg ) {
-				assert.areSame( compat( output ).toLowerCase(), compat( data.dataValue ).toLowerCase() );
+				assert.areSame( compat( output ).toLowerCase(), compat( data.dataValue ).toLowerCase(), msg );
 			}, 'tc1', true );
-		}
+		};
 	}
 
 	bender.test( {

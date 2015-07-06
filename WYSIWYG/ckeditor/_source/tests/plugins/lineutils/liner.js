@@ -7,7 +7,8 @@
 	var liner;
 
 	CKEDITOR.addCss(
-		'body { padding: 0px !important; margin: 0px !important; }' +
+		// Note: body margin and position:relative are crucial for getClientRect tests.
+		'body { padding: 0px !important; margin: 10px 20px !important; position: relative; }' +
 		'body * { outline: 1px solid #ccc } '
 	);
 
@@ -28,8 +29,7 @@
 
 	bender.test( {
 		'test addLine': function() {
-			var bot = this.editorBot,
-				body = CKEDITOR.document.getBody();
+			var body = CKEDITOR.document.getBody();
 
 			for ( var i = 0; i < 10; i++ ) {
 				line = liner.addLine();
@@ -39,9 +39,10 @@
 		},
 
 		'test remove lines (destroy)': function() {
-			var bot = this.editorBot;
+			var bot = this.editorBot,
+				i;
 
-			for ( var i = lines.length; i--; )
+			for ( i = lines.length; i--; )
 				liner[ i % 2 ? 'visible' : 'hidden' ][ lines[ i ].getUniqueId() ] = lines[ i ];
 
 			assert.areSame( 5, CKEDITOR.tools.objectKeys( liner.visible ).length );
@@ -49,7 +50,7 @@
 
 			bot.editor.destroy();
 
-			for ( var i = lines.length; i--; )
+			for ( i = lines.length; i--; )
 				assert.isNull( lines[ i ].getParent(), 'Line removed from DOM.' );
 		},
 
@@ -90,7 +91,7 @@
 		},
 
 		'test hideVisible': function() {
-			var line1, line2, uid;
+			var line1, line2;
 
 			// Clean-up liner first.
 			liner.removeAll();
@@ -108,6 +109,42 @@
 			assert.isTrue( CKEDITOR.tools.isEmpty( liner.visible ), 'Line removed from visible.' );
 			assert.isFalse( line2.isVisible(), 'Line hidden in DOM.' );
 			assert.areSame( 2, CKEDITOR.tools.objectKeys( liner.hidden ).length, 'Line moved to hidden.' );
+		},
+
+		// #12812
+		'test the constructor does not access window\'s parent frame in case of inline editor': function() {
+			bender.editorBot.create( {
+				creator: 'inline',
+				name: 'inline1'
+			}, function( bot ) {
+				var editor = bot.editor,
+					spy = sinon.spy( editor.window, 'getFrame' ),
+					liner = new CKEDITOR.plugins.lineutils.liner( editor );
+
+				assert.isFalse( spy.called, 'the editor.window.getFrame() was not called' );
+				assert.isFalse( 'frame' in liner, 'liner.frame was not set' );
+			} );
+		},
+
+		'test relative getClientRect': function() {
+			var el = CKEDITOR.dom.element.createFromHtml( '<div>getClientRect test</div>', CKEDITOR.document ),
+				body = CKEDITOR.document.getBody();
+
+			el.appendTo( body );
+
+			var defaultClientRect = el.getClientRect(),
+				linerClientRect = liner.getClientRect( el ),
+				bodyComputedPosition = body.getDocumentPosition();
+
+			assert.areSame( bodyComputedPosition.x, linerClientRect.relativeX, 'Rect relativeX shift is stored.' );
+			assert.areSame( bodyComputedPosition.y, linerClientRect.relativeY, 'Rect relativeY shift is stored.' );
+
+			assert.areSame( defaultClientRect.left, linerClientRect.left + bodyComputedPosition.x, 'Rect left is shifted.' );
+			assert.areSame( defaultClientRect.right, linerClientRect.right + bodyComputedPosition.x, 'Rect right is shifted.' );
+			assert.areSame( defaultClientRect.top, linerClientRect.top + bodyComputedPosition.y, 'Rect top is shifted.' );
+			assert.areSame( defaultClientRect.bottom, linerClientRect.bottom + bodyComputedPosition.y, 'Rect bottom is shifted.' );
+			assert.areSame( defaultClientRect.width, linerClientRect.width, 'Rect width remains.' );
+			assert.areSame( defaultClientRect.height, linerClientRect.height, 'Rect height remains.' );
 		}
 	} );
 } )();

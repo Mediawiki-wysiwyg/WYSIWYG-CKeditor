@@ -1,4 +1,6 @@
-/* bender-tags: editor,unit,widgetcore */
+/* bender-tags: widgetcore */
+/* bender-include: _helpers/tools.js */
+/* global widgetTestsTools */
 
 ( function() {
 	'use strict';
@@ -218,20 +220,68 @@
 				checked = 0,
 				eventData, editorData;
 
-			var listener = widgets.on( 'checkWidgets', function( evt ) {
-				checked += 1;
-				eventData = evt.data;
-				editorData = editor.getData();
+			this.editorBot.setData( '<p data-widget="test2" id="w1">A</p><p>x</p>', function() {
+				var widget = getWidgetById( editor, 'w1' ),
+					html = widget.wrapper.getOuterHtml();
+
+				editor.widgets.del( widget );
+
+				editor.focus();
+				var range = editor.createRange();
+				range.moveToPosition( editor.editable().findOne( 'p' ), CKEDITOR.POSITION_AFTER_START );
+				editor.getSelection().selectRanges( [ range ] );
+
+				var listener = widgets.on( 'checkWidgets', function( evt ) {
+					checked += 1;
+					eventData = evt.data;
+					editorData = editor.getData();
+				} );
+
+				editor.insertHtml( html );
+
+				listener.removeListener();
+
+				assert.areSame( 1, checked );
+				assert.isTrue( eventData.initOnlyNew, 'data.initOnlyNew was passed' );
+				assert.isTrue( !!eventData.focusInited, 'data.focusInited was passed' );
+				assert.areSame( '<p data-widget="test2" id="w1">A</p><p>x</p>', editorData, 'event was fired after data was inserted' );
 			} );
+		},
 
-			this.editorBot.setHtmlWithSelection( '<p>x^x</p>' );
-			editor.insertHtml( 'foo' );
+		'test checkWidgets event on insertHtmlIntoRange': function() {
+			var editor = this.editor,
+				editable = editor.editable(),
+				widgets = editor.widgets,
+				checked = 0,
+				eventData, editorData;
 
-			listener.removeListener();
+			this.editorBot.setData( '<p data-widget="test2" id="w1">A</p><p>xx</p>', function() {
+				var widget = getWidgetById( editor, 'w1' ),
+					html = widget.wrapper.getOuterHtml();
 
-			assert.areSame( 1, checked );
-			assert.isTrue( eventData.initOnlyNew, 'data.initOnlyNew was passed' );
-			assert.areSame( '<p>xfoox</p>', editorData, 'event was fired after data was inserted' );
+				editor.widgets.del( widget );
+
+				editor.focus();
+
+				var listener = widgets.on( 'checkWidgets', function( evt ) {
+					checked += 1;
+					eventData = evt.data;
+					editorData = editor.getData();
+				} );
+
+				var range = editor.createRange();
+				range.setStart( editable.getChild( [ 0, 0 ] ), 1 );
+				range.collapse();
+
+				editable.insertHtmlIntoRange( html, range );
+
+				listener.removeListener();
+
+				assert.areSame( 1, checked, 'checkWidgets' );
+				assert.isTrue( eventData.initOnlyNew, 'data.initOnlyNew was passed' );
+				assert.isUndefined( eventData.focusInited, 'data.initOnlyNew was not passed' );
+				assert.areSame( '<p>x</p><p data-widget="test2" id="w1">A</p><p>x</p>', editorData, 'event was fired after data was inserted' );
+			} );
 		},
 
 		'test checkWidgets event on insertText': function() {
@@ -257,8 +307,7 @@
 		},
 
 		'test widgets are correctly destroyed/initialzed on mode switch': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( sampleWidget2 + '<p>foo</p>' + sampleWidget2, function() {
 				var widgets = editor.widgets;
@@ -289,8 +338,7 @@
 		},
 
 		'test widget cleanup on getData': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<div>Foo' + sampleWidget + 'Bar</div>', function() {
 				var instances = obj2Array( editor.widgets.instances ),
@@ -344,8 +392,7 @@
 		},
 
 		'test widgets instantiated on paste': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p>X</p>' + sampleWidget + '<p>X</p>' + sampleWidget2 + '<p id="x">X</p>', function() {
 				assert.areEqual( 2, CKEDITOR.tools.objectKeys( editor.widgets.instances ).length, 'instances after setData' );
@@ -397,7 +444,8 @@
 					data2Attr( { 'classes': null } ) +
 					'" data-cke-widget-keep-attr="0" data-cke-widget-upcasted="1" data-widget="test_upcasted_pasting"><i class="upcasted_pasting">foo</i></span>' +
 					widgetTestsTools.widgetDragHanlder +
-				'</span>X?(<br />)?</p>$'
+				'</span>X?(<br />)?</p>' +
+				'(<div [^>]+>&nbsp;</div>)?$' // Hidden sel container.
 			);
 
 			var editor = this.editor,
@@ -434,8 +482,7 @@
 		},
 
 		'test widget\'s data is preserved after paste': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( sampleWidget + '<p>X</p>', function() {
 				obj2Array( editor.widgets.instances )[ 0 ].setData( 'foo', 'bar' );
@@ -457,8 +504,7 @@
 		},
 
 		'test single pasted widget is focused': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w1" data-widget="test2">X</p>', function() {
 				var html = editor.editable().getHtml();
@@ -492,8 +538,7 @@
 		},
 
 		'test no focused widget after pasting few': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w1" data-widget="test2">A</p><p>X</p><p id="w1" data-widget="test2">B</p>', function() {
 				var html = editor.editable().getHtml();
@@ -522,8 +567,7 @@
 		},
 
 		'test copying single focused widget': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p>X</p><p id="w1" data-widget="test2">A</p>', function() {
 				var widget = getWidgetById( editor, 'w1' ),
@@ -561,8 +605,7 @@
 		},
 
 		'test cutting single focused widget': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p>X</p><p id="w1" data-widget="test2">A</p><p>X</p>', function() {
 				var widget = getWidgetById( editor, 'w1' ),
@@ -592,8 +635,7 @@
 		},
 
 		'test pasting single focused widget': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p data-widget="test2" id="w1">A</p><p id="p1">X</p>', function() {
 				var widget = getWidgetById( editor, 'w1' ),
@@ -623,6 +665,26 @@
 				wait( function() {
 					editor.execCommand( 'paste', '<span data-cke-copybin-start="1" foo="1">\u200b</span>' + html + '<span data-cke-copybin-end="1">\u200b</span>' );
 				} );
+			} );
+		},
+
+		'test copying widget with context': function() {
+			var editor = this.editor;
+
+			this.editorBot.setData( '<p>X<b><span id="w1" data-widget="test2">A</span></b>X</p>', function() {
+				var widget = getWidgetById( editor, 'w1' ),
+					evt = new CKEDITOR.dom.event( { keyCode: CKEDITOR.CTRL + 67 } );
+
+				widget.focus();
+
+				editor.editable().fire( 'keydown', evt );
+
+				wait( function() {
+					var range = editor.getSelection().getRanges()[ 0 ];
+					assert.areSame( 'b', range.startContainer.getName(), 'startContainer' );
+					assert.areSame( 'b', range.endContainer.getName(), 'endContainer' );
+					assert.isTrue( range.startContainer.getChild( 0 ).hasClass( 'cke_widget_wrapper' ) );
+				}, 150 );
 			} );
 		},
 
@@ -662,8 +724,7 @@
 		},
 
 		'test widget blocking/passing keystrokes': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p>foo</p><p id="w" data-widget="test2">X</p><p id="p2">bar</p>', function() {
 				var widget = getWidgetById( editor, 'w' ),
@@ -693,8 +754,7 @@
 		},
 
 		'leave focused widget by arrow keys': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="p1">foo</p><p id="w" data-widget="test2">X</p><p id="p2">bar</p>', function() {
 				var editable = editor.editable(),
@@ -715,8 +775,7 @@
 		},
 
 		'do not leave focused widget by arrow keys if there is not editing place by its side': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w" data-widget="test2">X</p>', function() {
 				var editable = editor.editable(),
@@ -735,10 +794,9 @@
 		},
 
 		'move to sibling widget by arrow keys': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
-			this.editorBot.setData( '<p id="w1" data-widget="test2">X</p><p id="w2" data-widget="test2">X</p>', function() {
+			this.editorBot.setData( '<p>X</p><p id="w1" data-widget="test2">X</p><p id="w2" data-widget="test2">X</p>', function() {
 				var editable = editor.editable(),
 					widget1 = getWidgetById( editor, 'w1' ),
 					widget2 = getWidgetById( editor, 'w2' );
@@ -756,8 +814,7 @@
 		},
 
 		'forwarding keys to focused widget': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w1" data-widget="test2">X</p><p id="w2" data-widget="test2">X</p><p id="x">foo</p>', function() {
 				var editable = editor.editable(),
@@ -798,8 +855,7 @@
 		},
 
 		'blocking forwarded keys by widget listener': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w1" data-widget="test2">X</p>', function() {
 				var editable = editor.editable(),
@@ -824,8 +880,7 @@
 		},
 
 		'all not handled keys are blocked by default on focused widget': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w1" data-widget="test2">X</p>', function() {
 				var editable = editor.editable(),
@@ -854,8 +909,7 @@
 		},
 
 		'forwarding double click to widget': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w1" data-widget="test2"><span id="i1">X</span></p>', function() {
 				var widget1 = getWidgetById( editor, 'w1' ),
@@ -881,8 +935,7 @@
 		},
 
 		'blocking forwarded double click by widget listener': function() {
-			var editor = this.editor,
-				bot = this.editorBot;
+			var editor = this.editor;
 
 			this.editorBot.setData( '<p id="w1" data-widget="test2">X</p>', function() {
 				var widget1 = getWidgetById( editor, 'w1' ),

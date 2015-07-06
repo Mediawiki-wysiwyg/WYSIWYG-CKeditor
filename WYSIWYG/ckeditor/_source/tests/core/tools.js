@@ -1,37 +1,41 @@
 /* bender-tags: editor,unit */
 
-var vendorPrefix = CKEDITOR.env.gecko ? '-moz-' :
-				   CKEDITOR.env.webkit ? '-webkit-' :
-				   CKEDITOR.env.ie ? '-ms-' :
-				   '';
+( function() {
+	'use strict';
 
-bender.test(
-{
+	var vendorPrefix = CKEDITOR.env.gecko ? '-moz-' :
+			CKEDITOR.env.webkit ? '-webkit-' :
+			CKEDITOR.env.ie ? '-ms-' :
+			'';
+
+	var htmlEncode = CKEDITOR.tools.htmlEncode,
+		htmlDecode = CKEDITOR.tools.htmlDecode;
+	
+	bender.test( {
 		assertNormalizedCssText: function( expected, elementId, msg ) {
 			assert.areSame( expected, CKEDITOR.tools.normalizeCssText(
 				CKEDITOR.document.getById( elementId ).getAttribute( 'style' ) ), msg );
 		},
 
 		test_extend: function() {
-			var fakeFn = function() {};
-			var fakeObj = { fake1 : 1, fake2 : 2 };
+			function fakeFn() {}
+
+			var fakeObj = { fake1: 1, fake2: 2 };
 			var fakeArray = [ 'Test', 10, fakeFn, fakeObj ];
 
-			var target =
-			{
-				prop1 : 'Test',
-				prop2 : 10,
-				prop3 : fakeFn,
-				prop4 : fakeObj,
-				prop5 : fakeArray
+			var target = {
+				prop1: 'Test',
+				prop2: 10,
+				prop3: fakeFn,
+				prop4: fakeObj,
+				prop5: fakeArray
 			};
 
-			CKEDITOR.tools.extend( target,
-				{
-					prop3 : 'Wrong',
-					prop6 : 'Good',
-					prop7 : fakeArray
-				} );
+			CKEDITOR.tools.extend( target, {
+				prop3: 'Wrong',
+				prop6: 'Good',
+				prop7: fakeArray
+			} );
 
 			assert.areSame( 'Test'		, target.prop1, 'prop1 doesn\'t match' );
 			assert.areSame( 10			, target.prop2, 'prop2 doesn\'t match' );
@@ -58,29 +62,61 @@ bender.test(
 			assert.isFalse( CKEDITOR.tools.isArray( window.x ) );
 		},
 
-		test_htmlEncode1: function() {
-			assert.areSame( '&lt;b&gt;Test&lt;/b&gt;', CKEDITOR.tools.htmlEncode( '<b>Test</b>' ) );
+		'test_htmlEncode - all covered entities': function() {
+			assert.areSame( '&lt;b&gt;Test&amp;fun!&lt;/b&gt;', htmlEncode( '<b>Test&fun!</b>' ) );
 		},
 
-		test_htmlEncode2: function() {
-			assert.areSame( 'Test\'s &amp; "quote"', CKEDITOR.tools.htmlEncode( 'Test\'s & "quote"' ) );
+		'test htmlEncode - do not touch quotes': function() {
+			assert.areSame( 'Test\'s &amp; "quote"', htmlEncode( 'Test\'s & "quote"' ) );
 		},
 
-		test_htmlEncode3: function() {
-			assert.areSame( 'A   B   \n\n\t\tC\n \t D', CKEDITOR.tools.htmlEncode( 'A   B   \n\n\t\tC\n \t D' ), 'Tab should not be touched.' );
+		'test htmlEncode - tabs': function() {
+			assert.areSame( 'A   B   \n\n\t\tC\n \t D', htmlEncode( 'A   B   \n\n\t\tC\n \t D' ), 'Tab should not be touched.' );
 		},
 
-		test_htmlDecode: function() {
-				assert.areSame( '<a & b >', CKEDITOR.tools.htmlDecode( '&lt;a &amp; b &gt;' ), 'Invalid result for htmlDecode' );
-				assert.areSame( '<a & b ><a & b >', CKEDITOR.tools.htmlDecode( '&lt;a &amp; b &gt;&lt;a &amp; b &gt;' ), 'Invalid result for htmlDecode' );
+		// Backwards compatibility with careless plugins like dialog or dialogui. All values must be accepted.
+		'test htmlEncode - backwards compat': function() {
+			assert.areSame( '', htmlEncode( undefined ), 'undef' );
+			assert.areSame( '', htmlEncode( null ), 'null' );
+			assert.areSame( '3', htmlEncode( 3 ), '3' );
+			assert.areSame( '0', htmlEncode( 0 ), '0' );
 		},
 
-		test_htmlEncode_3874: function() {
-			assert.areSame( 'line1\nline2', CKEDITOR.tools.htmlEncode( 'line1\nline2' ) );
+		'test htmlEncode - #3874': function() {
+			assert.areSame( 'line1\nline2', htmlEncode( 'line1\nline2' ) );
 		},
 
-		test_htmlEncodeAttr: function() {
-			assert.areSame( '&lt;a b=&quot;c&quot;/&gt;', CKEDITOR.tools.htmlEncodeAttr( '<a b="c"/>' ) );
+		// http://dev.ckeditor.com/ticket/13105#comment:8
+		'test htmlDecode - all covered named entities': function() {
+			assert.areSame( '< a & b > c \u00a0 d \u00ad e "', htmlDecode( '&lt; a &amp; b &gt; c &nbsp; d &shy; e &quot;' ) );
+		},
+
+		'test htmlDecode - numeric entities': function() {
+			assert.areSame( '\u0001 \u000a \u00ff \uffff \u000c', htmlDecode( '&#1; &#10; &#255; &#65535; &#0012;' ) );
+		},
+
+		'test htmlDecode - duplications': function() {
+			assert.areSame( '<a & b ><a & b >', htmlDecode( '&lt;a &amp; b &gt;&lt;a &amp; b &gt;' ) );
+		},
+
+		'test htmlDecode - double encoding': function() {
+			assert.areSame( '&lt; &amp; &gt; &nbsp; &shy;', htmlDecode( '&amp;lt; &amp;amp; &amp;gt; &amp;nbsp; &amp;shy;' ) );
+		},
+
+		'test htmlDecode - triple encoding': function() {
+			assert.areSame( '&amp;lt; &amp;amp; &amp;gt;', htmlDecode( '&amp;amp;lt; &amp;amp;amp; &amp;amp;gt;' ) );
+		},
+
+		'test htmlEncodeAttr - all covered entities': function() {
+			assert.areSame( '&lt;a b=&quot;c&amp;d&quot;/&gt;', CKEDITOR.tools.htmlEncodeAttr( '<a b="c&d"/>' ) );
+		},
+
+		'test htmlDecodeAttr - all covered entities': function() {
+			assert.areSame( '< " > & \u00a0 \u00ad \u000a', CKEDITOR.tools.htmlDecodeAttr( '&lt; &quot; &gt; &amp; &nbsp; &shy; &#10;' ) );
+		},
+
+		'test htmlDecodeAttr - double encoding': function() {
+			assert.areSame( '&lt; &quot; &gt; &amp;', CKEDITOR.tools.htmlDecodeAttr( '&amp;lt; &amp;quot; &amp;gt; &amp;amp;' ) );
 		},
 
 		test_cssStyleToDomStyle1: function() {
@@ -88,7 +124,7 @@ bender.test(
 		},
 
 		test_cssStyleToDomStyle2: function() {
-			assert.areSame( ( CKEDITOR.env.ie && !( document.documentMode > 8 ) ) ? 'styleFloat' : 'cssFloat', CKEDITOR.tools.cssStyleToDomStyle( 'float' ) );
+			assert.areSame( ( CKEDITOR.env.ie && document.documentMode <= 8 ) ? 'styleFloat' : 'cssFloat', CKEDITOR.tools.cssStyleToDomStyle( 'float' ) );
 		},
 
 		test_getNextNumber: function() {
@@ -123,13 +159,11 @@ bender.test(
 		},
 
 		test_clone: function() {
-			var obj =
-			{
-				name : 'John',
-				cars :
-				{
-					Mercedes : { color : 'blue' },
-					Porsche : { color : 'red' }
+			var obj = {
+				name: 'John',
+				cars: {
+					Mercedes: { color: 'blue' },
+					Porsche: { color: 'red' }
 				}
 			};
 
@@ -196,10 +230,8 @@ bender.test(
 		},
 
 		test_createClass: function() {
-			var A = CKEDITOR.tools.createClass(
-				{
-					_ :
-					{
+			var A = CKEDITOR.tools.createClass( {
+					_: {
 						type: function() {
 							return 'A:';
 						}
@@ -207,39 +239,34 @@ bender.test(
 					$: function( name ) {
 						this._name = name;
 					},
-					proto :
-					{
+					proto: {
 						name: function() {
 							// Call private method.
-							return  this._.type() + this._name;
+							return this._.type() + this._name;
 						}
 					}
 				} );
 
-			var B = CKEDITOR.tools.createClass(
-					{
-						base : A,
+			var B = CKEDITOR.tools.createClass( {
+						base: A,
 						$: function() {
 							// Call super constructor.
 							this.base.apply( this, arguments );
 						},
-						proto :
-						{
+						proto: {
 							type: function() {
 								return 'B:';
 							}
 						}
 					} );
 
-			var C = CKEDITOR.tools.createClass(
-				{
-					base : B,
+			var C = CKEDITOR.tools.createClass( {
+					base: B,
 					$: function() {
 						// Call super constructor recursively.
 						this.base.apply( this, arguments );
 					},
-					proto :
-					{
+					proto: {
 						// Overrides super class method.
 						name: function() {
 							// Call the super method.
@@ -326,7 +353,7 @@ bender.test(
 			assert.areSame( '42px', cssLength( 42 ) );
 			assert.areSame( '-42px', cssLength( -42 ) );
 			assert.areSame( '42.42px', cssLength( 42.42 ) );
-			assert.areSame( '', cssLength( 0/0 ) );	// Gives NaN
+			assert.areSame( '', cssLength( 0 / 0 ) );	// Gives NaN
 
 			assert.areSame( '', cssLength( '' ) );
 			assert.areSame( ' ', cssLength( ' ' ) );
@@ -353,7 +380,7 @@ bender.test(
 
 			// Coool...
 			var len = 0;
-			for ( var k in obj )
+			for ( var k in obj ) // jshint ignore:line
 				len++;
 
 			assert.areSame( 2, len );
@@ -512,6 +539,16 @@ bender.test(
 			}, 110 );
 		},
 
+		'test eventsBuffer contex': function() {
+			var spy = sinon.spy(),
+				ctxObj = {},
+				buffer = CKEDITOR.tools.eventsBuffer( 100, spy, ctxObj );
+
+			buffer.input();
+
+			assert.areSame( ctxObj, spy.getCall( 0 ).thisValue, 'callback was executed with the right context' );
+		},
+
 		'test capitalize': function() {
 			var c = CKEDITOR.tools.capitalize;
 
@@ -555,5 +592,28 @@ bender.test(
 			assert.isFalse( c( [ 'bar' ], r1 ) );
 			assert.isFalse( c( [ 'bar', 'f', 'oo' ], r1 ) );
 			assert.isFalse( c( [ 'bar', 'f', 'oo' ], r2 ) ); // Ekhem, don't try to join();
+		},
+
+		'test transformPlainTextToHtml ENTER_BR': function() {
+			var text = '<b>foo</b>\n\nbar\n\tboom',
+				html = CKEDITOR.tools.transformPlainTextToHtml( text, CKEDITOR.ENTER_BR );
+
+			assert.areSame( '&lt;b&gt;foo&lt;/b&gt;<br><br>bar<br>&nbsp;&nbsp; &nbsp;boom', html );
+		},
+
+		'test transformPlainTextToHtml ENTER_P': function() {
+			var text = '<b>foo</b>\n\nbar\n\tboom',
+				html = CKEDITOR.tools.transformPlainTextToHtml( text, CKEDITOR.ENTER_P );
+
+			assert.areSame( '<p>&lt;b&gt;foo&lt;/b&gt;</p><p>bar<br>&nbsp;&nbsp; &nbsp;boom</p>', html );
+		},
+
+		'test getUniqueId': function() {
+			var uuid = CKEDITOR.tools.getUniqueId();
+
+			assert.isString( uuid, 'UUID should be a string.' );
+			assert.isMatching( /[a-z]/, uuid[ 0 ], 'First character of UUID should be z letter.' );
+			assert.areSame( 33, uuid.length, 'UUID.length' );
 		}
 	} );
+} )();

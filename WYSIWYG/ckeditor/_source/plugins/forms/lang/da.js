@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'forms', 'da', {
@@ -15,7 +15,8 @@ CKEDITOR.plugins.setLang( 'forms', 'da', {
 		checkboxTitle: 'Egenskaber for afkrydsningsfelt',
 		radioTitle: 'Egenskaber for alternativknap',
 		value: 'Værdi',
-		selected: 'Valgt'
+		selected: 'Valgt',
+		required: 'Required' // MISSING
 	},
 	form: {
 		title: 'Egenskaber for formular',
@@ -37,6 +38,7 @@ CKEDITOR.plugins.setLang( 'forms', 'da', {
 		size: 'Størrelse',
 		lines: 'Linjer',
 		chkMulti: 'Tillad flere valg',
+		required: 'Required', // MISSING
 		opText: 'Tekst',
 		opValue: 'Værdi',
 		btnAdd: 'Tilføj',
@@ -57,12 +59,13 @@ CKEDITOR.plugins.setLang( 'forms', 'da', {
 		value: 'Værdi',
 		charWidth: 'Bredde (tegn)',
 		maxChars: 'Max. antal tegn',
+		required: 'Required', // MISSING
 		type: 'Type',
 		typeText: 'Tekst',
 		typePass: 'Adgangskode',
-		typeEmail: 'Email', // MISSING
-		typeSearch: 'Search', // MISSING
-		typeTel: 'Telephone Number', // MISSING
+		typeEmail: 'E-mail',
+		typeSearch: 'Søg',
+		typeTel: 'Telefon nummer',
 		typeUrl: 'URL'
 	}
 } );

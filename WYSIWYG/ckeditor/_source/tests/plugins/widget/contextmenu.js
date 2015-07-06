@@ -1,5 +1,7 @@
-/* bender-tags: editor,unit,widgetcore */
+/* bender-tags: widgetcore */
 /* bender-ckeditor-plugins: widget,contextmenu */
+/* bender-include: _helpers/tools.js */
+/* global widgetTestsTools */
 
 ( function() {
 	'use strict';
@@ -17,8 +19,7 @@
 		}
 	};
 
-	var fixHtml = widgetTestsTools.fixHtml,
-		getWidgetById = widgetTestsTools.getWidgetById;
+	var getWidgetById = widgetTestsTools.getWidgetById;
 
 	bender.test( {
 		'test contextMenu event firing': function() {
@@ -30,60 +31,63 @@
 				}
 			} );
 
-			this.editorBot.setData( '<p id="p1">foo</p><div data-widget="testevent" id="w1"><p class="foo">foo</p></div>' +
-				'<p id="p2">foo</p><div data-widget="testevent" id="w2"><p class="foo">foo</p></div>', function() {
-				var w1 = getWidgetById( editor, 'w1' ),
-					w2 = getWidgetById( editor, 'w2' ),
-					p1 = editor.document.getById( 'p1' ),
-					p2 = editor.document.getById( 'p2' ),
-					eFoo1 = w1.editables.foo,
-					opened = '',
-					range = editor.createRange();
+			this.editorBot.setData(
+				'<p id="p1">foo</p><div data-widget="testevent" id="w1"><p class="foo">foo</p></div>' +
+				'<p id="p2">foo</p><div data-widget="testevent" id="w2"><p class="foo">foo</p></div>',
+				function() {
+					var w1 = getWidgetById( editor, 'w1' ),
+						w2 = getWidgetById( editor, 'w2' ),
+						p1 = editor.document.getById( 'p1' ),
+						p2 = editor.document.getById( 'p2' ),
+						eFoo1 = w1.editables.foo,
+						opened = '',
+						range = editor.createRange();
 
-				editor.focus();
+					editor.focus();
 
-				w1.on( 'contextMenu', function() {
-					opened += '1';
-				} );
-				w2.on( 'contextMenu', function() {
-					opened += '2';
-				} );
+					w1.on( 'contextMenu', function() {
+						opened += '1';
+					} );
+					w2.on( 'contextMenu', function() {
+						opened += '2';
+					} );
 
-				range.setStart( p1, 0 );
-				range.collapse( true );
-				range.select();
+					range.setStart( p1, 0 );
+					range.collapse( true );
+					range.select();
 
-				editor.contextMenu.open( editor.editable() );
-				editor.contextMenu.hide();
-				assert.areSame( '', opened, 'events were not fired - #p1' );
+					editor.contextMenu.open( editor.editable() );
+					editor.contextMenu.hide();
+					assert.areSame( '', opened, 'events were not fired - #p1' );
 
-				range.setStart( p1, 0 );
-				range.setEnd( p2, 1 );
-				range.select();
+					range.setStart( p1, 0 );
+					range.setEnd( p2, 1 );
+					range.select();
 
-				editor.contextMenu.open( editor.editable() );
-				editor.contextMenu.hide();
-				assert.areSame( '', opened, 'events were not fired - #p1 to #p2' );
+					editor.contextMenu.open( editor.editable() );
+					editor.contextMenu.hide();
+					assert.areSame( '', opened, 'events were not fired - #p1 to #p2' );
 
-				w1.focus();
-				editor.contextMenu.open( editor.editable() );
-				editor.contextMenu.hide();
-				assert.areSame( '1', opened, 'ctxmenu on #w1' );
+					w1.focus();
+					editor.contextMenu.open( editor.editable() );
+					editor.contextMenu.hide();
+					assert.areSame( '1', opened, 'ctxmenu on #w1' );
 
-				w2.focus();
-				editor.contextMenu.open( editor.editable() );
-				editor.contextMenu.hide();
-				assert.areSame( '12', opened, 'ctxmenu on #w2' );
+					w2.focus();
+					editor.contextMenu.open( editor.editable() );
+					editor.contextMenu.hide();
+					assert.areSame( '12', opened, 'ctxmenu on #w2' );
 
-				eFoo1.focus();
-				range.setStart( eFoo1, 0 );
-				range.collapse( true );
-				range.select();
+					eFoo1.focus();
+					range.setStart( eFoo1, 0 );
+					range.collapse( true );
+					range.select();
 
-				editor.contextMenu.open( editor.editable() );
-				editor.contextMenu.hide();
-				assert.areSame( '12', opened, 'events were not fired - #w1.foo' );
-			} );
+					editor.contextMenu.open( editor.editable() );
+					editor.contextMenu.hide();
+					assert.areSame( '12', opened, 'events were not fired - #w1.foo' );
+				}
+			);
 		},
 
 		'test contextMenu passing a data': function() {
@@ -92,8 +96,7 @@
 			editor.widgets.add( 'testdata', {} );
 
 			this.editorBot.setData( '<p>foo</p><div data-widget="testdata" id="w1">foo</div>', function() {
-				var w1 = getWidgetById( editor, 'w1' ),
-					range = editor.createRange();
+				var w1 = getWidgetById( editor, 'w1' );
 
 				w1.on( 'contextMenu', function( evt ) {
 					evt.data.testData = CKEDITOR.TRISTATE_OFF;
@@ -120,7 +123,7 @@
 
 				editor.contextMenu.hide();
 
-				assert.areSame( 1, itemsExist, 'there is one testData item in context menu' )
+				assert.areSame( 1, itemsExist, 'there is one testData item in context menu' );
 			} );
 		}
 	} );

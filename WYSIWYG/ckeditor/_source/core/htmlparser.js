@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -17,7 +17,7 @@
  */
 CKEDITOR.htmlParser = function() {
 	this._ = {
-		htmlPartsRegex: new RegExp( '<(?:(?:\\/([^>]+)>)|(?:!--([\\S|\\s]*?)-->)|(?:([^\\s>]+)\\s*((?:(?:"[^"]*")|(?:\'[^\']*\')|[^"\'>])*)\\/?>))', 'g' )
+		htmlPartsRegex: /<(?:(?:\/([^>]+)>)|(?:!--([\S|\s]*?)-->)|(?:([^\/\s>]+)((?:\s+[\w\-:.]+(?:\s*=\s*?(?:(?:"[^"]*")|(?:'[^']*')|[^\s"'\/>]+))?)*)[\S\s]*?(\/?)>))/g
 	};
 };
 
@@ -170,7 +170,7 @@ CKEDITOR.htmlParser = function() {
 					var attribs = {},
 						attribMatch,
 						attribsPart = parts[ 4 ],
-						selfClosing = !!( attribsPart && attribsPart.charAt( attribsPart.length - 1 ) == '/' );
+						selfClosing = !!parts[ 5 ];
 
 					if ( attribsPart ) {
 						while ( ( attribMatch = attribsRegex.exec( attribsPart ) ) ) {

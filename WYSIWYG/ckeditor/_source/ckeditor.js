@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -46,4 +46,4 @@ else {
  * @member CKEDITOR
  */
 //CKEDITOR.skinName = 'moono';
-CKEDITOR.skinName = 'kama'; //09.01.15 RL
+CKEDITOR.skinName = 'kama'; //06.07.15 RL

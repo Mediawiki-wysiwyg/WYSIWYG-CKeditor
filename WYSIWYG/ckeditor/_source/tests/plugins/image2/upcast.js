@@ -1,50 +1,44 @@
 /* bender-tags: editor,unit,widget */
 /* bender-ckeditor-plugins: image2,toolbar */
+/* global widgetTestsTools */
 
 ( function() {
 	'use strict';
 
-	var obj2Array = widgetTestsTools.obj2Array,
-		config = {
-			autoParagraph: false,
-			extraAllowedContent: 'img[id]; p div{text-align}'
-		}, editorBots;
+	var obj2Array = widgetTestsTools.obj2Array;
 
 	function assertUpcast( config, callback ) {
-		var bot = editorBots[ config.name ];
+		var bot = bender.editorBots[ config.name ];
 
 		bot.setData( config.data, function() {
 			callback( bot.editor );
 		} );
 	}
 
-	bender.test( {
-		'async:init': function() {
-			var that = this;
-
-			bender.tools.setUpEditors( {
-				enterP: {
-					name: 'enterP',
-					config: config
-				},
-				enterBR: {
-					name: 'enterBR',
-					config: CKEDITOR.tools.extend( {}, config, {
-						enterMode: CKEDITOR.ENTER_BR
-					} )
-				}
-			}, function( editors, bots ) {
-				editorBots = bots;
-				that.callback( editors );
-			} );
+	bender.editors = {
+		enterP: {
+			name: 'enterP'
 		},
+		enterBR: {
+			name: 'enterBR',
+			config: {
+				enterMode: CKEDITOR.ENTER_BR
+			}
+		}
+	};
 
+	bender.editorsConfig = {
+		autoParagraph: false,
+		extraAllowedContent: 'img[id]; p div{text-align}'
+	};
+
+	bender.test( {
 		'test upcast: ENTER_P, non-captioned, centered->P{text-align}': function() {
 			assertUpcast( {
 				name: 'enterP',
 				data: '<p style="text-align:center">' +
 					'<img id="w1" src="_assets/foo.png" alt="foo" />' +
-				'</p>',
+				'</p>'
 			}, function( editor ) {
 				var instances = obj2Array( editor.widgets.instances ),
 					widget = instances[ 0 ];
@@ -60,7 +54,7 @@
 				data: '<p style="text-align:center">' +
 					'<span>sibling</span>' +
 					'<img id="w1" src="_assets/foo.png" alt="foo" />' +
-				'</p>',
+				'</p>'
 			}, function( editor ) {
 				var instances = obj2Array( editor.widgets.instances ),
 					widget = instances[ 0 ];
@@ -76,7 +70,7 @@
 				name: 'enterP',
 				data: '<div style="text-align:center">' +
 					'<img id="w1" src="_assets/foo.png" alt="foo" />' +
-				'</div>',
+				'</div>'
 			}, function( editor ) {
 				var instances = obj2Array( editor.widgets.instances ),
 					widget = instances[ 0 ];
@@ -92,7 +86,7 @@
 				name: 'enterBR',
 				data: '<div style="text-align:center">' +
 					'<img id="w1" src="_assets/foo.png" alt="foo" />' +
-				'</div>',
+				'</div>'
 			}, function( editor ) {
 				var instances = obj2Array( editor.widgets.instances ),
 					widget = instances[ 0 ];
@@ -109,7 +103,7 @@
 				data: '<div style="text-align:center">' +
 					'sibling' +
 					'<img id="w1" src="_assets/foo.png" alt="foo" />' +
-				'</div>',
+				'</div>'
 			}, function( editor ) {
 				var instances = obj2Array( editor.widgets.instances ),
 					widget = instances[ 0 ];

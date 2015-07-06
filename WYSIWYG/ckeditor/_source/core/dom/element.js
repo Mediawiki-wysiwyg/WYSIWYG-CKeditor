@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -116,6 +116,15 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 };
 
 ( function() {
+	var testElement = document.createElement( 'span' ),
+		supportsClassLists = !!testElement.classList,
+		rclass = /[\n\t\r]/g;
+
+	function hasClass( classNames, className ) {
+		// Source: jQuery.
+		return ( ' ' + classNames + ' ' ).replace( rclass, ' ' ).indexOf( ' ' + className + ' ' ) > -1;
+	}
+
 	CKEDITOR.tools.extend( CKEDITOR.dom.element.prototype, {
 		/**
 		 * The node type. This is a constant value set to {@link CKEDITOR#NODE_ELEMENT}.
@@ -134,20 +143,27 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 *		element.addClass( 'classB' ); // <div class="classA classB">
 		 *		element.addClass( 'classA' ); // <div class="classA classB">
 		 *
+		 * **Note:** Since CKEditor 4.5 this method cannot be used with multiple classes (`'classA classB'`).
+		 *
 		 * @chainable
+		 * @method addClass
 		 * @param {String} className The name of the class to be added.
 		 */
-		addClass: function( className ) {
-			var c = this.$.className;
-			if ( c ) {
-				var regex = new RegExp( '(?:^|\\s)' + className + '(?:\\s|$)', '' );
-				if ( !regex.test( c ) )
-					c += ' ' + className;
-			}
-			this.$.className = c || className;
+		addClass: supportsClassLists ?
+			function( className ) {
+				this.$.classList.add( className );
 
-			return this;
-		},
+				return this;
+			} : function( className ) {
+				var c = this.$.className;
+				if ( c ) {
+					if ( !hasClass( c, className ) )
+						c += ' ' + className;
+				}
+				this.$.className = c || className;
+
+				return this;
+			},
 
 		/**
 		 * Removes a CSS class name from the elements classes. Other classes
@@ -160,24 +176,33 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 *		element.removeClass( 'classB' );	// <div>
 		 *
 		 * @chainable
+		 * @method removeClass
 		 * @param {String} className The name of the class to remove.
 		 */
-		removeClass: function( className ) {
-			var c = this.getAttribute( 'class' );
-			if ( c ) {
-				var regex = new RegExp( '(?:^|\\s+)' + className + '(?=\\s|$)', 'i' );
-				if ( regex.test( c ) ) {
-					c = c.replace( regex, '' ).replace( /^\s+/, '' );
+		removeClass: supportsClassLists ?
+			function( className ) {
+				var $ = this.$;
+				$.classList.remove( className );
+
+				if ( !$.className )
+					$.removeAttribute( 'class' );
+
+				return this;
+			} : function( className ) {
+				var c = this.getAttribute( 'class' );
+				if ( c && hasClass( c, className ) ) {
+					c = c
+						.replace( new RegExp( '(?:^|\\s+)' + className + '(?=\\s|$)' ), '' )
+						.replace( /^\s+/, '' );
 
 					if ( c )
 						this.setAttribute( 'class', c );
 					else
 						this.removeAttribute( 'class' );
 				}
-			}
 
-			return this;
-		},
+				return this;
+			},
 
 		/**
 		 * Checks if element has class name.
@@ -186,8 +211,7 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 * @returns {Boolean}
 		 */
 		hasClass: function( className ) {
-			var regex = new RegExp( '(?:^|\\s+)' + className + '(?=\\s|$)', '' );
-			return regex.test( this.getAttribute( 'class' ) );
+			return hasClass( this.$.className, className );
 		},
 
 		/**
@@ -243,10 +267,11 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 *		// Result: '<p>This is some text</p>'
 		 *
 		 * @param {String} text The text to be appended.
-		 * @returns {CKEDITOR.dom.node} The appended node.
 		 */
 		appendText: function( text ) {
-			if ( this.$.text != null )
+			// On IE8 it is impossible to append node to script tag, so we use its text.
+			// On the contrary, on Safari the text property is unpredictable in links. (#13232)
+			if ( this.$.text != null && CKEDITOR.env.ie && CKEDITOR.env.version < 9 )
 				this.$.text += text;
 			else
 				this.append( new CKEDITOR.dom.text( text ) );
@@ -294,8 +319,9 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 *		element.breakParent( parent );
 		 *
 		 * @param {CKEDITOR.dom.element} parent The anscestor element to get broken.
+		 * @param {Boolean} [cloneId=false] Whether to preserve ancestor ID attributes while breaking.
 		 */
-		breakParent: function( parent ) {
+		breakParent: function( parent, cloneId ) {
 			var range = new CKEDITOR.dom.range( this.getDocument() );
 
 			// We'll be extracting part of this element, so let's use our
@@ -304,7 +330,7 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 			range.setEndAfter( parent );
 
 			// Extract it.
-			var docFrag = range.extractContents();
+			var docFrag = range.extractContents( false, cloneId || false );
 
 			// Move the element outside the broken element.
 			range.insertNode( this.remove() );
@@ -320,7 +346,7 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 * @param {CKEDITOR.dom.node} node
 		 * @returns {Boolean}
 		 */
-		contains: CKEDITOR.env.ie || CKEDITOR.env.webkit ?
+		contains: !document.compareDocumentPosition ?
 			function( node ) {
 				var $ = this.$;
 
@@ -419,45 +445,43 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 * @returns {String} The inserted HTML.
 		 */
 		setHtml: ( CKEDITOR.env.ie && CKEDITOR.env.version < 9 ) ?
-				// old IEs throws error on HTML manipulation (through the "innerHTML" property)
-				// on the element which resides in an DTD invalid position,  e.g. <span><div></div></span>
-				// fortunately it can be worked around with DOM manipulation.
-				function( html ) {
-					try {
-						var $ = this.$;
+			// old IEs throws error on HTML manipulation (through the "innerHTML" property)
+			// on the element which resides in an DTD invalid position,  e.g. <span><div></div></span>
+			// fortunately it can be worked around with DOM manipulation.
+			function( html ) {
+				try {
+					var $ = this.$;
 
-						// Fix the case when setHtml is called on detached element.
-						// HTML5 shiv used for document in which this element was created
-						// won't affect that detached element. So get document fragment with
-						// all HTML5 elements enabled and set innerHTML while this element is appended to it.
-						if ( this.getParent() )
-							return ( $.innerHTML = html );
-						else {
-							var $frag = this.getDocument()._getHtml5ShivFrag();
-							$frag.appendChild( $ );
-							$.innerHTML = html;
-							$frag.removeChild( $ );
-
-							return html;
-						}
-					}
-					catch ( e ) {
-						this.$.innerHTML = '';
-
-						var temp = new CKEDITOR.dom.element( 'body', this.getDocument() );
-						temp.$.innerHTML = html;
-
-						var children = temp.getChildren();
-						while ( children.count() )
-							this.append( children.getItem( 0 ) );
+					// Fix the case when setHtml is called on detached element.
+					// HTML5 shiv used for document in which this element was created
+					// won't affect that detached element. So get document fragment with
+					// all HTML5 elements enabled and set innerHTML while this element is appended to it.
+					if ( this.getParent() )
+						return ( $.innerHTML = html );
+					else {
+						var $frag = this.getDocument()._getHtml5ShivFrag();
+						$frag.appendChild( $ );
+						$.innerHTML = html;
+						$frag.removeChild( $ );
 
 						return html;
 					}
 				}
-			:
-				function( html ) {
-					return ( this.$.innerHTML = html );
-				},
+				catch ( e ) {
+					this.$.innerHTML = '';
+
+					var temp = new CKEDITOR.dom.element( 'body', this.getDocument() );
+					temp.$.innerHTML = html;
+
+					var children = temp.getChildren();
+					while ( children.count() )
+						this.append( children.getItem( 0 ) );
+
+					return html;
+				}
+			} : function( html ) {
+				return ( this.$.innerHTML = html );
+			},
 
 		/**
 		 * Sets the element contents as plain text.
@@ -568,14 +592,15 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 * @param {String} propertyName The style property name.
 		 * @returns {String} The property value.
 		 */
-		getComputedStyle: CKEDITOR.env.ie ?
-			function( propertyName ) {
-				return this.$.currentStyle[ CKEDITOR.tools.cssStyleToDomStyle( propertyName ) ];
-			} : function( propertyName ) {
-				var style = this.getWindow().$.getComputedStyle( this.$, null );
-				// Firefox may return null if we call the above on a hidden iframe. (#9117)
-				return style ? style.getPropertyValue( propertyName ) : '';
-			},
+		getComputedStyle: ( document.defaultView && document.defaultView.getComputedStyle ) ?
+				function( propertyName ) {
+					var style = this.getWindow().$.getComputedStyle( this.$, null );
+
+					// Firefox may return null if we call the above on a hidden iframe. (#9117)
+					return style ? style.getPropertyValue( propertyName ) : '';
+				} : function( propertyName ) {
+					return this.$.currentStyle[ CKEDITOR.tools.cssStyleToDomStyle( propertyName ) ];
+				},
 
 		/**
 		 * Gets the DTD entries for this element.
@@ -610,39 +635,18 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 * @method
 		 * @returns {Number} The tabindex value.
 		 */
-		getTabIndex: CKEDITOR.env.ie ?
-			function() {
-				var tabIndex = this.$.tabIndex;
+		getTabIndex: function() {
+			var tabIndex = this.$.tabIndex;
 
-				// IE returns tabIndex=0 by default for all elements. In
-				// those cases we must check that the element really has
-				// the tabindex attribute set to zero, or it is one of
-				// those element that should have zero by default.
-				if ( tabIndex === 0 && !CKEDITOR.dtd.$tabIndex[ this.getName() ] && parseInt( this.getAttribute( 'tabindex' ), 10 ) !== 0 )
-					tabIndex = -1;
+			// IE returns tabIndex=0 by default for all elements. In
+			// those cases we must check that the element really has
+			// the tabindex attribute set to zero, or it is one of
+			// those element that should have zero by default.
+			if ( tabIndex === 0 && !CKEDITOR.dtd.$tabIndex[ this.getName() ] && parseInt( this.getAttribute( 'tabindex' ), 10 ) !== 0 )
+				return -1;
 
-				return tabIndex;
-			} : CKEDITOR.env.webkit ?
-			function() {
-				var tabIndex = this.$.tabIndex;
-
-				// Safari returns "undefined" for elements that should not
-				// have tabindex (like a div). So, we must try to get it
-				// from the attribute.
-				// https://bugs.webkit.org/show_bug.cgi?id=20596
-				if ( tabIndex === undefined ) {
-					tabIndex = parseInt( this.getAttribute( 'tabindex' ), 10 );
-
-					// If the element don't have the tabindex attribute,
-					// then we should return -1.
-					if ( isNaN( tabIndex ) )
-						tabIndex = -1;
-				}
-
-				return tabIndex;
-			} : function() {
-				return this.$.tabIndex;
-			},
+			return tabIndex;
+		},
 
 		/**
 		 * Gets the text value of this element.
@@ -1107,8 +1111,8 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 			}
 
 			return function( inlineOnly ) {
-				if ( !( inlineOnly === false || CKEDITOR.dtd.$removeEmpty[ this.getName() ] || this.is( 'a' ) ) ) // Merge empty links and anchors also. (#5567)
-				{
+				// Merge empty links and anchors also. (#5567)
+				if ( !( inlineOnly === false || CKEDITOR.dtd.$removeEmpty[ this.getName() ] || this.is( 'a' ) ) ) {
 					return;
 				}
 
@@ -1424,11 +1428,24 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 					needAdjustScrollAndBorders = ( quirks && inBody ) || ( !quirks && inDocElem );
 				}
 
+				// #12747.
 				if ( needAdjustScrollAndBorders ) {
-					x = box.left + ( !quirks && $docElem.scrollLeft || body.$.scrollLeft );
-					x -= clientLeft;
-					y = box.top + ( !quirks && $docElem.scrollTop || body.$.scrollTop );
-					y -= clientTop;
+					var scrollRelativeLeft,
+						scrollRelativeTop;
+
+					// See #12758 to know more about document.(documentElement|body).scroll(Left|Top) in Webkit.
+					if ( CKEDITOR.env.webkit || ( CKEDITOR.env.ie && CKEDITOR.env.version >= 12 ) ) {
+						scrollRelativeLeft = body.$.scrollLeft || $docElem.scrollLeft;
+						scrollRelativeTop = body.$.scrollTop || $docElem.scrollTop;
+					} else {
+						var scrollRelativeElement = quirks ? body.$ : $docElem;
+
+						scrollRelativeLeft = scrollRelativeElement.scrollLeft;
+						scrollRelativeTop = scrollRelativeElement.scrollTop;
+					}
+
+					x = box.left + scrollRelativeLeft - clientLeft;
+					y = box.top + scrollRelativeTop - clientTop;
 				}
 			} else {
 				var current = this,
@@ -1739,7 +1756,7 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 			this.moveChildren( newNode );
 
 			// Replace the node.
-			this.getParent() && this.$.parentNode.replaceChild( newNode.$, this.$ );
+			this.getParent( true ) && this.$.parentNode.replaceChild( newNode.$, this.$ );
 			newNode.$[ 'data-cke-expando' ] = this.$[ 'data-cke-expando' ];
 			this.$ = newNode.$;
 			// Bust getName's cache. (#8663)
@@ -1769,6 +1786,7 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 				if ( !indices.slice )
 					rawNode = getChild( rawNode, indices );
 				else {
+					indices = indices.slice();
 					while ( indices.length > 0 && rawNode )
 						rawNode = getChild( rawNode, indices.shift() );
 				}

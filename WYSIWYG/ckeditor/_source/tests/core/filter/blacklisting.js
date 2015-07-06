@@ -1,9 +1,44 @@
 /* bender-tags: editor,unit */
+/* global acfTestTools */
 
 ( function() {
 	'use strict';
 
 	var createFilter = acfTestTools.createFilter;
+
+	bender.editors = {
+		editor: {
+			name: 'editor1'
+		},
+		editorCustomAllowedContent: {
+			name: 'editor2',
+			config: {
+				allowedContent: 'p b i'
+			}
+		},
+		editorDisallowedContent: {
+			name: 'editor3',
+			config: {
+				extraPlugins: 'basicstyles,toolbar',
+				disallowedContent: 'strong; *[bar]'
+			}
+		},
+		editorBothContents: {
+			name: 'editor4',
+			config: {
+				allowedContent: 'p strong em[foo]; h1 h2',
+				disallowedContent: 'strong; *[bar]'
+			}
+		},
+		editorTransformations: {
+			name: 'editor5',
+			config: {
+				extraPlugins: 'basicstyles,image,toolbar',
+				extraAllowedContent: 'b; img[width,height]',
+				disallowedContent: 'strong; img{width,height}'
+			}
+		}
+	};
 
 	function ruleSortCompare( ruleA, ruleB ) {
 		var elementsA = CKEDITOR.tools.objectKeys( ruleA.elements ).sort().join( ',' ),
@@ -20,48 +55,6 @@
 	}
 
 	bender.test( {
-		'async:init': function() {
-			var that = this;
-
-			bender.tools.setUpEditors( {
-				editor: {
-					name: 'editor1'
-				},
-				editorCustomAllowedContent: {
-					name: 'editor2',
-					config: {
-						allowedContent: 'p b i'
-					}
-				},
-				editorDisallowedContent: {
-					name: 'editor3',
-					config: {
-						extraPlugins: 'basicstyles,toolbar',
-						disallowedContent: 'strong; *[bar]'
-					}
-				},
-				editorBothContents: {
-					name: 'editor4',
-					config: {
-						allowedContent: 'p strong em[foo]; h1 h2',
-						disallowedContent: 'strong; *[bar]'
-					}
-				},
-				editorTransformations: {
-					name: 'editor5',
-					config: {
-						extraPlugins: 'basicstyles,image,toolbar',
-						extraAllowedContent: 'b; img[width,height]',
-						disallowedContent: 'strong; img{width,height}'
-					}
-				},
-			}, function( editors, bots ) {
-				that.editorBots = bots;
-				that.editors = editors;
-				that.callback();
-			} );
-		},
-
 		'test default values - editor\'s filter': function() {
 			var filter = this.editors.editor.filter;
 

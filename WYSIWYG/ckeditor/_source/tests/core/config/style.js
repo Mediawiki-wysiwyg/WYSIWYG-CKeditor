@@ -1,20 +1,21 @@
 /* bender-tags: editor,unit */
 
-bender.test(
-{
+bender.test( {
 	'test disableReadonlyStyling=true': function() {
-		bender.editorBot.create( {
-				name : 'test_dRS_true',
+		bender.editorBot.create(
+			{
+				name: 'test_dRS_true',
 				startupData: '<p>Text <span contenteditable=false id="marker1">text</span> text.</p>',
 				config: {
 					disableReadonlyStyling: true,
-					allowedContent : true // Disable filter.
+					allowedContent: true // Disable filter.
 				}
 			},
 			function( bot ) {
 				var editor = bot.editor,
 					range = editor.createRange(),
 					style = new CKEDITOR.style( { name: 'Bold', element: 'b' } );
+
 				range.selectNodeContents( editor.editable() );
 				editor.getSelection().selectRanges( [ range ] );
 				editor.applyStyle( style );
@@ -25,18 +26,20 @@ bender.test(
 	},
 
 	'test disableReadonlyStyling=false': function() {
-		bender.editorBot.create( {
-				name : 'test_dRS_false',
+		bender.editorBot.create(
+			{
+				name: 'test_dRS_false',
 				startupData: '<p>Text <span contenteditable=false id="marker2">text</span> text.</p>',
 				config: {
 					// false is default value
-					allowedContent : true // Disable filter.
+					allowedContent: true // Disable filter.
 				}
 			},
 			function( bot ) {
 				var editor = bot.editor,
 					range = editor.createRange(),
 					style = new CKEDITOR.style( { name: 'Bold', element: 'b' } );
+
 				range.selectNodeContents( editor.editable() );
 				editor.getSelection().selectRanges( [ range ] );
 				editor.applyStyle( style );
@@ -45,5 +48,4 @@ bender.test(
 			}
 		);
 	}
-
 } );

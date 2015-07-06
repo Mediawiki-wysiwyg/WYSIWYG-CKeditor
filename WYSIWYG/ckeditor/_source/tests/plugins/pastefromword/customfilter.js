@@ -6,7 +6,7 @@
 
 	bender.editor = {
 		config: {
-			pasteFromWordCleanupFile: '%TEST_DIR%_assets/customFilter.js'
+			pasteFromWordCleanupFile: '%TEST_DIR%_assets/customfilter.js'
 		}
 	};
 
@@ -23,7 +23,8 @@
 			editor.fire( 'paste', {
 				type: 'auto',
 				// This data will be recognized as pasted from Word.
-				dataValue: '<p>fail <strong class="MsoNormal">fail</strong></p>'
+				dataValue: '<p>fail <strong class="MsoNormal">fail</strong></p>',
+				method: 'paste'
 			} );
 
 			wait();

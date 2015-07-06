@@ -4,6 +4,12 @@
 ( function() {
 	'use strict';
 
+	var mathJaxLib = bender.config.mathJaxLibPath;
+
+	if ( !mathJaxLib ) {
+		throw new Error( 'bender.config.mathJaxLibPath should be defined with the path to MathJax lib (MathJax.js?config=TeX-AMS_HTML).' );
+	}
+
 	bender.test( {
 		checkIFrame: function( config ) {
 			if ( CKEDITOR.env.ie && CKEDITOR.env.version < 9 )
@@ -17,14 +23,14 @@
 				doc = iFrame.getFrameDocument(),
 				fakeEditor = {
 					config: {
-						mathJaxLib: '_assets/truncated-mathjax/MathJax.js?config=TeX-AMS_HTML'
+						mathJaxLib: mathJaxLib
 					},
 					fire: function() {
 						//mock
 					},
 					lang: {
 						mathjax: {
-							loading: "loading..."
+							loading: 'loading...'
 						}
 					}
 				};
@@ -61,8 +67,8 @@
 							bender.tools.compatHtml( doc.getById( 'buffer' ).getElementsByTag( 'script' ).$[ 0 ].innerHTML ),
 							'MathJax should create script element containing equation.' );
 
-						assert.isTrue( parseInt( iFrame.getStyle( 'width' ) ) > 0, 'Width of iFrame should be grater that 0.' );
-						assert.isTrue( parseInt( iFrame.getStyle( 'height' ) ) > 0, 'Height of iFrame should be grater that 0.' );
+						assert.isTrue( parseInt( iFrame.getStyle( 'width' ), 0 ) > 0, 'Width of iFrame should be grater that 0.' );
+						assert.isTrue( parseInt( iFrame.getStyle( 'height' ), 0 ) > 0, 'Height of iFrame should be grater that 0.' );
 
 						CKEDITOR.document.getById( 'playground' ).setHtml( '' );
 					} );
@@ -119,20 +125,20 @@
 			this.checkIFrame( {
 				html: '<iframe id="setValueAfterInit" style="border:0;width:0;height:0"></iframe>',
 				id: 'setValueAfterInit',
-				loaded: function( frameWrapper, doc ) {
+				loaded: function( frameWrapper ) {
 					frameWrapper.setValue( '\\(1 + 1 = 2\\)' );
 				},
 				expectedUpdateCount: 1,
 				expectedValue: '1 + 1 = 2'
 			} );
-		 },
+		},
 
 		'test set value twice': function() {
 			this.checkIFrame( {
 				html: '<iframe id="setValueTwice" style="border:0;width:0;height:0"></iframe>',
 				id: 'setValueTwice',
 				setValue: '\\(1 + 1 = 2\\)',
-				loaded: function( frameWrapper, doc ) {
+				loaded: function( frameWrapper ) {
 					frameWrapper.setValue( '\\(2 + 2 = 4\\)' );
 				},
 				expectedUpdateCount: 2,

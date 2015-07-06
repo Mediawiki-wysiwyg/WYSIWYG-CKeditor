@@ -1,5 +1,6 @@
 /* bender-tags: editor,unit,widget */
 /* bender-ckeditor-plugins: image2,justify,toolbar */
+/* global widgetTestsTools, image2TestsTools */
 
 ( function() {
 	'use strict';
@@ -11,8 +12,6 @@
 
 	var getWidgetById = widgetTestsTools.getWidgetById,
 		fixHtml = image2TestsTools.fixHtml,
-		classes2Array = widgetTestsTools.classes2Array,
-
 		styleDef = {
 			name: '80\'s pop',
 			type: 'widget',
@@ -22,59 +21,51 @@
 			}
 		};
 
-	bender.test( {
-		'async:init': function() {
-			var that = this;
-
-			bender.tools.setUpEditors( {
-				editor: {
-					name: 'editor1',
-					config: {
-						extraAllowedContent: 'img figure[id]',
-						autoParagraph: false,
-						language: 'en',
-						image2_alignClasses: [ 'al', 'ac', 'ar' ],
-						image2_captionedClass: 'cap'
-					}
-				},
-
-				editorACFStyles: {
-					name: 'editor2',
-					config: {
-						extraAllowedContent: 'img figure[id]',
-						autoParagraph: false,
-						language: 'en',
-						image2_captionedClass: 'cap',
-						on: {
-							loaded: function() {
-								this.filter.allow( new CKEDITOR.style( styleDef ) );
-							}
-						}
-					}
-				},
-
-				editorACFClasses: {
-					name: 'editor3',
-					config: {
-						extraAllowedContent: 'img figure[id]',
-						autoParagraph: false,
-						language: 'en',
-						image2_alignClasses: [ 'al', 'ac', 'ar' ],
-						image2_captionedClass: 'cap',
-						on: {
-							loaded: function() {
-								this.filter.allow( new CKEDITOR.style( styleDef ) );
-							}
-						}
-					}
-				}
-			}, function( editors, bots ) {
-				that.editorBots = bots;
-				that.editors = editors;
-				that.callback();
-			} );
+	bender.editors = {
+		editor: {
+			name: 'editor1',
+			config: {
+				extraAllowedContent: 'img figure[id]',
+				autoParagraph: false,
+				language: 'en',
+				image2_alignClasses: [ 'al', 'ac', 'ar' ],
+				image2_captionedClass: 'cap'
+			}
 		},
 
+		editorACFStyles: {
+			name: 'editor2',
+			config: {
+				extraAllowedContent: 'img figure[id]',
+				autoParagraph: false,
+				language: 'en',
+				image2_captionedClass: 'cap',
+				on: {
+					loaded: function() {
+						this.filter.allow( new CKEDITOR.style( styleDef ) );
+					}
+				}
+			}
+		},
+
+		editorACFClasses: {
+			name: 'editor3',
+			config: {
+				extraAllowedContent: 'img figure[id]',
+				autoParagraph: false,
+				language: 'en',
+				image2_alignClasses: [ 'al', 'ac', 'ar' ],
+				image2_captionedClass: 'cap',
+				on: {
+					loaded: function() {
+						this.filter.allow( new CKEDITOR.style( styleDef ) );
+					}
+				}
+			}
+		}
+	};
+
+	bender.test( {
 		'test style non-captioned, right-aligned widget': function() {
 			var bot = this.editorBots.editor,
 				editor = bot.editor,
@@ -227,7 +218,6 @@
 		'test ACF integration - widget using styles': function() {
 			var bot = this.editorBots.editorACFStyles,
 				editor = bot.editor,
-				style = new CKEDITOR.style( styleDef ),
 
 				html = '<figure class="cap gonna never xxx" style="float: right">' +
 					'<img alt="rick" src="_assets/foo.png" />' +
@@ -250,7 +240,6 @@
 		'test ACF integration - widget using classes': function() {
 			var bot = this.editorBots.editorACFClasses,
 				editor = bot.editor,
-				style = new CKEDITOR.style( styleDef ),
 
 				html = '<figure class="cap gonna never ar xxx">' +
 					'<img alt="rick" src="_assets/foo.png" />' +

@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -47,8 +47,8 @@
 				throw new Error( 'The specified element mode is not supported on element: "' + element.getName() + '".' );
 
 			/**
-			 * The original host page element upon which the editor is created, it's only
-			 * supposed to be provided by the concrete editor creator and is not subjected to
+			 * The original host page element upon which the editor is created. It is only
+			 * supposed to be provided by the particular editor creator and is not subject to
 			 * be modified.
 			 *
 			 * @readonly
@@ -57,12 +57,11 @@
 			this.element = element;
 
 			/**
-			 * This property indicate the way how this instance is associated with the {@link #element}.
+			 * This property indicates the way this instance is associated with the {@link #element}.
+			 * See also {@link CKEDITOR#ELEMENT_MODE_INLINE} and {@link CKEDITOR#ELEMENT_MODE_REPLACE}.
 			 *
 			 * @readonly
 			 * @property {Number}
-			 * @see CKEDITOR#ELEMENT_MODE_INLINE
-			 * @see CKEDITOR#ELEMENT_MODE_REPLACE
 			 */
 			this.elementMode = mode;
 
@@ -87,7 +86,7 @@
 		/**
 		 * A unique identifier of this editor instance.
 		 *
-		 * **Note:** It will be originated from the ID or name
+		 * **Note:** It will be originated from the `id` or `name`
 		 * attribute of the {@link #element}, otherwise a name pattern of
 		 * `'editor{n}'` will be used.
 		 *
@@ -97,7 +96,7 @@
 		this.name = this.name || genEditorName();
 
 		/**
-		 * A unique random string assigned to each editor instance in the page.
+		 * A unique random string assigned to each editor instance on the page.
 		 *
 		 * @readonly
 		 * @property {String}
@@ -107,11 +106,11 @@
 		/**
 		 * Indicates editor initialization status. The following statuses are available:
 		 *
-		 *	* **unloaded**: the initial state - editor's instance has been initialized,
-		 *	but its components (config, plugins, language files) are not loaded yet.
-		 *	* **loaded**: editor's components have been loaded - see {@link CKEDITOR.editor#loaded} event.
-		 *	* **ready**: editor is fully initialized and ready - see {@link CKEDITOR.editor#instanceReady} event.
-		 *	* **destroyed**: the editor has been destroyed - see {@link CKEDITOR.editor#method-destroy} method.
+		 *	* **unloaded**: The initial state &mdash; the editor instance was initialized,
+		 *	but its components (configuration, plugins, language files) are not loaded yet.
+		 *	* **loaded**: The editor components were loaded &mdash; see the {@link CKEDITOR.editor#loaded} event.
+		 *	* **ready**: The editor is fully initialized and ready &mdash; see the {@link CKEDITOR.editor#instanceReady} event.
+		 *	* **destroyed**: The editor was destroyed &mdash; see the {@link CKEDITOR.editor#method-destroy} method.
 		 *
 		 * @since 4.1
 		 * @readonly
@@ -120,7 +119,7 @@
 		this.status = 'unloaded';
 
 		/**
-		 * The configurations for this editor instance. It inherits all
+		 * The configuration for this editor instance. It inherits all
 		 * settings defined in {@link CKEDITOR.config}, combined with settings
 		 * loaded from custom configuration files and those defined inline in
 		 * the page when creating the editor.
@@ -134,7 +133,7 @@
 		this.config = CKEDITOR.tools.prototypedCopy( CKEDITOR.config );
 
 		/**
-		 * Namespace containing UI features related to this editor instance.
+		 * The namespace containing UI features related to this editor instance.
 		 *
 		 * @readonly
 		 * @property {CKEDITOR.ui}
@@ -144,7 +143,7 @@
 		/**
 		 * Controls the focus state of this editor instance. This property
 		 * is rarely used for normal API operations. It is mainly
-		 * destinated to developer adding UI elements to the editor interface.
+		 * targeted at developers adding UI elements to the editor interface.
 		 *
 		 * @readonly
 		 * @property {CKEDITOR.focusManager}
@@ -152,7 +151,7 @@
 		this.focusManager = new CKEDITOR.focusManager( this );
 
 		/**
-		 * Controls keystrokes typing in this editor instance.
+		 * Controls keystroke typing in this editor instance.
 		 *
 		 * @readonly
 		 * @property {CKEDITOR.keystrokeHandler}
@@ -324,32 +323,37 @@
 
 		/**
 		 * Indicates the read-only state of this editor. This is a read-only property.
+		 * See also {@link CKEDITOR.editor#setReadOnly}.
 		 *
 		 * @since 3.6
 		 * @readonly
 		 * @property {Boolean}
-		 * @see CKEDITOR.editor#setReadOnly
 		 */
-		editor.readOnly = !!(
-			config.readOnly || (
-				editor.elementMode == CKEDITOR.ELEMENT_MODE_INLINE ?
-						editor.element.is( 'textarea' ) ?
-								editor.element.hasAttribute( 'disabled' )
-							:
-								editor.element.isReadOnly()
-					:
-						editor.elementMode == CKEDITOR.ELEMENT_MODE_REPLACE ?
-								editor.element.hasAttribute( 'disabled' )
-							:
-								false
-			)
-		);
+		editor.readOnly = isEditorReadOnly();
+
+		function isEditorReadOnly() {
+			if ( config.readOnly ) {
+				return true;
+			}
+
+			if ( editor.elementMode == CKEDITOR.ELEMENT_MODE_INLINE ) {
+				if ( editor.element.is( 'textarea' ) ) {
+					return editor.element.hasAttribute( 'disabled' ) || editor.element.hasAttribute( 'readonly' );
+				} else {
+					return editor.element.isReadOnly();
+				}
+			} else if ( editor.elementMode == CKEDITOR.ELEMENT_MODE_REPLACE ) {
+				return editor.element.hasAttribute( 'disabled' ) || editor.element.hasAttribute( 'readonly' );
+			}
+
+			return false;
+		}
 
 		/**
 		 * Indicates that the editor is running in an environment where
 		 * no block elements are accepted inside the content.
 		 *
-		 * This can be for example inline editor based on `<h1>` element.
+		 * This can be for example inline editor based on an `<h1>` element.
 		 *
 		 * @readonly
 		 * @property {Boolean}
@@ -750,7 +754,7 @@
 		 *
 		 * @param {Boolean} [noUpdate] If the instance is replacing a DOM
 		 * element, this parameter indicates whether or not to update the
-		 * element with the instance contents.
+		 * element with the instance content.
 		 */
 		destroy: function( noUpdate ) {
 			this.fire( 'beforeDestroy' );
@@ -778,8 +782,8 @@
 		 * Returns an {@link CKEDITOR.dom.elementPath element path} for the selection in the editor.
 		 *
 		 * @param {CKEDITOR.dom.node} [startNode] From which the path should start,
-		 * if not specified default to editor selection's
-		 * start element yield by {@link CKEDITOR.dom.selection#getStartElement}.
+		 * if not specified defaults to editor selection's
+		 * start element yielded by {@link CKEDITOR.dom.selection#getStartElement}.
 		 * @returns {CKEDITOR.dom.elementPath}
 		 */
 		elementPath: function( startNode ) {
@@ -797,7 +801,7 @@
 		/**
 		 * Shortcut to create a {@link CKEDITOR.dom.range} instance from the editable element.
 		 *
-		 * @returns {CKEDITOR.dom.range} The dom range created if the editable has presented.
+		 * @returns {CKEDITOR.dom.range} The DOM range created if the editable has presented.
 		 * @see CKEDITOR.dom.range
 		 */
 		createRange: function() {
@@ -811,7 +815,7 @@
 		 *		editorInstance.execCommand( 'bold' );
 		 *
 		 * @param {String} commandName The indentifier name of the command.
-		 * @param {Object} [data] Data to be passed to the command.
+		 * @param {Object} [data] The data to be passed to the command.
 		 * @returns {Boolean} `true` if the command was executed
 		 * successfully, otherwise `false`.
 		 * @see CKEDITOR.editor#addCommand
@@ -854,16 +858,22 @@
 		},
 
 		/**
-		 * Gets the editor data. The data will be in raw format. It is the same
+		 * Gets the editor data. The data will be in "raw" format. It is the same
 		 * data that is posted by the editor.
 		 *
 		 *		if ( CKEDITOR.instances.editor1.getData() == '' )
-		 *			alert( 'There is no data available' );
+		 *			alert( 'There is no data available.' );
+		 *
+		 * @param {Boolean} internal If set to `true`, it will prevent firing the
+		 * {@link CKEDITOR.editor#beforeGetData} and {@link CKEDITOR.editor#event-getData} events, so
+		 * the real content of the editor will not be read and cached data will be returned. The method will work
+		 * much faster, but this may result in the editor returning the data that is not up to date. This parameter
+		 * should thus only be set to `true` when you are certain that the cached data is up to date.
 		 *
 		 * @returns {String} The editor data.
 		 */
-		getData: function( noEvents ) {
-			!noEvents && this.fire( 'beforeGetData' );
+		getData: function( internal ) {
+			!internal && this.fire( 'beforeGetData' );
 
 			var eventData = this._.data;
 
@@ -878,7 +888,7 @@
 			eventData = { dataValue: eventData };
 
 			// Fire "getData" so data manipulation may happen.
-			!noEvents && this.fire( 'getData', eventData );
+			!internal && this.fire( 'getData', eventData );
 
 			return eventData.dataValue;
 		},
@@ -888,7 +898,7 @@
 		 * fast method which returns the data as is, without processing, so it is
 		 * not recommended to use it on resulting pages. Instead it can be used
 		 * combined with the {@link #method-loadSnapshot} method in order
-		 * to be able to automatically save the editor data from time to time
+		 * to automatically save the editor data from time to time
 		 * while the user is using the editor, to avoid data loss, without risking
 		 * performance issues.
 		 *
@@ -912,7 +922,7 @@
 		 * Loads "raw data" into the editor. The data is loaded with processing
 		 * straight to the editing area. It should not be used as a way to load
 		 * any kind of data, but instead in combination with
-		 * {@link #method-getSnapshot} produced data.
+		 * {@link #method-getSnapshot}-produced data.
 		 *
 		 *		var data = editor.getSnapshot();
 		 *		editor.loadSnapshot( data );
@@ -924,7 +934,7 @@
 		},
 
 		/**
-		 * Sets the editor data. The data must be provided in the raw format (HTML).
+		 * Sets the editor data. The data must be provided in the "raw" format (HTML).
 		 *
 		 * Note that this method is asynchronous. The `callback` parameter must
 		 * be used if interaction with the editor is needed after setting the data.
@@ -942,7 +952,7 @@
 		 * was preserved and it is still possible to use the `data, callback, internal` arguments.
 		 *
 		 *
-		 * @param {String} data HTML code to replace current editor content.
+		 * @param {String} data The HTML code to replace current editor content.
 		 * @param {Object} [options]
 		 * @param {Boolean} [options.internal=false] Whether to suppress any event firing when copying data internally inside the editor.
 		 * @param {Function} [options.callback] Function to be called after `setData` is completed (on {@link #dataReady}).
@@ -984,12 +994,12 @@
 		},
 
 		/**
-		 * Puts or restores the editor into read-only state. When in read-only,
-		 * the user is not able to change the editor contents, but can still use
+		 * Puts or restores the editor into the read-only state. When in read-only,
+		 * the user is not able to change the editor content, but can still use
 		 * some editor features. This function sets the {@link #property-readOnly}
 		 * property of the editor, firing the {@link #event-readOnly} event.
 		 *
-		 * **Note:** the current editing area will be reloaded.
+		 * **Note:** The current editing area will be reloaded.
 		 *
 		 * @since 3.6
 		 * @param {Boolean} [isReadOnly] Indicates that the editor must go
@@ -1016,31 +1026,41 @@
 		/**
 		 * Inserts HTML code into the currently selected position in the editor in WYSIWYG mode.
 		 *
-		 * * `"html"` - content being inserted will completely override styles
-		 *    of selected position.
-		 * * `"unfiltered_html"` - like `"html"` but content isn't filtered with {@link CKEDITOR.filter}.
-		 * * `"text"` - content being inserted will inherit styles applied in
-		 *    selected position. This mode should be used when inserting "htmlified" plain text
-		 *    (HTML without inline styles and styling elements like
-		 *    `<b/>, <strong/>, <span style="..."/>`).
-		 *
 		 * Example:
 		 *
 		 *		CKEDITOR.instances.editor1.insertHtml( '<p>This is a new paragraph.</p>' );
 		 *
+		 * Fires the {@link #event-insertHtml} and {@link #event-afterInsertHtml} events. The HTML is inserted
+		 * in the {@link #event-insertHtml} event's listener with a default priority (10) so you can add listeners with
+		 * lower or higher priorities in order to execute some code before or after the HTML is inserted.
+		 *
 		 * @param {String} html HTML code to be inserted into the editor.
-		 * @param {String} [mode='html'] Mode in which HTML will be inserted.
+		 * @param {String} [mode='html'] The mode in which the HTML code will be inserted. One of the following:
+		 *
+		 * * `'html'` &ndash; The inserted content  will completely override the styles at the selected position.
+		 * * `'unfiltered_html'` &ndash; Like `'html'` but the content is not filtered with {@link CKEDITOR.filter}.
+		 * * `'text'` &ndash; The inserted content will inherit the styles applied in
+		 *    the selected position. This mode should be used when inserting "htmlified" plain text
+		 *    (HTML without inline styles and styling elements like `<b>`, `<strong>`, `<span style="...">`).
+		 *
+		 * @param {CKEDITOR.dom.range} [range] If specified, the HTML will be inserted into the range
+		 * instead of into the selection. The selection will be placed at the end of the insertion (like in the normal case).
+		 * Introduced in CKEditor 4.5.
 		 */
-		insertHtml: function( html, mode ) {
-			this.fire( 'insertHtml', { dataValue: html, mode: mode } );
+		insertHtml: function( html, mode, range ) {
+			this.fire( 'insertHtml', { dataValue: html, mode: mode, range: range } );
 		},
 
 		/**
-		 * Insert text content into the currently selected position in the
+		 * Inserts text content into the currently selected position in the
 		 * editor in WYSIWYG mode. The styles of the selected element will be applied to the inserted text.
-		 * Spaces around the text will be leaving untouched.
+		 * Spaces around the text will be left untouched.
 		 *
 		 *		CKEDITOR.instances.editor1.insertText( ' line1 \n\n line2' );
+		 *
+		 * Fires the {@link #event-insertText} and {@link #event-afterInsertHtml} events. The text is inserted
+		 * in the {@link #event-insertText} event's listener with a default priority (10) so you can add listeners with
+		 * lower or higher priorities in order to execute some code before or after the text is inserted.
 		 *
 		 * @since 3.5
 		 * @param {String} text Text to be inserted into the editor.
@@ -1050,17 +1070,91 @@
 		},
 
 		/**
-		 * Inserts an element into the currently selected position in the
-		 * editor in WYSIWYG mode.
+		 * Inserts an element into the currently selected position in the editor in WYSIWYG mode.
 		 *
 		 *		var element = CKEDITOR.dom.element.createFromHtml( '<img src="hello.png" border="0" title="Hello" />' );
 		 *		CKEDITOR.instances.editor1.insertElement( element );
 		 *
-		 * @param {CKEDITOR.dom.element} element The element to be inserted
-		 * into the editor.
+		 * Fires the {@link #event-insertElement} event. The element is inserted in the listener with a default priority (10),
+		 * so you can add listeners with lower or higher priorities in order to execute some code before or after
+		 * the element is inserted.
+		 *
+		 * @param {CKEDITOR.dom.element} element The element to be inserted into the editor.
 		 */
 		insertElement: function( element ) {
 			this.fire( 'insertElement', element );
+		},
+
+		/**
+		 * Gets the selected HTML (it is returned as a {@link CKEDITOR.dom.documentFragment document fragment}
+		 * or a string). This method is designed to work as the user would expect the copy functionality to work.
+		 * For instance, if the following selection was made:
+		 *
+		 *		<p>a<b>b{c}d</b>e</p>
+		 *
+		 * The following HTML will be returned:
+		 *
+		 *		<b>c</b>
+		 *
+		 * As you can see, the information about the bold formatting was preserved, even though the selection was
+		 * anchored inside the `<b>` element.
+		 *
+		 * See also:
+		 *
+		 * * the {@link #extractSelectedHtml} method,
+		 * * the {@link CKEDITOR.editable#getHtmlFromRange} method.
+		 *
+		 * @since 4.5
+		 * @param {Boolean} [toString] If `true`, then stringified HTML will be returned.
+		 * @returns {CKEDITOR.dom.documentFragment/String}
+		 */
+		getSelectedHtml: function( toString ) {
+			var editable = this.editable(),
+				selection = this.getSelection(),
+				ranges = selection && selection.getRanges();
+
+			if ( !editable || !ranges || ranges.length === 0 ) {
+				return null;
+			}
+
+			var docFragment = editable.getHtmlFromRange( ranges[ 0 ] );
+
+			return toString ? docFragment.getHtml() : docFragment;
+		},
+
+		/**
+		 * Gets the selected HTML (it is returned as a {@link CKEDITOR.dom.documentFragment document fragment}
+		 * or a string) and removes the selected part of the DOM. This method is designed to work as the user would
+		 * expect the cut and delete functionalities to work.
+		 *
+		 * See also:
+		 *
+		 * * the {@link #getSelectedHtml} method,
+		 * * the {@link CKEDITOR.editable#extractHtmlFromRange} method.
+		 *
+		 * @since 4.5
+		 * @param {Boolean} [toString] If `true`, then stringified HTML will be returned.
+		 * @param {Boolean} [removeEmptyBlock=false] Default `false` means that the function will keep an empty block (if the
+		 * entire content was removed) or it will create it (if a block element was removed) and set the selection in that block.
+		 * If `true`, the empty block will be removed or not created. In this case the function will not handle the selection.
+		 * @returns {CKEDITOR.dom.documentFragment/String/null}
+		 */
+		extractSelectedHtml: function( toString, removeEmptyBlock ) {
+			var editable = this.editable(),
+				ranges = this.getSelection().getRanges();
+
+			if ( !editable || ranges.length === 0 ) {
+				return null;
+			}
+
+			var range = ranges[ 0 ],
+				docFragment = editable.extractHtmlFromRange( range, removeEmptyBlock );
+
+			if ( !removeEmptyBlock ) {
+				this.getSelection().selectRanges( [ range ] );
+			}
+
+			return toString ? docFragment.getHtml() : docFragment;
 		},
 
 		/**
@@ -1071,9 +1165,9 @@
 		},
 
 		/**
-		 * Checks whether the current editor contents present changes when
-		 * compared to the contents loaded into the editor at startup, or to
-		 * the contents available in the editor when {@link #resetDirty}
+		 * Checks whether the current editor content contains changes when
+		 * compared to the content loaded into the editor at startup, or to
+		 * the content available in the editor when {@link #resetDirty}
 		 * was called.
 		 *
 		 *		function beforeUnload( evt ) {
@@ -1086,7 +1180,7 @@
 		 *		else
 		 *			window.attachEvent( 'onbeforeunload', beforeUnload );
 		 *
-		 * @returns {Boolean} `true` if the contents contain changes.
+		 * @returns {Boolean} `true` if the content contains changes.
 		 */
 		checkDirty: function() {
 			return this.status == 'ready' && this._.previousValue !== this.getSnapshot();
@@ -1095,7 +1189,7 @@
 		/**
 		 * Resets the "dirty state" of the editor so subsequent calls to
 		 * {@link #checkDirty} will return `false` if the user will not
-		 * have made further changes to the contents.
+		 * have made further changes to the content.
 		 *
 		 *		alert( editor.checkDirty() ); // e.g. true
 		 *		editor.resetDirty();
@@ -1106,11 +1200,11 @@
 		},
 
 		/**
-		 * Updates the <code>&lt;textarea&gt;</code> element that was replaced by the editor with
+		 * Updates the `<textarea>` element that was replaced by the editor with
 		 * the current data available in the editor.
 		 *
 		 * **Note:** This method will only affect those editor instances created
-		 * with {@link CKEDITOR#ELEMENT_MODE_REPLACE} element mode or inline instances
+		 * with the {@link CKEDITOR#ELEMENT_MODE_REPLACE} element mode or inline instances
 		 * bound to `<textarea>` elements.
 		 *
 		 *		CKEDITOR.instances.editor1.updateElement();
@@ -1123,10 +1217,10 @@
 		},
 
 		/**
-		 * Assigns keystrokes associated to editor commands.
+		 * Assigns keystrokes associated with editor commands.
 		 *
-		 *		editor.setKeystroke( CKEDITOR.CTRL + 115, 'save' );	// Assigned CTRL+S to "save" command.
-		 *		editor.setKeystroke( CKEDITOR.CTRL + 115, false );	// Disabled CTRL+S keystroke assignment.
+		 *		editor.setKeystroke( CKEDITOR.CTRL + 115, 'save' );	// Assigned Ctrl+S to the "save" command.
+		 *		editor.setKeystroke( CKEDITOR.CTRL + 115, false );	// Disabled Ctrl+S keystroke assignment.
 		 *		editor.setKeystroke( [
 		 *			[ CKEDITOR.ALT + 122, false ],
 		 *			[ CKEDITOR.CTRL + 121, 'link' ],
@@ -1144,10 +1238,10 @@
 		 * 2. Editor extends default keystrokes with {@link CKEDITOR.config#keystrokes}.
 		 * 3. Editor blocks keystrokes defined in {@link CKEDITOR.config#blockedKeystrokes}.
 		 *
-		 * After all, you can still set new keystrokes using this method during the runtime.
+		 * You can then set new keystrokes using this method during the runtime.
 		 *
 		 * @since 4.0
-		 * @param {Number/Array} keystroke Keystroke or an array of keystroke definitions.
+		 * @param {Number/Array} keystroke A keystroke or an array of keystroke definitions.
 		 * @param {String/Boolean} [behavior] A command to be executed on the keystroke.
 		 */
 		setKeystroke: function() {
@@ -1184,14 +1278,14 @@
 		},
 
 		/**
-		 * Sets the active filter ({@link #activeFilter}). Fires {@link #activeFilterChange} event.
+		 * Sets the active filter ({@link #activeFilter}). Fires the {@link #activeFilterChange} event.
 		 *
 		 *		// Set active filter which allows only 4 elements.
 		 *		// Buttons like Bold, Italic will be disabled.
 		 *		var filter = new CKEDITOR.filter( 'p strong em br' );
 		 *		editor.setActiveFilter( filter );
 		 *
-		 * Setting new filter will also change the {@link #setActiveEnterMode active enter modes} to the first values
+		 * Setting a new filter will also change the {@link #setActiveEnterMode active Enter modes} to the first values
 		 * allowed by the new filter (see {@link CKEDITOR.filter#getAllowedEnterMode}).
 		 *
 		 * @since 4.3
@@ -1205,7 +1299,7 @@
 				this.activeFilter = filter;
 				this.fire( 'activeFilterChange' );
 
-				// Reseted active filter to the main one - reset enter modes too.
+				// Reset active filter to the main one - it resets enter modes, too.
 				if ( filter === this.filter )
 					this.setActiveEnterMode( null, null );
 				else
@@ -1217,37 +1311,37 @@
 		},
 
 		/**
-		 * Sets the active enter modes ({@link #enterMode} and {@link #shiftEnterMode}).
+		 * Sets the active Enter modes: ({@link #enterMode} and {@link #shiftEnterMode}).
 		 * Fires the {@link #activeEnterModeChange} event.
 		 *
-		 * Prior to CKEditor 4.3 enter modes were static and it was enough to check {@link CKEDITOR.config#enterMode}
-		 * and {@link CKEDITOR.config#shiftEnterMode} when implementing a feature which should depend on the enter modes.
+		 * Prior to CKEditor 4.3 Enter modes were static and it was enough to check {@link CKEDITOR.config#enterMode}
+		 * and {@link CKEDITOR.config#shiftEnterMode} when implementing a feature which should depend on the Enter modes.
 		 * Since CKEditor 4.3 these options are source of initial:
 		 *
 		 * * static {@link #enterMode} and {@link #shiftEnterMode} values,
 		 * * dynamic {@link #activeEnterMode} and {@link #activeShiftEnterMode} values.
 		 *
-		 * However, the dynamic enter modes can be changed during runtime by using this method, to reflect the selection context.
+		 * However, the dynamic Enter modes can be changed during runtime by using this method, to reflect the selection context.
 		 * For example, if selection is moved to the {@link CKEDITOR.plugins.widget widget}'s nested editable which
-		 * is a {@link #blockless blockless one}, then the active enter modes should be changed to {@link CKEDITOR#ENTER_BR}
+		 * is a {@link #blockless blockless one}, then the active Enter modes should be changed to {@link CKEDITOR#ENTER_BR}
 		 * (in this case [Widget System](#!/guide/dev_widgets) takes care of that).
 		 *
-		 * **Note:** This method should not be used to configure editor &ndash; use {@link CKEDITOR.config#enterMode} and
-		 * {@link CKEDITOR.config#shiftEnterMode} instead. This method should be used only to dynamically change
-		 * enter modes during runtime based on selection changes.
-		 * Keep in mind that changed enter mode may be overwritten by other plugin/feature when it decided that
+		 * **Note:** This method should not be used to configure the editor &ndash; use {@link CKEDITOR.config#enterMode} and
+		 * {@link CKEDITOR.config#shiftEnterMode} instead. This method should only be used to dynamically change
+		 * Enter modes during runtime based on selection changes.
+		 * Keep in mind that changed Enter mode may be overwritten by another plugin/feature when it decided that
 		 * the changed context requires this.
 		 *
-		 * **Note:** In case of blockless editor (inline editor based on element which cannot contain block elements
-		 * &ndash; see {@link CKEDITOR.editor#blockless}) only {@link CKEDITOR#ENTER_BR} is a valid enter mode. Therefore
+		 * **Note:** In case of blockless editor (inline editor based on an element which cannot contain block elements
+		 * &mdash; see {@link CKEDITOR.editor#blockless}) only {@link CKEDITOR#ENTER_BR} is a valid Enter mode. Therefore
 		 * this method will not allow to set other values.
 		 *
-		 * **Note:** Changing the {@link #activeFilter active filter} may cause enter mode change if default enter modes
+		 * **Note:** Changing the {@link #activeFilter active filter} may cause the Enter mode to change if default Enter modes
 		 * are not allowed by the new filter.
 		 *
 		 * @since 4.3
 		 * @param {Number} enterMode One of {@link CKEDITOR#ENTER_P}, {@link CKEDITOR#ENTER_DIV}, {@link CKEDITOR#ENTER_BR}.
-		 * Pass falsy value (e.g. `null`) to reset enter mode to the default value ({@link #enterMode} and/or {@link #shiftEnterMode}).
+		 * Pass falsy value (e.g. `null`) to reset the Enter mode to the default value ({@link #enterMode} and/or {@link #shiftEnterMode}).
 		 * @param {Number} shiftEnterMode See the `enterMode` argument.
 		 */
 		setActiveEnterMode: function( enterMode, shiftEnterMode ) {
@@ -1260,6 +1354,33 @@
 				this.activeShiftEnterMode = shiftEnterMode;
 				this.fire( 'activeEnterModeChange' );
 			}
+		},
+
+		/**
+		 * Shows a notification to the user.
+		 *
+		 * If the [Notification](http://ckeditor.com/addons/notification) plugin is not enabled, this function shows
+		 * a normal alert with the given `message`. The `type` and `progressOrDuration` parameters are supported
+		 * only by the Notification plugin.
+		 *
+		 * If the Notification plugin is enabled, this method creates and shows a new notification.
+		 * By default the notification is shown over the editor content, in the viewport if it is possible.
+		 *
+		 * See {@link CKEDITOR.plugins.notification}.
+		 *
+		 * @since 4.5
+		 * @member CKEDITOR.editor
+		 * @param {String} message The message displayed in the notification.
+		 * @param {String} [type='info'] The type of the notification. Can be `'info'`, `'warning'`, `'success'` or `'progress'`.
+		 * @param {Number} [progressOrDuration] If the type is `progress`, the third parameter may be a progress from `0` to `1`
+		 * (defaults to `0`). Otherwise the third parameter may be a notification duration denoting after how many milliseconds
+		 * the notification should be closed automatically. `0` means that the notification will not close automatically and the user
+		 * needs to close it manually. See {@link CKEDITOR.plugins.notification#duration}.
+		 * Note that `warning` notifications will not be closed automatically.
+		 * @returns {CKEDITOR.plugins.notification} Created and shown notification.
+		 */
+		showNotification: function( message ) {
+			alert( message ); // jshint ignore:line
 		}
 	} );
 } )();
@@ -1337,7 +1458,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  * for distinguishing editor instances and for navigation. Accepted values are a string or `false`.
  *
  * **Note:** When `config.title` is set globally, the same value will be applied to all editor instances
- * loaded with this config. This may severely affect accessibility as screen reader users will be unable
+ * loaded with this config. This may adversely affect accessibility as screen reader users will be unable
  * to distinguish particular editor instances and navigate between them.
  *
  * **Note:** Setting `config.title = false` may also impair accessibility in a similar way.
@@ -1350,7 +1471,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  *		config.title = 'My WYSIWYG editor.';
  *
  *		// Do not touch the title. If the element already has a title, it remains unchanged.
- *		// Also if no title attribute exists, nothing new will be added.
+ *		// Also if no `title` attribute exists, nothing new will be added.
  *		config.title = false;
  *
  * @since 4.2
@@ -1361,7 +1482,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Sets listeners on editor's events.
+ * Sets listeners on editor events.
  *
  * **Note:** This property can only be set in the `config` object passed directly
  * to {@link CKEDITOR#replace}, {@link CKEDITOR#inline}, and other creators.
@@ -1384,7 +1505,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
 
 /**
  * The outermost element in the DOM tree in which the editable element resides. It is provided
- * by a specific editor creator after editor UI is created and is not intended to
+ * by a specific editor creator after the editor UI is created and is not intended to
  * be modified.
  *
  *		var editor = CKEDITOR.instances.editor1;
@@ -1395,7 +1516,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * The document that stores the editor contents.
+ * The document that stores the editor content.
  *
  * * For the classic (`iframe`-based) editor it is equal to the document inside the
  * `iframe` containing the editable element.
@@ -1418,7 +1539,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  *
  * It is always equal to the `editor.document.getWindow()`.
  *
- * See {@link #document} property documentation.
+ * See the {@link #document} property documentation.
  *
  * @readonly
  * @property {CKEDITOR.dom.window} window
@@ -1458,9 +1579,9 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * The main (static) enter mode which is a validated version of the {@link CKEDITOR.config#enterMode} setting.
- * Currently only one rule exists &ndash; {@link #blockless blockless editors} may have
- * enter modes set only to {@link CKEDITOR#ENTER_BR}.
+ * The main (static) Enter mode which is a validated version of the {@link CKEDITOR.config#enterMode} setting.
+ * Currently only one rule exists &mdash; {@link #blockless blockless editors} may have
+ * Enter modes set only to {@link CKEDITOR#ENTER_BR}.
  *
  * @since 4.3
  * @readonly
@@ -1476,7 +1597,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * The dynamic enter mode which should be used in the current context (selection location).
+ * The dynamic Enter mode which should be used in the current context (selection location).
  * By default it equals the {@link #enterMode} and it can be changed by the {@link #setActiveEnterMode} method.
  *
  * See also the {@link #setActiveEnterMode} method for an explanation of dynamic settings.
@@ -1495,14 +1616,14 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired by the {@link #setActiveFilter} method when the {@link #activeFilter} is changed.
+ * Event fired by the {@link #setActiveFilter} method when the {@link #activeFilter} is changed.
  *
  * @since 4.3
  * @event activeFilterChange
  */
 
 /**
- * Fired by the {@link #setActiveEnterMode} method when any of the active enter modes is changed.
+ * Event fired by the {@link #setActiveEnterMode} method when any of the active Enter modes is changed.
  * See also the {@link #activeEnterMode} and {@link #activeShiftEnterMode} properties.
  *
  * @since 4.3
@@ -1510,7 +1631,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when a CKEDITOR instance is created, but still before initializing it.
+ * Event fired when a CKEDITOR instance is created, but still before initializing it.
  * To interact with a fully initialized instance, use the
  * {@link CKEDITOR#instanceReady} event instead.
  *
@@ -1520,8 +1641,8 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when CKEDITOR instance's components (config, languages and plugins) are fully
- * loaded and initialized. However, the editor will be fully ready to for interaction
+ * Event fired when CKEDITOR instance's components (configuration, languages and plugins) are fully
+ * loaded and initialized. However, the editor will be fully ready for interaction
  * on {@link CKEDITOR#instanceReady}.
  *
  * @event instanceLoaded
@@ -1530,7 +1651,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when a CKEDITOR instance is destroyed.
+ * Event fired when a CKEDITOR instance is destroyed.
  *
  * @event instanceDestroyed
  * @member CKEDITOR
@@ -1538,7 +1659,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when a CKEDITOR instance is created, fully initialized and ready for interaction.
+ * Event fired when a CKEDITOR instance is created, fully initialized and ready for interaction.
  *
  * @event instanceReady
  * @member CKEDITOR
@@ -1546,7 +1667,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when the language is loaded into the editor instance.
+ * Event fired when the language is loaded into the editor instance.
  *
  * @since 3.6.1
  * @event langLoaded
@@ -1554,27 +1675,27 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when all plugins are loaded and initialized into the editor instance.
+ * Event fired when all plugins are loaded and initialized into the editor instance.
  *
  * @event pluginsLoaded
  * @param {CKEDITOR.editor} editor This editor instance.
  */
 
 /**
- * Fired when styles set is loaded. During editor initialization
+ * Event fired when the styles set is loaded. During the editor initialization
  * phase the {@link #getStylesSet} method returns only styles that
  * are already loaded, which may not include e.g. styles parsed
- * by `stylesheetparser` plugin. Thus, to be notified when all
- * styles are ready you can listen on this event.
+ * by the `stylesheetparser` plugin. Thus, to be notified when all
+ * styles are ready, you can listen on this event.
  *
  * @since 4.1
  * @event stylesSet
  * @param {CKEDITOR.editor} editor This editor instance.
- * @param {Array} styles Array of styles definitions.
+ * @param {Array} styles An array of styles definitions.
  */
 
 /**
- * Fired before the command execution when {@link #execCommand} is called.
+ * Event fired before the command execution when {@link #execCommand} is called.
  *
  * @event beforeCommandExec
  * @param {CKEDITOR.editor} editor This editor instance.
@@ -1586,7 +1707,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired after the command execution when {@link #execCommand} is called.
+ * Event fired after the command execution when {@link #execCommand} is called.
  *
  * @event afterCommandExec
  * @param {CKEDITOR.editor} editor This editor instance.
@@ -1598,8 +1719,8 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when the custom configuration file is loaded, before the final
- * configurations initialization.
+ * Event fired when a custom configuration file is loaded, before the final
+ * configuration initialization.
  *
  * Custom configuration files can be loaded thorugh the
  * {@link CKEDITOR.config#customConfig} setting. Several files can be loaded
@@ -1610,14 +1731,14 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired once the editor configuration is ready (loaded and processed).
+ * Event fired once the editor configuration is ready (loaded and processed).
  *
  * @event configLoaded
  * @param {CKEDITOR.editor} editor This editor instance.
  */
 
 /**
- * Fired when this editor instance is destroyed. The editor at this
+ * Event fired when this editor instance is destroyed. The editor at this
  * point is not usable and this event should be used to perform the clean-up
  * in any plugin.
  *
@@ -1648,7 +1769,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Event fired before the {@link #method-getData} call returns allowing additional manipulation.
+ * Event fired before the {@link #method-getData} call returns, allowing for additional manipulation.
  *
  * @event getData
  * @param {CKEDITOR.editor} editor This editor instance.
@@ -1657,7 +1778,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Event fired before the {@link #method-setData} call is executed allowing additional manipulation.
+ * Event fired before the {@link #method-setData} call is executed, allowing for additional manipulation.
  *
  * @event setData
  * @param {CKEDITOR.editor} editor This editor instance.
@@ -1676,7 +1797,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired as an indicator of the editor data loading. It may be the result of
+ * Event fired as an indicator of the editor data loading. It may be the result of
  * calling {@link #method-setData} explicitly or an internal
  * editor function, like the editor editing mode switching (move to Source and back).
  *
@@ -1685,7 +1806,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when the CKEDITOR instance is completely created, fully initialized
+ * Event fired when the CKEDITOR instance is completely created, fully initialized
  * and ready for interaction.
  *
  * @event instanceReady
@@ -1693,7 +1814,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when editor's components (config, languages and plugins) are fully
+ * Event fired when editor components (configuration, languages and plugins) are fully
  * loaded and initialized. However, the editor will be fully ready to for interaction
  * on {@link #instanceReady}.
  *
@@ -1702,17 +1823,20 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Internal event to perform the {@link #method-insertHtml} call.
+ * Event fired by the {@link #method-insertHtml} method. See the method documentation for more information
+ * about how this event can be used.
  *
  * @event insertHtml
  * @param {CKEDITOR.editor} editor This editor instance.
  * @param data
- * @param {String} data.mode Mode in which data is inserted (see {@link #method-insertHtml}).
- * @param {String} data.dataValue The HTML to insert.
+ * @param {String} data.mode The mode in which the data is inserted (see {@link #method-insertHtml}).
+ * @param {String} data.dataValue The HTML code to insert.
+ * @param {CKEDITOR.dom.range} [data.range] See {@link #method-insertHtml}'s `range` parameter.
  */
 
 /**
- * Internal event to perform the {@link #method-insertText} call.
+ * Event fired by the {@link #method-insertText} method. See the method documentation for more information
+ * about how this event can be used.
  *
  * @event insertText
  * @param {CKEDITOR.editor} editor This editor instance.
@@ -1720,11 +1844,24 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Internal event to perform the {@link #method-insertElement} call.
+ * Event fired by the {@link #method-insertElement} method. See the method documentation for more information
+ * about how this event can be used.
  *
  * @event insertElement
  * @param {CKEDITOR.editor} editor This editor instance.
  * @param {CKEDITOR.dom.element} data The element to insert.
+ */
+
+/**
+ * Event fired after data insertion using the {@link #method-insertHtml}, {@link CKEDITOR.editable#insertHtml},
+ * or {@link CKEDITOR.editable#insertHtmlIntoRange} methods.
+ *
+ * @since 4.5
+ * @event afterInsertHtml
+ * @param data
+ * @param {CKEDITOR.dom.range} [data.intoRange] If set, the HTML was not inserted into the current selection, but into
+ * the specified range. This property is set if the {@link CKEDITOR.editable#insertHtmlIntoRange} method was used,
+ * but not if for the {@link CKEDITOR.editable#insertHtml} method.
  */
 
 /**
@@ -1736,7 +1873,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Event fired when an UI template is added to the editor instance. It makes
+ * Event fired when a UI template is added to the editor instance. It makes
  * it possible to bring customizations to the template source.
  *
  * @event template
@@ -1747,26 +1884,26 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired when content of the editor (its DOM structure) is ready.
- * It is similar to native DOMContentLoaded event, but it concerns
- * editor's content. It is also a first event fired after
- * {@link CKEDITOR.editable} is initialized.
+ * Event fired when the editor content (its DOM structure) is ready.
+ * It is similar to the native `DOMContentLoaded` event, but it applies to
+ * the editor content. It is also the first event fired after
+ * the {@link CKEDITOR.editable} is initialized.
  *
  * This event is particularly important for classic (`iframe`-based)
- * editor, because on editor initialization and every time data are set
- * (by {@link CKEDITOR.editor#method-setData}) contents DOM structure
- * is rebuilt. Thus, e.g. you need to attach DOM events listeners
+ * editor, because on editor initialization and every time the data are set
+ * (by {@link CKEDITOR.editor#method-setData}) content DOM structure
+ * is rebuilt. Thus, e.g. you need to attach DOM event listeners
  * on editable one more time.
  *
- * On inline editor this event is fired only once - when editor
- * is initialized for the first time. That's because setting
- * editor's content doesn't cause editable destruction and creation.
+ * For inline editor this event is fired only once &mdash; when the
+ * editor is initialized for the first time. This is because setting
+ * editor content does not cause editable destruction and creation.
  *
- * {@link #contentDom} goes along with {@link #contentDomUnload} which
- * is fired before contents DOM structure is destroyed. This is the
- * right moment to detach content DOM events listener. Otherwise
+ * The {@link #contentDom} event goes along with {@link #contentDomUnload}
+ * which is fired before the content DOM structure is destroyed. This is the
+ * right moment to detach content DOM event listener. Otherwise
  * browsers like IE or Opera may throw exceptions when accessing
- * elements from detached document.
+ * elements from the detached document.
  *
  * **Note:** {@link CKEDITOR.editable#attachListener} is a convenient
  * way to attach listeners that will be detached on {@link #contentDomUnload}.
@@ -1775,7 +1912,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  *			var editable = editor.editable();
  *
  *			editable.attachListener( editable, 'click', function() {
- *				console.log( 'Editable has been clicked' );
+ *				console.log( 'The editable was clicked.' );
  *			});
  *		});
  *
@@ -1784,7 +1921,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Fired before contents DOM structure is destroyed.
+ * Event fired before the content DOM structure is destroyed.
  * See {@link #contentDom} documentation for more details.
  *
  * @event contentDomUnload
@@ -1792,10 +1929,10 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * The event fired when contents DOM changes and some of the references as well as
- * native DOM event listeners could be lost.
+ * Event fired when the content DOM changes and some of the references as well as
+ * the native DOM event listeners could be lost.
  * This event is useful when it is important to keep track of references
- * to elements in the editable contents from code.
+ * to elements in the editable content from code.
  *
  * @since 4.3
  * @event contentDomInvalidated

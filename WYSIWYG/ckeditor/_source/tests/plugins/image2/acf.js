@@ -1,5 +1,6 @@
 /* bender-tags: editor,unit,widget */
 /* bender-ckeditor-plugins: image2,justify,toolbar */
+/* global widgetTestsTools, image2TestsTools */
 
 ( function() {
 	'use strict';
@@ -63,15 +64,7 @@
 					hasCaption: true
 				}
 			}
-		}, bots;
-
-	for ( var d in defs ) {
-		CKEDITOR.tools.extend( defs[ d ].config, {
-			language: 'en',
-			extraAllowedContent: 'figure img[id]; p{text-align}',
-			autoParagraph: false
-		} );
-	}
+		};
 
 	function assertVisibleFields( bot, fields ) {
 		bot.editor.once( 'dialogShow', function( evt ) {
@@ -95,7 +88,7 @@
 	}
 
 	function test( name, html, data, expected ) {
-		var bot = bots[ name ];
+		var bot = bender.editorBots[ name ];
 
 		bot.setData( html, function() {
 			var widget = getWidgetById( bot.editor, 'x' ),
@@ -104,7 +97,7 @@
 			widget.setData( data );
 
 			assert.areSame( fixHtml( expected ),
-				fixHtml( bot.getData() ), 'Widget data considers ACF rules.' )
+				fixHtml( bot.getData() ), 'Widget data considers ACF rules.' );
 
 			assert.areEqual( !!( fields.width && fields.height ),
 				!!widget.resizer, 'Resizer displayed according to ACF rules.' );
@@ -123,17 +116,17 @@
 		assert.areSame( right, rightCmd.state, 'rightCmd.state' );
 		assert.areSame( center, centerCmd.state, 'centerCmd.state' );
 		assert.areSame( justify, justifyCmd.state, 'justifyCmd.state' );
+	}
+
+	bender.editors = defs;
+
+	bender.editorsConfig = {
+		language: 'en',
+		extraAllowedContent: 'figure img[id]; p{text-align}',
+		autoParagraph: false
 	};
 
 	bender.test( {
-		'async:init': function() {
-			var that = this;
-
-			bender.tools.setUpEditors( defs, function( editors, botCollection ) {
-				bots = botCollection;
-				that.callback( editors );
-			} );
-		},
 		'test image: src only': function() {
 			test( 'src_only',
 				'<img id="x" src="_assets/foo.png" alt="b" width="1" height="2" />',
@@ -255,7 +248,7 @@
 		},
 
 		'test justify plugin integration when (alignment disallowed)': function() {
-			var bot = bots.no_align;
+			var bot = this.editorBots.no_align;
 
 			bot.setData( 'x<img alt="b" height="2" id="x" src="_assets/foo.png" width="1" />', function() {
 				getWidgetById( bot.editor, 'x' ).focus();
@@ -264,7 +257,7 @@
 		},
 
 		'test justify plugin integration (alignment allowed)': function() {
-			var bot = bots.all_allowed;
+			var bot = this.editorBots.all_allowed;
 
 			bot.setData( 'x<img alt="b" height="2" id="x" style="float:left" src="_assets/foo.png" width="1" />', function() {
 				getWidgetById( bot.editor, 'x' ).focus();

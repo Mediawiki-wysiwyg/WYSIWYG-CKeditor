@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -103,7 +103,8 @@
 				y: tbodyPosition.y,
 				width: pillarWidth,
 				height: tbody.$.offsetHeight,
-				rtl: rtl } );
+				rtl: rtl
+			} );
 		}
 
 		return pillars;
@@ -230,7 +231,8 @@
 					leftCell, leftCell && getWidth( leftCell ),
 					rightCell, rightCell && getWidth( rightCell ),
 					( !leftCell || !rightCell ) && ( getWidth( table ) + getBorderWidth( table, 'left' ) + getBorderWidth( table, 'right' ) ),
-					currentShift ] );
+					currentShift
+				] );
 			}
 		}
 
@@ -384,6 +386,12 @@
 						return;
 
 					table = target.getAscendant( 'table', 1 );
+
+					// Make sure the table we found is inside the container
+					// (eg. we should not use tables the editor is embedded within)
+					if ( !editor.editable().contains( table ) ) {
+						return;
+					}
 
 					if ( !( pillars = table.getCustomData( '_cke_table_pillars' ) ) ) {
 						// Cache table pillars calculation result.

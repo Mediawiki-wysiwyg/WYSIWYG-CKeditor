@@ -25,7 +25,7 @@
 				range.setEnd( textNode, 4 );
 
 				assert.isTrue( editable.insertElementIntoRange( element, range ), 'Insertion is successful.' );
-				assert.areSame( '<p>fo</p><div>hi!</div><p>ar</p>', bot.getData( true, true ) )
+				assert.areSame( '<p>fo</p><div>hi!</div><p>ar</p>', bot.getData( true, true ) );
 			} );
 		},
 
@@ -42,7 +42,7 @@
 				range.collapse();
 
 				assert.isTrue( editable.insertElementIntoRange( element, range ), 'Insertion is successful.' );
-				assert.areSame( '<p>foo</p><div>hi!</div><p>bar</p>', bot.getData( true, true ) )
+				assert.areSame( '<p>foo</p><div>hi!</div><p>bar</p>', bot.getData( true, true ) );
 			} );
 		},
 
@@ -60,7 +60,7 @@
 				range.collapse();
 
 				assert.isFalse( editable.insertElementIntoRange( element, range ), 'Insertion failed.' );
-				assert.areSame( data, bot.getData( true, true ) )
+				assert.areSame( data, bot.getData( true, true ) );
 			} );
 		},
 
@@ -109,7 +109,8 @@
 
 				editable.insertElement( element, range );
 
-				assert.areSame( '<p>foo</p><div>hi!</div><p>bar</p>', bot.getData( true, true ) )
+				assert.isInnerHtmlMatching( '<p>foo@</p><div>hi!</div><p>^bar@</p>', bender.tools.selection.getWithHtml( editor ),
+					{ compareSelection: true, normalizeSelection: true }, 'Editor content' );
 			} );
 		}
 	} );

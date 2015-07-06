@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 06.07.15  Created branch CKeditor_v45 for update of CKeditor v4.5.1 rev. a513a92. Version 1.5.6_0 [B551+13.03.2015].
+- 06.07.15  Update of CKEditor from version 4.4.5 [revision 25cdcad] to CKeditor 4.5.1 [revision a513a92]. Version 1.5.6_0 [B551+13.03.2015].
+
+- 06.07.15  Created branch CKeditor_v45 for update of CKeditor v4.5.1 [revision a513a92]. Version 1.5.6_0 [B551+13.03.2015].
 
 - 13.03.15  Merge pull request #64 from Varlin/patch-27: French translation. Version 1.5.6_0 [B551+13.03.2015].
 

@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -84,8 +84,28 @@
 	// #### checkSelectionChange : END
 
 	var isVisible = CKEDITOR.dom.walker.invisible( 1 );
+
+	// May absorb the caret if:
+	// * is a visible node,
+	// * is a non-empty element (this rule will accept elements like <strong></strong> because they
+	//	they were not accepted by the isVisible() check, not not <br> which cannot absorb the caret).
+	//	See #12621.
+	function mayAbsorbCaret( node ) {
+		if ( isVisible( node ) )
+			return true;
+
+		if ( node.type == CKEDITOR.NODE_ELEMENT && !node.is( CKEDITOR.dtd.$empty ) )
+			return true;
+
+		return false;
+	}
+
 	function rangeRequiresFix( range ) {
-		function isTextCt( node, isAtEnd ) {
+		// Whether we must prevent from absorbing caret by this context node.
+		// Also checks whether there's an editable position next to that node.
+		function ctxRequiresFix( node, isAtEnd ) {
+			// It's ok for us if a text node absorbs the caret, because
+			// the caret container element isn't changed then.
 			if ( !node || node.type == CKEDITOR.NODE_TEXT )
 				return false;
 
@@ -100,17 +120,18 @@
 
 		var ct = range.startContainer;
 
-		var previous = range.getPreviousNode( isVisible, null, ct ),
-			next = range.getNextNode( isVisible, null, ct );
+		var previous = range.getPreviousNode( mayAbsorbCaret, null, ct ),
+			next = range.getNextNode( mayAbsorbCaret, null, ct );
 
-		// Any adjacent text container may absorb the cursor, e.g.
+		// Any adjacent text container may absorb the caret, e.g.
 		// <p><strong>text</strong>^foo</p>
 		// <p>foo^<strong>text</strong></p>
 		// <div>^<p>foo</p></div>
-		if ( isTextCt( previous ) || isTextCt( next, 1 ) )
+		if ( ctxRequiresFix( previous ) || ctxRequiresFix( next, 1 ) )
 			return true;
 
 		// Empty block/inline element is also affected. <span>^</span>, <p>^</p> (#7222)
+		// If you found this line confusing check #12655.
 		if ( !( previous || next ) && !( ct.type == CKEDITOR.NODE_ELEMENT && ct.isBlockBoundary() && ct.getBogus() ) )
 			return true;
 
@@ -149,25 +170,20 @@
 
 			// Text selection position might get mangled by
 			// subsequent dom modification, save it now for restoring. (#8617)
-			if ( keepSelection !== false )
-			{
+			if ( keepSelection !== false ) {
 				var bm,
-					doc = element.getDocument(),
-					sel = doc.getSelection().getNative(),
+					sel = element.getDocument().getSelection().getNative(),
 					// Be error proof.
 					range = sel && sel.type != 'None' && sel.getRangeAt( 0 );
 
 				if ( fillingChar.getLength() > 1 && range && range.intersectsNode( fillingChar.$ ) ) {
-					bm = [ sel.anchorOffset, sel.focusOffset ];
+					bm = createNativeSelectionBookmark( sel );
 
 					// Anticipate the offset change brought by the removed char.
 					var startAffected = sel.anchorNode == fillingChar.$ && sel.anchorOffset > 0,
 						endAffected = sel.focusNode == fillingChar.$ && sel.focusOffset > 0;
-					startAffected && bm[ 0 ]--;
-					endAffected && bm[ 1 ]--;
-
-					// Revert the bookmark order on reverse selection.
-					isReversedSelection( sel ) && bm.unshift( bm.pop() );
+					startAffected && bm[ 0 ].offset--;
+					endAffected && bm[ 1 ].offset--;
 				}
 			}
 
@@ -176,13 +192,9 @@
 			// invisible char from it.
 			fillingChar.setText( replaceFillingChar( fillingChar.getText() ) );
 
-			// Restore the bookmark.
+			// Restore the bookmark preserving selection's direction.
 			if ( bm ) {
-				var rng = sel.getRangeAt( 0 );
-				rng.setStart( rng.startContainer, bm[ 0 ] );
-				rng.setEnd( rng.startContainer, bm[ 1 ] );
-				sel.removeAllRanges();
-				sel.addRange( rng );
+				moveNativeSelectionToBookmark( element.getDocument().$, bm );
 			}
 		}
 	}
@@ -194,52 +206,22 @@
 		} );
 	}
 
-	function isReversedSelection( sel ) {
-		if ( !sel.isCollapsed ) {
-			var range = sel.getRangeAt( 0 );
-			// Potentially alter an reversed selection range.
-			range.setStart( sel.anchorNode, sel.anchorOffset );
-			range.setEnd( sel.focusNode, sel.focusOffset );
-			return range.collapsed;
-		}
+	function createNativeSelectionBookmark( sel ) {
+		return [
+			{ node: sel.anchorNode, offset: sel.anchorOffset },
+			{ node: sel.focusNode, offset: sel.focusOffset }
+		];
 	}
 
-	// Read the comments in selection constructor.
-	function fixInitialSelection( root, nativeSel, doFocus ) {
-		// It may happen that setting proper selection will
-		// cause focus to be fired (even without actually focusing root).
-		// Cancel it because focus shouldn't be fired when retriving selection. (#10115)
-		var listener = root.on( 'focus', function( evt ) {
-			evt.cancel();
-		}, null, null, -100 );
+	function moveNativeSelectionToBookmark( document, bm ) {
+		var sel = document.getSelection(),
+			range = document.createRange();
 
-		// FF && Webkit.
-		if ( !CKEDITOR.env.ie ) {
-			var range = new CKEDITOR.dom.range( root );
-			range.moveToElementEditStart( root );
-
-			var nativeRange = root.getDocument().$.createRange();
-			nativeRange.setStart( range.startContainer.$, range.startOffset );
-			nativeRange.collapse( 1 );
-
-			nativeSel.removeAllRanges();
-			nativeSel.addRange( nativeRange );
-		}
-		else {
-			// IE in specific case may also fire selectionchange.
-			// We cannot block bubbling selectionchange, so at least we
-			// can prevent from falling into inf recursion caused by fix for #9699
-			// (see wysiwygarea plugin).
-			// http://dev.ckeditor.com/ticket/10438#comment:13
-			var listener2 = root.getDocument().on( 'selectionchange', function( evt ) {
-				evt.cancel();
-			}, null, null, -100 );
-		}
-
-		doFocus && root.focus();
-
-		listener.removeListener();
-		listener2 && listener2.removeListener();
+		range.setStart( bm[ 0 ].node, bm[ 0 ].offset );
+		range.collapse( true );
+		sel.removeAllRanges();
+		sel.addRange( range );
+		sel.extend( bm[ 1 ].node, bm[ 1 ].offset );
 	}
 
 	// Creates cke_hidden_sel container and puts real selection there.
@@ -810,14 +792,32 @@
 
 		// When loaded data are ready check whether hidden selection container was not loaded.
 		editor.on( 'loadSnapshot', function() {
-			// TODO replace with el.find() which will be introduced in #9764,
-			// because it may happen that hidden sel container won't be the last element.
-			var el = editor.editable().getLast( function( node ) {
-				return node.type == CKEDITOR.NODE_ELEMENT;
-			} );
+			var isElement = CKEDITOR.dom.walker.nodeType( CKEDITOR.NODE_ELEMENT ),
+				// TODO replace with el.find() which will be introduced in #9764,
+				// because it may happen that hidden sel container won't be the last element.
+				last = editor.editable().getLast( isElement );
 
-			if ( el && el.hasAttribute( 'data-cke-hidden-sel' ) )
-				el.remove();
+			if ( last && last.hasAttribute( 'data-cke-hidden-sel' ) ) {
+				last.remove();
+
+				// Firefox does a very unfortunate thing. When a non-editable element is the only
+				// element in the editable, when we remove the hidden selection container, Firefox
+				// will insert a bogus <br> at the beginning of the editable...
+				// See: https://bugzilla.mozilla.org/show_bug.cgi?id=911201
+				//
+				// This behavior is never desired because this <br> pushes the content lower, but in
+				// this case it is especially dangerous, because it happens when a bookmark is being restored.
+				// Since this <br> is inserted at the beginning it changes indexes and thus breaks the bookmark2
+				// what results in errors.
+				//
+				// So... let's revert what Firefox broke.
+				if ( CKEDITOR.env.gecko ) {
+					var first = editor.editable().getFirst( isElement );
+					if ( first && first.is( 'br' ) && first.getAttribute( '_moz_editor_bogus_node' ) ) {
+						first.remove();
+					}
+				}
+			}
 		}, null, null, 100 );
 
 		editor.on( 'key', function( evt ) {
@@ -840,7 +840,9 @@
 	} );
 
 	CKEDITOR.on( 'instanceReady', function( evt ) {
-		var editor = evt.editor;
+		var editor = evt.editor,
+			fillingCharBefore,
+			selectionBookmark;
 
 		// On WebKit only, we need a special "filling" char on some situations
 		// (#1272). Here we set the events that should invalidate that char.
@@ -851,8 +853,6 @@
 			editor.on( 'beforeSetMode', function() {
 				removeFillingChar( editor.editable() );
 			}, null, null, -1 );
-
-			var fillingCharBefore, resetSelection;
 
 			editor.on( 'beforeUndoImage', beforeData );
 			editor.on( 'afterUndoImage', afterData );
@@ -868,11 +868,13 @@
 			var fillingChar = getFillingChar( editable );
 
 			if ( fillingChar ) {
-				// If cursor is right blinking by side of the filler node, save it for restoring,
-				// as the following text substitution will blind it. (#7437)
-				var sel = editor.document.$.defaultView.getSelection();
-				if ( sel.type == 'Caret' && sel.anchorNode == fillingChar.$ )
-					resetSelection = 1;
+				// If the selection's focus or anchor is located in the filling char's text node,
+				// we need to restore the selection in afterData, because it will be lost
+				// when setting text. Selection's direction must be preserved.
+				// (#7437, #12489, #12491 comment:3)
+				var sel = editor.document.$.getSelection();
+				if ( sel.type != 'None' && ( sel.anchorNode == fillingChar.$ || sel.focusNode == fillingChar.$ ) )
+					selectionBookmark = createNativeSelectionBookmark( sel );
 
 				fillingCharBefore = fillingChar.getText();
 				fillingChar.setText( replaceFillingChar( fillingCharBefore ) );
@@ -889,9 +891,9 @@
 			if ( fillingChar ) {
 				fillingChar.setText( fillingCharBefore );
 
-				if ( resetSelection ) {
-					editor.document.$.defaultView.getSelection().setPosition( fillingChar.$, fillingChar.getLength() );
-					resetSelection = 0;
+				if ( selectionBookmark ) {
+					moveNativeSelectionToBookmark( editor.document.$, selectionBookmark );
+					selectionBookmark = null;
 				}
 			}
 		}
@@ -1110,48 +1112,6 @@
 			this.isFake = selection.isFake;
 			this.isLocked = selection.isLocked;
 			return this;
-		}
-
-		// On WebKit, it may happen that we've already have focus
-		// on the editable element while still having no selection
-		// available. We normalize it here by replicating the
-		// behavior of other browsers.
-		//
-		// Webkit's condition covers also the case when editable hasn't been focused
-		// at all. Thanks to this hack Webkit always has selection in the right place.
-		//
-		// On FF and IE we only fix the first case, when editable was activated
-		// but the selection is broken - usually this happens after setData if editor was focused.
-
-		var sel = isMSSelection ? this.document.$.selection : this.document.getWindow().$.getSelection();
-
-		if ( CKEDITOR.env.webkit ) {
-			if ( sel.type == 'None' && this.document.getActive().equals( root ) || sel.type == 'Caret' && sel.anchorNode.nodeType == CKEDITOR.NODE_DOCUMENT )
-				fixInitialSelection( root, sel );
-		}
-		else if ( CKEDITOR.env.gecko ) {
-			if ( sel && this.document.getActive().equals( root ) &&
-				sel.anchorNode && sel.anchorNode.nodeType == CKEDITOR.NODE_DOCUMENT )
-				fixInitialSelection( root, sel, true );
-		}
-		else if ( CKEDITOR.env.ie ) {
-			var active = this.document.getActive();
-
-			// IEs 9+.
-			if ( !isMSSelection ) {
-				var anchorNode = sel && sel.anchorNode;
-
-				if ( anchorNode )
-					anchorNode = new CKEDITOR.dom.node( anchorNode );
-
-				if ( active && active.equals( this.document.getDocumentElement() ) &&
-					anchorNode && ( root.equals( anchorNode ) || root.contains( anchorNode ) ) )
-					fixInitialSelection( root, null, true );
-			}
-			// IEs 7&8.
-			else if ( sel.type == 'None' && active && active.equals( this.document.getDocumentElement() ) ) {
-				fixInitialSelection( root, null, true );
-			}
 		}
 
 		// Check whether browser focus is really inside of the editable element.
@@ -1710,12 +1670,9 @@
 					removeHiddenSelectionContainer( editor );
 				}
 				// jshint ignore:start
-				// TODO after #9786 use commented out lines instead of console.log.
 				else { // %REMOVE_LINE%
-					window.console && console.log( 'Wrong selection instance resets fake selection.' ); // %REMOVE_LINE%
+					window.console && console.log( '[CKEDITOR.dom.selection.reset] Wrong selection instance resets fake selection.' ); // %REMOVE_LINE%
 				} // %REMOVE_LINE%
-				// else // %REMOVE_LINE%
-				//	CKEDITOR.debug.error( 'Wrong selection instance resets fake selection.', CKEDITOR.DEBUG_CRITICAL ); // %REMOVE_LINE%
 				// jshint ignore:end
 			}
 
@@ -2096,15 +2053,28 @@
 		 * @returns {CKEDITOR.dom.selection} This selection object, after the ranges were selected.
 		 */
 		selectBookmarks: function( bookmarks ) {
-			var ranges = [];
+			var ranges = [],
+				node;
+
 			for ( var i = 0; i < bookmarks.length; i++ ) {
 				var range = new CKEDITOR.dom.range( this.root );
 				range.moveToBookmark( bookmarks[ i ] );
 				ranges.push( range );
 			}
 
+			// It may happen that the content change during loading, before selection is set so bookmark leads to text node.
+			if ( bookmarks.isFake ) {
+				node = ranges[ 0 ].getEnclosedNode();
+				if ( !node || node.type != CKEDITOR.NODE_ELEMENT ) {
+					// %REMOVE_START%
+					window.console && console.log( '[CKEDITOR.dom.selection.selectBookmarks] Selection is no longer fake.' ); // jshint ignore:line
+					// %REMOVE_END%
+					bookmarks.isFake = 0;
+				}
+			}
+
 			if ( bookmarks.isFake )
-				this.fake( ranges[ 0 ].getEnclosedNode() );
+				this.fake( node );
 			else
 				this.selectRanges( ranges );
 

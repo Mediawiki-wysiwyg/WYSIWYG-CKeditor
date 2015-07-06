@@ -17,7 +17,7 @@ CKEDITOR.dialog.add( 'MWTemplate', function( editor ) {
                             type: 'textarea',
                             rows: 16, 
                             label: editor.lang.mwtemplateplugin.defineTmpl,
-                            title: 'Template Tag definition',
+                            title: editor.lang.mwtemplateplugin.defineTmplTitle,
                             className: 'swmf_class',
                             style: 'border: 1px;'
                         }
@@ -33,12 +33,12 @@ CKEDITOR.dialog.add( 'MWTemplate', function( editor ) {
                 content.Trim();
                 content = content.replace(/\r?\n/g, 'fckLR');
                 // check for a tag
-                if (el = content.match(/^{{[\w\d_-]+((\|.*?)*)}}$/)) {
+				if (el = content.match(/^{{(.*)}}$/)) {	// Was /^{{[\w\d_-]+((\|.*?)*)}}$/  // 06.03.15 Varlin Batch_18: allow every kind of templates
                     tag = '<span class="fck_mw_template">' + el[0] + '</span>';
                     className = 'FCK__MWTemplate';
                 }
                 else {
-                    alert ('invalid content');
+                    alert (editor.lang.mwtemplateplugin.invalid);
                     return;
                 }
                 var element = CKEDITOR.dom.element.createFromHtml(tag, editor.document),

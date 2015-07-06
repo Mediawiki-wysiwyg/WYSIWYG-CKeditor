@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, CKSource - Frederico Knabben. All rights reserved.
+ * Copyright (c) 2015, CKSource - Frederico Knabben. All rights reserved.
  * Licensed under the terms of the MIT License (see LICENSE.md).
  */
 
@@ -271,7 +271,7 @@
 
 			if ( fixStyles ) {
 				html = html.replace( / style="([^"]+)"/g, function( match, style ) {
-					style = CKEDITOR.tools.writeCssText( CKEDITOR.tools.parseCssText( style, true ) );
+					style = CKEDITOR.tools.writeCssText( CKEDITOR.tools.parseCssText( style, true ), true );
 					// Encode e.g. "" in urls().
 					style = CKEDITOR.tools.htmlEncodeAttr( style );
 
@@ -295,7 +295,7 @@
 				// 3. Strip whitepsaces around semicolon.
 				// 4. Always end with semicolon
 				return retval.replace( /(?:^|;)\s*([A-Z-_]+)(:\s*)/ig,
-						function( match, property, colon ) {
+						function( match, property ) {
 							return property.toLowerCase() + ': ';
 						} )
 					.replace( /\s+(?:;\s*|$)/g, ';' )
@@ -329,10 +329,12 @@
 		 * // Then test will look like:
 		 * bender.testInputOut( 'sample1', function( input, output ){ ...test and assertion... });
 		 */
-		testInputOut: function( playground, fn ) {
+		testInputOut: function( playground, fn, trimSelection ) {
+			trimSelection = ( trimSelection === false ? false : true );
+
 			var source = bender.tools.getValueAsHtml( playground ).split( '=>' ),
 				input = source[ 0 ],
-				output = /\(no change\)/.test( source[ 1 ] ) ? input.replace( /\^|\[|\]/g, '' ) : source[ 1 ];
+				output = /\(no change\)/.test( source[ 1 ] ) ? ( trimSelection ? input.replace( /\^|\[|\]/g, '' ) : input ) : source[ 1 ];
 
 			fn( input, output );
 		},
@@ -595,8 +597,7 @@
 				element.setHtml( html );
 			}
 
-			var doc = element.getDocument(),
-				ranges = [],
+			var ranges = [],
 				// Walk prepared to traverse the inner dom tree of this element.
 				walkerRange = new CKEDITOR.dom.range( root );
 
@@ -770,30 +771,212 @@
 		},
 
 		/**
+		 * Returns an object which works similar to native data transfer object, has
+		 * `setData` and `getData` methods, `types` array and handle only Text and URL data
+		 * types on IE.
+		 */
+		mockNativeDataTransfer: function() {
+			return {
+				types: [],
+				files: CKEDITOR.env.ie && CKEDITOR.env.version < 10 ? undefined : [],
+				_data: {},
+				// Emulate browsers native behavior for getDeta/setData.
+				setData: function( type, data ) {
+					if ( CKEDITOR.env.ie && type != 'Text' && type != 'URL' )
+						throw 'Unexpected call to method or property access.';
+
+					if ( CKEDITOR.env.ie && CKEDITOR.env.version > 9 && type == 'URL' )
+						return;
+
+					if ( type == 'text/plain' || type == 'Text' ) {
+						this._data[ 'text/plain' ] = data;
+						this._data.Text = data;
+					} else {
+						this._data[ type ] = data;
+					}
+
+					this.types.push( type );
+				},
+				getData: function( type ) {
+					if ( CKEDITOR.env.ie && type != 'Text' && type != 'URL' )
+						throw 'Invalid argument.';
+
+					if ( typeof this._data[ type ] === 'undefined' || this._data[ type ] === null )
+						return '';
+
+					return this._data[ type ];
+				}
+			};
+		},
+
+		/**
+		 * Returns an object to mock drop event with `dataTransfer` object and `preventDefault`
+		 * `getTarget` methods. To mock target new text node is created with 'targetMock' string.
+		 */
+		mockDropEvent: function() {
+			var dataTransfer = this.mockNativeDataTransfer(),
+				target = new CKEDITOR.dom.text( 'targetMock' );
+
+			target.isReadOnly = function() {
+				return false;
+			};
+
+			return {
+				$: {
+					dataTransfer: dataTransfer
+				},
+				preventDefault: function() {
+					// noop
+				},
+				getTarget: function() {
+					return target;
+				},
+				setTarget: function( t ) {
+					target = t;
+				}
+			};
+		},
+
+		/**
+		 * Returns an object to mock paste event with `clipboardData` object and `preventDefault`
+		 * `getTarget` methods. To mock target new text mode is created with 'targetMock' string.
+		 */
+		mockPasteEvent: function() {
+			var dataTransfer = this.mockNativeDataTransfer(),
+				target = new CKEDITOR.dom.node( 'targetMock' );
+
+			return {
+				$: {
+					ctrlKey: true,
+					clipboardData: CKEDITOR.env.ie ? undefined : dataTransfer
+				},
+				preventDefault: function() {
+					// noop
+				},
+				getTarget: function() {
+					return target;
+				},
+				setTarget: function( t ) {
+					target = t;
+				}
+			};
+		},
+
+		/**
+		 * 1x1 pixels PNG image for tests usage.
+		 * @type {String}
+		 */
+		pngBase64: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAAxJREFUCNdjYGBgAAAABAABJzQnCgAAAABJRU5ErkJggg==',
+
+		/**
+		 * 'foo' text as a base64 data for tests usage.
+		 * @type {String}
+		 */
+		txtBase64: 'data:text/plain;base64,Zm9v',
+
+		/**
+		 * Transforms given base64 string data into file (Blob).
+		 *
+		 * @param {String} base64 string data
+		 * @returns {Blob} file
+		 */
+		srcToFile: function( src ) {
+			var base64HeaderRegExp = /^data:(\S*?);base64,/,
+				contentType = src.match( base64HeaderRegExp )[ 1 ],
+				base64Data = src.replace( base64HeaderRegExp, '' ),
+				byteCharacters = atob( base64Data ),
+				byteArrays = [],
+				sliceSize = 512,
+				offset, slice, byteNumbers, i, byteArray;
+
+			for ( offset = 0; offset < byteCharacters.length; offset += sliceSize ) {
+				slice = byteCharacters.slice( offset, offset + sliceSize );
+
+				byteNumbers = new Array( slice.length );
+				for ( i = 0; i < slice.length; i++ ) {
+					byteNumbers[ i ] = slice.charCodeAt( i );
+				}
+
+				byteArray = new Uint8Array( byteNumbers );
+
+				byteArrays.push( byteArray );
+			}
+
+			return new Blob( byteArrays, { type: contentType } );
+		},
+
+		/**
+		 * Gets PNG file for tests usage.
+		 *
+		 * @param {String} [fileName=name.png] file name.
+		 * @return {Blob} PNG file.
+		 */
+		getTestPngFile: function( fileName ) {
+			var file = this.srcToFile( this.pngBase64 );
+			file.name = fileName ? fileName : 'name.png';
+			return file;
+		},
+
+		/**
+		 * Gets text file for tests usage.
+		 *
+		 * @param {String} [fileName=name.txt] file name.
+		 * @return {Blob} text file.
+		 */
+		getTestTxtFile: function( fileName ) {
+			var file = this.srcToFile( this.txtBase64 );
+			file.name = fileName ? fileName : 'name.txt';
+			return file;
+		},
+
+		/**
+		 * Calls resume and given callback function as a last listener of given event.
+		 *
+		 * @param {Object} object Object we are listening event on.
+		 * @param {String} evtName Event name.
+		 * @param {Function} callback Callback function.
+		 */
+		resumeAfter: function( object, evtName, callback ) {
+			object.once( evtName, function( evt ) {
+				resume( function() {
+					callback( evt );
+				}, null, null, 99999 );
+			} );
+		},
+
+		/**
 		 * Paste given html into given editor.
 		 *
 		 * @param {CKEDITOR.editor} editor Editor instance.
 		 * @param {String} html Html to be pasted.
+		 * @param {Object} [data] Data in various types (key is type, value is data).
+		 * These data will be set to the clipboardData on non-IE browsers.
 		 */
-		emulatePaste: function( editor, html ) {
-			var el = editor.editable(),
-				doc = el.getDocument(),
-				evt = CKEDITOR.env.ie ? 'beforepaste' : 'paste';
+		emulatePaste: function( editor, html, data ) {
+			var editable = editor.editable(),
+				doc = editable.getDocument(),
+				evt = this.mockPasteEvent();
 
-			el.fire( evt, {
-				// Clipboard is checking for existance of evt.data.$.clipboardData.
-				// Do not fail there.
-				$: {
-					ctrlKey: true
-				}
-			} );
-
-			// Insert given HTML into the current selection, which should be in pastebin.
-			// IE>=11 doesn't support neither msieRange#pasteHtml nor inserhtml command,
-			// so for simplicity on all IEs use custom way.
 			if ( !CKEDITOR.env.ie ) {
-				doc.$.execCommand( 'inserthtml', false, html );
+				// Fire paste event with HTML in the dataTransfer object on non-IE.
+				if ( !data ) {
+					data = {};
+				}
+
+				data[ 'text/html' ] = html;
+
+				for ( var type in data ) {
+					evt.$.clipboardData.setData( type, data[ type ] );
+				}
+
+				editable.fire( 'paste', evt );
 			} else {
+				// IE does not allow to get HTML from the `clipboardData` object so we need to
+				// use pastebin and insert given HTML into the current selection.
+				// IE>=11 doesn't support neither msieRange#pasteHtml nor inserhtml command,
+				// so for simplicity on all IEs use custom way.
+				editable.fire( 'beforepaste', evt );
+
 				var frag = new CKEDITOR.dom.element( 'div', doc );
 				frag.setHtml( html );
 
@@ -818,46 +1001,13 @@
 		},
 
 		/**
-		 * Creates editors defined in `editorsDefinitions` and passes them along with editorBots to the callback.
-		 *
-		 * @param {Object} editors Definitions map of the editors definitions in the same format as `editorBot` use.
-		 * @param {Function} callback Function called when all of the editors will be created.
-		 */
-		setUpEditors: function( editorsDefinitions, callback ) {
-			var names = [],
-				editors = {},
-				bots = {};
-
-			for ( var e in editorsDefinitions ) {
-				names.push( e );
-			}
-
-			next();
-
-			function next() {
-				var name = names.shift();
-
-				if ( !name ) {
-					callback( editors, bots );
-					return;
-				}
-
-				bender.editorBot.create( editorsDefinitions[ name ], function( bot ) {
-					bots[ name ] = bot;
-					editors[ name ] = bot.editor;
-					next();
-				} );
-			}
-		},
-
-		/**
 		 * Multiplies inputTests for every editor.
 		 *
-		 * @param {Object} editors
+		 * @param {Object} editorsDefinitions editors definitions.
 		 * @param {Object} inputTests Tests to apply on every editor.
 		 * @returns {Object} Created tests for every editor.
 		 */
-		createTestsForEditors: function( editors, inputTests ) {
+		createTestsForEditors: function( editorsNames, inputTests ) {
 			var outputTests = {},
 				specificTestName,
 				specialMethods = {
@@ -865,7 +1015,8 @@
 					'async:init': 1,
 					'setUp': 1,
 					'tearDown': 1
-				};
+				},
+				i, editorName;
 
 			for ( var method in specialMethods ) {
 				if ( inputTests[ method ] ) {
@@ -873,13 +1024,15 @@
 				}
 			}
 
-			for ( var editorName in editors ) {
+			for ( i = 0; i < editorsNames.length; i++ ) {
+				editorName = editorsNames[ i ];
+
 				for ( var testName in inputTests ) {
 					if ( specialMethods[ testName ] ) {
 						continue;
 					}
 
-					specificTestName = testName + ' (' + editors[ editorName ].name + ')';
+					specificTestName = testName + ' (' + editorName + ')';
 
 					// Avoid silent failure.
 					if ( outputTests[ specificTestName ] ) {
@@ -888,15 +1041,44 @@
 
 					outputTests[ specificTestName ] = ( function( testName, editorName ) {
 						return function() {
-							inputTests[ testName ]( editors[ editorName ] );
+							inputTests[ testName ]( bender.editors[ editorName ] );
 						};
 					} )( testName, editorName );
 				}
 			}
 
 			return outputTests;
-		}
+		},
 
+		/**
+		 * Downloads image and call callback after that.
+		 *
+		 * @param {String} src Image source.
+		 * @param {Function} callback Callback function with image (CKEDITOR.dom.element)
+		 * or `null` in case of error or abort.
+		 */
+		downloadImage: function( src, callback ) {
+			var img = new CKEDITOR.dom.element( 'img' );
+
+			img.once( 'load', function() {
+				// Because this function may be used to wait until editor download image, the callback in
+				// this test helper must be called later then editors.
+				setTimeout( function() {
+					callback( img );
+				}, 10 );
+			} );
+
+			img.once( 'error', function() {
+				callback( null );
+			} );
+
+			img.once( 'abort', function() {
+				callback( null );
+			} );
+
+			// Add random string to be sure that the image will be downloaded, not taken from cache.
+			img.setAttribute( 'src', src + '?' + Math.random().toString( 16 ).substring( 2 ) );
+		}
 	};
 
 	bender.tools.range = {
@@ -1001,10 +1183,10 @@
 						}
 					}
 				}
-			};
+			}
 
 			return function( element, html ) {
-				root = element.getDocument().getBody();
+				root = element;
 
 				// First, let's assume that there will be no range.
 				range = null;
@@ -1042,7 +1224,7 @@
 				}
 
 				return range;
-			}
+			};
 		} )(),
 
 		/**
@@ -1106,7 +1288,7 @@
 				return clone;
 			}
 
-			var html, clone,
+			var clone,
 				startMarker, endMarker,
 				addressLength, startAddress, endAddress,
 				startContainer, endContainer;
@@ -1198,7 +1380,7 @@
 			}
 
 			return bender.tools.range.getWithHtml( editor.editable(), ranges[ 0 ] );
-		},
+		}
 	};
 
 	bender.tools.html = {
@@ -1214,10 +1396,16 @@
 		 * `actual` is processed by a parser they will be replaced by comments. Therefore these characters can't
 		 * appear in attributes and other places where comments will be lost. Set `options.compareSelection` to `true`
 		 * in order to enable selection markers special handling.
-		 * * `@` &ndash; will be treated like a possible bogus `<br>` marker. "Possible" means that
-		 * assertion will pass regardless of whether bogus `<br>` is found or not in the `actual`.
+		 * * `@` &ndash; will be treated like a possible  bogus `<br>` filler marker on browsers
+		 * which use it (see {@link CKEDITOR.env#needsBrFiller}). "Possible" means that
+		 * assertion will pass regardless of whether bogus filler is found or not in the `actual`.
+		 * * `@!` &ndash; (since 4.5.0) will be treated like an expected bogus `<br>` filler marker on browsers
+		 * which use it (see {@link CKEDITOR.env#needsBrFiller}).
+		 * * `@@` &ndash; (since 4.5.0) will be treated like a possible `<br>` or `&nbsp;` filler
+		 * (depending on {@link CKEDITOR.env#needsBrFiller}). This options is useful when IE8 incorrectly yields
+		 * `&nbsp;` in empty blocks.
 		 *
-		 * @param {String} expected
+		 * @param {String|Array} expected if array all patters will be tread as good
 		 * @param {String} actual
 		 * @param {Object} [options]
 		 * @param {Boolean} [options.sortAttributes=true] {@link bender.tools#compatHtml}'s option.
@@ -1229,17 +1417,28 @@
 		 * @param {Boolean} [options.compareSelection=false] If set to `true` selection markers in `expected` and
 		 * `actual` will be handled in special way. This may conflict with these characters usage in attributes and
 		 * other places where comments are not allowed.
-		 * @param {Boolean} [options.normalizeSelection=true] Whether `{` and `}` should be treated like `[` and `]`
+		 * @param {Boolean} [options.normalizeSelection=false] Whether `{` and `}` should be treated like `[` and `]`
 		 * Additionally, collapsed selection will be replaced with `^`. This options works only if `compareSelection`
 		 * is set to `true`.
 		 */
 		compareInnerHtml: function( expected, actual, options ) {
 			var htmlTools = bender.tools.html,
-				pattern = htmlTools.prepareInnerHtmlPattern( expected );
+				i, pattern;
+
+			if ( typeof expected === 'string' ) {
+				expected = [ expected ];
+			}
 
 			actual = htmlTools.prepareInnerHtmlForComparison( actual, options );
 
-			return pattern.test( actual );
+			for ( i = 0; i < expected.length; i++ ) {
+				pattern = htmlTools.prepareInnerHtmlPattern( expected[ i ] );
+				if ( pattern.test( actual ) ) {
+					return true;
+				}
+			}
+
+			return false;
 		},
 
 		/**
@@ -1259,6 +1458,11 @@
 			var sortAttributes = ( 'sortAttributes' in options ) ? options.sortAttributes : true,
 				fixZWS = ( 'fixZWS' in options ) ? options.fixZWS : true,
 				fixNbsp = ( 'fixNbsp' in options ) ? options.fixNbsp : true;
+
+			// On IE8- we need to get rid of expando attributes.
+			if ( CKEDITOR.env.ie && CKEDITOR.env.version < 9 ) {
+				innerHtml = innerHtml.replace( / data-cke-expando="[^"]*"/g, '' );
+			}
 
 			if ( options.compareSelection ) {
 				innerHtml = innerHtml.replace( selectionMarkers, '<!--cke-range-marker-$1-->' );
@@ -1287,7 +1491,9 @@
 		 */
 		prepareInnerHtmlPattern: function( pattern ) {
 			pattern = bender.tools.escapeRegExp( pattern )
-				.replace( /@/g, CKEDITOR.env.needsBrFiller ? '(<br />)?' : '(&nbsp;)?' );
+				.replace( /@@/g, CKEDITOR.env.needsBrFiller ? '(<br />)?' : '(&nbsp;)?' )
+				.replace( /@!/g, CKEDITOR.env.needsBrFiller ? '<br />' : '' )
+				.replace( /@/g, CKEDITOR.env.needsBrFiller ? '(<br />)?' : '' );
 
 			return new RegExp( '^' + pattern + '$' );
 		}

@@ -1,12 +1,15 @@
-/* bender-tags: editor,unit,pastefromword */
+/* bender-tags: editor,unit,clipboard,pastefromword */
 /* bender-ckeditor-plugins: clipboard,pastefromword,ajax */
+/* global assertPasteEvent */
 
 ( function() {
 	'use strict';
 
 	bender.editor = {
 		config: {
-			allowedContent: true
+			allowedContent: true,
+			// Disable pasteFilter on Webkits (pasteFilter defaults semantic-text on Webkits).
+			pasteFilter: null
 		}
 	};
 
@@ -18,7 +21,7 @@
 		assertPasteEvent(
 			editor, { dataValue: input },
 			function( data, msg ) {
-				assert.isMatching( output, compat( editor.dataProcessor.toHtml( data.dataValue ) ) );
+				assert.isMatching( output, compat( editor.dataProcessor.toHtml( data.dataValue ) ), msg );
 			},
 			'tc1', true
 		);

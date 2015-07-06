@@ -1,12 +1,14 @@
 /* bender-tags: editor,unit,lineutils */
 /* bender-ckeditor-plugins: lineutils */
+/* global lineutilsTestsTools */
 
 ( function() {
 	'use strict';
 
 	var finder,
 		lookupEls1 = [],
-		lookupEls2 = [];
+		lookupEls2 = [],
+		assertRelations = lineutilsTestsTools.assertRelations;
 
 	bender.editor = {
 		config: {
@@ -65,30 +67,7 @@
 				lookupEls1 = [];
 				lookupEls2 = [];
 			} );
-		}
-	}
-
-	function assertRelations( editor, expected, relations ) {
-		var current, range,
-			ranges = [];
-
-		for ( var r in relations ) {
-			current = relations[ r ];
-
-			if ( current.type & CKEDITOR.LINEUTILS_BEFORE )
-				ranges.push( finder.getRange( { uid: r, type: CKEDITOR.LINEUTILS_BEFORE } ) );
-
-			if ( current.type & CKEDITOR.LINEUTILS_AFTER )
-				ranges.push( finder.getRange( { uid: r, type: CKEDITOR.LINEUTILS_AFTER } ) );
-
-			if ( current.type & CKEDITOR.LINEUTILS_INSIDE )
-				ranges.push( finder.getRange( { uid: r, type: CKEDITOR.LINEUTILS_INSIDE } ) );
-
-			while ( ( range = ranges.pop() ) )
-				range.insertNode( editor.document.createText( '|' ) );
-		}
-
-		assert.areSame( expected, editor.getData(), 'Relations discovered, collected and normalized correctly.' );
+		};
 	}
 
 	function assertLookupElements( elements, msg, sort ) {
@@ -133,7 +112,7 @@
 				return doc.getById( 'x' );
 			},
 			assert: function( editor ) {
-				assertRelations( editor, '<p>a</p>|<div>|b|<p>|y|<span id="x">|x</span>|c</p>|d</div>|<p>e</p>', finder.relations );
+				assertRelations( editor, finder, '<p>a</p>|<div>|b|<p>|y|<span id="x">|x</span>|c</p>|d</div>|<p>e</p>' );
 			}
 		} ),
 
@@ -143,7 +122,7 @@
 				return doc.getById( 'x' );
 			},
 			assert: function( editor ) {
-				assertRelations( editor, '<p>a</p>|<div>|<p>|<span id="x">|x</span>|</p>|</div>|<p>b</p>', finder.relations );
+				assertRelations( editor, finder, '<p>a</p>|<div>|<p>|<span id="x">|x</span>|</p>|</div>|<p>b</p>' );
 			}
 		} ),
 
@@ -153,7 +132,7 @@
 				return doc.getById( 'x' );
 			},
 			assert: function( editor ) {
-				assertRelations( editor, '|<div contenteditable="true">|<p id="x">|x</p>|</div>|', finder.relations );
+				assertRelations( editor, finder, '|<div contenteditable="true">|<p id="x">|x</p>|</div>|' );
 			}
 		} ),
 
@@ -173,7 +152,7 @@
 
 		'test lookup greedy find: invisible': greedyTest( {
 			data: 'a<blockquote style="display: none">x</blockquote><div style="display: none">y</div>',
-			assert: function( editor ) {
+			assert: function() {
 				assertLookupElements( [], 'Invisible elements are not considered.' );
 			}
 		} ),

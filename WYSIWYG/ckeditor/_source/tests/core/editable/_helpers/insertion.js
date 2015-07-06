@@ -1,3 +1,5 @@
+/* exported insertionDT */
+
 'use strict';
 
 var insertionDT = ( function() {
@@ -50,7 +52,7 @@ var insertionDT = ( function() {
 				// Be sure that the data produced by the editor is not formatted.
 				editor.dataProcessor.writer = new CKEDITOR.htmlParser.basicWriter();
 
-				if ( --pending == 0 )
+				if ( --pending === 0 )
 					bender.test( that );
 			}
 		},
@@ -62,7 +64,7 @@ var insertionDT = ( function() {
 		assertInsertion: function( editablesNames, source, insertion, expected, enterMode, message ) {
 			var editableName, result, editor, modes, mode,
 				root, checkAllModes, rangeList, revertChanges, revertChanges2,
-				expectedForMode;
+				expectedForMode, afterInsertCount, afterInsertData;
 
 			editablesNames = editablesNames.split( ',' );
 			// Check all supported modes if expected value is a string or regexp.
@@ -95,12 +97,16 @@ var insertionDT = ( function() {
 						while ( 1 ) {
 							var startContainer = range.startContainer,
 								startOffset = range.startOffset;
-							// Limit the fix only to non-block elements.(#3950)
-							if ( startOffset ==
-							     ( startContainer.getChildCount ?
-							      startContainer.getChildCount() :
-							      startContainer.getLength() ) &&
-							     !startContainer.isBlockBoundary() )
+							// Limit the fix only to non-block elements. (#3950)
+							if (
+								startOffset ==
+								(
+									startContainer.getChildCount ?
+										startContainer.getChildCount() :
+										startContainer.getLength()
+								) &&
+								!startContainer.isBlockBoundary()
+							)
 								range.setStartAfter( startContainer );
 							else
 								break;
@@ -128,7 +134,7 @@ var insertionDT = ( function() {
 							node = node.getParent();
 					}
 
-					return node.$ ? node: null;
+					return node.$ ? node : null;
 				}
 			} );
 			revertChanges2 = replaceMethods( CKEDITOR.dom.range.prototype, {
@@ -140,12 +146,19 @@ var insertionDT = ( function() {
 				editor = this.editorsPool[ editableName ];
 				root = editor.editable();
 
+				editor.on( 'afterInsertHtml', function( evt ) {
+					afterInsertCount++;
+					afterInsertData = evt.data;
+				} );
+
 				// Set enter mode to the given value or reset to the default one.
 				editor.enterMode = enterMode || editor._.defaultEnterMode;
 
 				for ( mode in modes ) {
 					// Selection::getRanges() will read from this variable.
 					rangeList = new CKEDITOR.dom.rangeList( tools.setHtmlWithRange( root, source, root ) );
+
+					afterInsertCount = 0;
 
 					if ( mode == 'insertElement' )
 						editor.insertElement( CKEDITOR.dom.element.createFromHtml( insertion, editor.document ) );
@@ -160,12 +173,17 @@ var insertionDT = ( function() {
 					// versions of the tests, replace non-breaking-space char with &nbsp;
 					result = result.replace( /\u00a0/g, '&nbsp;' );
 
-					expectedForMode = checkAllModes ? expected: expected[ mode ];
+					expectedForMode = checkAllModes ? expected : expected[ mode ];
 
 					// Use assert.isMatching if expected is a regexp (has exec method).
-					assert[ expectedForMode.exec ? 'isMatching': 'areSame' ]( expectedForMode, result,
+					assert[ expectedForMode.exec ? 'isMatching' : 'areSame' ]( expectedForMode, result,
 						( message || 'editor\'s content should equal expected value' ) +
 						' (editable: "' + editableName + '" & mode: "' + mode + '")' );
+
+					if ( mode != 'insertElement' ) {
+						assert.areSame( 1, afterInsertCount, 'There should be 1 afterInsertHtml event after every insertion.' );
+						assert.isUndefined( afterInsertData.intoRange, 'intoRange parameter should be undefined.' );
+					}
 				}
 			}
 
@@ -184,9 +202,9 @@ var insertionDT = ( function() {
 				}
 
 				return function() {
-					for ( name in oldFns )
+					for ( var name in oldFns )
 						obj[ name ] = oldFns[ name ];
-				}
+				};
 			}
 		},
 
