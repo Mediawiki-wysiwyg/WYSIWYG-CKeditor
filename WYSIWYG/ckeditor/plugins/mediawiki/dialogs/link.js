@@ -204,12 +204,15 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                     // We're only editing an existing link, so just overwrite the attributes.
                     var element = this._.selectedElement,
                         textView = element.getHtml();
-
+                    
+					/*07.07.15 RL** 
                     if (textView == link)
                         attributes._fcknotitle = 'true';
                     else
+                    **/
                         element.removeAttributes( ['_fcknotitle'] );
-                    if ( element.is('img') )
+                    
+					if ( element.is('img') )
                         element.setAttribute('link', link);
                     else
                         element.setAttributes( attributes );

@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 07.07.15  Fixed in link dialog: when editing existing external link without separate display text (just save, no modifications), display text was changed to something like this "[1]". Version 1.5.6_0 [B551+07.07.2015].
+
 - 06.07.15  Update of CKEditor from version 4.4.5 [revision 25cdcad] to CKeditor 4.5.1 [revision a513a92]. Version 1.5.6_0 [B551+13.03.2015].
 
 - 06.07.15  Created branch CKeditor_v45 for update of CKeditor v4.5.1 [revision a513a92]. Version 1.5.6_0 [B551+13.03.2015].
