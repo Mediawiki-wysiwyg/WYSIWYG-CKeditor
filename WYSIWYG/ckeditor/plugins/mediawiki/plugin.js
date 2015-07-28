@@ -150,7 +150,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
-			'img.FCK__MWCategory' +     //07.01.14 RL New element
+		/****	'img.FCK__MWCategory' +     //07.01.14 RL New element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
 				'background-position: center center;' +
@@ -159,7 +159,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 18px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
-			'img.FCK__MWMath' +         //19.11.14 RL
+		****/	'img.FCK__MWMath' +         //19.11.14 RL
 			'{' +
 				'background-image: url(' + ( CKEDITOR.getUrl( this.path + 'images/button_math.png' ) ) + ');' +
 				'background-position: center center;' +
@@ -177,7 +177,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
-			/***
 			'span.fck_mw_category' +    //07.01.14 RL Original element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
@@ -187,7 +186,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
-			****/
 			'pre' +  //08.02.15 RL For paragraph format "Formatted" of CKeditor which is using <pre> -tag
 			'{' +
 				'background-color:rgb(245,245,245);' + 
@@ -235,10 +233,10 @@ CKEDITOR.plugins.add( 'mediawiki',
                             case 'fck_mw_references' :
                                 if ( className == null )
                                     className = 'FCK__MWReferences';
-                            case 'fck_mw_category' :                 //07.01.14 RL->
+                /****       case 'fck_mw_category' :                 //07.01.14 RL->
                                if ( className == null )              
                                     className = 'FCK__MWCategory';   //07.01.14 RL<-
-                            case 'fck_mw_math' :                     //19.11.14 RL->
+                ****/       case 'fck_mw_math' :                     //19.11.14 RL->
                                if ( className == null )  
                                     className = 'FCK__MWMath';       //19.11.14 RL<-								
                             case 'fck_mw_template' :

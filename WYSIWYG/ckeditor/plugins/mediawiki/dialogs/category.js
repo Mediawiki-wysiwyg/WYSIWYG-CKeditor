@@ -304,7 +304,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
             onOk : function() {
 				
                 //Clear old categories
-                var catList = editor.document.find('.FCK__MWCategory');
+                var catList = editor.document.find('.fck_mw_category');   // 28.07.2015 : was FCK__MWCategory
                 if (catList.count() > 0) {
                     for (var i = catList.count() - 1; i > -1  ; i--) {
                         catList.getItem(i).remove();
@@ -328,10 +328,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 						realElement.setText( category );
 											
 					//Are there any additional attributes used by html format?  
-					var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);
+				/****	var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);  
 					fakeElement.$.alt = category.replace(/"/g,'');   //31.01.15 RL Replace quotes
 					fakeElement.$.title = category.replace(/"/g,''); //31.01.15 RL Replace quotes
-					editor.insertElement(fakeElement);
+				****/
+					editor.insertElement(realElement);  // was fakeElement
                 }
             },
 
@@ -348,11 +349,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				this.editMode = false;
 		
     		    //Load categories
-                var catList = editor.document.find('.FCK__MWCategory');
+                var catList = editor.document.find('.fck_mw_category');   // 28.07.2015 : was FCK__MWCategory
                 if (catList.count() > 0) {
                     for (var i=0;i<catList.count();i++) {
                         this.fakeObj = catList.getItem(i);
-                        var element = editor.restoreRealElement(this.fakeObj);
+                        var element = this.fakeObj; // 28.07.2015 : Was var element = editor.restoreRealElement(this.fakeObj);
 				        loadElements.apply(this, [element]);
 				    }
 
