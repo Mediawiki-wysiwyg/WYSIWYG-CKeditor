@@ -5,7 +5,10 @@
 // 08.01.14 RL  More advanced dialog based on link.js, selection list for existing categories.
 // 19.01.15 DB  Support for hierarchical categories, more user friendly dialog to work with categories.
 // 20.01.15 RL  Translations based on user preferences.
-//
+// 28.07.15 Varlin: Restored parts of original code of category handling and fixed missing parts. 
+// 01.09.15 RL  Doubleclick of category element fixed in plugin.js. Problem: Category element is editable 
+//              in wysiwyg mode, which may cause problems. Users must be advised to edit categories using dialog.
+
 CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 {
     // need this to use the getSelectedLink function from the plugin
@@ -304,7 +307,7 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
             onOk : function() {
 				
                 //Clear old categories
-                var catList = editor.document.find('.FCK__MWCategory');
+                var catList = editor.document.find('.fck_mw_category');   // 28.07.2015 : was FCK__MWCategory
                 if (catList.count() > 0) {
                     for (var i = catList.count() - 1; i > -1  ; i--) {
                         catList.getItem(i).remove();
@@ -328,10 +331,12 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 						realElement.setText( category );
 											
 					//Are there any additional attributes used by html format?  
-					var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);
+					/*28.07.2015***	
+					var fakeElement = editor.createFakeElement(realElement, 'FCK__MWCategory', 'span', false);  
 					fakeElement.$.alt = category.replace(/"/g,'');   //31.01.15 RL Replace quotes
 					fakeElement.$.title = category.replace(/"/g,''); //31.01.15 RL Replace quotes
-					editor.insertElement(fakeElement);
+					****/
+					editor.insertElement(realElement);  // was fakeElement
                 }
             },
 
@@ -348,11 +353,11 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 				this.editMode = false;
 		
     		    //Load categories
-                var catList = editor.document.find('.FCK__MWCategory');
+                var catList = editor.document.find('.fck_mw_category'); //28.07.2015 : Was FCK__MWCategory
                 if (catList.count() > 0) {
                     for (var i=0;i<catList.count();i++) {
                         this.fakeObj = catList.getItem(i);
-                        var element = editor.restoreRealElement(this.fakeObj);
+                        var element = this.fakeObj;                     //28.07.2015 : Was var element = editor.restoreRealElement(this.fakeObj);
 				        loadElements.apply(this, [element]);
 				    }
 

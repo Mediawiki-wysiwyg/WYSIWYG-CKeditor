@@ -150,6 +150,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
+			/*28.07.2015***	
 			'img.FCK__MWCategory' +     //07.01.14 RL New element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
@@ -159,6 +160,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 18px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
+			****/
 			'img.FCK__MWMath' +         //19.11.14 RL
 			'{' +
 				'background-image: url(' + ( CKEDITOR.getUrl( this.path + 'images/button_math.png' ) ) + ');' +
@@ -177,8 +179,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
-			/***
-			'span.fck_mw_category' +    //07.01.14 RL Original element
+			'span.fck_mw_category' + //28.07.2015 Was commented. //07.01.14 RL Original element
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_category.gif' ) + ');' +
 				'background-position: 0 center;' +
@@ -187,7 +188,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'border: 1px solid #a9a9a9;' +
 				'padding-left: 18px;' +
 			'}\n' +
-			****/
 			'pre' +  //08.02.15 RL For paragraph format "Formatted" of CKeditor which is using <pre> -tag
 			'{' +
 				'background-color:rgb(245,245,245);' + 
@@ -235,10 +235,12 @@ CKEDITOR.plugins.add( 'mediawiki',
                             case 'fck_mw_references' :
                                 if ( className == null )
                                     className = 'FCK__MWReferences';
-                            case 'fck_mw_category' :                 //07.01.14 RL->
+                			/*28.07.2015***
+							case 'fck_mw_category' :                 //07.01.14 RL->
                                if ( className == null )              
                                     className = 'FCK__MWCategory';   //07.01.14 RL<-
-                            case 'fck_mw_math' :                     //19.11.14 RL->
+                			****/
+							case 'fck_mw_math' :                     //19.11.14 RL->
                                if ( className == null )  
                                     className = 'FCK__MWMath';       //19.11.14 RL<-								
                             case 'fck_mw_template' :
@@ -808,7 +810,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 
 			editor.ui.addButton( 'MWCategory',    //07.01.14 RL
 				{
-					label : editor.lang.mwplugin.categorybtn,
+					label : editor.lang.mwplugin.categoryTitle, //01.09.15 RL Was categorybtn
 					command : 'MWCategory',
                     icon: this.path + 'images/icon_category.gif'
 				});
@@ -909,10 +911,15 @@ CKEDITOR.plugins.add( 'mediawiki',
                 {                                                        //07.01.14 RL<-
 					if ( element.is( 'a' ) || ( element.is( 'img' ) && element.getAttribute( '_cke_real_element_type' ) == 'anchor' ) )
 						evt.data.dialog = 'MWLink';
+					else if ( element.getAttribute( 'class' ) == 'fck_mw_category' )     //01.09.2015 RL For categories (28.07.2015)
+						evt.data.dialog = 'MWCategory';                                  //01.09.2015 RL
 					else if ( element.is( 'img' ) ) {
-						if ( element.getAttribute( 'class' )      == 'FCK__MWCategory' ) //07.01.2014 RL For categories
+						/***                                                             **01.09.2015 RL (28.07.2015)
+						if ( element.getAttribute( 'class' )  == 'FCK__MWCategory' )     //07.01.2014 RL For categories
 							evt.data.dialog = 'MWCategory';                              //07.01.2014 RL
-						else if ( element.getAttribute( 'class' ) == 'FCK__MWRef' )      //04.01.2014 RL For references (citation)
+						else 
+						***/
+						if ( element.getAttribute( 'class' )  == 'FCK__MWRef' )          //04.01.2014 RL For references (citation)
 							evt.data.dialog = 'MWRef';                                   //04.01.2014 RL
 						else if ( element.getAttribute( 'class' ) &&                     //07.01.14 RL This was earlier one step below
 							element.getAttribute( 'class' ).InArray( [
