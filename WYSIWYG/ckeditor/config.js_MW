@@ -41,7 +41,7 @@ CKEDITOR.editorConfig = function( config )
         ['Link','MWSimpleLink','Unlink'], //05.09.14 RL
         ['Undo','Redo'],
         ['Image', 'Table', 'HorizontalRule', 'SpecialChar'],
-        ['MWSpecialTags', 'MWTemplate', 'MWSignature', 'qiButton', 'wsButton', 'rmButton' ],
+        ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature', 'qiButton', 'wsButton', 'rmButton' ],
         [ 'stbButton' ],
         ['MWCategory'],            //07.01.14 RL  
         ['MWRef', 'MWReferences'], //03.01.14 RL For references (citation)
@@ -62,6 +62,7 @@ CKEDITOR.editorConfig = function( config )
 
     config.WikiSignature = '--~~~~';
 
+	
     // remove format: address
     config.format_tags = 'p;h1;h2;h3;h4;h5;h6;pre;div';
     // use fontsizes only that do not harm the skin

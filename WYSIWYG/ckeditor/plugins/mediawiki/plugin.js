@@ -995,6 +995,52 @@ CKEDITOR.plugins.add( 'mediawiki',
 			} 
 		)
 		**/
+		
+		// When opening a dialog, its "definition" is created for it, for
+		// each editor instance. The "dialogDefinition" event is then
+		// fired. We should use this event to make customizations to the
+		// definition of existing dialogs.
+		CKEDITOR.on( 'dialogDefinition', function( evt ) {   //19.10.15 RL
+			// Take the dialog name and its definition from the event data.
+			var dialogName = evt.data.name;
+			var dialogDefinition = evt.data.definition;
+			var lang = editor.lang.about;
+			
+			// Check if the definition is from the dialog we're interested on (the "About" dialog).
+			if ( dialogName == 'about' && evt.editor.name == 'wpTextbox1' ) {			
+
+				// Make dialog little higher
+				dialogDefinition.minHeight = dialogDefinition.minHeight + 50;
+
+				// Add text 'WYSIWYG' into title of dialog
+				dialogDefinition.title = dialogDefinition.title + ' / WYSIWYG ...';			
+			
+				// Get a reference to the existing tab.
+				var infoTab = dialogDefinition.getContents( 'tab1' );
+
+				// Set label for exisiting 'tab1' element in CKeditor About dialog (original value '')
+				//infoTab.label = "CKeditor";
+				
+				// Add a version text of WYSIWYG into the existing "tab1" of About- dialog.
+				infoTab.add(
+					{
+						type: 'html',
+						html:
+							'<div class="cke_about_container">' +
+							'<p>' +
+							'<strong>WYSIWYG ' + window.parent.WYSIWYGversion + '</strong><br>' +
+							'</p>' +
+							'<p>' +
+							lang.help.replace( '$1', '<a target="_blank" href="https://www.mediawiki.org/wiki/Extension:WYSIWYG">' + 'MediaWiki Extension:WYSIWYG' + '</a>' ) +
+							'</p>' +
+							'<p>' +
+							'Github: <a target="_blank" href="https://github.com/Mediawiki-wysiwyg/WYSIWYG-CKeditor">https://github.com/Mediawiki-wysiwyg/WYSIWYG-CKeditor</a>' +
+							'</p>' +
+							'</div>'				
+					}
+				);								
+			}
+		});		
     }
 });
 

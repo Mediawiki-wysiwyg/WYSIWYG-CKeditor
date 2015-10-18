@@ -613,6 +613,7 @@ var fck_mv_plg_strtr_span_counter = 0; //16.01.15 RL
 var is_special_elem_with_text_tags = ' . ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ? 1 : 0 ) . '; //Syntaxhighlight-Nowiki-Pre
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
+var WYSIWYGversion = "' . WYSIWYG_EDITOR_VERSION . '";  //19.10.15 RL
 
 CKEDITOR.ready=true;
 ';
