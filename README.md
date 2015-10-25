@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 19.10.15  Update of CKEditor from version 4.5.1 [revision a513a92] to CKeditor 4.5.4 [revision d4677a3] (_source directory was not yet updated). In About- dialog of CKeditor, show also info about version of WYSIWYG. Version 1.5.6_0 1.5.6_0 [B551+19.10.2015].
+- 25.10.15  Updated version of CKeditor source files to version 4.5.4 [revision d4677a3]. Moved source- files of CKeditor-WYSIWYG into ckeditor_source- directory, removed old plugins and other files, updated compile-minify instructions. Fixed error of previous WYSIWYG versions from [B551+31.01.2015] to [B551+19.01.2015] which prevented WYSIWYG to start in source mode. Version 1.5.6_0 [B551+25.10.2015].
+
+- 19.10.15  Update of CKEditor from version 4.5.1 [revision a513a92] to CKeditor 4.5.4 [revision d4677a3] (_source directory was not yet updated). In About- dialog of CKeditor, show also info about version of WYSIWYG. Version 1.5.6_0 [B551+19.10.2015].
 
 - 01.09.15  Show names of categories in wysiwyg mode (by Varlin 28.07.15). Fixed double click of category element and tooltip of category button in menu. Workaround to avoid manual modifications because of "protected property OutputPage". Version 1.5.6_0 [B551+01.09.2015].
 
