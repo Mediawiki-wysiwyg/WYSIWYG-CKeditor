@@ -26,6 +26,10 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
+# version of WYSIWYG and CKeditor
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+30.10.2015]');
+define('CKEDITOR_VERSION',       'CKEditor 4.5.4 (revision d4677a3)');
+
 # Not a valid entry point, skip unless MEDIAWIKI is defined
 if( !defined( 'MEDIAWIKI' ) ) {
 	echo <<<HEREDOC
@@ -40,10 +44,6 @@ HEREDOC;
 if ((!array_key_exists('SERVER_NAME', $_SERVER) || $_SERVER['SERVER_NAME'] == NULL) &&
     (strpos($_SERVER['PHP_SELF'], 'run-test.php') === false) )
 	return;
-
-# version of WYSIWYG and CKeditor
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+19.10.2015]');
-define('CKEDITOR_VERSION',       'CKEditor 4.5.4 (revision d4677a3)');
 
 // define to check with {{#isExtensionInstalled:wysiwyg}} if extension is installed
 // the parser function comes in the SMWHalo extension
