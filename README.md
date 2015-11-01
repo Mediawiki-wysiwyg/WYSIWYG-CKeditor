@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 01.11.15  Fixed copy-paste issue with table cells (by VA). Fixed File- prefix to act as link. Version 1.5.6_0 [B551+01.11.2015].
+
 - 30.10.15  Modifications with table captions: added attribute support, fixed error which cased WYSIWYG to crash with table caption. Version 1.5.6_0 [B551+30.10.2015].
 
 - 25.10.15  Updated version of CKeditor source files to version 4.5.4 [revision d4677a3]. Moved source- files of CKeditor-WYSIWYG into ckeditor_source- directory, removed old plugins and other files, updated compile-minify instructions. Fixed error of previous WYSIWYG versions from [B551+31.01.2015] to [B551+19.10.2015] which prevented WYSIWYG to start in source mode. Version 1.5.6_0 [B551+25.10.2015].

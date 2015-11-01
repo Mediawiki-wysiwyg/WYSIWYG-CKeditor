@@ -1495,8 +1495,8 @@ CKEDITOR.customprocessor.prototype =
 				}
 
 				// Remove the <br> if it is a bogus node.
-//				if ( CKEDITOR.env.gecko && sNodeName == 'br' && htmlNode.getAttribute( 'type', 2 ) == '_moz' )
-//					return;
+				// if ( CKEDITOR.env.gecko && sNodeName == 'br' && htmlNode.getAttribute( 'type', 2 ) == '_moz' )
+				//	return;
 				if ( CKEDITOR.env.gecko && sNodeName == 'br' && htmlNode.getAttribute( 'type' ) == '_moz' )
 					return;
 
@@ -1557,7 +1557,7 @@ CKEDITOR.customprocessor.prototype =
 						if ( ( stringBuilder.length == len || ( stringBuilder.length == len + 1 && !stringBuilder[len].length ) )
 							&& basicElement[0] && basicElement[0].charAt(0) == "'" ){
 							stringBuilder.pop();
-							stringBuilder.pop();
+							//stringBuilder.pop(); // 01.11.2015 RL: Commented out, fix by VA when pasting copied table cell into other cell
 							return;
 						}
 					}

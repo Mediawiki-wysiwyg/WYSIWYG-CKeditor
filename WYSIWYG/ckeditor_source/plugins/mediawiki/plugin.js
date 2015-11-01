@@ -204,7 +204,14 @@ CKEDITOR.plugins.add( 'mediawiki',
 			'{' +
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
-			'}\n';                                                                  //Syntaxhighlight-Nowiki-Pre<-
+			'}\n' +                                                                 //Syntaxhighlight-Nowiki-Pre<-
+			'table.wikitable {' +           //30.10.15 RL Predefined wikitable class for MW table formatting
+				'margin: 1em 0;' +
+				'background-color: #f9f9f9;' +
+				'border: 1px #aaa solid;' +
+				'border-collapse: collapse;' +
+				'color: black;' +
+			'}\n';		
         return str;
     },
 
@@ -1488,8 +1495,8 @@ CKEDITOR.customprocessor.prototype =
 				}
 
 				// Remove the <br> if it is a bogus node.
-//				if ( CKEDITOR.env.gecko && sNodeName == 'br' && htmlNode.getAttribute( 'type', 2 ) == '_moz' )
-//					return;
+				// if ( CKEDITOR.env.gecko && sNodeName == 'br' && htmlNode.getAttribute( 'type', 2 ) == '_moz' )
+				//	return;
 				if ( CKEDITOR.env.gecko && sNodeName == 'br' && htmlNode.getAttribute( 'type' ) == '_moz' )
 					return;
 
@@ -1507,6 +1514,7 @@ CKEDITOR.customprocessor.prototype =
                 */
 				var basicElement = this._BasicElements[ sNodeName ];
 				if ( basicElement ){
+				
 					var basic0 = basicElement[0];
 					var basic1 = basicElement[1];
 
@@ -1549,7 +1557,7 @@ CKEDITOR.customprocessor.prototype =
 						if ( ( stringBuilder.length == len || ( stringBuilder.length == len + 1 && !stringBuilder[len].length ) )
 							&& basicElement[0] && basicElement[0].charAt(0) == "'" ){
 							stringBuilder.pop();
-							stringBuilder.pop();
+							//stringBuilder.pop(); // 01.11.2015 RL: Commented out, fix by VA when pasting copied table cell into other cell
 							return;
 						}
 					}
@@ -1745,34 +1753,38 @@ CKEDITOR.customprocessor.prototype =
 						case 'table' :
 
 							var attribs = this._GetAttributesStr( htmlNode );
-
+							// start table definition of MW, format is: '{|'..
 							stringBuilder.push( '\n{|' );
 							if ( attribs.length > 0 )
 								stringBuilder.push( attribs );
 							stringBuilder.push( '\n' );
 
-							// if ( htmlNode.caption && this._GetNodeText(htmlNode.caption).length > 0 ){ // 06.03.15 Varlin patch-20 Fix <caption> support ("titles" of tables)
-							if (htmlNode.childNodes[0].nodeName == 'caption') var captiontag = htmlNode.childNodes[0]; // 06.03.15 Varlin
-							if ( typeof captiontag != 'undefined' && captiontag.contentText != '' ){ // 06.03.15 Varlin
-								stringBuilder.push( '|+ ' );
-								this._AppendChildNodes( htmlNode.caption, stringBuilder, prefix );
-								stringBuilder.push( '\n' );
-							}
-
-                            // iterate over children, normally <tr>
+                            // iterate over child tags: <caption>,<tr>,<th>,<img> ...
                             var currentNode = (htmlNode.childNodes.length > 0) ? htmlNode.childNodes[0] : null;
                             var level = 0;
 
 							while (currentNode) {
-                                // reset the tagname. Needed later when finding next nodes
+                                // reset the tagname, needed later when finding next nodes
                                 var currentTagName = null;
-
                                 // we found an element node
                                 if (currentNode.nodeType == 1) {
                                     // remember the tag name
                                     currentTagName = currentNode.tagName.toLowerCase();
+									// we have a caption tag of table
+									if ( currentTagName == "caption" ){  // 30.10.15 RL Moved here from above, fixed and added attribute support
+										// start caption definition of MW, format is: ..'|+'..
+										stringBuilder.push( '|+ ' );										
+										// caption may also have attributes defined, format is: ..'atributes |'..
+										attribs = this._GetAttributesStr( currentNode );
+										if ( attribs.length > 0 ) {
+											stringBuilder.push( attribs + '|');
+										}
+										// append text of caption, format is: ..'formatted text of caption'..
+										this._AppendChildNodes( currentNode, stringBuilder, prefix ); 
+										stringBuilder.push( '\n' );
+									}
                                     // we have a table row tag
-                                    if (currentTagName == "tr") {
+                                    else if (currentTagName == "tr") {
                                         attribs = this._GetAttributesStr( currentNode ) ;
 
                                         stringBuilder.push( '|-' ) ;
@@ -1780,7 +1792,7 @@ CKEDITOR.customprocessor.prototype =
                                             stringBuilder.push( attribs ) ;
                                         stringBuilder.push( '\n' ) ;
 
-//                                        var cell = currentNode.firstElementChild;
+										// var cell = currentNode.firstElementChild;
                                         var cell = currentNode.firstChild;
                                         while ( cell ) {
                                             attribs = this._GetAttributesStr( cell ) ;
@@ -1800,7 +1812,7 @@ CKEDITOR.customprocessor.prototype =
                                             this._IsInsideCell = false ;
 
                                             stringBuilder.push( '\n' ) ;
-//                                            cell = cell.nextElementSibling;
+											// cell = cell.nextElementSibling;
                                             cell = cell.nextSibling;
                                         }
                                     }
@@ -2208,7 +2220,6 @@ CKEDITOR.customprocessor.prototype =
 
 	_AppendChildNodes : function( htmlNode, stringBuilder, listPrefix ){
 		var child = htmlNode.firstChild;
-
 		while ( child ){
 			this._AppendNode( child, stringBuilder, listPrefix );
 			child = child.nextSibling;
