@@ -946,7 +946,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 
 			//[[Media:xxx|yyy]] => [[:Media:xxx|yyy]] Extra ':' prevents parser to locate media-links and convert them into wrong format
 			$text = preg_replace("/(\[\[)([mM]edia:)(.*?\]\])/", '$1:Media:$3', $text); //09.05.14 RL [[Media:xxx|yyy]] => [[:Media:xxx|yyy]]
-			$text = preg_replace("/(\[\[)([fF]ile:)(.*?\]\])/",  '$1:Media:$3', $text); //01.11.15 RL [[File:..'        => [[:Media:xxx|yyy]]
+			//$text = preg_replace("/(\[\[)([fF]ile:)(.*?\]\])/",  '$1:Media:$3', $text); //01.11.15 RL [[File:..'        => [[:Media:xxx|yyy]]
 			
             $parserOutput = parent::parse($text, $title, $options, $linestart, $clearState, $revid);
   

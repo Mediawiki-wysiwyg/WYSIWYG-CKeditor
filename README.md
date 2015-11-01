@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 02.11.15  Fixed special characters of image names in wfSajaxGetImageUrl (by Aarakast 29.04.15). Cancelled previous File- prefix modification, because it is reserved for images in WYSIWYG. Version 1.5.6_0 [B551+02.11.2015].
+
 - 01.11.15  Fixed copy-paste issue with table cells (by VA). Fixed File- prefix to act as link. Version 1.5.6_0 [B551+01.11.2015].
 
 - 30.10.15  Modifications with table captions: added attribute support, fixed error which cased WYSIWYG to crash with table caption. Version 1.5.6_0 [B551+30.10.2015].

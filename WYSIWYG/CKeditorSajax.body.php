@@ -81,7 +81,8 @@ function wfSajaxGetImageUrl( $term ) {
 
 	$srcPart = substr( $originalLink, strpos( $originalLink, "src=" )+ 5 );
 	$url = strtok( $srcPart, '"' );
-    if (substr($url, -(strlen($term))) == $term)
+    // if (substr($url, -(strlen($term))) == $term)         //02.11.15 RL 
+	if (substr(urldecode($url), -(strlen($term))) == $term) //02.11.15 RL by Aarakast 29.04.15
         return $url;
     return "";
 }
