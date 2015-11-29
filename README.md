@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 29.11.15  Fixed handling of space indented text (in MW wikitext mode) resulting pre- block in wysiwyg mode (related to class _fck_mw_lspace and variable _inLSpace). Version 1.5.6_0 [B551+29.11.2015].
+
 - 06.11.15  Fixed version data of WYSIWYG. Version 1.5.6_0 [B551+02.11.2015].
 
 - 02.11.15  Fixed special characters of image names in wfSajaxGetImageUrl (by Aarakast 29.04.15). Cancelled previous File- prefix modification, because it is reserved for images in WYSIWYG. Version 1.5.6_0 [B551+02.11.2015].

@@ -205,6 +205,12 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
 			'}\n' +                                                                 //Syntaxhighlight-Nowiki-Pre<-
+			'pre._fck_mw_lspace' +          //29.11.15 RL For MW special space initiated <pre> block (related to class _fck_mw_lspace and this._inLSpace)
+			'{' +
+				'background-color:rgb(245,245,245);' + 
+				'border: 1px solid rgb(224,224,224);' +
+				'padding-left: 10pt' +      //Width of ~1 character indent for each line
+			'}\n' +                                                                 //Syntaxhighlight-Nowiki-Pre<-			
 			'table.wikitable {' +           //30.10.15 RL Predefined wikitable class for MW table formatting
 				'margin: 1em 0;' +
 				'background-color: #f9f9f9;' +
@@ -2089,18 +2095,19 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
 								stringBuilder.push( '</syntaxhighlight>' ); 
 							}
-							else if ( eClassName == "_fck_mw_lspace" ){
-								stringBuilder.push( "\n " );
+							else if ( eClassName == "_fck_mw_lspace" ){ //MW special <pre> block which is indicated by space at peginning of line
+								stringBuilder.push( "\n " );            //Add one space because MW html has one space less than what is in wikitext code
 								this._inLSpace = true;
 								this._AppendChildNodes( htmlNode, stringBuilder, prefix );
 								this._inLSpace = false;
 								var len = stringBuilder.length;
 								if ( len > 1 ) {
-									var tail = stringBuilder[len-2] + stringBuilder[len-1];
+									var tail = stringBuilder[len-2] + stringBuilder[len-1];	 
 									if ( len > 2 ) {
 										tail = stringBuilder[len-3] + tail;
 									}
-									if (tail.EndsWith("\n ")) {
+									if (tail.EndsWith("\n ")) { 
+										//Remove extra space added because of setting this._inLSpace = true above
 										stringBuilder[len-1] = stringBuilder[len-1].replace(/ $/, "");
 									} else if ( !tail.EndsWith("\n") ) {
 										stringBuilder.push( "\n" );
@@ -2142,6 +2149,8 @@ CKEDITOR.customprocessor.prototype =
 				var parentIsSpecialTag = htmlNode.parentNode.getAttribute( '_fck_mw_customtag' );
 				var textValue = htmlNode.nodeValue;
 				if ( !parentIsSpecialTag ){
+					
+					/**** 29.11.15 RL -> *********
 					if ( CKEDITOR.env.ie && this._inLSpace ) {
 						textValue = textValue.replace( /\r/g, "\r " );
 						if (textValue.EndsWith( "\r " )) {
@@ -2151,7 +2160,16 @@ CKEDITOR.customprocessor.prototype =
 					if ( !CKEDITOR.env.ie && this._inLSpace ) {
 						textValue = textValue.replace( /\n(?! )/g, "\n " );
 					}
+					****/
 
+					// If we are inside space activated <pre> block, html code has one space less than what is
+					// in wikitext code => add one space with all browsers, not just with IE.
+					if ( this._inLSpace ) {
+						textValue = textValue.replace( /\r\n/g, "\n"  );
+						textValue = textValue.replace( /\r/g,   "\n"  );
+						textValue = textValue.replace( /\n/g,   "\n " );        // All "\n" has to be replaced 
+					}                                                           // 29.11.15 RL <-
+					
 					if (!this._inLSpace && !this._inPre) {
 						textValue = textValue.replace( /[\n\t]/g, ' ' );
 					}
@@ -2166,7 +2184,7 @@ CKEDITOR.customprocessor.prototype =
 					}
 
 					if ( !htmlNode.nextSibling && !this._inLSpace && !this._inPre && ( !htmlNode.parentNode || !htmlNode.parentNode.nextSibling ) )
-						textValue = textValue.replace(/\s*$/, ''); // rtrim
+						textValue = textValue.replace(/\s*$/, ''); // Rtrim
 
 					if( !this._inLSpace && !this._inPre && htmlNode.parentNode.tagName.toLowerCase() != 'a' ) {
 						textValue = textValue.replace( / {2,}/g, ' ' );
