@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 28.02.16  Modifications because of MW1.26: replaced deprecated calls of sajax_do_call and addOnloadHook. Know issue: async. loading of javascript files by MW1.26 may cause wysiwyg fail when page is opened for editing => variable $wgFCKEditor_delay_addonloadhook of LocalSettings.php can be used to define delay in ms as temporary fix for this (f.ex 1000 = delay of 1s). Version 1.5.6_0 [B551+22.02.2016].
+
 - 29.11.15  Fixed handling of space indented text (in MW wikitext mode) resulting pre- block in wysiwyg mode (related to class _fck_mw_lspace and variable _inLSpace). Version 1.5.6_0 [B551+29.11.2015].
 
 - 06.11.15  Fixed version data of WYSIWYG. Version 1.5.6_0 [B551+02.11.2015].
@@ -377,6 +379,13 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     $wgFCKEditorSpecialElementWithTextTags = 0; // 1= <nowiki>, <source> and <syntaxhighlight> tags => img- element
     #26.02.15<-
 
+	#22.02.16->
+	#Async. loading of javascript files by MW1.26 may cause wysiwyg fail when page is opened for editing
+    #=> variable $wgFCKEditor_delay_addonloadhook can be used to define delay as temporary fix for this
+    #   F.ex setting value to 1000 means delay of 500ms = 0.5s before initEditor is run
+    #   (by addOnloadHook or document.ready) when page is opened in wysiwyg mode.
+    $wgFCKEditor_delay_addonloadhook = 0;
+    #22.02.16<-
 
 --------------
 **WikiEditor:**

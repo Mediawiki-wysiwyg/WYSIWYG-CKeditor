@@ -1289,15 +1289,25 @@ CKEDITOR.customprocessor.prototype =
         var loadHTMLFromAjax = function( result ){
 			if ( window.parent.popup &&
 				 window.parent.popup.parent.wgCKeditorInstance &&
-				 window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg') {
-				 window.parent.popup.parent.wgCKeditorInstance.setData(result.responseText);
+				 window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg' ) {
+
+				if (typeof result.responseText != 'undefined') //22.02.16 RL MW1.26, change with ajax call
+					window.parent.popup.parent.wgCKeditorInstance.setData(result.responseText);
+				else
+					window.parent.popup.parent.wgCKeditorInstance.setData(result);
+
 				 window.parent.popup.parent.wgCKeditorCurrentMode = 'wysiwyg';
 			}
 			else if ( window.parent.wgCKeditorInstance &&
 					  window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) {
-				window.parent.wgCKeditorInstance.setData(result.responseText);				
+
+				if (typeof result.responseText != 'undefined') //22.02.16 RL MW1.26, change with ajax call
+					window.parent.wgCKeditorInstance.setData(result.responseText);
+				else
+					window.parent.wgCKeditorInstance.setData(result);
+
 				window.parent.wgCKeditorCurrentMode = 'wysiwyg';
-				toggleReadOnly( false ); //12.01.15 RL				
+				toggleReadOnly( false ); //12.01.15 RL
 			}
 		}
 
@@ -1322,7 +1332,7 @@ CKEDITOR.customprocessor.prototype =
 		{				
 			window.parent.editorSrcToWswTrigger = false; //03.03.15 RL
 			toggleReadOnly( true );                      //12.01.15 RL
-			// Use Ajax to transform the Wikitext to HTML.
+			// Use Ajax to transform the Wikitext to HTML
 			if( window.parent.popup ){
 				window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
 			} else {

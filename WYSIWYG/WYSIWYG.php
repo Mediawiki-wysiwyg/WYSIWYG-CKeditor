@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
 # version of WYSIWYG and CKeditor
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+29.11.2015]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+22.02.2016]');
 define('CKEDITOR_VERSION',       'CKEditor 4.5.4 (revision d4677a3)');
 
 # Not a valid entry point, skip unless MEDIAWIKI is defined

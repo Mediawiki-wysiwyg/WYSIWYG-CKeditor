@@ -8,6 +8,7 @@
 // 28.07.15 Varlin: Restored parts of original code of category handling and fixed missing parts. 
 // 01.09.15 RL  Doubleclick of category element fixed in plugin.js. Problem: Category element is editable 
 //              in wysiwyg mode, which may cause problems. Users must be advised to edit categories using dialog.
+// 22.02.16 RL  Modifications because of some legacy functions were removed with MW1.26.
 
 CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 {
@@ -147,15 +148,28 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 	var OnDialogLoad = function () {
 	    var dialog = this.getDialog();
 
-	    window.parent.sajax_do_call('wfSajaxSearchCategoryCKeditor', [], InitCategoryTree);
+	    // window.parent.sajax_do_call('wfSajaxSearchCategoryCKeditor', [], InitCategoryTree); // 22.02.16 RL
+		window.parent.$.post( mw.util.wikiScript(), { // 22.02.16 RL
+				action: 'ajax', 
+				rs: 'wfSajaxSearchCategoryCKeditor', 
+				rsargs: [] 
+				},
+				InitCategoryTree
+			); 	
 
 	    function InitCategoryTree(result) {
 	        catTree = new Object();
 	        var levelsHead = new Array('root');
 	        var levelsBody = new Array('');
-
-	        var results = result.responseText.Trim().split('\n');
 	        var previousLvl = -1;
+	        var results;
+
+			if (typeof result.responseText != 'undefined')         // 22.02.16 RL
+				results = result.responseText.Trim().split('\n');
+			else 
+				results = result.Trim().split('\n');               // 22.02.16 RL
+
+
 	        for (var i = 0 ; i < results.length ; i++) {
 	            var lvl = 0;
 	            while (results[i].charAt(lvl) == ' ')

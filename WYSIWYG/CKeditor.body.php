@@ -473,6 +473,7 @@ class CKeditor_MediaWiki {
 		global $wgFCKEditorExtDir, $wgFCKEditorDir, $wgFCKEditorHeight, $wgFCKEditorToolbarSet;
         global $wgCKEditorUrlparamMode, $wgRequest;
 		global $wgFCKEditorSpecialElementWithTextTags; //Syntaxhighlight-Nowiki-Pre
+		global $wgFCKEditor_delay_addonloadhook;       //22.02.16 RL Temp delay
 
 		if( !isset( $this->showFCKEditor ) ){
 			$this->showFCKEditor = 0;
@@ -614,6 +615,7 @@ var is_special_elem_with_text_tags = ' . ( isset($wgFCKEditorSpecialElementWithT
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
 var WYSIWYGversion = "' . WYSIWYG_EDITOR_VERSION . '";  //19.10.15 RL
+var delay_addonloadhook = ' . ( isset($wgFCKEditor_delay_addonloadhook)  ? $wgFCKEditor_delay_addonloadhook : 0 ) . '; //In MW1.26 possible delay for addOnloadHook, temp. fix
 
 CKEDITOR.ready=true;
 ';
@@ -698,12 +700,40 @@ function convFromHTML(html){
 		
 //IE hack to call func from popup
 function FCK_sajax(func_name, args, target) {
+
+	/**22.02.16 RL mw.legacy.ajax has been removed starting from MW 1.26-> *****
 	sajax_request_type = 'POST';
-	sajax_do_call(func_name, args, function (x) {
+	sajax_do_call(func_name, args, function (x) {	
 		// I know this is function, not object
 		target(x);
 		}
 	);
+	*******/
+
+	$.post( mw.util.wikiScript(), {  //22.02.16 RL
+			action: 'ajax', 
+			rs: func_name, 
+			rsargs: args 
+			}, function (x) {			
+				target(x); // I know this is function, not object
+			}
+		); 	
+
+	/************
+	alert('DEBUG01-ajax-call');
+	$.ajax({
+			type: 'POST',
+			url: mw.util.wikiScript(),
+			data: { func_name, args },
+			dataType: 'text',
+			success: function (x) {
+				// I know this is function, not object
+				target(x);
+			},
+			context: target
+		});
+	***********/
+		
 }
 
 // qi url tokens
@@ -760,21 +790,23 @@ function checkSelected(){
 	}
 }
 
-function initEditor(){	
 
+
+function initEditor(){	
     EnabledUseEditWarning = true;              //Enable onbeforeunload event. 13.04.14 RL->  
     window.onbeforeunload = null;              //Clear and unbind current "unload resources" event
     if (useEditwarning) {
-        window.onbeforeunload = function(e) {  //To activate warning with Cancel -button on wysiwyg page
+		window.onbeforeunload = function(e) {  //To activate warning with Cancel -button on wysiwyg page
             //EnabledUseEditWarning is used to disable onbeforeunload event with:
             //  -ToggleCKEditor link with IE
-            //  -save, preview and diff buttons with all browsers
-            if ( EnabledUseEditWarning ) {     
+            //  -save, preview and diff buttons with all browsers			
+            if ( EnabledUseEditWarning ) { 
                 var confirmationMessage = ' '; //Returned string is not displayed with FF, it is displayed with IE,Chrome..=>use empty string
                 (e || window.event).returnValue = confirmationMessage;
                 return confirmationMessage;
             }
-        };      
+			else return 'huuhaaa';
+        }; 		
     }                                          //13.04.14 RL<-
 
 	var toolbar = document.getElementById( 'toolbar' );
@@ -794,8 +826,10 @@ function initEditor(){
 	//              Page will be corrupted in case user does refresh of page in wysiwyg mode.
 	if ( showFCKEditor & RTE_VISIBLE & isConflict & firstLoad ) {
 		var SRCtextarea = document.getElementById( '$textfield' );
-		sajax_request_type = 'POST';
 		CKEDITOR.ready = false;
+
+		/**22.02.16 RL mw.legacy.ajax has been removed starting from MW 1.26-> *****
+		sajax_request_type = 'POST';
 		sajax_do_call('wfSajaxWikiToHTML', [SRCtextarea.value], function( result ){
 			if ( firstLoad ){ //still
 				SRCtextarea.value = result.responseText; // insert parsed text
@@ -803,6 +837,24 @@ function initEditor(){
 				CKEDITOR.ready = true;
 			}
 		});
+		******/
+
+		$.post( mw.util.wikiScript(), {  //22.02.16 RL
+				action: 'ajax', 
+				rs: 'wfSajaxWikiToHTML', 
+				rsargs: [SRCtextarea.value] 
+				}, function( result ){
+					if ( firstLoad ){ //still
+						if (typeof result.responseText != 'undefined')
+							SRCtextarea.value = result.responseText; // insert parsed text						
+						else
+							SRCtextarea.value = result;              // insert parsed text
+						onLoadCKeditor();
+						CKEDITOR.ready = true;
+					}
+				}
+			); 	
+			
 		return true;
 	}
 
@@ -847,6 +899,7 @@ function initEditor(){
     */
 
 	if( showFCKEditor & RTE_VISIBLE ){
+		
 		if ( toolbar ){	// insert wiki buttons
 			for( var i = 0; i < mwEditButtons.length; i++ ) {
 				mwInsertEditButton(toolbar, mwEditButtons[i]);
@@ -860,7 +913,12 @@ function initEditor(){
 	
 	return true;
 }
-addOnloadHook( initEditor );
+
+// 22.02.16 RL:addOnloadHook( initEditor ); addOnloadHook is deprecated method, 
+//             Call "$( initEditor );" is shorthand for "jQuery( document ).ready( function( $ ) {...} );"
+//             Because of async. loading of javascripts by mediawiki, somethimes call of initEditor fails 
+//             => added setTimeout(); this should be properly fixed somehow.             
+setTimeout(function(){jQuery( document ).ready( initEditor );}, delay_addonloadhook); 
 
 HEREDOC;
 
@@ -906,10 +964,11 @@ function ToggleCKEditor( mode, objId ){
 		}                                     //10.04.14 RL<-
 
 		SRCtextarea.readOnly = true;  //12.01.15 RL
-
 		// firstLoad = true => FCKeditor start invisible
-		sajax_request_type = 'POST';
 		CKEDITOR.ready = false;
+
+		/**22.02.16 RL mw.legacy.ajax has been removed starting from MW 1.26-> *****
+		sajax_request_type = 'POST';
 		sajax_do_call('wfSajaxWikiToHTML', [SRCtextarea.value], function( result ){
 			if ( firstLoad ){ //still
 				SRCtextarea.value = result.responseText; // insert parsed text
@@ -919,6 +978,26 @@ function ToggleCKEditor( mode, objId ){
 				CKEDITOR.ready = true;
 			}
 		});
+		*********/
+
+		$.post( mw.util.wikiScript(), {  //22.02.16 RL
+				action: 'ajax', 
+				rs: 'wfSajaxWikiToHTML', 
+				rsargs: [SRCtextarea.value] 
+				}, function( result ){
+					if ( firstLoad ){ //still
+						if (typeof result.responseText != 'undefined')
+							SRCtextarea.value = result.responseText; // insert parsed text						
+						else
+							SRCtextarea.value = result;              // insert parsed text
+						onLoadCKeditor();
+						if( oToggleLink ) oToggleLink.innerHTML = editorMsgOff;
+						SRCtextarea.readOnly = false;  //12.01.15 RL
+						CKEDITOR.ready = true;
+					}
+				}
+			); 	
+			
 		return true;
 	}
 
@@ -942,18 +1021,26 @@ function ToggleCKEditor( mode, objId ){
 	if ( showFCKEditor & RTE_VISIBLE ){
 
 		//17.01.14 RL-> Show WikiEditor toolbar
-		if ( $('#wikiEditor-ui-toolbar') ) {
+		if ( $('#wikiEditor-ui-toolbar') ) { 
 			$('#wikiEditor-ui-toolbar').show(); 
 			//objId contains string: wpTextbox1 => $('#toggle_wpTextbox1') is eq. to $('#toggle_' + objId)
-			$('#toggle_' + objId).insertBefore('#wikiEditor-ui-toolbar');	
+			$('#toggle_' + objId).insertBefore('#wikiEditor-ui'); //-toolbar	
 		}
 		//17.01.14 RL<-
-		
+
 		var text = oEditorIns.getData();
 		SRCtextarea.value = text;
 		if( saveSetting ){
+			/**22.02.16 RL mw.legacy.ajax has been removed starting from MW 1.26-> *****
 			sajax_request_type = 'GET';
 			sajax_do_call( 'wfSajaxToggleCKeditor', ['hide'], function(){} ); //remember closing in session
+			********/
+			$.get( mw.util.wikiScript(), {  //22.02.16 RL
+						action: 'ajax', 
+						rs: 'wfSajaxToggleCKeditor', 
+						rsargs: ['hide'] 
+					}, function(){}
+			); 			
 		}
         if( oToggleLink ) oToggleLink.innerHTML = editorMsgOn;
 
@@ -966,6 +1053,7 @@ function ToggleCKEditor( mode, objId ){
         }
 		SRCtextarea.style.display = 'inline';
         SRCtextarea.style.visibility = 'visible';
+		
         if (CKEDITOR.plugins.smwtoolbar) {
             CKEDITOR.plugins.smwtoolbar.stbIsActive = false;
             smwhgAnnotationHints = new AnnotationHints();
@@ -997,8 +1085,8 @@ function ToggleCKEditor( mode, objId ){
 	} else {
 		window.parent.editorSrcToWswTrigger = true; //03.03.15 RL
 		//17.01.14 RL-> Hide WikiEditor toolbar
-		if ( $('#wikiEditor-ui-toolbar') ) {
-			$('#wikiEditor-ui-toolbar').hide(); 
+		if ( $('#wikiEditor-ui-toolbar') ) {  
+			$('#wikiEditor-ui-toolbar').hide();
 			//objId contains string: wpTextbox1 => $('#toggle_wpTextbox1') is eq. to $('#toggle_' + objId)
 			//$( '#toggle_' + objId ).insertBefore('#ckTools');  //This worked with FireFox v26.0 but not with IE11
 			$( '#toggle_' + objId ).insertBefore("#editform");   //This works with FF and IE
@@ -1007,9 +1095,10 @@ function ToggleCKEditor( mode, objId ){
 		
 		// FCKeditor hidden -> visible
 		//if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); // switch to plain
-		SRCtextarea.style.display = 'none';
+		SRCtextarea.style.display = 'none';              //hide window of wikitext editor
 		// copy from textarea to FCKeditor
-		oEditorIns.setData( SRCtextarea.value );
+		oEditorIns.setData( SRCtextarea.value );         //set data into window of ckeditor
+
 		if (toolbar) toolbar.style.display = 'none';
 		oEditorIframe.style.display = '';
 		//if ( !bIsWysiwyg ) oEditorIns.SwitchEditMode();	// switch to WYSIWYG
@@ -1020,7 +1109,6 @@ function ToggleCKEditor( mode, objId ){
             AdvancedAnnotation.unload();
         if ( loadSTBonStartup )
             CKEDITOR.instances[objId].execCommand('SMWtoolbar');
-
 	}
 
 	return true;
