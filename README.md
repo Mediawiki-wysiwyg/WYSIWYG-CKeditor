@@ -382,7 +382,7 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 	#22.02.16->
 	#Async. loading of javascript files by MW1.26 may cause wysiwyg fail when page is opened for editing
     #=> variable $wgFCKEditor_delay_addonloadhook can be used to define delay as temporary fix for this
-    #   F.ex setting value to 1000 means delay of 500ms = 0.5s before initEditor is run
+    #   F.ex setting value to 500 means delay of 500ms = 0.5s before initEditor is run
     #   (by addOnloadHook or document.ready) when page is opened in wysiwyg mode.
     $wgFCKEditor_delay_addonloadhook = 0;
     #22.02.16<-
