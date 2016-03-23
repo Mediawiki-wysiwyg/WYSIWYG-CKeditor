@@ -17,13 +17,25 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
             SetSearchMessage( editor.lang.mwplugin.searching ) ;
 
             // Make an Ajax search for the pages.
-            window.parent.sajax_request_type = 'GET' ;
-            window.parent.sajax_do_call( 'wfSajaxSearchArticleCKeditor', [link], LoadSearchResults ) ;
+            // window.parent.sajax_request_type = 'GET' ; // 22.02.16 RL
+            // window.parent.sajax_do_call( 'wfSajaxSearchArticleCKeditor', [link], LoadSearchResults ) ; // 22.02.16 RL
+			window.parent.$.get( mw.util.wikiScript(), { // 22.02.16 RL
+					action: 'ajax', 
+					rs: 'wfSajaxSearchArticleCKeditor', 
+					rsargs: [link] 
+					},
+					LoadSearchResults
+				); 	
         }
 
         var LoadSearchResults = function ( result ) {
-            var results = result.responseText.split( '\n' ),
+            var results,
                 select = dialog.getContentElement( 'mwLinkTab1', 'linkList' );
+
+			if (typeof result.responseText != 'undefined')  // 22.02.16 RL  
+				results = result.responseText.split( '\n' );
+			else 
+				results = result.split( '\n' );             // 22.02.16 RL
 
             ClearSearch() ;
 

@@ -75,7 +75,12 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
     
     var GetImageUrl = function( dialog, img ) {
         var LoadPreviewImage = function(result) {
-            var url = result.responseText.Trim();
+            var url;
+			if (typeof result.responseText != 'undefined')         // 22.02.16 RL            
+				url = result.responseText.Trim();
+			else
+				url = result.Trim(); // 22.02.16 RL
+
             if (! url)
                 url = CKEDITOR.getUrl( editor.skinPath + 'images/noimage.png' );
             SrcInWiki = url;
@@ -84,8 +89,16 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 			dialog.preview.setAttribute( 'src', previewPreloader.$.src );
 			updatePreview( dialog );
         }
-        window.parent.sajax_request_type = 'GET' ;
-        window.parent.sajax_do_call( 'wfSajaxGetImageUrl', [img], LoadPreviewImage ) ;
+        // window.parent.sajax_request_type = 'GET'; // 22.02.16 RL
+        // window.parent.sajax_do_call( 'wfSajaxGetImageUrl', [img], LoadPreviewImage ); // 22.06.16 RL
+		window.parent.$.get( mw.util.wikiScript(), { // 22.02.16 RL
+				action: 'ajax', 
+				rs: 'wfSajaxGetImageUrl', 
+				rsargs: [img] 
+				},
+				LoadPreviewImage
+			); 	
+
     }
 
 	var DispImgPView = function ( dialog, img ) {  //23.12.14 RL
@@ -150,13 +163,25 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
             SetSearchMessage( dialog, editor.lang.mwplugin.searching ) ;
             
             // Make an Ajax search for the pages.
-            window.parent.sajax_request_type = 'GET' ;
-            window.parent.sajax_do_call( 'wfSajaxSearchImageCKeditor', [link], LoadSearchResults ) ;
+            // window.parent.sajax_request_type = 'GET' ; // 22.02.16 RL
+            // window.parent.sajax_do_call( 'wfSajaxSearchImageCKeditor', [link], LoadSearchResults ); // 22.02.16 RL
+			window.parent.$.get( mw.util.wikiScript(), { // 22.02.16 RL
+					action: 'ajax', 
+					rs: 'wfSajaxSearchImageCKeditor', 
+					rsargs: [link] 
+					},
+					LoadSearchResults
+				); 	
         }
 
         var LoadSearchResults = function(result) {
-            var results = result.responseText.split( '\n' ),
+            var results,
                 select = dialog.getContentElement( 'mwImgTab1', 'imgList' );
+
+			if (typeof result.responseText != 'undefined')  // 22.02.16 RL  
+				results = result.responseText.split( '\n' );
+			else
+				results = result.split( '\n' );             // 22.02.16 RL
 
             ClearSearch(dialog) ;
 

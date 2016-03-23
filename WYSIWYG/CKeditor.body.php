@@ -94,7 +94,7 @@ class CKeditor_MediaWiki {
 
 	public function onEditPageShowEditFormFields( $pageEditor, $wgOut ) {
 		global $wgUser, $wgFCKEditorIsCompatible, $wgTitle;
-
+		
 		/*
 		If FCKeditor extension is enabled, BUT it shouldn't appear (because it's disabled by user, we have incompatible browser etc.)
 		We must do this trick to show the original text as WikiText instead of HTML when conflict occurs
@@ -315,7 +315,7 @@ class CKeditor_MediaWiki {
 	 * @param $vars Array: array of JS global variables
 	 * @return true
 	 */
-	public static function onMakeGlobalVariablesScript( &$vars ){  //03.02.14 RL Added &
+	public static function onMakeGlobalVariablesScript( &$vars, $out ){  //03.02.14 RL Added &  //22.03.16 RL Added $out
 		global $wgFCKEditorDir, $wgFCKEditorExtDir, $wgFCKEditorToolbarSet, $wgFCKEditorHeight,
                $wgAllowExternalImages, $wgAllowExternalImagesFrom, $wgCKEditorHideDisabledTbutton;
 
@@ -351,6 +351,7 @@ class CKeditor_MediaWiki {
             $vars['wgAllowExternalImagesFrom'] = $wgAllowExternalImagesFrom;
         if ($wgCKEditorHideDisabledTbutton)
             $vars['wgCKEditorHideDisabledTbutton'] = true;
+		
 		return true;
 	}
 
@@ -466,14 +467,14 @@ class CKeditor_MediaWiki {
 	 * @param $form EditPage object
 	 * @return true
 	 */
-	public function onEditPageShowEditFormInitial( $form ) {
+	public function onEditPageShowEditFormInitial( $form, $output ) { //22.03.16 RL Added $output
 		global $wgOut, $wgTitle, $wgScriptPath, $wgContLang, $wgUser;
 		global $wgStylePath, $wgStyleVersion, $wgDefaultSkin, $wgExtensionFunctions, $wgHooks, $wgDefaultUserOptions;
 		global $wgFCKWikiTextBeforeParse, $wgFCKEditorIsCompatible;
 		global $wgFCKEditorExtDir, $wgFCKEditorDir, $wgFCKEditorHeight, $wgFCKEditorToolbarSet;
         global $wgCKEditorUrlparamMode, $wgRequest;
 		global $wgFCKEditorSpecialElementWithTextTags; //Syntaxhighlight-Nowiki-Pre
-		global $wgFCKEditor_delay_addonloadhook;       //22.02.16 RL Temp delay
+	  //global $wgFCKEditor_delay_addonloadhook;       //22.02.16 RL Temp delay
 
 		if( !isset( $this->showFCKEditor ) ){
 			$this->showFCKEditor = 0;
@@ -546,17 +547,18 @@ class CKeditor_MediaWiki {
 		$skin->mTitle =& $wgTitle;
 		$skin->initPage( $wgOut );
 		$skin->userpage = $wgUser->getUserPage()->getPrefixedText();
-#   $skin->setupUserCss( $wgOut );
-    $skin->setupSkinUserCss( $wgOut );
+		
+		#$skin->setupUserCss( $wgOut );
+		$skin->setupSkinUserCss( $wgOut );
 
 		if( !empty( $skin->usercss ) && preg_match_all( '/@import "([^"]+)";/', $skin->usercss, $matches ) ) {
 			$userStyles = $matches[1];
 		}
 		// End of CSS trick
-
+	
 		$script = <<<HEREDOC
-<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}ckeditor.js"></script>
-<!--<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}ckeditor_source.js"></script>-->
+<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}/ckeditor.js"></script>
+<!--<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}/ckeditor_source.js"></script>-->
 <script type="text/javascript">
 var sEditorAreaCSS = '$printsheet,/mediawiki/skins/monobook/main.css?{$wgStyleVersion}';
 </script>
@@ -567,29 +569,73 @@ var sEditorAreaCSS = '$printsheet,/mediawiki/skins/monobook/main.css?{$wgStyleVe
 <!--[if lt IE 7]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IEFixes.css?{$wgStyleVersion}'; </script><![endif]-->
 HEREDOC;
 
-		$script .= '<script type="text/javascript"> ';
 		if( !empty( $userStyles ) ) {
+			$script .= '<script type="text/javascript"> ';
 			$script .= 'sEditorAreaCSS += ",' . implode( ',', $userStyles ) . '";';
+			$script .= '</script"> ';
 		}
 
+		/**22.03.16 RL Unused variables.********* 
 		# Show references only if Cite extension has been installed
 		$showRef = false;
-		if( ( isset( $wgHooks['ParserFirstCallInit'] ) && in_array( 'wfCite', $wgHooks['ParserFirstCallInit'] ) ) ||
-		( isset( $wgExtensionFunctions ) && in_array( 'wfCite', $wgExtensionFunctions ) ) ) {
+		if (( isset( $wgHooks['ParserFirstCallInit'] ) && in_array( 'wfCite', $wgHooks['ParserFirstCallInit'] ) ) ||
+			( isset( $wgExtensionFunctions ) && in_array( 'wfCite', $wgExtensionFunctions ) ) ) {
 			$showRef = true;
 		}
 
 		$showSource = false;
-		if ( ( isset( $wgHooks['ParserFirstCallInit']) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgHooks['ParserFirstCallInit'] ) )
-			|| ( isset( $wgExtensionFunctions ) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgExtensionFunctions ) ) ) {
+		if (( isset( $wgHooks['ParserFirstCallInit']) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgHooks['ParserFirstCallInit'] ) ) ||
+			( isset( $wgExtensionFunctions ) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgExtensionFunctions ) ) ) {
 			$showSource = true;
 		}
+		*****/
 
 		/*13.11.13 RL**
 		wfLoadExtensionMessages( 'CKeditor' );
 		***/
 
-		$script .= '
+		$output->addJsConfigVars ( array(  //22.03.16 RL
+				'showFCKEditor'         => $this->showFCKEditor,
+				'loadSTBonStartup'      => $this->loadSTBonStartup,
+				'popup'                 => false,                          // pointer to popup document
+				'firstLoad'             => true,
+				'isConflict'            => ( $form->isConflict ?  1 : 0 ), //21.02.14 RL
+				'editorMsgOn'           => '[' . Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) )      . ']', //17.01.14 RL Added []
+				'editorMsgOff'          => '[' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) . ']', //17.01.14 RL Added []
+				'editorWaitPageLoad'    => Xml::escapeJsString( wfMsgHtml( 'tog-riched_wait_page_load' ) ),      //12.01.15 RL
+				'editorLink'            => '[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']',  //17.01.14 RL Added []
+				'saveSetting'           => ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state']  ) ?  1 : 0 ),
+				'useEditwarning'        => ( $wgUser->getOption( 'useeditwarning' ) ?  1 : 0 ),  //13.04.14 RL
+				'EnabledUseEditWarning' => false,                                                //13.04.14 RL Because IE fires onbeforeunload with ToggleCKEditor  
+				'RTE_VISIBLE'           => RTE_VISIBLE,
+				'RTE_TOGGLE_LINK'       => RTE_TOGGLE_LINK,
+				'RTE_POPUP'             => RTE_POPUP,
+				'wgCKeditorInstance'    => null,
+				'wgCKeditorCurrentMode' => "wysiwyg",
+				'editorSrcToWswTrigger' => false,      //03.03.15 RL Allow wikitext->html conversion
+				'editorForceReadOnly'   => false,      //12.01.15 RL To disable source button and toggle link for prolonged time.
+				'fck_mv_plg_strtr_span' => [],         //16.01.15 RL
+				'fck_mv_plg_strtr_span_counter'  => 0, //16.01.15 RL
+				'is_special_elem_with_text_tags' => ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ? 1 : 0 ), //Syntaxhighlight-Nowiki-Pre
+				'smwghQiLoadUrl'        => '"'. CKeditor_MediaWiki::GetQILoadUrl() .'"',
+				'linkPasteText'         => ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ), //08.09.14 RL
+				'WYSIWYGversion'        => '"' . WYSIWYG_EDITOR_VERSION . '"',  //19.10.15 RL
+			  //'delay_addonloadhook'   => ( isset($wgFCKEditor_delay_addonloadhook)  ? $wgFCKEditor_delay_addonloadhook : 0 ), //In MW1.26 possible delay for addOnloadHook, temp. fix
+				'CKheight'              => (empty($wgFCKEditorHeight)) ? 0 : $wgFCKEditorHeight,          //22.03.16 RL
+				'MWnewWinMsg'           => Xml::escapeJsString( wfMsgHtml( 'rich_editor_new_window' ) ),  //22.03.16 RL =>$newWinMsg
+				'MWtextfield'           => 'wpTextbox1',  //22.03.16 RL =>$textfield  
+				'CKEDITOR_ready'        => true           //22.03.16 RL Intead of CKEDITOR.ready
+				)
+			);
+
+		$wgOut->addScript( $script );         //22.03.16 RL
+	  //$wgOut->addModules( 'ext.CKEDITOR' ); //22.03.16 RL	
+		$wgOut->addModules( 'ext.WYSIWYG' );  //22.03.16 RL				
+		return true;   //MW1.26 resource loader is used.
+
+$script .= '
+<script type="text/javascript">
+/*********
 var showFCKEditor = ' . $this->showFCKEditor . ';
 var loadSTBonStartup = '. $this->loadSTBonStartup . ';
 var popup = false; // pointer to popup document
@@ -615,12 +661,11 @@ var is_special_elem_with_text_tags = ' . ( isset($wgFCKEditorSpecialElementWithT
 var smwghQiLoadUrl = "'. CKeditor_MediaWiki::GetQILoadUrl() .'";
 var linkPasteText = ' . ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ) . '; //08.09.14 RL
 var WYSIWYGversion = "' . WYSIWYG_EDITOR_VERSION . '";  //19.10.15 RL
-var delay_addonloadhook = ' . ( isset($wgFCKEditor_delay_addonloadhook)  ? $wgFCKEditor_delay_addonloadhook : 0 ) . '; //In MW1.26 possible delay for addOnloadHook, temp. fix
-
-CKEDITOR.ready=true;
+var delay_addonloadhook = ' . ( isset($wgFCKEditor_delay_addonloadhook)  ? $wgFCKEditor_delay_addonloadhook : 0 ) . '; //In MW1.26 possible delay for addOnloadHook, temp. fix		
+**********/
+CKEDITOR_ready = true;
 ';
 		$script .= '</script>';
-
         $script .= '<script type="text/javascript">';
         $script .= $this->InitializeScripts('wpTextbox1', Xml::escapeJsString( wfMsgHtml( 'rich_editor_new_window' ) ) );
 
@@ -631,7 +676,6 @@ if( $this->showFCKEditor & ( RTE_TOGGLE_LINK | RTE_POPUP ) ){
 
 if( $this->showFCKEditor & RTE_POPUP ){
 	$script .= <<<HEREDOC
-
 function FCKeditor_OpenPopup(jsID, textareaID){
 	popupUrl = wgFCKEditorExtDir + '/CKeditor.popup.html';
 	popupUrl = popupUrl + '?var='+ jsID + '&el=' + textareaID;
@@ -826,7 +870,7 @@ function initEditor(){
 	//              Page will be corrupted in case user does refresh of page in wysiwyg mode.
 	if ( showFCKEditor & RTE_VISIBLE & isConflict & firstLoad ) {
 		var SRCtextarea = document.getElementById( '$textfield' );
-		CKEDITOR.ready = false;
+		CKEDITOR_ready = false;
 
 		/**22.02.16 RL mw.legacy.ajax has been removed starting from MW 1.26-> *****
 		sajax_request_type = 'POST';
@@ -834,7 +878,7 @@ function initEditor(){
 			if ( firstLoad ){ //still
 				SRCtextarea.value = result.responseText; // insert parsed text
 				onLoadCKeditor();
-				CKEDITOR.ready = true;
+				CKEDITOR_ready = true;
 			}
 		});
 		******/
@@ -850,7 +894,7 @@ function initEditor(){
 						else
 							SRCtextarea.value = result;              // insert parsed text
 						onLoadCKeditor();
-						CKEDITOR.ready = true;
+						CKEDITOR_ready = true;
 					}
 				}
 			); 	
@@ -914,6 +958,8 @@ function initEditor(){
 	return true;
 }
 
+//alert('DBG-BEGIN:' + delay_addonloadhook);
+
 // 22.02.16 RL:addOnloadHook( initEditor ); addOnloadHook is deprecated method, 
 //             Call "$( initEditor );" is shorthand for "jQuery( document ).ready( function( $ ) {...} );"
 //             Because of async. loading of javascripts by mediawiki, somethimes call of initEditor fails 
@@ -924,6 +970,8 @@ HEREDOC;
 
         return $script;
     }
+	
+	
     public static function ToggleScript() {
         $script = <<<HEREDOC
 
@@ -965,7 +1013,7 @@ function ToggleCKEditor( mode, objId ){
 
 		SRCtextarea.readOnly = true;  //12.01.15 RL
 		// firstLoad = true => FCKeditor start invisible
-		CKEDITOR.ready = false;
+		CKEDITOR_ready = false;
 
 		/**22.02.16 RL mw.legacy.ajax has been removed starting from MW 1.26-> *****
 		sajax_request_type = 'POST';
@@ -975,7 +1023,7 @@ function ToggleCKEditor( mode, objId ){
 				onLoadCKeditor();
 				if( oToggleLink ) oToggleLink.innerHTML = editorMsgOff;
 				SRCtextarea.readOnly = false;  //12.01.15 RL
-				CKEDITOR.ready = true;
+				CKEDITOR_ready = true;
 			}
 		});
 		*********/
@@ -993,15 +1041,15 @@ function ToggleCKEditor( mode, objId ){
 						onLoadCKeditor();
 						if( oToggleLink ) oToggleLink.innerHTML = editorMsgOff;
 						SRCtextarea.readOnly = false;  //12.01.15 RL
-						CKEDITOR.ready = true;
+						CKEDITOR_ready = true;
 					}
 				}
 			); 	
 			
 		return true;
 	}
-
-	if( ! CKEDITOR.ready ) {
+	
+	if( ! CKEDITOR_ready ) {
       return false; // sajax_do_call in action
     }
 

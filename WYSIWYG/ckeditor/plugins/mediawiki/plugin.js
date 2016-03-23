@@ -900,7 +900,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 		) 		
 
         editor.on( 'doubleclick', function( evt )
-			{
+			{			
+	 
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
 				if ( element.hasAscendant( 'pre', true ) && !is_special_elem_with_text_tags ) { //Syntaxhighlight-Nowiki-Pre 

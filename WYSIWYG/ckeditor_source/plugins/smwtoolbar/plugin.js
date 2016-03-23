@@ -730,15 +730,25 @@ CKeditInterface.prototype = {
         function ajaxResponseSetHtmlText(request) {
             if (request.status == 200) {
                 // success => store wikitext as FCK HTML
-                gEeditor.setData(request.responseText);
+				if (typeof request.responseText != 'undefined')  // 22.02.16 RL  
+                	gEeditor.setData(request.responseText);
+				else
+	                gEeditor.setData(request);
 
             }
             gEditInterface.newText = '';
             gEditInterface.outputBuffering = false;
             gEoutputBuffering = false;
         };
-        window.parent.sajax_do_call('wfSajaxWikiToHTML', [gEnewText],
+        // window.parent.sajax_do_call('wfSajaxWikiToHTML', [gEnewText], // 22.02.16 RL
                                     ajaxResponseSetHtmlText);
+		window.parent.$.post( mw.util.wikiScript(), { // 22.02.16 RL
+					action: 'ajax', 
+					rs: 'wfSajaxWikiToHTML', 
+					rsargs: [gEnewText] 
+					},
+					ajaxResponseSetHtmlText
+				); 	
         return;
         }
         gEflushedOnce = true;
