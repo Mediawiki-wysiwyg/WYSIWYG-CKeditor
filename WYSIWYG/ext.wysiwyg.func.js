@@ -122,9 +122,9 @@ function onLoadCKeditor(){
 		height = ( !height || height < 300 ) ? 300 : height;
 		// Create the editor instance and replace the textarea.
 		realTextarea.style.height = height;
-		
-		wgCKeditorInstance = CKEDITOR.replace(realTextarea);  //22.03.16 RL With resourceloader, fails here if sources of CKeditor are used.
 
+		wgCKeditorInstance = CKEDITOR.replace(realTextarea);  //22.03.16 RL With resourceloader + source files of CKeditor: FF, IE and Chrome fail here, all browsers work if $wgResourceLoaderDebug = true; in LocalSettings.php.
+	
 		// Hide the default toolbar.
         var toolbar = document.getElementById( 'toolbar' );
 		if ( toolbar ) toolbar.style.display = 'none';

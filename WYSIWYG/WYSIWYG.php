@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
 # version of WYSIWYG and CKeditor
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+22.03.2016]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+24.03.2016]');
 define('CKEDITOR_VERSION',       'CKEditor 4.5.4 (revision d4677a3)');
 
 # Not a valid entry point, skip unless MEDIAWIKI is defined
@@ -155,57 +155,53 @@ if (defined('SMW_HALO_VERSION')) {
     $wgDefaultUserOptions['riched_load_semantic_toolbar'] = 1;
 }
 
-/***************************
-//22.03.16 RL     
+//24.03.16 RL   
+//global $wgExtensionAssetsPath, $wgScriptPath;  
 $wgResourceModules['ext.CKEDITOR'] = array(
-	// JavaScript and CSS styles. To combine multiple files, just list them as an array.
-    //'scripts' => array('ckeditor/ckeditor.js','ckeditor/ckeditor.binding.js','ext.wysiwyg.func.js','ext.wysiwyg.init.js'),
-    'scripts' => array('ckeditor.js','ext.ckeditor.binding.js'),
-	//'styles' => 'ext.wysiwyg.css',
-	
-	// When your module is loaded, these messages will be available through mw.msg().
-	// E.g. in JavaScript you can access them with mw.message( 'myextension-hello-world' ).text()
-	//'messages' => array( 'myextension-hello-world', 'myextension-goodbye-world' ),
-	
-	'position' => 'top',
-	
-	// If your scripts need code from other modules, list their identifiers as dependencies
-	// and ResourceLoader will make sure they're loaded before you.
-	// You don't need to manually list 'mediawiki' or 'jquery', which are always loaded.
-	//'dependencies' => array( 'ckeditor/ckeditor.js' ),
-	
-	// You need to declare the base path of the file paths in 'scripts' and 'styles'	
-    'localBasePath' => dirname( __FILE__ ) . '/WYSIWYG/ckeditor',
-
-	// ... and the base from the browser as well. For extensions this is made easy,
-	// you can use the 'remoteExtPath' property to declare it relative to where the wiki
-	// has $wgExtensionAssetsPath configured:	
-    'remoteExtPath' => 'WYSIWYG/ckeditor'
+	'scripts'        => array(
+							'ckeditor.js',
+							'config.js',
+							'styles.js',
+							'plugins/mediawiki/plugin.js',
+							'plugins/mwtemplate/plugin.js',
+							'plugins/tableresize/plugin.js',
+							'plugins/textselection/plugin.js',
+							'plugins/mediawiki/dialogs/ref.js',
+							'plugins/mediawiki/dialogs/special.js',
+							'plugins/mediawiki/dialogs/link.js',
+							'plugins/mediawiki/dialogs/texttags.js',
+							'plugins/mediawiki/dialogs/category.js',
+							'plugins/mediawiki/dialogs/image.js',
+							'plugins/mediawiki/plugin.js'
+							),
+	'styles'         => array(
+							'contents.css'
+							),
+	'skinStyles'         => array(
+							'kama' => 'skins/kama/editor.css'
+							),							
+	'languageScripts' => array(
+							'fi' => 'lang/fi.js'
+							),	
+	'skinStyles'     => array(),
+	'messages'       => array(),
+	'position'       => 'bottom',
+	'dependencies'   => array(),
+	'localBasePath'  => __DIR__ . '/ckeditor',                            // Defaults to $IP.
+	//'remoteBasePath' => $wgScriptPath . '/extensions/WYSIWYG/ckeditor', // Defaults to $wgScriptPath.
+    'remoteExtPath'  => 'WYSIWYG/ckeditor'                                // Relative to $wgExtensionAssetsPath
 );
-*****************************/
 
 $wgResourceModules['ext.WYSIWYG'] = array(
-	// JavaScript and CSS styles. To combine multiple files, just list them as an array.
-    //'scripts' => array('ckeditor/ckeditor.js','ckeditor/ckeditor.binding.js','ext.wysiwyg.func.js','ext.wysiwyg.init.js'),
-    'scripts' => array('ext.wysiwyg.func.js','ext.wysiwyg.init.js'),
-	//'styles' => 'ext.wysiwyg.css',
-	
-	// When your module is loaded, these messages will be available through mw.msg().
-	// E.g. in JavaScript you can access them with mw.message( 'myextension-hello-world' ).text()
-	//'messages' => array( 'myextension-hello-world', 'myextension-goodbye-world' ),
-	
-	'position' => 'top',
-	
-	// If your scripts need code from other modules, list their identifiers as dependencies
-	// and ResourceLoader will make sure they're loaded before you.
-	// You don't need to manually list 'mediawiki' or 'jquery', which are always loaded.
-	//'dependencies' => array( 'ext.CKEDITOR' ),
-	
-	// You need to declare the base path of the file paths in 'scripts' and 'styles'	
-    'localBasePath' => dirname( __FILE__ ) ,  // WYSIWYG
-
-	// ... and the base from the browser as well. For extensions this is made easy,
-	// you can use the 'remoteExtPath' property to declare it relative to where the wiki
-	// has $wgExtensionAssetsPath configured:	
-    'remoteExtPath' => 'WYSIWYG'
+    'scripts'       => array('ext.wysiwyg.func.js','ext.wysiwyg.init.js'),
+	'styles'        => array(),
+	'messages'      => array(),
+	'position'      => 'bottom',
+	//'dependencies'  => array( 'ext.CKEDITOR' ),
+    'localBasePath' => __DIR__ ,                                // Defaults to $IP.
+	//'remoteBasePath' => $wgScriptPath . 'extensions/WYSIWYG', // Defaults to $wgScriptPath.
+    'remoteExtPath'  => 'WYSIWYG'                               // Relative to $wgExtensionAssetsPath
 );
+
+//global $wgExtensionAssetsPath, $wgScriptPath, $IP; 
+//error_log(sprintf("DEBUGRL wgEAP:%s wgSP:%s dirname:%s dir:%s IP:%s",$wgExtensionAssetsPath,$wgScriptPath,dirname( __FILE__ ),__DIR__,$IP));

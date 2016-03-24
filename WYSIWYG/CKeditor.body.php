@@ -628,9 +628,9 @@ HEREDOC;
 				)
 			);
 
-		$wgOut->addScript( $script );         //22.03.16 RL
-	  //$wgOut->addModules( 'ext.CKEDITOR' ); //22.03.16 RL	
-		$wgOut->addModules( 'ext.WYSIWYG' );  //22.03.16 RL				
+		$wgOut->addScript( $script );           //22.03.16 RL
+		//$wgOut->addModules( 'ext.CKEDITOR' ); //22.03.16 RL	
+		$wgOut->addModules( 'ext.WYSIWYG' );    //22.03.16 RL				
 		return true;   //MW1.26 resource loader is used.
 
 $script .= '
