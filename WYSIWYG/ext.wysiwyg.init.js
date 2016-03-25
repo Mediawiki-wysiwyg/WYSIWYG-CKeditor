@@ -9,13 +9,12 @@
 //             => added setTimeout(); this should be properly fixed somehow.             
 //setTimeout(function(){jQuery( document ).ready( initEditor );}, delay_addonloadhook); 
 
-//22.03.16 RL  After using resourceloader variable delay_addonloadhook is not needed anymore.
-//jQuery( document ).ready( initEditor ); 
+//24.03.16 RL  After using resourceloader, variable delay_addonloadhook is not needed anymore.
+//jQuery( document ).ready( initEditor ); // Starts when page is ready
 
-//24.03.16 RL
 jQuery( document ).ready( function(){
-	//mw.loader.using( ['ext.CKEDITOR'], function () { // Ensure that we have ext.CKeditor loaded
+	mw.loader.using( ['ext.CKEDITOR'], function () {
 		CKEDITOR_ready = true;
 		initEditor();
-	//} );
+	} );
 } ); 

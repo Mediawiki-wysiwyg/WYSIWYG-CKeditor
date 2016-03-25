@@ -901,7 +901,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 
         editor.on( 'doubleclick', function( evt )
 			{			
-	 
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
 				if ( element.hasAscendant( 'pre', true ) && !is_special_elem_with_text_tags ) { //Syntaxhighlight-Nowiki-Pre 
@@ -999,7 +998,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 		
 		CKEDITOR.on( 'instanceReady', function ( evt ) //12.01.15 RL
 			{
-				editor = evt.editor; //This is from CKeditor example of read-only mode.
+				//instanceReady fires when page is opened in wysiwyg or if browser is refreshed.
+				//editor = evt.editor; //This is from CKeditor example of read-only mode...does not work ok here.				
+				editor.setReadOnly( false );	//24.02.16 RL
 			} 
 		)
 
@@ -1101,6 +1102,7 @@ function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button
 	}
 }
 
+
 function toggleReadOnly( isReadOnly ) { //12.01.15 RL 
 	// Change the read-only state of the editor.
 	// http://docs.ckeditor.com/#!/api/CKEDITOR.editor-method-setReadOnly
@@ -1132,9 +1134,9 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 	} else {	
 		window.parent.editorForceReadOnly = false;
 		editor.commands.source.enable(); //This is here on purpose			
-
+		
 		//editor.setReadOnly( false ); //This seems to crash for some reason! => other plugins will not react to cancel of read-only mode
-		editor.readOnly = false;                           //...use this as temporary fix, but ...
+		editor.readOnly = false;                           //...use this as temporary fix, but ...	
 		if ( typeof editor.undoManager !== 'undefined' ) { //.. in case undo plugin is enabled we have to manually... //10.02.15 RL->
 			editor.undoManager.enabled = true;             //...enable undo/redo functions after canceling of read-only mode... 
 			editor.undoManager.reset();                    //...and clear old undo snapshots. //10.02.15 RL<-
@@ -1151,6 +1153,7 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 	}	
 	editor.focus(); //Set focus to editor to get elements of menu activated.
 }
+
 
 function showPageIsLoading( disp, loadingId ) { //12.01.15 RL
 	// Message "please wait, page is loading..." does not fully work:
@@ -1184,6 +1187,7 @@ function showPageIsLoading( disp, loadingId ) { //12.01.15 RL
 		}	
 	}
 }
+
 
 function fck_mv_plg_addToStrtr( text, replaceLineBreaks ) { //16.01.15 RL 
 	// For html->wikitext, based on fck_addToStrtr.
@@ -1285,7 +1289,7 @@ CKEDITOR.customprocessor.prototype =
 	_inLSpace : false,
 
    toHtml : function( data, fixForBody )
-   {
+   {	   
         // all converting to html (like: data = data.replace( /</g, '&lt;' );)
         var loadHTMLFromAjax = function( result ){
 			if ( window.parent.popup &&
@@ -1312,25 +1316,25 @@ CKEDITOR.customprocessor.prototype =
 			}
 		}
 
-        // Prevent double transformation because of some weird runtime issues
-        // with the event dataReady in the smwtoolbar plugin 
+        // Prevent double transformation because of some weird runtime issue.
 		// 12.01.15 RL, 03.03.15 RL:
-		//   There are two calls to toHtml when source button or toggle link is pressed in source mode.
+		//   There are two calls of "toHtml" when source button or toggle link is pressed in source mode.
 		//   Rule below tests when page still has wikitext and is in source mode.
 		//   Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
 		//   by event beforeSetMode or toggle link) is used to allow only one call of 'wfSajaxWikiToHTML' below.
+		//
         // if ( !(data.indexOf('<p>') == 0 && //12.01.15 RL->Commented out
         //        data.match(/<.*?_fck_mw/) || 
 		//        data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL<-
 		//
 		// if ( (data.match('<p>') == null) && //03.03.15 RL->Commented out
 		//	    (data.match(/<.*?_fck_mw/) == null) &&
-		//	    (data.match(/class="fck_mw_\w+"/i) == null) && //03.03.15 RL<-
-		
+		//	    (data.match(/class="fck_mw_\w+"/i) == null) && //03.03.15 RL<-		
 		if ( window.parent.editorSrcToWswTrigger && //03.03.15 RL
 			 window.parent.wgCKeditorInstance &&                //Because of TransformTextSwitcher plugin
 			 window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
 		{				
+			// We are here when in wikitext- mode source- button or toggle- link has been pressed and we have "first" pass of toHtml.
 			window.parent.editorSrcToWswTrigger = false; //03.03.15 RL
 			toggleReadOnly( true );                      //12.01.15 RL
 			// Use Ajax to transform the Wikitext to HTML
@@ -1339,14 +1343,18 @@ CKEDITOR.customprocessor.prototype =
 			} else {
 				window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.wgPageName], loadHTMLFromAjax );
 			}
+			return '<a class="fckPageLoading"><i>' + editorWaitPageLoad + '</i></a>'; // 24.03.16 RL  Show text "page is loading..."
 		}
-		var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
-		writer = new CKEDITOR.htmlParser.basicWriter();
+		else { // 24.03.16 RL  Added 'else {' and '}'
+			// We are here in case page is opened for editing for the first time or
+			// when in wikitext- mode source- button or toggle- link has been pressed and we have "second" pass of toHtml.
+			var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
+			writer = new CKEDITOR.htmlParser.basicWriter();
 		
-		fragment.writeHtml( writer, this.dataFilter );
-		data = writer.getHtml( true );
-
-		return data;
+			fragment.writeHtml( writer, this.dataFilter );
+			data = writer.getHtml( true );
+			return data; // Show wikipage in html format...
+		}
    },
 
 	/*

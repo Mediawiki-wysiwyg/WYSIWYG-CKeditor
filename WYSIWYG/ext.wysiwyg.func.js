@@ -1,10 +1,7 @@
 
 // WYSIWYG javascript functions 
 // 22.03.16 RL  Moved here from CKeditor.body.js
-//
-
-//alert('func_00_func CKEDITOR_ready:' + CKEDITOR_ready + ' MWtextfield:' + MWtextfield + ' CKEDITOR.ready:' + CKEDITOR.ready);
-
+// 24.03.16 RL  At least these functions must be global: ToggleCKEditor, FCK_sajax
 
 function stripTags(html) { //05.12.14 RL->
     return html.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '');
@@ -87,7 +84,7 @@ function FCK_sajax(func_name, args, target) {
 	***********/
 		
 }
-window.FCK_sajax = FCK_sajax;
+window.FCK_sajax = FCK_sajax; //This function must be global
 
 
 // qi url tokens
@@ -154,6 +151,9 @@ window.checkSelected = checkSelected;
 
 
 function initEditor(){	
+
+	//$('#wpTextbox1').hide(); //23.04.16 RL  Hide wikitext editor area
+	//mw.util.jsMessage( '<a class="fckPageLoading"><i>' + editorWaitPageLoad + '</i></a>' );
 
     EnabledUseEditWarning = true;              //Enable onbeforeunload event. 13.04.14 RL->  
     window.onbeforeunload = null;              //Clear and unbind current "unload resources" event
@@ -225,10 +225,12 @@ function initEditor(){
 	if( showFCKEditor & ( RTE_POPUP|RTE_TOGGLE_LINK ) ){
 		// add new toolbar before wiki toolbar
 		var ckTools = document.createElement( 'div' );
-		ckTools.setAttribute('id', 'ckTools');
+			ckTools.setAttribute('id', 'ckTools');
 		var SRCtextarea = document.getElementById( MWtextfield );
-        if (toolbar) toolbar.parentNode.insertBefore( ckTools, toolbar );
+        
+		if (toolbar) toolbar.parentNode.insertBefore( ckTools, toolbar );
         else SRCtextarea.parentNode.insertBefore( ckTools, SRCtextarea );
+		
 		if( showFCKEditor & RTE_VISIBLE ) SRCtextarea.style.display = 'none';
 	}
 
@@ -287,7 +289,7 @@ function initEditor(){
 window.initEditor = initEditor;
 
 
-function ToggleCKEditor( mode, objId ){
+function ToggleCKEditor( mode, objId ){ 
 
 	if (typeof window.toggleRTESemaphore !== 'undefined') {
 		if (window.toggleRTESemaphore === true) {
@@ -476,7 +478,7 @@ function ToggleCKEditor( mode, objId ){
 
 	return true;
 }
-window.ToggleCKEditor = ToggleCKEditor;
+window.ToggleCKEditor = ToggleCKEditor; //This function must be global
 
 
 function FCKeditor_OpenPopup(jsID, textareaID){
@@ -486,3 +488,4 @@ function FCKeditor_OpenPopup(jsID, textareaID){
 	return 0;
 }
 window.FCKeditor_OpenPopup = FCKeditor_OpenPopup;
+

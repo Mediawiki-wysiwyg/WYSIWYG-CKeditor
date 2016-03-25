@@ -77,6 +77,8 @@ CKEDITOR.editorConfig = function( config )
 
     //config.image2_captionedClass = 'caption';  //05.05.14 RL Possible CKeditor 4.4.0 backwards compatibility setting.
 
+    config.readOnly = true;  //24.03.16 RL 
+
 	// %REMOVE_START%	
 	// 25.10.15 RL: Source mode requires all plugins to be listed here in order to get toolbar, editor area etc. on screen. %REMOVE_LINE%
 	config.plugins = 

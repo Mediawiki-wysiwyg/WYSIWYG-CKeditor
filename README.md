@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 24.03.16  Use resourceloader also with CKeditor: variable CKEDITOR_BASEPATH (javascript) fixed problems at start, variable $wgCKEditor_BASEPATH of LocalSettings.php can be used to change default path ('extensions/WYSIWYG/ckeditor/'). Removed functions InitializeScripts and ToggleScript because code has been earlier moved into ext.wysiwyg.func.js and ext.wysiwyg.init.js files. Changed start mode of editor to read-only. Source- button and toggle- link: show text "page is loading..." on editor area. Version 1.5.6_0 [B551+26.03.2016].
+
 - 24.03.16  Changed definitions of ext.CKEDITOR (module is unused at this moment because of issues with file paths). Version 1.5.6_0 [B551+24.03.2016].
 
 - 23.03.16  Modifications: resourceloader of MW, hybrid solution where javascript of ckeditor is injected directly on page while wysiwyg related javascripts are loaded using resourceloader of MW, variable $wgFCKEditor_delay_addonloadhook of LocalSettings.php removed. Source files of ckeditor seem to require setting $wgResourceLoaderDebug = true; in LocalSettings.php. Version 1.5.6_0 [B551+22.03.2016].
@@ -384,7 +386,7 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     $wgFCKEditorSpecialElementWithTextTags = 0; // 1= <nowiki>, <source> and <syntaxhighlight> tags => img- element
     #26.02.15<-
 
-	#22.02.16-> (22.03.16: not used anymore) 
+	#22.02.16-> (24.03.16: not used anymore) 
 	#Async. loading of javascript files by MW1.26 may cause wysiwyg fail when page is opened for editing
     #=> variable $wgFCKEditor_delay_addonloadhook can be used to define delay as temporary fix for this
     #   F.ex setting value to 500 means delay of 500ms = 0.5s before initEditor is run
@@ -392,9 +394,15 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     #$wgFCKEditor_delay_addonloadhook = 0;
     #22.02.16<-
 	
-	#23.03.16-> Debug- mode of resource loader
+	#24.03.16-> 
+	#Debug- mode of resource loader:
     #$wgResourceLoaderDebug = true;
-    #23.03.16<-
+	
+	#In case CKEDITOR is installed in some special place, define installation path 
+	#with $wgCKEditor_BASEPATH. If variable is undefined, value will be 'extensions/WYSIWYG/ckeditor/'.
+	#NOTE! Path must end with character '/' in linux (opsys. windows is untested).
+	#$wgCKEditor_BASEPATH = 'extensions/WYSIWYG/ckeditor/';
+	#24.03.16<-
 
 
 --------------

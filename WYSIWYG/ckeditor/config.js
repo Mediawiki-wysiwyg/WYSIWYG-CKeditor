@@ -61,7 +61,6 @@ CKEDITOR.editorConfig = function( config )
     config.language = window.parent.wgUserLanguage || 'en';
 
     config.WikiSignature = '--~~~~';
-
 	
     // remove format: address
     config.format_tags = 'p;h1;h2;h3;h4;h5;h6;pre;div';
@@ -69,5 +68,7 @@ CKEDITOR.editorConfig = function( config )
     config.fontSize_sizes = 'smaller;larger;xx-small;x-small;small;medium;large;x-large;xx-large';
 
     //config.image2_captionedClass = 'caption';  //05.05.14 RL Possible CKeditor 4.4.0 backwards compatibility setting.
- 
+
+    config.readOnly = true; //24.02.16 RL
+	
 };

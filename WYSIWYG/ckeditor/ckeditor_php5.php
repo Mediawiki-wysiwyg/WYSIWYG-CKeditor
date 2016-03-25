@@ -20,15 +20,16 @@ class CKEditor
 	/**
 	 * The version of %CKEditor.
 	 */
-	const version = '3.6';
+	const version = '4.5';
 	/**
 	 * A constant string unique for each release of %CKEditor.
 	 */
-	const timestamp = 'B49E5BQ';
+	const timestamp = 'd4677a3';
 
 	/**
 	 * URL to the %CKEditor installation directory (absolute or relative to document root).
 	 * If not set, CKEditor will try to guess it's path.
+	 * Default value can be changed using javascript variable CKEDITOR_BASEPATH (or $wgCKEditor_BASEPATH of LocalSettings.php).
 	 *
 	 * Example usage:
 	 * @code
