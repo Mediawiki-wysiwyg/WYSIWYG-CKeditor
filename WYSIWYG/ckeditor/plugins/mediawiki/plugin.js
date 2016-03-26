@@ -2112,7 +2112,7 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( ' lang="' + refLang + '"' );
 								stringBuilder.push( '>' );
 								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
-								stringBuilder.push( '</syntaxhighlight>' ); 
+								stringBuilder.push( '</syntaxhighlight>\n' ); //26.03.16 RL Added \n 
 							}
 							else if ( eClassName == "_fck_mw_lspace" ){ //MW special <pre> block which is indicated by space at peginning of line
 								stringBuilder.push( "\n " );            //Add one space because MW html has one space less than what is in wikitext code
