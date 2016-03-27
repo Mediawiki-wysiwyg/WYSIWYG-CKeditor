@@ -24,6 +24,12 @@ jQuery( document ).ready( function(){
 } ); 
 *****/
 
+// 27.03.16 RL: Hide window of wikieditor because it may take some time until window of WYSIWG is displayed.
+if ( (showFCKEditor & RTE_VISIBLE     == RTE_VISIBLE) ||      // 1 = RTE_VISIBLE
+	 (showFCKEditor & RTE_TOGGLE_LINK == RTE_TOGGLE_LINK) ) { // 2 = RTE_TOGGLE_LINK
+	$('#wpTextbox1').hide();  
+}
+
 // 27.03.16 RL: Client side loading of modules
 $.when(
 	mw.loader.using( ['ext.CKEDITOR','ext.WYSIWYG.func'] ),

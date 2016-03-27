@@ -489,6 +489,7 @@ class CKeditor_MediaWiki {
 				$this->showFCKEditor += RTE_TOGGLE_LINK;
 			}
 		}
+	
         if (!isset( $this->loadSTBonStartup ) ) {
             $this->loadSTBonStartup = 0;
 			if (defined('SMW_HALO_VERSION'))
@@ -496,7 +497,7 @@ class CKeditor_MediaWiki {
 				$this->loadSTBonStartup = 1;
 			}
         }
-
+	
 		if( ( !empty( $_SESSION['showMyFCKeditor'] ) ) && ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state'] ) ) ){
             $rteSettingsFromSession=true;
 			// Clear RTE_VISIBLE flag
@@ -504,7 +505,7 @@ class CKeditor_MediaWiki {
 			// Get flag from session
 			$this->showFCKEditor |= $_SESSION['showMyFCKeditor'];
 		}
-
+	
 		# Don't initialize if we have disabled the toolbar or FCkeditor or have a non-compatible browser
 		if( !$wgUser->getOption( 'showtoolbar' ) ||
 		$wgUser->getOption( 'riched_disable', !empty( $wgDefaultUserOptions['riched_disable'] ) ? $wgDefaultUserOptions['riched_disable'] : false )
@@ -621,9 +622,11 @@ class CKeditor_MediaWiki {
 				'WYSIWYGversion'        => '"' . WYSIWYG_EDITOR_VERSION . '"',  //19.10.15 RL
 				'CKheight'              => ( empty($wgFCKEditorHeight) ) ? 0 : $wgFCKEditorHeight,       //22.03.16 RL
 				'MWnewWinMsg'           => Xml::escapeJsString( wfMsgHtml( 'rich_editor_new_window' ) ), //22.03.16 RL =>$newWinMsg
-				'MWtextfield'           => 'wpTextbox1',  //22.03.16 RL =>$textfield  
-				'CKEDITOR_ready'        => true,          //22.03.16 RL Instead of CKEDITOR.ready
-				'CKEDITOR_BASEPATH'     => ( isset($wgCKEditor_BASEPATH) ) ? $wgCKEditor_BASEPATH : 'extensions/WYSIWYG/ckeditor/' //24.03.16 RL Define base path of CKeditor (resourceloader requires this)
+				'MWtextfield'           => 'wpTextbox1',    //22.03.16 RL =>$textfield  
+				'CKEDITOR_ready'        => true,            //22.03.16 RL Instead of CKEDITOR.ready
+				'CKEDITOR_BASEPATH'     => ( isset($wgCKEditor_BASEPATH) ) ? $wgCKEditor_BASEPATH : 'extensions/WYSIWYG/ckeditor/', //24.03.16 RL Define base path of CKeditor (resourceloader requires this)
+				'RTE_VISIBLE'           => RTE_VISIBLE,     //27.03.16 RL
+				'RTE_TOGGLE_LINK'       => RTE_TOGGLE_LINK, //27.03.16 RL
 				)
 			);
 

@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 27.03.16  Hide window of wikieditor when page is opened in wysiwyg mode. Version 1.5.6_0 [B551++27.03.2016].
+
 - 27.03.16  Parallel loading of modules with resourceloader. Modification with injected definitions for style sheets. Version 1.5.6_0 [B551+27.03.2016].
 
 - 26.03.16  Fixed line deletion issue in case there were syntaxhighlight- block on page and view was toggled between wysiwyg-wikitext multiple times. Version 1.5.6_0 [B551++26.03.2016].
