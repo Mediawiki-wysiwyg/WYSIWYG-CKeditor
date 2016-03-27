@@ -557,23 +557,24 @@ class CKeditor_MediaWiki {
 		}
 		// End of CSS trick
 	
-		$script = <<<HEREDOC
-<!--<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}/ckeditor.js"></script--23.03.16 RL Replaced by resourceloader-->
-<script type="text/javascript">
-var sEditorAreaCSS = '$printsheet,/mediawiki/skins/monobook/main.css?{$wgStyleVersion}';
-</script>
-<!--[if lt IE 5.5000]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE50Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
-<!--[if IE 5.5000]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE55Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
-<!--[if IE 6]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE60Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
-<!--[if IE 7]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE70Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
-<!--[if lt IE 7]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IEFixes.css?{$wgStyleVersion}'; </script><![endif]-->
-HEREDOC;
+		// 27.03.16 RL->: Earlier code before usage of resourceloader:
+		//	$script = <<<HEREDOC
+		//	<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}ckeditor.js"></script>
+		//		<!--<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}ckeditor_source.js"></script>-->
+		//	<script type="text/javascript">var sEditorAreaCSS = '$printsheet,/mediawiki/skins/monobook/main.css?{$wgStyleVersion}'; </script>
+		//		<!--[if lt IE 5.5000]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE50Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
+		//		<!--[if IE 5.5000]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE55Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
+		//		<!--[if IE 6]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE60Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
+		//		<!--[if IE 7]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE70Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
+		//		<!--[if lt IE 7]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IEFixes.css?{$wgStyleVersion}'; </script><![endif]-->
+		//	HEREDOC;
 
+		//Should styles also somehow be moved into module definitions of resourceloader...
+		$script = '<script type="text/javascript">var sEditorAreaCSS = \'' . $printsheet . ',/mediawiki/skins/monobook/main.css?'. $wgStyleVersion . '\';'; //27.03.16 RL<-
 		if( !empty( $userStyles ) ) {
-			$script .= '<script type="text/javascript"> ';
 			$script .= 'sEditorAreaCSS += ",' . implode( ',', $userStyles ) . '";';
-			$script .= '</script"> ';
 		}
+		$script .= '</script>'; //27.03.16 RL
 
 		# Show references only if Cite extension has been installed
 		$showRef = false;
@@ -592,7 +593,7 @@ HEREDOC;
 		wfLoadExtensionMessages( 'CKeditor' );
 		***/
 
-		$output->addJsConfigVars ( array(  //22.03.16 RL
+		$wgOut->addJsConfigVars ( array(  //22.03.16 RL
 				'showFCKEditor'         => $this->showFCKEditor,
 				'loadSTBonStartup'      => $this->loadSTBonStartup,
 				'popup'                 => false,                          // pointer to popup document
@@ -628,7 +629,8 @@ HEREDOC;
 
 		$wgOut->addScript( $script );             
 		//22.03.16 RL  All javascripts which earlier were here have been moved into files ext.wysiwyg.func.js and ext.wysiwyg.init.js.
-		//             Resourceloader will use them and launch WYSIWYG and CKeditor.
+		//             Resourceloader will register and load them.
+		//             Activate registered init module of WYSIWYG here, rest of the modules will be activated on client side when document is ready
 		$wgOut->addModules( 'ext.WYSIWYG.init' ); 
 		return true;
 	}

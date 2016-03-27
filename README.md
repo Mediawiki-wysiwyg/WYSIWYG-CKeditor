@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 27.03.16  Parallel loading of modules with resourceloader. Modification with injected definitions for style sheets. Version 1.5.6_0 [B551+27.03.2016].
+
 - 26.03.16  Fixed line deletion issue in case there were syntaxhighlight- block on page and view was toggled between wysiwyg-wikitext multiple times. Version 1.5.6_0 [B551++26.03.2016].
 
 - 26.03.16  Use resourceloader also with CKeditor: variable CKEDITOR_BASEPATH (javascript) fixed problems at start, variable $wgCKEditor_BASEPATH of LocalSettings.php can be used to change default path ('extensions/WYSIWYG/ckeditor/'). Removed functions InitializeScripts and ToggleScript because code has been earlier moved into ext.wysiwyg.func.js and ext.wysiwyg.init.js files. Changed start mode of editor to read-only. Source- button and toggle- link: show text "page is loading..." on editor area. Version 1.5.6_0 [B551+26.03.2016].

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
 # version of WYSIWYG and CKeditor
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551++26.03.2016]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+27.03.2016]');
 define('CKEDITOR_VERSION',       'CKEditor 4.5.4 (revision d4677a3)');
 
 # Not a valid entry point, skip unless MEDIAWIKI is defined
@@ -156,7 +156,7 @@ if (defined('SMW_HALO_VERSION')) {
 }
 
 $wgResourceModules = array(
-	'ext.CKEDITOR' => array(
+	'ext.CKEDITOR' => array(     // Module of CKeditor for WYSIWYG
 		'scripts'         => array('ckeditor.js'),
 		'styles'          => array(),
 		'skinStyles'      => array(),							
@@ -169,15 +169,30 @@ $wgResourceModules = array(
 		//'remoteBasePath' => $wgScriptPath . '/extensions/WYSIWYG/ckeditor', // Defaults to $wgScriptPath.
 		'remoteExtPath'   => 'WYSIWYG/ckeditor'                               // Relative to $wgExtensionAssetsPath.
 		),
-	'ext.WYSIWYG.init' => array(
-		'scripts'         => array('ext.wysiwyg.func.js','ext.wysiwyg.init.js'),
+	'ext.WYSIWYG.func' => array( // Some of the javascript functions of WYSIWYG
+		'scripts'         => array('ext.wysiwyg.func.js'),
 		'styles'          => array(),
 		'skinStyles'      => array(),							
 		'languageScripts' => array(),	
 		'skinStyles'      => array(),
 		'messages'        => array(),
 		'position'        => 'bottom',
-		'dependencies'    => array('ext.CKEDITOR'),
+		'dependencies'    => array(),
+		//'dependencies'    => array('ext.CKEDITOR'),               // 27.03.16 RL Commented out.
+		'localBasePath'   => __DIR__ ,                              // Defaults to $IP.
+		//'remoteBasePath' => $wgScriptPath . 'extensions/WYSIWYG', // Defaults to $wgScriptPath.
+		'remoteExtPath'   => 'WYSIWYG'                              // Relative to $wgExtensionAssetsPath.
+		),
+	'ext.WYSIWYG.init' => array( // Small javascript startup module of WYSIWYG
+		'scripts'         => array('ext.wysiwyg.init.js'),
+		'styles'          => array(),
+		'skinStyles'      => array(),							
+		'languageScripts' => array(),	
+		'skinStyles'      => array(),
+		'messages'        => array(),
+		'position'        => 'bottom',
+		'dependencies'    => array(),
+		//'dependencies'    => array('ext.WYSIWYG.func'),           // 27.03.16 RL Commented out.
 		'localBasePath'   => __DIR__ ,                              // Defaults to $IP.
 		//'remoteBasePath' => $wgScriptPath . 'extensions/WYSIWYG', // Defaults to $wgScriptPath.
 		'remoteExtPath'   => 'WYSIWYG'                              // Relative to $wgExtensionAssetsPath.
