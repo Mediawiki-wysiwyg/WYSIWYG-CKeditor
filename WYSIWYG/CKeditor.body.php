@@ -476,7 +476,8 @@ class CKeditor_MediaWiki {
         global $wgCKEditorUrlparamMode, $wgRequest;
 		global $wgFCKEditorSpecialElementWithTextTags; //Syntaxhighlight-Nowiki-Pre
 		global $wgCKEditor_BASEPATH;                   //24.03.16 RL Installation directory of CKeditor (resourceloader requires this)
-
+        global $wgWYSIWYGSourceMode;                  //17.04.16 RL Use source mode of CKeditor
+		
 		if( !isset( $this->showFCKEditor ) ){
 			$this->showFCKEditor = 0;
 			if ( !$wgUser->getOption( 'riched_start_disabled', $wgDefaultUserOptions['riched_start_disabled'] ) ) {
@@ -560,7 +561,7 @@ class CKeditor_MediaWiki {
 	
 		// 27.03.16 RL->: Earlier code before usage of resourceloader:
 		//	$script = <<<HEREDOC
-		//	<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}ckeditor.js"></script>
+		//	<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}/ckeditor.js"></script>
 		//		<!--<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}ckeditor_source.js"></script>-->
 		//	<script type="text/javascript">var sEditorAreaCSS = '$printsheet,/mediawiki/skins/monobook/main.css?{$wgStyleVersion}'; </script>
 		//		<!--[if lt IE 5.5000]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IE50Fixes.css?{$wgStyleVersion}'; </script><![endif]-->
@@ -570,8 +571,15 @@ class CKeditor_MediaWiki {
 		//		<!--[if lt IE 7]><script type="text/javascript">sEditorAreaCSS += ',/mediawiki/skins/monobook/IEFixes.css?{$wgStyleVersion}'; </script><![endif]-->
 		//	HEREDOC;
 
+		$script = "";
+		if ($wgWYSIWYGSourceMode == true) { // 17.04.16 RL For source- mode of CKeditor only    
+			$script = <<<HEREDOC
+<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}/ckeditor.js"></script>
+HEREDOC;
+		}
+		
 		//Should styles also somehow be moved into module definitions of resourceloader...
-		$script = '<script type="text/javascript">var sEditorAreaCSS = \'' . $printsheet . ',/mediawiki/skins/monobook/main.css?'. $wgStyleVersion . '\';'; //27.03.16 RL<-
+		$script .= '<script type="text/javascript">var sEditorAreaCSS = \'' . $printsheet . ',/mediawiki/skins/monobook/main.css?'. $wgStyleVersion . '\';'; //27.03.16 RL<-
 		if( !empty( $userStyles ) ) {
 			$script .= 'sEditorAreaCSS += ",' . implode( ',', $userStyles ) . '";';
 		}
@@ -627,6 +635,7 @@ class CKeditor_MediaWiki {
 				'CKEDITOR_BASEPATH'     => ( isset($wgCKEditor_BASEPATH) ) ? $wgCKEditor_BASEPATH : 'extensions/WYSIWYG/ckeditor/', //24.03.16 RL Define base path of CKeditor (resourceloader requires this)
 				'RTE_VISIBLE'           => RTE_VISIBLE,     //27.03.16 RL
 				'RTE_TOGGLE_LINK'       => RTE_TOGGLE_LINK, //27.03.16 RL
+				'CKEDITOR_sourcemode'   => ( isset($wgWYSIWYGSourceMode) && $wgWYSIWYGSourceMode == true ) ? 1 : 0, //17.04.16 RL
 				)
 			);
 

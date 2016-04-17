@@ -24,15 +24,23 @@ jQuery( document ).ready( function(){
 } ); 
 *****/
 
+var modules = []; //17.04.16 RL
+
 // 27.03.16 RL: Hide window of wikieditor because it may take some time until window of WYSIWG is displayed.
 if ( (showFCKEditor & RTE_VISIBLE     == RTE_VISIBLE) ||      // 1 = RTE_VISIBLE
 	 (showFCKEditor & RTE_TOGGLE_LINK == RTE_TOGGLE_LINK) ) { // 2 = RTE_TOGGLE_LINK
 	$('#wpTextbox1').hide();  
 }
 
+if (CKEDITOR_sourcemode == 0) {  //17.04.16 RL
+	modules = ['ext.CKEDITOR','ext.WYSIWYG.func']; //Runtime- mode
+} else {                                           //Source-  mode reuires setting $wgWYSIWYGSourceMode = true; and.. 
+	modules = ['ext.WYSIWYG.func'];                //..$wgResourceLoaderDebug = true; in LocalSettings.php
+}
+
 // 27.03.16 RL: Client side loading of modules
 $.when(
-	mw.loader.using( ['ext.CKEDITOR','ext.WYSIWYG.func'] ),
+	mw.loader.using( modules ),
 	$.ready
 ).done( function () {
 	CKEDITOR_ready = true;
