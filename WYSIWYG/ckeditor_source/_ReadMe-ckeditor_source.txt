@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------
-Versions of ckeditor_source directory (updated 25.10.15 RL):
-  Wysiwyg  1.5.6_0 [B551+25.10.2015]
+Versions of ckeditor_source directory (updated 18.04.16 RL):
+  Wysiwyg  1.5.6_0 [B551+17.04.2016]
   CKeditor 4.5.4   (5.10.2015 16:57 timestamp of version in git repository)
 
 ---------------------------------------------------------------------------------
@@ -11,11 +11,11 @@ Origin of files is "stable" release of github repository "ckeditor/ckeditor-dev"
 https://github.com/ckeditor/ckeditor-dev.git.
 
 ---------------------------------------------------------------------------------
-How to run source codes of CKeditor with WYSIWYG and MW...
+How to run source codes of CKeditor with WYSIWYG and MW:
 
-1. Download stable version of CKeditor source files from github repository https://github.com/ckeditor/ckeditor-dev.git
+1. Directory ckeditor_source contains source files of CKeditor downloaded from github repository https://github.com/ckeditor/ckeditor-dev.git
 
-2. Merge following files of Wysiwyg into source files of CKeditor:
+2. Check version of following Wysiwyg related files and igf needed, merge them from production directory (ckeditor) into source direcotory of CKeditor (ckeditor_source):
 
  ckeditor_source\plugins\
    mediawiki
@@ -47,7 +47,18 @@ How to run source codes of CKeditor with WYSIWYG and MW...
    Verify that owner and group are set properly for copied directory based on your environment 
    (f.ex chown -R apache:apache ckeditor).
 
-6. For compile purposes
+6. In your LocalSettings.php file, add these variables (with MW1.26):
+   $wgWYSIWYGSourceMode   = true;
+   $wgResourceLoaderDebug = true;
+
+   NOTE! Source files of CKeditor have not been configured to use resourceloader of MediaWiki.
+         To succesfully load source files of CKeditor, debug mode of resourceloader should be used too.
+         Use value "true" with variables above only with source files of CKeditor, do not use them in production.
+   
+   This solution has been verified to work with MW1.26. Please give feedback in case this works with other versions too.
+   
+
+7. For compile purposes
  ckeditor_source\dev\builder\build-config.js #Set: "skin: 'kama'" and list all included plugins.
 
    
