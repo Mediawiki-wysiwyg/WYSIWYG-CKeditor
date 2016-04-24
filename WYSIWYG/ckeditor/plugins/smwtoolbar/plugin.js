@@ -741,7 +741,7 @@ CKeditInterface.prototype = {
             gEoutputBuffering = false;
         };
         // window.parent.sajax_do_call('wfSajaxWikiToHTML', [gEnewText], // 22.02.16 RL
-                                    ajaxResponseSetHtmlText);
+        //                             ajaxResponseSetHtmlText);
 		window.parent.$.post( mw.util.wikiScript(), { // 22.02.16 RL
 					action: 'ajax', 
 					rs: 'wfSajaxWikiToHTML', 

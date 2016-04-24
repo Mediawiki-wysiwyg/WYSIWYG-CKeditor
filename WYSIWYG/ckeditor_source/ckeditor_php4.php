@@ -21,12 +21,12 @@ class CKEditor
 	 * The version of %CKEditor.
 	 * \private
 	 */
-	var $version = '4.5';
+	var $version = '4.5.8';
 	/**
 	 * A constant string unique for each release of %CKEditor.
 	 * \private
 	 */
-	var $_timestamp = 'd4677a3';
+	var $_timestamp = 'c1fc9a9';
 
 	/**
 	 * URL to the %CKEditor installation directory (absolute or relative to document root).

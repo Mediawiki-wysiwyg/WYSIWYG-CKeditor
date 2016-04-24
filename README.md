@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 24.04.16  Update of CKEditor from version CKeditor 4.5.4 [revision d4677a3] to CKeditor 4.5.8 [revision c1fc9a9] (runtime- and source files)). Removed some old samples (f.ex samples_old). Source files of pastetext- plugin not included with runtime files. Version 1.5.6_0 [B551+24.04.2016].
+
 - 18.04.16  Updated instructions about using source files of CKeditor. Version 1.5.6_0 [B551+18.04.2016].
 
 - 17.04.16  Fixed source mode of CKeditor: does not use resourceloader and requires setting variables $wgWYSIWYGSourceMode = true and $wgResourceLoaderDebug = true in LocalSettings.php (and rename ckeditor_source=>ckeditor). Version 1.5.6_0 [B551++17.04.2016].

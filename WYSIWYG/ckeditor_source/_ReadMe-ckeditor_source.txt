@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------
-Versions of ckeditor_source directory (updated 18.04.16 RL):
-  Wysiwyg  1.5.6_0 [B551+17.04.2016]
-  CKeditor 4.5.4   (5.10.2015 16:57 timestamp of version in git repository)
+Versions of ckeditor_source directory (updated 24.04.2016 RL):
+  Wysiwyg  1.5.6_0 [B551+24.04.2016]
+  CKeditor 4.5.8   (31.03.2016 12:51 timestamp of version in git repository)
 
 ---------------------------------------------------------------------------------
 This directory is intended for development and debug purposes only.
@@ -15,39 +15,39 @@ How to run source codes of CKeditor with WYSIWYG and MW:
 
 1. Directory ckeditor_source contains source files of CKeditor downloaded from github repository https://github.com/ckeditor/ckeditor-dev.git
 
-2. Check version of following Wysiwyg related files and igf needed, merge them from production directory (ckeditor) into source direcotory of CKeditor (ckeditor_source):
+2. Check version of following Wysiwyg related files and if needed, merge them from production directory (ckeditor) into source direcotory of CKeditor (ckeditor_source):
 
- ckeditor_source\plugins\
-   mediawiki
-   mwtemplate
-   smwqueryinterface
-   smwrichmedia
-   smwrule
-   smwtoolbar
-   smwwebservice
-   textselection              #Heavily modified with MediaWiki, not fully functional
-   texttransform              #Included in ckeditor runtime bundle but not in source bundle => manual download/update
-
- ckeditor_source\
-   ckeditor.asp
-   ckeditor.pack
-   ckeditor.php
-   ckeditor_php4.php
-   ckeditor_php5.php          #It seems like this is the only one needed
+   ckeditor_source\plugins\
+     mediawiki
+     mwtemplate
+     smwqueryinterface
+     smwrichmedia
+     smwrule
+     smwtoolbar
+     smwwebservice
+     textselection              #Heavily modified with MediaWiki, not fully functional
+     texttransform              #Included in ckeditor runtime bundle but not in source bundle => manual download/update
+   
+   ckeditor_source\
+     ckeditor.asp
+     ckeditor.pack
+     ckeditor.php
+     ckeditor_php4.php
+     ckeditor_php5.php          #It seems like this is the only one needed
 
 3.
- ckeditor_source\
-   config.js                  #Modified CKeditor setup with source files of CKeditor: all the installed plugins should be listed here
+   ckeditor_source\
+     config.js                  #Modified CKeditor setup with source files of CKeditor: all the installed plugins should be listed here
 
 4.
- ckeditor_source\ckeditor.js  #CKEDITOR.skinName should be set to 'kama'.
+   ckeditor_source\ckeditor.js  #CKEDITOR.skinName should be set to 'kama'.
 
 5. Directory "ckeditor_source" should be copied to your wiki test environment and
    renamed to "ckeditor" (=> ".../WYSIWYG/ckeditor/").
    Verify that owner and group are set properly for copied directory based on your environment 
    (f.ex chown -R apache:apache ckeditor).
 
-6. In your LocalSettings.php file, add these variables (with MW1.26):
+6. In your LocalSettings.php file, add these variables (with MW1.26 and/or Wysiwyg versions >= 1.5.6_0 [B551+17.04.2016]):
    $wgWYSIWYGSourceMode   = true;
    $wgResourceLoaderDebug = true;
 
@@ -59,11 +59,11 @@ How to run source codes of CKeditor with WYSIWYG and MW:
    
 
 7. For compile purposes
- ckeditor_source\dev\builder\build-config.js #Set: "skin: 'kama'" and list all included plugins.
+   ckeditor_source\dev\builder\build-config.js #Set: "skin: 'kama'" and list all included plugins.
 
    
 ---------------------------------------------------------------------------------
-How to compile CKeditor and WYSIWYG...
+How to compile CKeditor and WYSIWYG and create minified runtime version:
 
 1. You need f.ex linux system (bash shell) with git and internet connection. 
    Build command "build.sh" requires java. It also may require connection to X-window system. 
@@ -93,7 +93,7 @@ Checking/Updating CKBuilder...
 
 Starting CKBuilder...
 
-Setting version to 4.5.4
+Setting version to 4.5.8
 Cleaning up target folder
 Copying files (relax, this may take a while)
     Time taken.....: 40.026seconds
@@ -110,8 +110,8 @@ Cleaning up target folder
 
 Creating compressed files...
 
-    Created ckeditor_4.5.4.zip...: 2279651 bytes (43% of original)
-    Created ckeditor_4.5.4.tar.gz: 1693142 bytes (32% of original)
+    Created ckeditor_4.5.8.zip...: 2279651 bytes (43% of original)
+    Created ckeditor_4.5.8.tar.gz: 1693142 bytes (32% of original)
     Time taken.....: 3.404seconds
 
 ==========================

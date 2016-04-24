@@ -1,11 +1,11 @@
 /*
-Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'embedbase', 'ug', {
 	pathName: 'ۋاسىتە ئوبيېكتى',
 	title: 'سىڭدۈرمە ۋاسىتە',
-	button: 'Insert Media Embed', // MISSING
+	button: 'سىڭدۈرمە ۋاسىتە قىستۇر',
 	unsupportedUrlGiven: 'The specified URL is not supported.', // MISSING
 	unsupportedUrl: 'The URL {url} is not supported by Media Embed.', // MISSING
 	fetchingFailedGiven: 'Failed to fetch content for the given URL.', // MISSING

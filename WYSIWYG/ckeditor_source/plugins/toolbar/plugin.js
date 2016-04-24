@@ -1,5 +1,5 @@
-/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+﻿/**
+ * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -51,7 +51,7 @@
 	CKEDITOR.plugins.add( 'toolbar', {
 		requires: 'button',
 		// jscs:disable maximumLineLength
-		lang: 'af,ar,bg,bn,bs,ca,cs,cy,da,de,el,en,en-au,en-ca,en-gb,eo,es,et,eu,fa,fi,fo,fr,fr-ca,gl,gu,he,hi,hr,hu,id,is,it,ja,ka,km,ko,ku,lt,lv,mk,mn,ms,nb,nl,no,pl,pt,pt-br,ro,ru,si,sk,sl,sq,sr,sr-latn,sv,th,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+		lang: 'af,ar,bg,bn,bs,ca,cs,cy,da,de,de-ch,el,en,en-au,en-ca,en-gb,eo,es,et,eu,fa,fi,fo,fr,fr-ca,gl,gu,he,hi,hr,hu,id,is,it,ja,ka,km,ko,ku,lt,lv,mk,mn,ms,nb,nl,no,pl,pt,pt-br,ro,ru,si,sk,sl,sq,sr,sr-latn,sv,th,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
 		// jscs:enable maximumLineLength
 
 		init: function( editor ) {
@@ -665,6 +665,9 @@ CKEDITOR.UI_SEPARATOR = 'separator';
  * Please note that this option is only applicable to [classic](#!/guide/dev_framed)
  * (`iframe`-based) editor. In case of [inline](#!/guide/dev_inline) editor the toolbar
  * position is set dynamically depending on the position of the editable element on the screen.
+ *
+ * Read more in the [documentation](#!/guide/dev_toolbarlocation)
+ * and see the [SDK sample](http://sdk.ckeditor.com/samples/toolbarlocation.html).
  *
  *		config.toolbarLocation = 'bottom';
  *

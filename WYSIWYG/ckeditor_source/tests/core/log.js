@@ -4,10 +4,13 @@
 ( function() {
 	'use strict';
 
-	var error, warn, _log, _error, _warn,
+	var error,
+		warn,
+		_console,
 		consoleEnabled = !!window.console,
 		ignore = !consoleEnabled,
-		errorPrefix = '[CKEDITOR] ';
+		errorPrefix = '[CKEDITOR] ',
+		errorCodeLabel = 'Error code: ';
 
 	// Binds function to provided object and wraps it with new function.
 	// @param {Function} fn Function to be wrapped.
@@ -48,26 +51,25 @@
 		},
 
 		setUp: function() {
-			// In ie <= 9 console methods log(), warn() and error() are pseudo-functions that do not have
+			// In IE <= 9 console methods log(), warn() and error() are pseudo-functions that do not have
 			// call/apply methods. This leads to situation when spy methods cannot work properly.
 			// Because of that each function should be wrapped before use.
+			// The console object should be also stubbed because newer sinon version cannot work on that object in
+			// IE <= 9 (#13917).
 			if ( consoleEnabled && CKEDITOR.env.ie && CKEDITOR.env.version <= 9 ) {
-				_log = console.log;
-				_error = console.error;
-				_warn = console.warn;
-
-				console.log = wrap( _log, console );
-				console.error = wrap( _error, console );
-				console.warn = wrap( _warn, console );
+				_console = window.console;
+				window.console = {
+					log: wrap( _console.log, _console ),
+					warn: wrap( _console[ warn ], _console ),
+					error: wrap( _console[ error ], _console )
+				};
 			}
 		},
 
 		tearDown: function() {
 			// Cleaning wrapping made in setUp function for ie <= 9.
 			if ( consoleEnabled && CKEDITOR.env.ie && CKEDITOR.env.version <= 9 ) {
-				console.log = _log;
-				console.error = _error;
-				console.warn = _warn;
+				window.console = _console;
 			}
 		},
 
@@ -75,7 +77,6 @@
 			assert.isFunction( CKEDITOR.error, 'CKEDTIOR.error function should be defined.' );
 			assert.isFunction( CKEDITOR.warn, 'CKEDTIOR.warn function should be defined.' );
 		},
-
 
 		'no log event and output after CKEDITOR.warn() when verbosity = 0': function() {
 			var warnStub = sinon.stub( console, warn ),
@@ -118,7 +119,7 @@
 			// - first to show errorCode and data passed to CKEDITOR.warn function,
 			// - second call is to show link to the documentation providing more information about errorCode.
 			assert.isTrue( warnStub.calledTwice, 'Console.warn function should be called twice.' );
-			assert.isTrue( warnStub.firstCall.calledWith( errorPrefix + errorCode, additionalData ), 'Console.warn should be called with errorCode and additionalData.' );
+			assert.isTrue( warnStub.firstCall.calledWith( errorPrefix + errorCodeLabel + errorCode + '.', additionalData ), 'Console.warn should be called with errorCode and additionalData.' );
 
 			warnStub.restore();
 			CKEDITOR.removeListener( 'log', logEventSpy );
@@ -146,7 +147,7 @@
 			// - first to show errorCode and data passed to CKEDITOR.warn function,
 			// - second call is to show link to the documentation providing more information about errorCode.
 			assert.isTrue( warnStub.calledTwice, 'Console.warn function should be called twice.' );
-			assert.isTrue( warnStub.firstCall.calledWith( errorPrefix + errorCode, additionalData ), 'Console.warn should be called with errorCode and additionalData.' );
+			assert.isTrue( warnStub.firstCall.calledWith( errorPrefix + errorCodeLabel + errorCode + '.', additionalData ), 'Console.warn should be called with errorCode and additionalData.' );
 
 			warnStub.restore();
 			CKEDITOR.removeListener( 'log', logEventSpy );
@@ -193,7 +194,7 @@
 			// - first to show errorCode and data passed to CKEDITOR.error function,
 			// - second call is to show link to the documentation providing more information about errorCode.
 			assert.isTrue( errorStub.calledTwice, 'Console.error function should be called twice.' );
-			assert.isTrue( errorStub.firstCall.calledWith( errorPrefix + errorCode, additionalData ), 'Console.error should be called with errorCode and additionalData.' );
+			assert.isTrue( errorStub.firstCall.calledWith( errorPrefix + errorCodeLabel + errorCode + '.', additionalData ), 'Console.error should be called with errorCode and additionalData.' );
 
 			errorStub.restore();
 			CKEDITOR.removeListener( 'log', logEventSpy );
@@ -222,7 +223,7 @@
 			// - first to show errorCode and data passed to CKEDITOR.error function,
 			// - second call is to show link to the documentation providing more information about errorCode.
 			assert.isTrue( errorStub.calledTwice, 'Console.error function should be called twice.' );
-			assert.isTrue( errorStub.firstCall.calledWith( errorPrefix + errorCode, additionalData ), 'Console.error should be called with errorCode and additionalData.' );
+			assert.isTrue( errorStub.firstCall.calledWith( errorPrefix + errorCodeLabel + errorCode + '.', additionalData ), 'Console.error should be called with errorCode and additionalData.' );
 
 			errorStub.restore();
 			CKEDITOR.removeListener( 'log', logEventSpy );

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -554,7 +554,7 @@
 	}
 
 	/**
-	 * Creates a {CKEDITOR.dom.iterator} instance for this range.
+	 * Creates a {@link CKEDITOR.dom.iterator} instance for this range.
 	 *
 	 * @member CKEDITOR.dom.range
 	 * @returns {CKEDITOR.dom.iterator}
