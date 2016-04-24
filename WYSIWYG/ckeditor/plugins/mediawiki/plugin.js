@@ -2207,7 +2207,11 @@ CKEDITOR.customprocessor.prototype =
 
 					if( !this._inLSpace && !this._inPre && htmlNode.parentNode.tagName.toLowerCase() != 'a' ) {
 						textValue = textValue.replace( / {2,}/g, ' ' );
-                        textValue = this._EscapeWikiMarkup(textValue);
+						// 24.04.16 RL Issue with [[../SomePage|LinkText]] (in wysiwyg mode) 
+						// => _EscapeWikiMarkup seems to convert in wrong direction, 
+						// because here we are converting from html to wikitext, after call of _EscapeWikiMarkup we got: 
+						//   &#x5B;&#x5B;../SomePage|LinkText&#x5D;&#x5D;
+                        // textValue = this._EscapeWikiMarkup(textValue); //24.04.16 RL Commented out.
                     }
 
 					if ( this._inLSpace && textValue.length == 1 && textValue.charCodeAt(0) == 13 )
@@ -2233,7 +2237,6 @@ CKEDITOR.customprocessor.prototype =
 				} else {
 					textValue = textValue.htmlDecode().replace(/fckLR/g,'\r\n');
 				}
-
 				stringBuilder.push( textValue );
 				return;
 
