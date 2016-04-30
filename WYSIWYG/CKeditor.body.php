@@ -143,6 +143,9 @@ class CKeditor_MediaWiki {
 	}
 
 	public static function onSanitizerAfterFixTagAttributes( $text, $element, &$attribs ) {
+
+		//error_log(sprintf("DEBUG onSanitizerAfterFixTagAttributes START"));     //debug	
+		
 		$text = preg_match_all( "/Fckmw\d+fckmw/", $text, $matches );
 
 		if( !empty( $matches[0][0] ) ) {

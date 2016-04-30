@@ -639,11 +639,16 @@ class CKeditorParser extends CKeditorParserWrapper {
 	}
 
 	function replaceInternalLinks( $text ) {
+
+		//error_log(sprintf("DEBUG replaceInternalLinks, 01:%s",$text));	   //debug
+
 		$text = preg_replace( "/\[\[([^|\:\[\]]*?)\]\]/", "[[$1|$1]]", $text); // 06.03.15 Varlin batch-21 #56. Avoid getting an upper case to selflink, do not apply to category/property
 		$text = preg_replace( "/\[\[([^|\[\]]*?)\]\]/", "[[$1|RTENOTITLE]]", $text ); // #2223: [[()]]	=>	[[%1|RTENOTITLE]]
-		$text = preg_replace( "/\[\[:(.*?)\]\]/", "[[RTECOLON$1]]", $text ); // change ':' => 'RTECOLON' in links
+		$text = preg_replace( "/\[\[:(.*?)\]\]/", "[[RTECOLON$1]]", $text );   // change ':' => 'RTECOLON' in links
 		$text = parent::replaceInternalLinks( $text );
-		$text = preg_replace( "/\|RTENOTITLE\]\]/", "]]", $text ); // remove unused RTENOTITLE
+		$text = preg_replace( "/\|RTENOTITLE\]\]/", "]]", $text );             // remove unused RTENOTITLE
+		
+		//error_log(sprintf("DEBUG replaceInternalLinks, 02:%s",$text));	   //debug
 
 		return $text;
 	}
@@ -833,6 +838,8 @@ class CKeditorParser extends CKeditorParserWrapper {
 			}
 		}
 		*********/
+		
+		//error_log(sprintf("DEBUG internalParse END finalString:%s",$finalString));     //debug	
 
 		return $finalString;
 	}
@@ -888,34 +895,87 @@ class CKeditorParser extends CKeditorParserWrapper {
      * so that the parser wont touch it.
      */
     function fck_replaceCkmarkupInLink( $matches ) { //26.11.14 RL With external links
-        //printf(" Matches1_external:%s",$matches['title']);	 //debug
+
+		//error_log(sprintf("DEBUG fck_replaceCkmarkupInLink: Matches01 matches:%s",print_r($matches,true)));
+
+		// $matches:
+		// [text] => [http://www.mediawiki.org This is | external link]
+		// [title] => http://www.mediawiki.org This is
+		// [parts] => Array
+		//     (
+		//         [0] => external link
+		//     )
+		// [lineStart] => 1
+		
+		$title = '';                                         // 30.04.16 RL
         $p = strpos($matches['title'], ' ');
         if ($p === false) return $matches['text'];
         $target = substr($matches['title'], 0, $p);
         $title = substr($matches['title'], $p + 1);
+
+		for ($i= 0; $i<count($matches['parts']); $i++) {     // 30.04.16 RL->
+			if (strlen( $title ) > 0) $title = $title . '|';
+			$title = $title . $matches['parts'][$i];
+		}                                                    // 30.04.16 RL<-
+		
         if (!preg_match('/Fckmw\d+fckmw/', $title) &&
             !preg_match('/Fckmw\d+fckmw/', $target)) return $matches['text'];
 
-        //printf(" Matches1 target:%s title:%s",$target,$title); //debug
-        $title = $this->revertEncapsulatedString($title);
+		//error_log(sprintf("DEBUG fck_replaceCkmarkupInLink: Matches02 title:%s target:%s",$title,$target));
+		
+        $title  = $this->revertEncapsulatedString($title);
         $target = $this->revertEncapsulatedString($target);
+		if ($title === '') $title = $target;                 // 30.04.16 RL  In case title was empty, link disappeared
         return $this->fck_addToStrtr('<a href="'.$target.'" _cke_saved_href="'.$target.'" _cke_mw_type="http">'.$title.'</a>');
     }
 
+    /**
+     * Function fck_replaceCkmarkupInInternalLink does similar things as fck_replaceCkmarkupInLink
+	 * but fck_replaceCkmarkupInInternalLink is ment for internal links.
+     */	
     function fck_replaceCkmarkupInInternalLink( $matches ) { //26.11.14 RL With internal links
-        //printf(" Matches2_internal:%s",$matches['title']);	 //debug
-        $p = strpos($matches['title'], '|');
-        if ($p === false) return $matches['text'];
-        $target = substr($matches['title'], 0, $p);
-        $title = substr($matches['title'], $p + 1);
-        if (!preg_match('/Fckmw\d+fckmw/', $title) &&
-            !preg_match('/Fckmw\d+fckmw/', $target)) return $matches['text'];
 
-        //printf(" Matches2 target:%s title:%s",$target,$title); //debug
-        $title = $this->revertEncapsulatedString($title);
+		//error_log(sprintf("DEBUG fck_replaceCkmarkupInInternalLink Matches01 matches:%s", print_r($matches,true)));
+
+		// $matches:
+		// [text] => [[Testpage3| This is link to | test page 3]]
+		// [title] => Testpage3
+		// [parts] => Array
+		//     (
+		//         [0] =>  This is link to
+		//         [1] =>  test page 3
+		//     )
+		// [lineStart] => 1
+
+		// Get link details...
+		$target = $matches['title'];		
+		$title = '';
+		for ($i= 0; $i<count($matches['parts']); $i++) {
+			if (strlen( $title ) > 0) $title = $title . '|';
+			$title = $title . $matches['parts'][$i];
+		}
+		
+		// 30.04.16 RL:
+		// If MW subpage feature is enabled and relative internal link to other subpage is used, parse of link by MW 
+		// in secureAndSplit() throw MalformedTitleException and return false, result was that relative
+		// link was treated as text in wysiwyg => if relative link is used, create link here, absolute internal links
+		// to subpages are still handled by MW.
+	
+		if ( (substr($target, 0, 3) !== '../')      &&   // 30.04.16 RL-> link is not using subpage feature and is not relative internal link..
+			 !preg_match('/Fckmw\d+fckmw/', $title) &&   // ..and does not contain encoded FckmwXXfckmw elements..
+			 !preg_match('/Fckmw\d+fckmw/', $target) ) {
+			return $matches['text'];                     // ..no decode/encode of link contents.
+		}
+		
+		//error_log(sprintf("DEBUGfck_replaceCkmarkupInInternalLink: Matches02 title:%s target:%s",$title,$target));
+		
+		// ..decode FckmwXXfckmw elements..
+        $title  = $this->revertEncapsulatedString($title);
         $target = $this->revertEncapsulatedString($target);
+		if ($title === '') $title = $target;             // 30.04.16 RL In case title was empty, link disappeared
+		// ..and build link text and encode it as FckmwXXfckmw element..
         return $this->fck_addToStrtr('<a href="'.$target.'">'.$title.'</a>');
-    }	
+    }
 	
 	function stripNoGallery( &$text ) {}
 
@@ -1281,7 +1341,11 @@ class CKeditorParser extends CKeditorParserWrapper {
      * @return string text
      */
     private function revertEncapsulatedString($text) {
+		//error_log(sprintf("DEBUG revertEncapsulatedString START text:%s",$text));     //debug	
+	
         if (preg_match_all('/Fckmw\d+fckmw/', $text, $matches)) {
+			//error_log(sprintf("DEBUG revertEncapsulatedString 01 text:%s",$text));     //debug	
+			
 	        for ($i = 0, $is = count($matches[0]); $i < $is; $i++ ) {
                // comments are directly in the main key FckmwXfckmw
                if (isset($this->fck_mw_strtr_span[$matches[0][$i]]) &&
@@ -1290,14 +1354,14 @@ class CKeditorParser extends CKeditorParserWrapper {
                            $matches[0][$i],
                            $this->fck_mw_strtr_span[$matches[0][$i]],
 	                       $text);
-                   //printf("first i:%d Match:%s text:%s",$i,$matches[0][$i],$text);     //debug
+				   //error_log(sprintf("DEBUG revertEncapsulatedString first i:%d Match:%s text:%s",$i,$matches[0][$i],$text));     //debug
                }
    	           else if (isset($this->fck_mw_strtr_span['href="'.$matches[0][$i].'"'])) {
 	               $text = str_replace(
                            $matches[0][$i],
                            substr($this->fck_mw_strtr_span['href="'.$matches[0][$i].'"'], 6, -1),
 	                       $text);
-                   //printf("second i:%d Match:%s text:%s",$i,$matches[0][$i],$text);    //debug
+				   //error_log(sprintf("DEBUG revertEncapsulatedString second i:%d Match:%s text:%s",$i,$matches[0][$i],$text));    //debug
 	           }
 	   
 	        }
@@ -1315,6 +1379,9 @@ class CKeditorParser extends CKeditorParserWrapper {
      * @return string replaced placeholder or [[match]]
      */
     private function replaceSpecialLinkValue($match) {
+
+		//error_log(sprintf("DEBUG replaceSpecialLinkValue START match:%s",print_r($match,true)));     //debug
+		
         if (defined('SMW_VERSION')) {
             $res = $this->replacePropertyValue($match);
             if (preg_match('/FCK_PROPERTY_\d+_FOUND/', $res)) // property was replaced, we can quit here.
