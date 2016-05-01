@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 01.05.16  Fixed usage of formats with internal relative links to subpages. Version 1.5.6_0 [B551+01.05.2016].
+
 - 30.04.16  Fixed relative links to internal subpages "[[../SomePage|LinkText]]". This makes fix "B551++24.04.2016" unnesessary, but it was left untouched. Version 1.5.6_0 [B551+30.04.2016].
 
 - 24.04.16  Fixed issue with "[[../SomePage|LinkText]]" which was converted to "&#x5B;&#x5B;../SomePage|LinkText&#x5D;&#x5D;" in wikitext- mode. Version 1.5.6_0 [B551++24.04.2016].

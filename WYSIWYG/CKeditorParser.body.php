@@ -640,7 +640,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 
 	function replaceInternalLinks( $text ) {
 
-		//error_log(sprintf("DEBUG replaceInternalLinks, 01:%s",$text));	   //debug
+		//error_log(sprintf("DEBUG replaceInternalLinks, 01:%s",$text));
 
 		$text = preg_replace( "/\[\[([^|\:\[\]]*?)\]\]/", "[[$1|$1]]", $text); // 06.03.15 Varlin batch-21 #56. Avoid getting an upper case to selflink, do not apply to category/property
 		$text = preg_replace( "/\[\[([^|\[\]]*?)\]\]/", "[[$1|RTENOTITLE]]", $text ); // #2223: [[()]]	=>	[[%1|RTENOTITLE]]
@@ -648,7 +648,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		$text = parent::replaceInternalLinks( $text );
 		$text = preg_replace( "/\|RTENOTITLE\]\]/", "]]", $text );             // remove unused RTENOTITLE
 		
-		//error_log(sprintf("DEBUG replaceInternalLinks, 02:%s",$text));	   //debug
+		//error_log(sprintf("DEBUG replaceInternalLinks, 02:%s",$text));
 
 		return $text;
 	}
@@ -788,13 +788,16 @@ class CKeditorParser extends CKeditorParserWrapper {
 	}
 
 	function internalParse( $text, $isMain = true, $frame = false ) {
+		
 		$this->fck_internal_parse_text =& $text;
-/*
+		
+		/****
 		// these three tags should remain unchanged
 		$text = StringUtils::delimiterReplaceCallback( '<includeonly>', '</includeonly>', array( $this, 'fck_includeonly' ), $text );
 		$text = StringUtils::delimiterReplaceCallback( '<noinclude>', '</noinclude>', array( $this, 'fck_noinclude' ), $text );
 		$text = StringUtils::delimiterReplaceCallback( '<onlyinclude>', '</onlyinclude>', array( $this, 'fck_onlyinclude' ), $text );
-*/
+		***/
+		
 		// also replace all custom tags
 		foreach ($this->FCKeditorWikiTags as $tag) {
 		    $tag = $this->guessCaseSensitiveTag($tag, $text);
@@ -839,7 +842,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		}
 		*********/
 		
-		//error_log(sprintf("DEBUG internalParse END finalString:%s",$finalString));     //debug	
+		//error_log(sprintf("DEBUG internalParse END finalString:%s",$finalString));
 
 		return $finalString;
 	}
@@ -919,14 +922,16 @@ class CKeditorParser extends CKeditorParserWrapper {
 		}                                                    // 30.04.16 RL<-
 		
         if (!preg_match('/Fckmw\d+fckmw/', $title) &&
-            !preg_match('/Fckmw\d+fckmw/', $target)) return $matches['text'];
+            !preg_match('/Fckmw\d+fckmw/', $target)) {
+			return $matches['text'];
+		}
 
 		//error_log(sprintf("DEBUG fck_replaceCkmarkupInLink: Matches02 title:%s target:%s",$title,$target));
 		
         $title  = $this->revertEncapsulatedString($title);
         $target = $this->revertEncapsulatedString($target);
 		if ($title === '') $title = $target;                 // 30.04.16 RL  In case title was empty, link disappeared
-        return $this->fck_addToStrtr('<a href="'.$target.'" _cke_saved_href="'.$target.'" _cke_mw_type="http">'.$title.'</a>');
+		return $this->fck_addToStrtr('<a href="'.$target.'" _cke_saved_href="'.$target.'" _cke_mw_type="http">'.$title.'</a>');
     }
 
     /**
@@ -955,18 +960,24 @@ class CKeditorParser extends CKeditorParserWrapper {
 			$title = $title . $matches['parts'][$i];
 		}
 		
-		// 30.04.16 RL:
-		// If MW subpage feature is enabled and relative internal link to other subpage is used, parse of link by MW 
-		// in secureAndSplit() throw MalformedTitleException and return false, result was that relative
-		// link was treated as text in wysiwyg => if relative link is used, create link here, absolute internal links
-		// to subpages are still handled by MW.
-	
-		if ( (substr($target, 0, 3) !== '../')      &&   // 30.04.16 RL-> link is not using subpage feature and is not relative internal link..
-			 !preg_match('/Fckmw\d+fckmw/', $title) &&   // ..and does not contain encoded FckmwXXfckmw elements..
-			 !preg_match('/Fckmw\d+fckmw/', $target) ) {
-			return $matches['text'];                     // ..no decode/encode of link contents.
-		}
+		//if ( !preg_match('/Fckmw\d+fckmw/', $title) &&     // Link does not contain encoded FckmwXXfckmw elements..
+		//	 !preg_match('/Fckmw\d+fckmw/', $target) ) {
+
+			// If MW subpage feature is enabled and relative internal link to other subpage is used, parse of link by MW 
+			// in secureAndSplit() throw MalformedTitleException and return false, result was that relative
+			// link was treated as text in wysiwyg => if relative link is used, replace it with FckmwXXfckmw element.
+			// FckmwXXfckmw element is used in order to properly handle possible formats inside title text
+			// when returned link is parsed by MW.
+			
+			if ((substr($target, 0, 3) === '../')) {                      // 01.05.16 RL->
+				$target = $this->fck_addToStrtr($target);
+			}
+			if ($title === '') return '[['. $target .               ']]';
+			else               return '[['. $target . '|' . $title .']]'; // 01.05.16 RL<-
+			//return $matches['text'];                                    // 01.05.16 RL Original
+		//}
 		
+		/***
 		//error_log(sprintf("DEBUGfck_replaceCkmarkupInInternalLink: Matches02 title:%s target:%s",$title,$target));
 		
 		// ..decode FckmwXXfckmw elements..
@@ -975,6 +986,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		if ($title === '') $title = $target;             // 30.04.16 RL In case title was empty, link disappeared
 		// ..and build link text and encode it as FckmwXXfckmw element..
         return $this->fck_addToStrtr('<a href="'.$target.'">'.$title.'</a>');
+		***/
     }
 	
 	function stripNoGallery( &$text ) {}
@@ -1000,6 +1012,8 @@ class CKeditorParser extends CKeditorParserWrapper {
     function parse( $text, Title $title, ParserOptions $options, $linestart = true, $clearState = true, $revid = null ) {	
         CKeditorLinker::addHooks();
         try {
+			//error_log(sprintf("DEBUG Parse START text:%s",$text));			
+
             $text = preg_replace("/^#REDIRECT/", '<!--FCK_REDIRECT-->', $text);
             $text = preg_replace("/\<(noinclude|includeonly|onlyinclude)\>/i", '%%%start-$1%%%', $text);
             $text = preg_replace("/\<\/(noinclude|includeonly|onlyinclude)\>/i", '%%%end-$1%%%', $text);
@@ -1341,10 +1355,10 @@ class CKeditorParser extends CKeditorParserWrapper {
      * @return string text
      */
     private function revertEncapsulatedString($text) {
-		//error_log(sprintf("DEBUG revertEncapsulatedString START text:%s",$text));     //debug	
+		//error_log(sprintf("DEBUG revertEncapsulatedString START text:%s",$text));	
 	
         if (preg_match_all('/Fckmw\d+fckmw/', $text, $matches)) {
-			//error_log(sprintf("DEBUG revertEncapsulatedString 01 text:%s",$text));     //debug	
+			//error_log(sprintf("DEBUG revertEncapsulatedString 01 text:%s",$text));	
 			
 	        for ($i = 0, $is = count($matches[0]); $i < $is; $i++ ) {
                // comments are directly in the main key FckmwXfckmw
@@ -1354,14 +1368,14 @@ class CKeditorParser extends CKeditorParserWrapper {
                            $matches[0][$i],
                            $this->fck_mw_strtr_span[$matches[0][$i]],
 	                       $text);
-				   //error_log(sprintf("DEBUG revertEncapsulatedString first i:%d Match:%s text:%s",$i,$matches[0][$i],$text));     //debug
+				   //error_log(sprintf("DEBUG revertEncapsulatedString first i:%d Match:%s text:%s",$i,$matches[0][$i],$text));
                }
    	           else if (isset($this->fck_mw_strtr_span['href="'.$matches[0][$i].'"'])) {
 	               $text = str_replace(
                            $matches[0][$i],
                            substr($this->fck_mw_strtr_span['href="'.$matches[0][$i].'"'], 6, -1),
 	                       $text);
-				   //error_log(sprintf("DEBUG revertEncapsulatedString second i:%d Match:%s text:%s",$i,$matches[0][$i],$text));    //debug
+				   //error_log(sprintf("DEBUG revertEncapsulatedString second i:%d Match:%s text:%s",$i,$matches[0][$i],$text));
 	           }
 	   
 	        }
@@ -1380,7 +1394,7 @@ class CKeditorParser extends CKeditorParserWrapper {
      */
     private function replaceSpecialLinkValue($match) {
 
-		//error_log(sprintf("DEBUG replaceSpecialLinkValue START match:%s",print_r($match,true)));     //debug
+		//error_log(sprintf("DEBUG replaceSpecialLinkValue START match:%s",print_r($match,true)));
 		
         if (defined('SMW_VERSION')) {
             $res = $this->replacePropertyValue($match);
