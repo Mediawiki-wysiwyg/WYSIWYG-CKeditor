@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 03.05.16  Upgraded WikiEditor v0.4.0 (of MW 1.23.3) to v0.5.0 (of MW 1.26.2). Version 1.5.6_0 [B551+03.05.2016].
+
 - 01.05.16  Fixed usage of formats with internal relative links to subpages. Version 1.5.6_0 [B551+01.05.2016].
 
 - 30.04.16  Fixed relative links to internal subpages "[[../SomePage|LinkText]]". This makes fix "B551++24.04.2016" unnesessary, but it was left untouched. Version 1.5.6_0 [B551+30.04.2016].
@@ -404,15 +406,20 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     $wgFCKEditorSpecialElementWithTextTags = 0; // 1= <nowiki>, <source> and <syntaxhighlight> tags => img- element
     #26.02.15<-
 	
-	#24.03.16-> 
-	#Debug- mode of resource loader (use only for testing purposes):
-    #$wgResourceLoaderDebug = true;
-	
+	#24.03.16->
 	#In case CKEDITOR is installed in some special place, define installation path 
-	#with $wgCKEditor_BASEPATH. If variable is undefined, value will be 'extensions/WYSIWYG/ckeditor/'.
+	#with $wgCKEditor_BASEPATH. If variable is undefined, default value is 'extensions/WYSIWYG/ckeditor/'.
 	#NOTE! Path must end with character '/' in linux (opsys. windows is untested).
 	#$wgCKEditor_BASEPATH = 'extensions/WYSIWYG/ckeditor/';
+	 
+	#Debug- mode of resource loader (use only for testing purposes):
+    #$wgResourceLoaderDebug = true;
 	#24.03.16<-
+	
+	#17.04.16->
+	#In case source files of WYSIWYG are used, they will work only if wgWYSIWYGSourceMode is set to true.
+	#$wgWYSIWYGSourceMode = true;
+	#17.04.16<-
 
 
 --------------

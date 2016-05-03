@@ -67,27 +67,29 @@ fn: {
 					init: function () {
 						var i;
 
-						$(this).find( '[rel]' ).each( function () {
-							$(this).text( mediaWiki.msg( $(this).attr( 'rel' ) ) );
-						});
+						$( this ).find( '[rel]' ).each( function () {
+							$( this ).text( mediaWiki.msg( $( this ).attr( 'rel' ) ) );
+						} );
 
 						/* REALLY DIRTY HACK! */
-						// Reformat the copyright warning stuff
-						var copyWarnHTML = $( '#editpage-copywarn p' ).html();
-						// TODO: internationalize by splitting on other characters that end statements
-						var copyWarnStatements = copyWarnHTML.split( '. ' );
-						var newCopyWarnHTML = '<ul>';
-						for ( i = 0; i < copyWarnStatements.length; i++ ) {
-							if ( copyWarnStatements[i] !== '' ) {
-								var copyWarnStatement = $.trim( copyWarnStatements[i] ).replace( /\.*$/, '' );
-								newCopyWarnHTML += '<li>' + copyWarnStatement + '.</li>';
+						// Reformat the copyright warning stuff, if available
+						if ( $( '#editpage-copywarn p' ).length ) {
+							var copyWarnHTML = $( '#editpage-copywarn p' ).html();
+							// TODO: internationalize by splitting on other characters that end statements
+							var copyWarnStatements = copyWarnHTML.split( '. ' );
+							var newCopyWarnHTML = '<ul>';
+							for ( i = 0; i < copyWarnStatements.length; i++ ) {
+								if ( copyWarnStatements[i] !== '' ) {
+									var copyWarnStatement = $.trim( copyWarnStatements[i] ).replace( /\.*$/, '' );
+									newCopyWarnHTML += '<li>' + copyWarnStatement + '.</li>';
+								}
 							}
+							newCopyWarnHTML += '</ul>';
+							// No list if there's only one element
+							$( this ).find( '.wikiEditor-publish-dialog-copywarn' ).html(
+									copyWarnStatements.length > 1 ? newCopyWarnHTML : copyWarnHTML
+							);
 						}
-						newCopyWarnHTML += '</ul>';
-						// No list if there's only one element
-						$(this).find( '.wikiEditor-publish-dialog-copywarn' ).html(
-								copyWarnStatements.length > 1 ? newCopyWarnHTML : copyWarnHTML
-						);
 						/* END OF REALLY DIRTY HACK */
 
 						if ( $( '#wpMinoredit' ).length === 0 ) {
@@ -103,10 +105,10 @@ fn: {
 								.prop( 'checked', true );
 							}
 
-						$(this).find( 'form' ).submit( function ( e ) {
-							$(this).closest( '.ui-dialog' ).find( 'button:first' ).click();
+						$( this ).find( 'form' ).submit( function ( e ) {
+							$( this ).closest( '.ui-dialog' ).find( 'button:first' ).click();
 							e.preventDefault();
-						});
+						} );
 					},
 					immediateCreate: true,
 					dialog: {
@@ -125,7 +127,7 @@ fn: {
 								$( '#editform' ).submit();
 							},
 							'wikieditor-publish-dialog-goback': function () {
-								$(this).dialog( 'close' );
+								$( this ).dialog( 'close' );
 							}
 						},
 						open: function () {

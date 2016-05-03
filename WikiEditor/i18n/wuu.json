@@ -1,7 +1,4 @@
 {
-    "@metadata": {
-        "authors": []
-    },
-    "wikieditor-template-editor-dialog-cancel": "取消",
-    "wikieditor-toolbar-tool-reference-cancel": "取消"
+	"@metadata": [],
+	"wikieditor-toolbar-tool-reference-cancel": "取消"
 }

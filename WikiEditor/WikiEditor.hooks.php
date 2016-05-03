@@ -7,6 +7,9 @@
  */
 
 class WikiEditorHooks {
+	// ID used for grouping entries all of a session's entries together in
+	// EventLogging.
+	private static $statsId = false;
 
 	/* Protected Static Members */
 
@@ -29,6 +32,9 @@ class WikiEditorHooks {
 			'modules' => array(
 				'ext.wikiEditor.toolbar',
 			),
+			'stylemodules' => array(
+				'ext.wikiEditor.toolbar.styles',
+			),
 		),
 		'dialogs' => array(
 			'preferences' => array(
@@ -47,22 +53,6 @@ class WikiEditorHooks {
 				'ext.wikiEditor.dialogs',
 			),
 		),
-		'hidesig' => array(
-			'preferences' => array(
-				'wikieditor-toolbar-hidesig' => array(
-					'type' => 'toggle',
-					'label-message' => 'wikieditor-toolbar-hidesig',
-					'section' => 'editing/editor',
-				),
-			),
-			'requirements' => array(
-				'wikieditor-toolbar-hidesig' => true,
-				'usebetatoolbar' => true,
-			),
-			'modules' => array(
-				'ext.wikiEditor.toolbar.hideSig',
-			),
-		),
 
 		/* Labs Features */
 
@@ -79,21 +69,6 @@ class WikiEditorHooks {
 			),
 			'modules' => array(
 				'ext.wikiEditor.preview',
-			),
-		),
-		'previewDialog' => array(
-			'preferences' => array(
-				'wikieditor-previewDialog' => array(
-					'type' => 'toggle',
-					'label-message' => 'wikieditor-previewDialog-preference',
-					'section' => 'editing/labs',
-				),
-			),
-			'requirements' => array(
-				'wikieditor-previewDialog' => true,
-			),
-			'modules' => array(
-				'ext.wikiEditor.previewDialog',
 			),
 		),
 		'publish' => array(
@@ -116,6 +91,43 @@ class WikiEditorHooks {
 	/* Static Methods */
 
 	/**
+	 * T99257: Extension registration does not properly support 2d arrays so set it as a global for now
+	 */
+	public static function onRegistration() {
+		// Each module may be configured individually to be globally on/off or user preference based
+		$features = array(
+
+			/* Textarea / i-frame compatible (OK to deploy) */
+
+			'toolbar' => array( 'global' => false, 'user' => true ),
+			// Provides interactive tools
+			'dialogs' => array( 'global' => false, 'user' => true ),
+
+			/* Textarea / i-frame compatible, but still experimental and unstable (do not deploy!) */
+
+			// Adds a tab for previewing in-line
+			'preview' => array( 'global' => false, 'user' => true ),
+			// Adds a button and dialog for step-by-step publishing
+			'publish' => array( 'global' => false, 'user' => true ),
+		);
+
+		// Eww, do a 2d array merge so we don't wipe out settings
+		global $wgWikiEditorFeatures;
+		if ( $wgWikiEditorFeatures ) {
+			foreach ( $features as $name => $settings ) {
+				if ( isset( $wgWikiEditorFeatures[$name] ) ) {
+					$wgWikiEditorFeatures[$name] += $settings;
+				} else {
+					$wgWikiEditorFeatures[$name] = $settings;
+				}
+			}
+		} else {
+			$wgWikiEditorFeatures = $features;
+		}
+
+	}
+
+	/**
 	 * Checks if a certain option is enabled
 	 *
 	 * This method is public to allow other extensions that use WikiEditor to use the
@@ -131,7 +143,8 @@ class WikiEditorHooks {
 		if ( !isset( $wgWikiEditorFeatures[$name] ) || $wgWikiEditorFeatures[$name]['global'] ) {
 			return true;
 		}
-		// Features with user preference control can have any number of preferences to be specific values to be enabled
+		// Features with user preference control can have any number of preferences
+		// to be specific values to be enabled
 		if ( $wgWikiEditorFeatures[$name]['user'] ) {
 			if ( isset( self::$features[$name]['requirements'] ) ) {
 				foreach ( self::$features[$name]['requirements'] as $requirement => $value ) {
@@ -143,8 +156,54 @@ class WikiEditorHooks {
 			}
 			return true;
 		}
-		// Features controlled by $wgWikiEditorFeatures with both global and user set to false are awlways disabled
+		// Features controlled by $wgWikiEditorFeatures with both global and user
+		// set to false are always disabled
 		return false;
+	}
+
+	/**
+	 * Log stuff to EventLogging's Schema:Edit - see https://meta.wikimedia.org/wiki/Schema:Edit
+	 * If you don't have EventLogging installed, does nothing.
+	 *
+	 * @param string $action
+	 * @param Article $article Which article (with full context, page, title, etc.)
+	 * @param array $data Data to log for this action
+	 * @return bool Whether the event was logged or not.
+	 */
+	public static function doEventLogging( $action, $article, $data = array() ) {
+		global $wgVersion;
+		if ( !class_exists( 'EventLogging' ) ) {
+			return false;
+		}
+		// Sample 6.25% (via hex digit)
+		if ( $data['editingSessionId'][0] > '0' ) {
+			return false;
+		}
+
+		$user = $article->getContext()->getUser();
+		$page = $article->getPage();
+		$title = $article->getTitle();
+
+		$data = array(
+			'action' => $action,
+			'version' => 1,
+			'editor' => 'wikitext',
+			'platform' => 'desktop', // FIXME
+			'integration' => 'page',
+			'page.id' => $page->getId(),
+			'page.title' => $title->getPrefixedText(),
+			'page.ns' => $title->getNamespace(),
+			'page.revid' => $page->getRevision() ? $page->getRevision()->getId() : 0,
+			'user.id' => $user->getId(),
+			'user.editCount' => $user->getEditCount() ?: 0,
+			'mediawiki.version' => $wgVersion
+		) + $data;
+
+		if ( $user->isAnon() ) {
+			$data['user.class'] = 'IP';
+		}
+
+		return EventLogging::logEvent( 'Edit', 13457736, $data );
 	}
 
 	/**
@@ -152,18 +211,88 @@ class WikiEditorHooks {
 	 *
 	 * Adds the modules to the edit form
 	 *
-	 * @param $toolbar array list of toolbar items
+	 * @param EditPage $editPage the current EditPage object.
+	 * @param OutputPage $outputPage object.
 	 * @return bool
 	 */
-	public static function editPageShowEditFormInitial( &$toolbar ) {
-		global $wgOut;
+	public static function editPageShowEditFormInitial( $editPage, $outputPage ) {
+		if ( $editPage->contentModel !== CONTENT_MODEL_WIKITEXT ) {
+			return true;
+		}
 
 		// Add modules for enabled features
 		foreach ( self::$features as $name => $feature ) {
-			if ( isset( $feature['modules'] ) && self::isEnabled( $name ) ) {
-				$wgOut->addModules( $feature['modules'] );
+			if ( !self::isEnabled( $name ) ) {
+				continue;
+			}
+			if ( isset( $feature['stylemodules'] ) ) {
+				$outputPage->addModuleStyles( $feature['stylemodules'] );
+			}
+			if ( isset( $feature['modules'] ) ) {
+				$outputPage->addModules( $feature['modules'] );
 			}
 		}
+
+		$article = $editPage->getArticle();
+		$request = $article->getContext()->getRequest();
+		// Don't run this if the request was posted - we don't want to log 'init' when the
+		// user just pressed 'Show preview' or 'Show changes', or switched from VE keeping
+		// changes.
+		if ( class_exists( 'EventLogging' ) && !$request->wasPosted() ) {
+			$data = array();
+			$data['editingSessionId'] = self::getEditingStatsId();
+			if ( $request->getVal( 'section' ) ) {
+				$data['action.init.type'] = 'section';
+			} else {
+				$data['action.init.type'] = 'page';
+			}
+			if ( $request->getHeader( 'Referer' ) ) {
+				if ( $request->getVal( 'section' ) === 'new' || !$article->exists() ) {
+					$data['action.init.mechanism'] = 'new';
+				} else {
+					$data['action.init.mechanism'] = 'click';
+				}
+			} else {
+				$data['action.init.mechanism'] = 'url';
+			}
+
+			self::doEventLogging( 'init', $article, $data );
+		}
+
+		return true;
+	}
+
+	/**
+	 * EditPage::showEditForm:fields hook
+	 *
+	 * Adds the event fields to the edit form
+	 *
+	 * @param EditPage $editPage the current EditPage object.
+	 * @param OutputPage $outputPage object.
+	 * @return bool
+	 */
+	public static function editPageShowEditFormFields( $editPage, $outputPage ) {
+		if ( $editPage->contentModel !== CONTENT_MODEL_WIKITEXT ) {
+			return true;
+		}
+
+		$req = $outputPage->getContext()->getRequest();
+		$editingStatsId = $req->getVal( 'editingStatsId' );
+		if ( !$editingStatsId || !$req->wasPosted() ) {
+			$editingStatsId = self::getEditingStatsId();
+		}
+
+		$outputPage->addHTML(
+			Xml::element(
+				'input',
+				array(
+					'type' => 'hidden',
+					'name' => 'editingStatsId',
+					'id' => 'editingStatsId',
+					'value' => $editingStatsId
+				)
+			)
+		);
 		return true;
 	}
 
@@ -179,8 +308,7 @@ class WikiEditorHooks {
 		if ( self::isEnabled( 'toolbar' ) ) {
 			$toolbar = Html::rawElement(
 				'div', array(
-					'class' => 'wikiEditor-oldToolbar',
-					'style' => 'display:none;'
+					'class' => 'wikiEditor-oldToolbar'
 				),
 				$toolbar
 			);
@@ -191,10 +319,10 @@ class WikiEditorHooks {
 	/**
 	 * GetPreferences hook
 	 *
-	 * Adds WikiEditor-releated items to the preferences
+	 * Adds WikiEditor-related items to the preferences
 	 *
-	 * @param $user User current user
-	 * @param $defaultPreferences array list of default user preference controls
+	 * @param User $user current user
+	 * @param array $defaultPreferences list of default user preference controls
 	 * @return bool
 	 */
 	public static function getPreferences( $user, &$defaultPreferences ) {
@@ -214,36 +342,40 @@ class WikiEditorHooks {
 	}
 
 	/**
-	 * MakeGlobalVariablesScript hook
-	 *
-	 * Adds enabled/disabled switches for WikiEditor modules
 	 * @param $vars array
 	 * @return bool
 	 */
 	public static function resourceLoaderGetConfigVars( &$vars ) {
-		global $wgWikiEditorFeatures;
-
-		$configurations = array();
-		foreach ( self::$features as $name => $feature ) {
-			if (
-				isset( $feature['configurations'] ) &&
-				( !isset( $wgWikiEditorFeatures[$name] ) || self::isEnabled( $name ) )
-			) {
-				foreach ( $feature['configurations'] as $configuration ) {
-					global $$configuration;
-					$configurations[$configuration] = $$configuration;
-				}
-			}
-		}
-		if ( count( $configurations ) ) {
-			$vars = array_merge( $vars, $configurations );
-		}
-		//expose magic words for use by the wikieditor toolbar
+		// expose magic words for use by the wikieditor toolbar
 		WikiEditorHooks::getMagicWords( $vars );
+
 		return true;
 	}
 
 	/**
+	 * ResourceLoaderTestModules hook
+	 *
+	 * Registers JavaScript test modules
+	 *
+	 * @param $testModules array of javascript testing modules. 'qunit' is fed using
+	 * tests/qunit/QUnitTestResources.php.
+	 * @param $resourceLoader object
+	 * @return bool
+	 */
+	public static function resourceLoaderTestModules( &$testModules, &$resourceLoader ) {
+		$testModules['qunit']['ext.wikiEditor.toolbar.test'] = array(
+			'scripts' => array( 'tests/qunit/ext.wikiEditor.toolbar.test.js' ),
+			'dependencies' => array( 'ext.wikiEditor.toolbar' ),
+			'localBasePath' => __DIR__,
+			'remoteExtPath' => 'WikiEditor',
+		);
+		return true;
+	}
+
+	/**
+	 * MakeGlobalVariablesScript hook
+	 *
+	 * Adds enabled/disabled switches for WikiEditor modules
 	 * @param $vars array
 	 * @return bool
 	 */
@@ -263,7 +395,7 @@ class WikiEditorHooks {
 	 * @param $vars array
 	 * @return bool
 	 */
-	private static function getMagicWords( &$vars ){
+	private static function getMagicWords( &$vars ) {
 		$requiredMagicWords = array(
 			'redirect',
 			'img_right',
@@ -274,10 +406,90 @@ class WikiEditorHooks {
 			'img_framed',
 			'img_frameless',
 		);
+		$magicWords = array();
 		foreach ( $requiredMagicWords as $name ) {
-				$magicWords[$name] = MagicWord::get( $name )->getSynonym( 0 );
-			}
+			$magicWords[$name] = MagicWord::get( $name )->getSynonym( 0 );
+		}
 		$vars['wgWikiEditorMagicWords'] = $magicWords;
 	}
 
+
+	/**
+	 * Gets a 32 character alphanumeric random string to be used for stats.
+	 * @return string
+	 */
+	private static function getEditingStatsId() {
+		if ( self::$statsId ) {
+			return self::$statsId;
+		}
+		return self::$statsId = MWCryptRand::generateHex( 32 );
+	}
+
+	/**
+	 * This is attached to the MediaWiki 'EditPage::attemptSave' hook.
+	 *
+	 * @param EditPage $editPage
+	 * @param Status $status
+	 * @return boolean
+	 */
+	public static function editPageAttemptSave( EditPage $editPage ) {
+		$article = $editPage->getArticle();
+		$request = $article->getContext()->getRequest();
+		if ( $request->getVal( 'editingStatsId' ) ) {
+			self::doEventLogging(
+				'saveAttempt',
+				$article,
+				array( 'editingSessionId' => $request->getVal( 'editingStatsId' ) )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * This is attached to the MediaWiki 'EditPage::attemptSave:after' hook.
+	 *
+	 * @param EditPage $editPage
+	 * @param Status $status
+	 * @return boolean
+	 */
+	public static function editPageAttemptSaveAfter( EditPage $editPage, Status $status ) {
+		$article = $editPage->getArticle();
+		$request = $article->getContext()->getRequest();
+		if ( $request->getVal( 'editingStatsId' ) ) {
+			$data = array();
+			$data['editingSessionId'] = $request->getVal( 'editingStatsId' );
+
+			if ( $status->isOK() ) {
+				$action = 'saveSuccess';
+			} else {
+				$action = 'saveFailure';
+				$errors = $status->getErrorsArray();
+
+				if ( isset( $errors[0][0] ) ) {
+					$data['action.saveFailure.message'] = $errors[0][0];
+				}
+
+				if ( $status->value === EditPage::AS_CONFLICT_DETECTED ) {
+					$data['action.saveFailure.type'] = 'editConflict';
+				} elseif ( $status->value === EditPage::AS_ARTICLE_WAS_DELETED ) {
+					$data['action.saveFailure.type'] = 'editPageDeleted';
+				} elseif ( isset( $errors[0][0] ) && $errors[0][0] === 'abusefilter-disallowed' ) {
+					$data['action.saveFailure.type'] = 'extensionAbuseFilter';
+				} elseif ( isset( $editPage->getArticle()->getPage()->ConfirmEdit_ActivateCaptcha ) ) {
+					// TODO: :(
+					$data['action.saveFailure.type'] = 'extensionCaptcha';
+				} elseif ( isset( $errors[0][0] ) && $errors[0][0] === 'spamprotectiontext' ) {
+					$data['action.saveFailure.type'] = 'extensionSpamBlacklist';
+				} else {
+					// Catch everything else... We don't seem to get userBadToken or
+					// userNewUser through this hook.
+					$data['action.saveFailure.type'] = 'responseUnknown';
+				}
+			}
+			self::doEventLogging( $action, $article, $data );
+		}
+
+		return true;
+	}
 }
