@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 03.05.16  Upgraded WikiEditor v0.4.0 (of MW 1.23.3) to v0.5.0 (of MW 1.26.2). Version 1.5.6_0 [B551+03.05.2016].
+- 03.05.16  Fixed version info. Version 1.5.6_0 [B551+03.05.2016].
+
+- 03.05.16  Upgraded WikiEditor v0.4.0 (of MW 1.23.3) to v0.5.0 (of MW 1.26.2).
 
 - 01.05.16  Fixed usage of formats with internal relative links to subpages. Version 1.5.6_0 [B551+01.05.2016].
 
@@ -346,7 +348,11 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 
 
     #13.11.13->
-    require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
+	#WikiEditor vers. <= 0.4.0
+    #require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
+	
+	#WikiEditor vers. >= 0.5.0
+	#wfLoadExtension( 'WikiEditor' );
 
     # Examples of setting permissions using $wgGroupPermissions, for more detailed explanation see:
     #   https://www.mediawiki.org/wiki/Manual:$wgGroupPermissions#Example
@@ -472,7 +478,7 @@ About browser compatibility
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE11
 - FireFox (v26.x - 45.x)
-- Chrome  (v.32.x, v.49.x)
+- Chrome  (v.32.x, v.50.x)
 
 - Recommended browser: FireFox
 
