@@ -94,7 +94,7 @@ class CKeditor_MediaWiki {
 
 	public function onEditPageShowEditFormFields( $pageEditor, $wgOut ) {
 		global $wgUser, $wgFCKEditorIsCompatible, $wgTitle;
-		
+
 		/*
 		If CKeditor extension is enabled, BUT it shouldn't appear (because it's disabled by user, we have incompatible browser etc.)
 		We must do this trick to show the original text as WikiText instead of HTML when conflict occurs
@@ -133,7 +133,7 @@ class CKeditor_MediaWiki {
 	#	$text = $parser->strip( $text, $stripState );
 	#	return true;
 	#}
-	
+
 	public static function onParserBeforeStrip( &$parser, &$text, &$stripState ) {
 		#$text = $parser->strip( $text, $stripState );
 		if (get_class($parser) == 'CKeditorParser') {
@@ -144,8 +144,8 @@ class CKeditor_MediaWiki {
 
 	public static function onSanitizerAfterFixTagAttributes( $text, $element, &$attribs ) {
 
-		//error_log(sprintf("DEBUG onSanitizerAfterFixTagAttributes START"));     //debug	
-		
+		//error_log(sprintf("DEBUG onSanitizerAfterFixTagAttributes START"));     //debug
+
 		$text = preg_match_all( "/Fckmw\d+fckmw/", $text, $matches );
 
 		if( !empty( $matches[0][0] ) ) {
@@ -184,12 +184,12 @@ class CKeditor_MediaWiki {
     // The latter causes IE to hang when more than 31 style sheets are processed this way.
     public static function onBeforePageDisplay( &$out, &$text ) {
         global $wgRequest, $wgScriptPath;
-		
+
 		//04.11.14 RL: This will be the last place to define compatibility mode of browser.
-		//             Following definition will make it to be the first of all meta's and will 
+		//             Following definition will make it to be the first of all meta's and will
 		//             produce string: <META content="IE=9.0000" http-equiv="X-UA-Compatible">
 		$wgRequest->response()->header("X-UA-Compatible: IE=9"); //forces IE to render in IE9 compatible mode
-		
+
         //var_dump($out->styles);
         $action = $wgRequest->getText( 'action' );
         if (! in_array($action, array('edit', 'submit'))) return $out;
@@ -224,7 +224,7 @@ class CKeditor_MediaWiki {
         }
 
         //17.02.14 RL: This will be the last place to define compatibility mode of browser.
-		//             Active definition is not anymore in includes/OutputPage.php. 
+		//             Active definition is not anymore in includes/OutputPage.php.
         //             Disadvantage is that definition placed here will be the last of all meta's.
 		//             This will produce string: <meta http-equiv="X-UA-Compatible" content="IE=9" />
         //$out->addMeta( 'http:X-UA-Compatible', 'IE=9' ); //04.11.14 RL
@@ -235,10 +235,10 @@ class CKeditor_MediaWiki {
 	public function onCustomEditor( $article, $user ) {
 #-               global $wgRequest, $mediaWiki;
               global $wgRequest, $wgUseExternalEditor;
- 
+
 #-               $action = $mediaWiki->getVal( 'Action' );
                $action = $wgRequest->getVal( 'action', 'view' );
- 
+
                 $internal = $wgRequest->getVal( 'internaledit' );
                 $external = $wgRequest->getVal( 'externaledit' );
                 $section = $wgRequest->getVal( 'section' );
@@ -268,7 +268,7 @@ class CKeditor_MediaWiki {
         }
         return true;
     }
-    
+
 	public function onEditPageBeforePreviewText( &$editPage, $previewOnOpen ) {
 		global $wgUser, $wgRequest;
 
@@ -294,7 +294,7 @@ class CKeditor_MediaWiki {
 		global $wgUseTeX, $wgUser, $wgTitle, $wgFCKEditorIsCompatible;
 
         MagicWord::get( 'NORICHEDITOR' )->matchAndRemove( $text );
-        
+
 		# Don't initialize for users that have chosen to disable the toolbar, rich editor or that do not have a CKeditor-compatible browser
 		if( !$wgUser->getOption( 'showtoolbar' ) || $wgUser->getOption( 'riched_disable' ) || !$wgFCKEditorIsCompatible ) {
 			return true;
@@ -355,7 +355,7 @@ class CKeditor_MediaWiki {
             $vars['wgAllowExternalImagesFrom'] = $wgAllowExternalImagesFrom;
         if ($wgCKEditorHideDisabledTbutton)
             $vars['wgCKEditorHideDisabledTbutton'] = true;
-		
+
 		return true;
 	}
 
@@ -404,8 +404,8 @@ class CKeditor_MediaWiki {
 			'type' => 'toggle',
 			'section' => 'editing/fckeditor',
 			'label-message' => 'tog-riched_link_paste_text',
-		);        
-        
+		);
+
         if (defined('SMW_HALO_VERSION')) {
             $preferences['riched_load_semantic_toolbar'] = array(
                 'type' => 'toggle',
@@ -426,8 +426,8 @@ class CKeditor_MediaWiki {
 		if( !array_key_exists( 'riched_toggle_remember_state', $user->mOptions ) && !empty( $wgDefaultUserOptions['riched_toggle_remember_state'] ) )
 			$user->setOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state'] );
 		if( !array_key_exists( 'riched_link_paste_text', $user->mOptions ) && !empty( $wgDefaultUserOptions['riched_link_paste_text'] ) ) //08.09.14 RL
-			$user->setOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text'] );                                //08.09.14 RL 
-            
+			$user->setOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text'] );                                //08.09.14 RL
+
 		// Add the "disable rich editor on namespace X" toggles too
 		foreach( self::$nsToggles as $newToggle ){
 			$preferences[$newToggle] = array(
@@ -447,7 +447,7 @@ class CKeditor_MediaWiki {
      * $tabindex: HTML tabindex of the last edit check/button
     **/
     public static function onEditPageBeforeEditButtons( &$editpage, &$buttons, &$tabindex ) { //13.04.14 RL
-   
+
         $buttons['save'] = str_replace(
             '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['save']    //Disable onbeforeunload event
         );
@@ -459,12 +459,12 @@ class CKeditor_MediaWiki {
         $buttons['diff'] = str_replace(
             '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['diff']    //Disable onbeforeunload event
         );
-        
-        
+
+
         // Continue
         return true;
-    }  
-  
+    }
+
 	/**
 	 * Add FCK script
 	 *
@@ -480,7 +480,7 @@ class CKeditor_MediaWiki {
 		global $wgFCKEditorSpecialElementWithTextTags; //Syntaxhighlight-Nowiki-Pre
 		global $wgCKEditor_BASEPATH;                   //24.03.16 RL Installation directory of CKeditor (resourceloader requires this)
         global $wgWYSIWYGSourceMode;                  //17.04.16 RL Use source mode of CKeditor
-		
+
 		if( !isset( $this->showFCKEditor ) ){
 			$this->showFCKEditor = 0;
 			if ( !$wgUser->getOption( 'riched_start_disabled', $wgDefaultUserOptions['riched_start_disabled'] ) ) {
@@ -493,7 +493,7 @@ class CKeditor_MediaWiki {
 				$this->showFCKEditor += RTE_TOGGLE_LINK;
 			}
 		}
-	
+
         if (!isset( $this->loadSTBonStartup ) ) {
             $this->loadSTBonStartup = 0;
 			if (defined('SMW_HALO_VERSION'))
@@ -501,7 +501,7 @@ class CKeditor_MediaWiki {
 				$this->loadSTBonStartup = 1;
 			}
         }
-	
+
 		if( ( !empty( $_SESSION['showMyFCKeditor'] ) ) && ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state'] ) ) ){
             $rteSettingsFromSession=true;
 			// Clear RTE_VISIBLE flag
@@ -509,7 +509,7 @@ class CKeditor_MediaWiki {
 			// Get flag from session
 			$this->showFCKEditor |= $_SESSION['showMyFCKeditor'];
 		}
-	
+
 		# Don't initialize if we have disabled the toolbar or FCkeditor or have a non-compatible browser
 		if( !$wgUser->getOption( 'showtoolbar' ) ||
 		$wgUser->getOption( 'riched_disable', !empty( $wgDefaultUserOptions['riched_disable'] ) ? $wgDefaultUserOptions['riched_disable'] : false )
@@ -544,7 +544,7 @@ class CKeditor_MediaWiki {
 			$parser->setOutputType( OT_HTML );
 			$form->textbox1 = str_replace( '<!-- Tidy found serious XHTML errors -->', '', $parser->parse( $form->textbox1, $wgTitle, $options )->getText() );
 		}
-		
+
 		$printsheet = htmlspecialchars( "$wgStylePath/common/wikiprintable.css?$wgStyleVersion" );
 
 		// CSS trick,  we need to get user CSS stylesheets somehow... it must be done in a different way!
@@ -553,7 +553,7 @@ class CKeditor_MediaWiki {
 		$skin->mTitle =& $wgTitle;
 		$skin->initPage( $wgOut );
 		$skin->userpage = $wgUser->getUserPage()->getPrefixedText();
-		
+
 		#$skin->setupUserCss( $wgOut );
 		$skin->setupSkinUserCss( $wgOut );
 
@@ -561,7 +561,7 @@ class CKeditor_MediaWiki {
 			$userStyles = $matches[1];
 		}
 		// End of CSS trick
-	
+
 		// 27.03.16 RL->: Earlier code before usage of resourceloader:
 		//	$script = <<<HEREDOC
 		//	<script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}/ckeditor.js"></script>
@@ -575,12 +575,12 @@ class CKeditor_MediaWiki {
 		//	HEREDOC;
 
 		$script = "";
-		if ($wgWYSIWYGSourceMode == true) { // 17.04.16 RL For source- mode of CKeditor only    
+		if ($wgWYSIWYGSourceMode == true) { // 17.04.16 RL For source- mode of CKeditor only
 			$script = <<<HEREDOC
 <script type="text/javascript" src="$wgScriptPath/${wgFCKEditorDir}/ckeditor.js"></script>
 HEREDOC;
 		}
-		
+
 		//Should styles also somehow be moved into module definitions of resourceloader...
 		$script .= '<script type="text/javascript">var sEditorAreaCSS = \'' . $printsheet . ',/mediawiki/skins/monobook/main.css?'. $wgStyleVersion . '\';'; //27.03.16 RL<-
 		if( !empty( $userStyles ) ) {
@@ -617,7 +617,7 @@ HEREDOC;
 				'editorLink'            => '[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']',  //17.01.14 RL Added []
 				'saveSetting'           => ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state']  ) ?  1 : 0 ),
 				'useEditwarning'        => ( $wgUser->getOption( 'useeditwarning' ) ?  1 : 0 ),  //13.04.14 RL
-				'EnabledUseEditWarning' => false,                                                //13.04.14 RL Because IE fires onbeforeunload with ToggleCKEditor  
+				'EnabledUseEditWarning' => false,                                                //13.04.14 RL Because IE fires onbeforeunload with ToggleCKEditor
 				'RTE_VISIBLE'           => RTE_VISIBLE,
 				'RTE_TOGGLE_LINK'       => RTE_TOGGLE_LINK,
 				'RTE_POPUP'             => RTE_POPUP,
@@ -625,7 +625,7 @@ HEREDOC;
 				'wgCKeditorCurrentMode' => "wysiwyg",
 				'editorSrcToWswTrigger' => false,      //03.03.15 RL Allow wikitext->html conversion
 				'editorForceReadOnly'   => false,      //12.01.15 RL To disable source button and toggle link for prolonged time.
-				'fck_mv_plg_strtr_span' => [],         //16.01.15 RL
+				'fck_mv_plg_strtr_span' => '[]',       //16.01.15 RL //03.06.16 RL Added quotes (by ltuo).
 				'fck_mv_plg_strtr_span_counter'  => 0, //16.01.15 RL
 				'is_special_elem_with_text_tags' => ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ? 1 : 0 ), //Syntaxhighlight-Nowiki-Pre
 				'smwghQiLoadUrl'        => '"'. CKeditor_MediaWiki::GetQILoadUrl() .'"',
@@ -633,7 +633,7 @@ HEREDOC;
 				'WYSIWYGversion'        => '"' . WYSIWYG_EDITOR_VERSION . '"',  //19.10.15 RL
 				'CKheight'              => ( empty($wgFCKEditorHeight) ) ? 0 : $wgFCKEditorHeight,       //22.03.16 RL
 				'MWnewWinMsg'           => Xml::escapeJsString( wfMsgHtml( 'rich_editor_new_window' ) ), //22.03.16 RL =>$newWinMsg
-				'MWtextfield'           => 'wpTextbox1',    //22.03.16 RL =>$textfield  
+				'MWtextfield'           => 'wpTextbox1',    //22.03.16 RL =>$textfield
 				'CKEDITOR_ready'        => true,            //22.03.16 RL Instead of CKEDITOR.ready
 				'CKEDITOR_BASEPATH'     => ( isset($wgCKEditor_BASEPATH) ) ? $wgCKEditor_BASEPATH : 'extensions/WYSIWYG/ckeditor/', //24.03.16 RL Define base path of CKeditor (resourceloader requires this)
 				'RTE_VISIBLE'           => RTE_VISIBLE,     //27.03.16 RL
@@ -642,11 +642,11 @@ HEREDOC;
 				)
 			);
 
-		$wgOut->addScript( $script );             
+		$wgOut->addScript( $script );
 		//22.03.16 RL  All javascripts which earlier were here have been moved into files ext.wysiwyg.func.js and ext.wysiwyg.init.js.
 		//             Resourceloader will register and load them.
 		//             Activate registered init module of WYSIWYG here, rest of the modules will be activated on client side when document is ready
-		$wgOut->addModules( 'ext.WYSIWYG.init' ); 
+		$wgOut->addModules( 'ext.WYSIWYG.init' );
 		return true;
 	}
 

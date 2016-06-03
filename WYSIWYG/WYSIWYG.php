@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
 # version of WYSIWYG and CKeditor
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+03.05.2016]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+03.06.2016]');
 define('CKEDITOR_VERSION',       'CKEditor 4.5.8 (revision c1fc9a9)');
 
 # Not a valid entry point, skip unless MEDIAWIKI is defined
@@ -159,8 +159,8 @@ $wgResourceModules = array(
 	'ext.CKEDITOR' => array(     // Module of CKeditor for WYSIWYG
 		'scripts'         => array('ckeditor.js'),
 		'styles'          => array(),
-		'skinStyles'      => array(),							
-		'languageScripts' => array(),	
+		'skinStyles'      => array(),
+		'languageScripts' => array(),
 		'skinStyles'      => array(),
 		'messages'        => array(),
 		'position'        => 'bottom',
@@ -172,8 +172,8 @@ $wgResourceModules = array(
 	'ext.WYSIWYG.func' => array( // Some of the javascript functions of WYSIWYG
 		'scripts'         => array('ext.wysiwyg.func.js'),
 		'styles'          => array(),
-		'skinStyles'      => array(),							
-		'languageScripts' => array(),	
+		'skinStyles'      => array(),
+		'languageScripts' => array(),
 		'skinStyles'      => array(),
 		'messages'        => array(),
 		'position'        => 'bottom',
@@ -186,8 +186,8 @@ $wgResourceModules = array(
 	'ext.WYSIWYG.init' => array( // Small javascript startup module of WYSIWYG
 		'scripts'         => array('ext.wysiwyg.init.js'),
 		'styles'          => array(),
-		'skinStyles'      => array(),							
-		'languageScripts' => array(),	
+		'skinStyles'      => array(),
+		'languageScripts' => array(),
 		'skinStyles'      => array(),
 		'messages'        => array(),
 		'position'        => 'bottom',
@@ -196,6 +196,6 @@ $wgResourceModules = array(
 		'localBasePath'   => __DIR__ ,                              // Defaults to $IP.
 		//'remoteBasePath' => $wgScriptPath . 'extensions/WYSIWYG', // Defaults to $wgScriptPath.
 		'remoteExtPath'   => 'WYSIWYG'                              // Relative to $wgExtensionAssetsPath.
-		) 
+		)
 );
 

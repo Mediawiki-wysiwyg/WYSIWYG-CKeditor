@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 03.06.16  Fixed php parser error which was caused by missing quotes with js- variable. Version 1.5.6_0 [B551+03.06.2016].
+
 - 03.05.16  Fixed version info. Version 1.5.6_0 [B551+03.05.2016].
 
 - 03.05.16  Upgraded WikiEditor v0.4.0 (of MW 1.23.3) to v0.5.0 (of MW 1.26.2).
@@ -350,7 +352,7 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     #13.11.13->
 	#WikiEditor vers. <= 0.4.0
     #require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
-	
+
 	#WikiEditor vers. >= 0.5.0
 	#wfLoadExtension( 'WikiEditor' );
 
@@ -411,17 +413,17 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     #26.02.15->
     $wgFCKEditorSpecialElementWithTextTags = 0; // 1= <nowiki>, <source> and <syntaxhighlight> tags => img- element
     #26.02.15<-
-	
+
 	#24.03.16->
-	#In case CKEDITOR is installed in some special place, define installation path 
+	#In case CKEDITOR is installed in some special place, define installation path
 	#with $wgCKEditor_BASEPATH. If variable is undefined, default value is 'extensions/WYSIWYG/ckeditor/'.
 	#NOTE! Path must end with character '/' in linux (opsys. windows is untested).
 	#$wgCKEditor_BASEPATH = 'extensions/WYSIWYG/ckeditor/';
-	 
+
 	#Debug- mode of resource loader (use only for testing purposes):
     #$wgResourceLoaderDebug = true;
 	#24.03.16<-
-	
+
 	#17.04.16->
 	#In case source files of WYSIWYG are used, they will work only if wgWYSIWYGSourceMode is set to true.
 	#$wgWYSIWYGSourceMode = true;
@@ -438,7 +440,7 @@ You should replace at least this file in WikiEditor extension of MW with modifie
 **SemanticForms:**
 
 NOTE! This extension is not mandatory with wysiwyg extension.
-Wysiwyg is not fully compatiple with SemanticForms and SemanticMediawiki. 
+Wysiwyg is not fully compatiple with SemanticForms and SemanticMediawiki.
 
 You should replace at least following files in SemanticForms extension of MW with modified files of this bundle:
 - SF_FormUtils.php
