@@ -35,7 +35,7 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 03.06.16  Fixed php parser error which was caused by missing quotes with js- variable. Version 1.5.6_0 [B551+03.06.2016].
+- 04.06.16  Fixed php parser error by changing [] => array() with js- variable. Version 1.5.6_0 [B551+04.06.2016].
 
 - 03.05.16  Fixed version info. Version 1.5.6_0 [B551+03.05.2016].
 

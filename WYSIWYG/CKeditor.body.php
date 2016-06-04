@@ -625,7 +625,7 @@ HEREDOC;
 				'wgCKeditorCurrentMode' => "wysiwyg",
 				'editorSrcToWswTrigger' => false,      //03.03.15 RL Allow wikitext->html conversion
 				'editorForceReadOnly'   => false,      //12.01.15 RL To disable source button and toggle link for prolonged time.
-				'fck_mv_plg_strtr_span' => '[]',       //16.01.15 RL //03.06.16 RL Added quotes (by ltuo).
+				'fck_mv_plg_strtr_span' => array(),    //16.01.15 RL //04.06.16 RL: [] (since PHP5.4) => array() (older) (by ltuo / ricordisamoa).
 				'fck_mv_plg_strtr_span_counter'  => 0, //16.01.15 RL
 				'is_special_elem_with_text_tags' => ( isset($wgFCKEditorSpecialElementWithTextTags) && $wgFCKEditorSpecialElementWithTextTags == 1 ? 1 : 0 ), //Syntaxhighlight-Nowiki-Pre
 				'smwghQiLoadUrl'        => '"'. CKeditor_MediaWiki::GetQILoadUrl() .'"',
