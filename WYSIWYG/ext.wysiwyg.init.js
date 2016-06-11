@@ -1,6 +1,6 @@
 
 // WYSIWYG CKeditor entry function 
-// 22.03.16 RL  Moved here from CKeditor.body.js
+// 22.03.16 RL  Moved here from CKeditor.body.php
 //
 
 // 22.02.16 RL:addOnloadHook( initEditor ); addOnloadHook is deprecated method, 

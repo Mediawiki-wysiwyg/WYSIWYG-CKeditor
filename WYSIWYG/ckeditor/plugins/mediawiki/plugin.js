@@ -1003,7 +1003,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				editor.setReadOnly( false );	//24.02.16 RL
 			} 
 		)
-
+		
 		/**
 		editor.on( 'contentDom', function () //21.01.15 RL 
 			{
@@ -1013,19 +1013,25 @@ CKEDITOR.plugins.add( 'mediawiki',
 				);
 			} 
 		)
-		**/
+		**/		
 		
 		// When opening a dialog, its "definition" is created for it, for
 		// each editor instance. The "dialogDefinition" event is then
 		// fired. We should use this event to make customizations to the
 		// definition of existing dialogs.
 		CKEDITOR.on( 'dialogDefinition', function( evt ) {   //19.10.15 RL
+		
 			// Take the dialog name and its definition from the event data.
 			var dialogName = evt.data.name;
 			var dialogDefinition = evt.data.definition;
 			var lang = editor.lang.about;
 			
-			// Check if the definition is from the dialog we're interested on (the "About" dialog).
+			// Hide advanced- tab of table- dialog
+			if ( ( dialogName == 'table' ) || ( dialogName == 'tableProperties' ) ) { // 11.06.16 RL
+				dialogDefinition.removeContents('advanced');
+			}     			
+			
+			// Check if the definition is from the "About" dialog and version info of WYSIWYG in it.
 			if ( dialogName == 'about' && evt.editor.name == 'wpTextbox1' ) {			
 
 				// Make dialog little higher

@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 11.06.16  Changed $wgResourceModules = array(.. to $wgResourceModules += array(.. because of IntraACL plugin (by 0x539 nero). Hide advanced- tab of table- dialog. Version 1.5.6_0 [B551+11.06.2016].
+
 - 04.06.16  Fixed php parser error by changing [] => array() with js- variable. Version 1.5.6_0 [B551+04.06.2016].
 
 - 03.05.16  Fixed version info. Version 1.5.6_0 [B551+03.05.2016].
@@ -350,11 +352,15 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 
 
     #13.11.13->
+	#WikiEditor may not be compatible with WYSIWYG editor, use it with caution.
 	#WikiEditor vers. <= 0.4.0
-    #require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
-
+    #require_once( "$IP/extensions/WikiEditor/WikiEditor.php" );    
+	
 	#WikiEditor vers. >= 0.5.0
 	#wfLoadExtension( 'WikiEditor' );
+	
+    #Enable WYSIWYG- extension	
+    require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
 
     # Examples of setting permissions using $wgGroupPermissions, for more detailed explanation see:
     #   https://www.mediawiki.org/wiki/Manual:$wgGroupPermissions#Example
@@ -373,10 +379,7 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     $wgFCKEditorExcludedNamespaces[] = NS_TEMPLATE;
     #13.11.13<-
 
-    #17.01.14->
-    #WikiEditor may not be compatible with WYSIWYG editor, use it with caution.
-    require_once( "$IP/extensions/WikiEditor/WikiEditor.php" );
-
+    #17.01.14->	
     # Enables/disables use of WikiEditor by default but still allow users to disable it in preferences
     $wgDefaultUserOptions['usebetatoolbar'] = 1;
     $wgDefaultUserOptions['usebetatoolbar-cgd'] = 1;
@@ -425,7 +428,8 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 	#24.03.16<-
 
 	#17.04.16->
-	#In case source files of WYSIWYG are used, they will work only if wgWYSIWYGSourceMode is set to true.
+	#In case source files of WYSIWYG/CKeditor are used, they will work only if wgWYSIWYGSourceMode is set to true.
+	#NOTE! At this point source- mode of WYSIWYG/Ckeditor does not use resourceloaded of MW.
 	#$wgWYSIWYGSourceMode = true;
 	#17.04.16<-
 

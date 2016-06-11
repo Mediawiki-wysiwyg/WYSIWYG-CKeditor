@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
 # version of WYSIWYG and CKeditor
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+04.06.2016]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+11.06.2016]');
 define('CKEDITOR_VERSION',       'CKEditor 4.5.8 (revision c1fc9a9)');
 
 # Not a valid entry point, skip unless MEDIAWIKI is defined
@@ -155,7 +155,7 @@ if (defined('SMW_HALO_VERSION')) {
     $wgDefaultUserOptions['riched_load_semantic_toolbar'] = 1;
 }
 
-$wgResourceModules = array(
+$wgResourceModules += array(     // 11.06.16 RL Added + (by 0x539 nero)
 	'ext.CKEDITOR' => array(     // Module of CKeditor for WYSIWYG
 		'scripts'         => array('ckeditor.js'),
 		'styles'          => array(),
