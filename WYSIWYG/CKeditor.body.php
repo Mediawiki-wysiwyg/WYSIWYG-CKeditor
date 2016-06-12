@@ -548,7 +548,7 @@ class CKeditor_MediaWiki {
 		$printsheet = htmlspecialchars( "$wgStylePath/common/wikiprintable.css?$wgStyleVersion" );
 
 		// CSS trick,  we need to get user CSS stylesheets somehow... it must be done in a different way!
-		$skin = $wgUser->getSkin();
+		$skin = RequestContext::getMain()->getSkin();
 		$skin->loggedin = $wgUser->isLoggedIn();
 		$skin->mTitle =& $wgTitle;
 		$skin->initPage( $wgOut );
@@ -611,10 +611,10 @@ HEREDOC;
 				'popup'                 => false,                          // pointer to popup document
 				'firstLoad'             => true,
 				'isConflict'            => ( $form->isConflict ?  1 : 0 ), //21.02.14 RL
-				'editorMsgOn'           => '[' . Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) )      . ']', //17.01.14 RL Added []
-				'editorMsgOff'          => '[' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) . ']', //17.01.14 RL Added []
-				'editorWaitPageLoad'    => Xml::escapeJsString( wfMsgHtml( 'tog-riched_wait_page_load' ) ),      //12.01.15 RL
-				'editorLink'            => '[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']',  //17.01.14 RL Added []
+				'editorMsgOn'           => '[' . wfMessage('textrichditor')->escaped()      . ']',
+				'editorMsgOff'          => '[' . wfMessage('tog-riched_disable')->escaped() . ']',
+				'editorWaitPageLoad'    => wfMessage('tog-riched_wait_page_load')->escaped(),
+				'editorLink'            => '[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? wfMessage('tog-riched_disable')->escaped() : wfMessage('textrichditor')->escaped() ) . ']',
 				'saveSetting'           => ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state']  ) ?  1 : 0 ),
 				'useEditwarning'        => ( $wgUser->getOption( 'useeditwarning' ) ?  1 : 0 ),  //13.04.14 RL
 				'EnabledUseEditWarning' => false,                                                //13.04.14 RL Because IE fires onbeforeunload with ToggleCKEditor
@@ -632,7 +632,7 @@ HEREDOC;
 				'linkPasteText'         => ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ), //08.09.14 RL
 				'WYSIWYGversion'        => '"' . WYSIWYG_EDITOR_VERSION . '"',  //19.10.15 RL
 				'CKheight'              => ( empty($wgFCKEditorHeight) ) ? 0 : $wgFCKEditorHeight,       //22.03.16 RL
-				'MWnewWinMsg'           => Xml::escapeJsString( wfMsgHtml( 'rich_editor_new_window' ) ), //22.03.16 RL =>$newWinMsg
+				'MWnewWinMsg'           => wfMessage('rich_editor_new_window')->escaped(),
 				'MWtextfield'           => 'wpTextbox1',    //22.03.16 RL =>$textfield
 				'CKEDITOR_ready'        => true,            //22.03.16 RL Instead of CKEDITOR.ready
 				'CKEDITOR_BASEPATH'     => ( isset($wgCKEditor_BASEPATH) ) ? $wgCKEditor_BASEPATH : 'extensions/WYSIWYG/ckeditor/', //24.03.16 RL Define base path of CKeditor (resourceloader requires this)

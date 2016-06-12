@@ -6,7 +6,7 @@ class CKeditorParserOptions extends ParserOptions {
 
 	function getSkin( $title = null ) {
 		if ( !isset( $this->mSkin ) ) {
-			$this->mSkin = new CKeditorSkin( $this->mUser->getSkin() );
+			$this->mSkin = new CKeditorSkin(RequestContext::getMain()->getSkin());
 		}
 		return $this->mSkin;
 	}
