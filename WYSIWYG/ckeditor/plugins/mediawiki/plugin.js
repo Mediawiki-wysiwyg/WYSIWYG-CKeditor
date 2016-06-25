@@ -1401,11 +1401,17 @@ CKEDITOR.customprocessor.prototype =
 		// in IE the values of the class and alt attribute are not quoted
         data = data.replace(/class=([^\"].*?)\s/gi, 'class="$1" ');
         data = data.replace(/alt=([^\"].*?)\s/gi, 'alt="$1" ');
-        // when inserting data with Excel an unmatched <col> element exists, thus remove it
-        data = data.replace(/<col[^>]*>/gi, '' );
+        
+		// when inserting data with Excel an unmatched <col> element exists, thus remove it:
+		// data = data.replace(/<col[^>]*>/gi, '' );
+		// 25.06.16 RL: Problem when pasting excel 2016 table using IE11
+		//   Prev. works with this: ...<col width="64" style="width;48pt;">... removing it completely,
+		//   but it corrupts this:  ...<colgroup><col width="64" style="width;48pt;"></colgroup>... leaving ending tag </colgroup> left
+        data = data.replace(/<col [^>]*>/gi, '' ); // 25.06.16 RL =>added space after string 'col'
+		
         // 06.04.14 Varlin: remove <wbr> tags that causes parser to crash
         data = data.replace(/<wbr>/gi, '' );
-
+		
 		// Replace html comments by "Fckmw<id>fckmw" -keys (where <id>=0,1,2..) 
 		// so that possible incomplete xml structure of commented block
 		// will not prevent page handling (f.ex <!-- 1. incomplete html comment -- <!-- 2. complete html comment -->)
@@ -1432,7 +1438,7 @@ CKEDITOR.customprocessor.prototype =
     _getNodeFromHtml : function( data ) {
         if (window.DOMParser) {  // all browsers, except IE before version 9
             parser=new DOMParser();
-            try {         // 16.01.15 RL
+            try {         // 16.01.15 RL	
                 var xmlDoc=parser.parseFromString(data,"text/xml");
             } catch (e) { // 16.01.15 RL
                 // not well-formed text raises an exception in IE from version 9, others let it continue
@@ -1440,8 +1446,8 @@ CKEDITOR.customprocessor.prototype =
                 return false;
 			};
         }
-        else // Internet Explorer before version 9
-        {
+        else // Internet Explorer before version 9       
+		{
             data = this.ieFixHTML(data);
 			try {         // 16.01.15 RL
                 var xmlDoc=new ActiveXObject("Microsoft.XMLDOM");

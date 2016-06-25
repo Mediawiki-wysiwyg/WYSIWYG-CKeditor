@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 25.06.16  Fixed regexec definition when pasting table from excel using IE. Version 1.5.6_0 [B551+25.06.2016].
+
 - 11.06.16  Changed $wgResourceModules = array(.. to $wgResourceModules += array(.. because of IntraACL plugin (by 0x539 nero). Hide advanced- tab of table- dialog. Version 1.5.6_0 [B551+11.06.2016].
 
 - 04.06.16  Fixed php parser error by changing [] => array() with js- variable. Version 1.5.6_0 [B551+04.06.2016].
