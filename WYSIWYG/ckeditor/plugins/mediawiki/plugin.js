@@ -1195,6 +1195,15 @@ function showPageIsLoading( disp, loadingId ) { //12.01.15 RL
 	}
 }
 
+function joinObjArrays(obj1, obj2) {  // 01.07.16 RL
+	// join two assosiative array objects into one
+    var a_arr = [], p;
+    for (p in obj1)
+        a_arr[p] = obj1[p];
+	for (p in obj2)
+        a_arr[p] = obj2[p];
+    return a_arr;
+}
 
 function fck_mv_plg_addToStrtr( text, replaceLineBreaks ) { //16.01.15 RL 
 	// For html->wikitext, based on fck_addToStrtr.
@@ -1206,16 +1215,19 @@ function fck_mv_plg_addToStrtr( text, replaceLineBreaks ) { //16.01.15 RL
 	key = 'Fckmw' + _fck_mv_plg_strtr_span_counter + 'fckmw'; 
 	mw.config.set('fck_mv_plg_strtr_span_counter', _fck_mv_plg_strtr_span_counter + 1);
 
-	// Store new text in array
-	news = [];
+	// Store new text in assosiative array
+	var new_span = [];
+	var _fck_mv_plg_strtr_span = [];
+	
 	if( replaceLineBreaks ) { 
-		news[key] = text.replace( array( "\r\n", "\n", "\r" ), 'fckLR');
+		new_span[key] = text.replace( array( "\r\n", "\n", "\r" ), 'fckLR');
 	} else {
-		news[key] = text;
+		new_span[key] = text;
 	}
-	_fck_mv_plg_strtr_span = mwconfig.get('fck_mv_plg_strtr_span');
-	_fck_mv_plg_strtr_span.push(news);
-	mw.config.set('fck_mv_plg_strtr_span', _fck_mv_plg_strtr_span);
+	
+	_fck_mv_plg_strtr_span = joinObjArrays(mw.config.get('fck_mv_plg_strtr_span'), new_span); // 01.07.16 RL
+	mw.config.set('fck_mv_plg_strtr_span', _fck_mv_plg_strtr_span );
+
 	return key;
 }
 
@@ -1225,10 +1237,11 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 
 	if (matches = text.match(/Fckmw\d+fckmw/g)) { //Are there keys to be replaced.
 		is = matches.length;
-		//alert('commnets_qty:' + is + ' 1.key:' + matches[0] + ' value:' + mw.config.get('fck_mv_plg_strtr_span')[matches[0]]);			
+		// alert('commnets_qty:' + is + ' 1.key:' + matches[0] + ' value:' + mw.config.get('fck_mv_plg_strtr_span')[matches[0]]);			
 		for (i = 0; i < is; i++ ) { // Replace each key with original text.
 			// comments are directly in the main key FckmwXfckmw
 			_fck_mv_plg_strtr_span = mw.config.get('fck_mv_plg_strtr_span');
+			// alert('comments_qty:' + (i + 1) + '/' + is + ' key:' + matches[i] + ' value:' + _fck_mv_plg_strtr_span[matches[i]]);						
 			if ( (typeof _fck_mv_plg_strtr_span[matches[i]] != 'undefined' ) &&
 				 (_fck_mv_plg_strtr_span[matches[i]].substr(0, 4) == '<!--') ) {
 				text = text.replace( matches[i],
@@ -1251,8 +1264,7 @@ function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL
 	
 	while( ( start = text.indexOf( '<!--' ) ) != -1 ) {
 	
-		end = text.indexOf( '-->', start + 4 );
-
+		end = text.indexOf( '-->', start + 4 );	
 		if ( end == -1 ) {
 			// Unterminated comment; bail out
 			break;
@@ -1400,7 +1412,7 @@ CKEDITOR.customprocessor.prototype =
 			data = this.ieFixHTML(data);
 		}
 
-        data = '<body xmlns:x="http://excel">' + data.htmlEntities()+ '</body>';
+        data = '<body xmlns:x="http://excel">' + data.htmlEntities() + '</body>';
         // fix <img> tags
         data = data.replace(/(<img[^>]*)([^/])>/gi, '$1$2/>' );
         // fix <hr> and <br> tags
@@ -1443,7 +1455,7 @@ CKEDITOR.customprocessor.prototype =
 		// Replace html comments by "Fckmw<id>fckmw" -keys (where <id>=0,1,2..) 
 		// so that possible incomplete xml structure of commented block
 		// will not prevent page handling (f.ex <!-- 1. incomplete html comment -- <!-- 2. complete html comment -->)
-		// MW seems to work like this with wikitext -> html conversion.		
+		// MW seems to work like this with wikitext -> html conversion.	
 	    data = fck_mw_plg_replaceHTMLcomments( data ); //16.01.14 RL
 
         var rootNode = this._getNodeFromHtml( data );

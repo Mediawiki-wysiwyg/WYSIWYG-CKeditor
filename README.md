@@ -35,7 +35,9 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 27.06.16  Replaced some deprecated methods with those compatible with MW1.27. Use mv.config.get/set with js-variables. Fixed error with data pasted from excel table. Fixed usage of classic editor and WikiEditor with toggle link (IE, FF, Chrome: added .htaccess files and reload of WikiEditor). Version 1.5.6_0 [B551+27.06.2016]. 
+- 01.07.16  Fixed mw-config.get/set with js- variables related to html- comments. Version 1.5.6_0 [B551+01.07.2016].   
+
+- 27.06.16  Replaced some deprecated methods with those compatible with MW1.27. Use mv.config.get/set with js-variables. Fixed error with data pasted from excel table. Fixed usage of classic editor and WikiEditor with toggle link (IE, FF, Chrome: added .htaccess files and reload of WikiEditor). Branch wysiwyg_mw127, version 1.5.6_0 [B551+27.06.2016]. 
 
 - 25.06.16  Fixed regexec definition when pasting table from excel using IE. Version 1.5.6_0 [B551+25.06.2016].
 
@@ -343,7 +345,7 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 ----------------
 **Compatible MediaWiki environment:**
 
-- MediaWiki: 1.21, 1.22, 1.23, 1.24. 1.25. 1.26
+- MediaWiki: 1.21, 1.22, 1.23, 1.24, 1.25, 1.26, 1.27.
 - SemanticForms: 2.7
 - SyntaxHighlight GeSHi: version must be >= rev:50696
 - PHP 5.5.6,  MySQL 5.6.14, Apache 2.4.7  (=XAMPP for Linux 1.8.3-2)
@@ -487,8 +489,8 @@ About browser compatibility
 
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE11
-- FireFox (v26.x - 45.x)
-- Chrome  (v.32.x, v.50.x)
+- FireFox (26.x - 47.x)
+- Chrome  (v.32.x, v.51.x)
 
 - Recommended browser: FireFox
 
