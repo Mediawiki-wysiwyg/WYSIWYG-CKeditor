@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 27.06.16  Replaced some deprecated methods with those compatible with MW1.27. Use mv.config.get/set with js-variables. Fixed error with data pasted from excel table. Fixed usage of classic editor and WikiEditor with toggle link (IE, FF, Chrome: added .htaccess files and reload of WikiEditor). Version 1.5.6_0 [B551+27.06.2016]. 
+
 - 25.06.16  Fixed regexec definition when pasting table from excel using IE. Version 1.5.6_0 [B551+25.06.2016].
 
 - 11.06.16  Changed $wgResourceModules = array(.. to $wgResourceModules += array(.. because of IntraACL plugin (by 0x539 nero). Hide advanced- tab of table- dialog. Version 1.5.6_0 [B551+11.06.2016].

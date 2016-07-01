@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------
-Versions of ckeditor_source directory (updated 24.04.2016 RL):
-  Wysiwyg  1.5.6_0 [B551+24.04.2016]
+Versions of ckeditor_source directory (updated 01.07.2016 RL):
+  Wysiwyg  1.5.6_0 [B551+27.06.2016]
   CKeditor 4.5.8   (31.03.2016 12:51 timestamp of version in git repository)
 
 ---------------------------------------------------------------------------------

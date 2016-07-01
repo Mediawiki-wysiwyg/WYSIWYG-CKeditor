@@ -58,7 +58,7 @@ CKEDITOR.editorConfig = function( config )
     config.extraPlugins = extraPlugins;
     config.height = '26em';
     config.resize_dir = 'vertical';
-    config.language = window.parent.wgUserLanguage || 'en';
+    config.language = mw.config.get('wgUserLanguage') || 'en';
 
     config.WikiSignature = '--~~~~';
 	

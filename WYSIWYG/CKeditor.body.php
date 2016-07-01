@@ -449,15 +449,15 @@ class CKeditor_MediaWiki {
     public static function onEditPageBeforeEditButtons( &$editpage, &$buttons, &$tabindex ) { //13.04.14 RL
 
         $buttons['save'] = str_replace(
-            '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['save']    //Disable onbeforeunload event
+            '/>', 'onclick="mw.config.set(\'EnabledUseEditWarning\', false);" />', $buttons['save']    //Disable onbeforeunload event
         );
 
         $buttons['preview'] = str_replace(
-            '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['preview'] //Disable onbeforeunload event
+            '/>', 'onclick="mw.config.set(\'EnabledUseEditWarning\', false);" />', $buttons['preview'] //Disable onbeforeunload event
         );
 
         $buttons['diff'] = str_replace(
-            '/>', 'onclick="EnabledUseEditWarning=false" />', $buttons['diff']    //Disable onbeforeunload event
+            '/>', 'onclick="mw.config.set(\'EnabledUseEditWarning\', false);" />', $buttons['diff']    //Disable onbeforeunload event
         );
 
 
@@ -548,7 +548,8 @@ class CKeditor_MediaWiki {
 		$printsheet = htmlspecialchars( "$wgStylePath/common/wikiprintable.css?$wgStyleVersion" );
 
 		// CSS trick,  we need to get user CSS stylesheets somehow... it must be done in a different way!
-		$skin = $wgUser->getSkin();
+		// $skin = $wgUser->getSkin();                 // 27.06.16 RL: <  MW 1.27
+		$skin = RequestContext::getMain()->getSkin();  // 27.06.16 RL: >= MW 1.27
 		$skin->loggedin = $wgUser->isLoggedIn();
 		$skin->mTitle =& $wgTitle;
 		$skin->initPage( $wgOut );
@@ -588,6 +589,7 @@ HEREDOC;
 		}
 		$script .= '</script>'; //27.03.16 RL
 
+		/*27.06.16 RL****
 		# Show references only if Cite extension has been installed
 		$showRef = false;
 		if (( isset( $wgHooks['ParserFirstCallInit'] ) && in_array( 'wfCite', $wgHooks['ParserFirstCallInit'] ) ) ||
@@ -600,7 +602,14 @@ HEREDOC;
 			( isset( $wgExtensionFunctions ) && in_array( 'efSyntaxHighlight_GeSHiSetup', $wgExtensionFunctions ) ) ) {
 			$showSource = true;
 		}
+		*****/
 
+		$useWikiEditor = false;  // 27.06.16 RL
+		if ( ExtensionRegistry::getInstance()->isLoaded( 'WikiEditor' ) ) {
+			//error_log(sprintf("DEBUG WikiEditor is available"));     //debug
+			$useWikiEditor = true;
+		}
+		
 		/*13.11.13 RL**
 		wfLoadExtensionMessages( 'CKeditor' );
 		***/
@@ -611,12 +620,18 @@ HEREDOC;
 				'popup'                 => false,                          // pointer to popup document
 				'firstLoad'             => true,
 				'isConflict'            => ( $form->isConflict ?  1 : 0 ), //21.02.14 RL
-				'editorMsgOn'           => '[' . Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) )      . ']', //17.01.14 RL Added []
-				'editorMsgOff'          => '[' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) . ']', //17.01.14 RL Added []
-				'editorWaitPageLoad'    => Xml::escapeJsString( wfMsgHtml( 'tog-riched_wait_page_load' ) ),      //12.01.15 RL
-				'editorLink'            => '[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']',  //17.01.14 RL Added []
+				// 'editorMsgOn'           => '[' . Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) )      . ']', //17.01.14 RL Added [] //27.06.16 RL: < MW 1.27
+				// 'editorMsgOff'          => '[' . Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) . ']', //17.01.14 RL Added [] //27.06.16 RL: < MW 1.27
+				// 'editorWaitPageLoad'    => Xml::escapeJsString( wfMsgHtml( 'tog-riched_wait_page_load' ) ),      //12.01.15 RL          //27.06.16 RL: < MW 1.27
+				// 'editorLink'            => '[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? Xml::escapeJsString( wfMsgHtml( 'tog-riched_disable' ) ) : Xml::escapeJsString( wfMsgHtml( 'textrichditor' ) ) ) . ']',  //17.01.14 RL Added [] //27.06.16 RL:  < MW 1.27
+				'editorMsgOn'           => '[' . wfMessage('textrichditor')->escaped()      . ']',  //27.06.16 RL: >= MW 1.27
+				'editorMsgOff'          => '[' . wfMessage('tog-riched_disable')->escaped() . ']',  //27.06.16 RL: >= MW 1.27
+				'editorWaitPageLoad'    => wfMessage('tog-riched_wait_page_load')->escaped(),       //27.06.16 RL: >= MW 1.27
+				'editorLink'            => '[' . ( ( $this->showFCKEditor & RTE_VISIBLE ) ? wfMessage('tog-riched_disable')->escaped() : wfMessage('textrichditor')->escaped() ) . ']', //27.06.16 RL: >= MW 1.27
 				'saveSetting'           => ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state']  ) ?  1 : 0 ),
 				'useEditwarning'        => ( $wgUser->getOption( 'useeditwarning' ) ?  1 : 0 ),  //13.04.14 RL
+				'riched_disable'        => ( $wgUser->getOption( 'riched_disable' ) ?  1 : 0 ),  //27.06.16 RL User option "Show WikiTextEditor"
+				'useWikiEditor'         => $useWikiEditor,                                       //27.06.16 RL
 				'EnabledUseEditWarning' => false,                                                //13.04.14 RL Because IE fires onbeforeunload with ToggleCKEditor
 				'RTE_VISIBLE'           => RTE_VISIBLE,
 				'RTE_TOGGLE_LINK'       => RTE_TOGGLE_LINK,
@@ -631,12 +646,12 @@ HEREDOC;
 				'smwghQiLoadUrl'        => '"'. CKeditor_MediaWiki::GetQILoadUrl() .'"',
 				'linkPasteText'         => ( $wgUser->getOption( 'riched_link_paste_text', $wgDefaultUserOptions['riched_link_paste_text']  ) ?  1 : 0 ), //08.09.14 RL
 				'WYSIWYGversion'        => '"' . WYSIWYG_EDITOR_VERSION . '"',  //19.10.15 RL
-				'CKheight'              => ( empty($wgFCKEditorHeight) ) ? 0 : $wgFCKEditorHeight,       //22.03.16 RL
-				'MWnewWinMsg'           => Xml::escapeJsString( wfMsgHtml( 'rich_editor_new_window' ) ), //22.03.16 RL =>$newWinMsg
+				'CKheight'              => ( empty($wgFCKEditorHeight) ) ? 0 : $wgFCKEditorHeight,          //22.03.16 RL
+				// 'MWnewWinMsg'           => Xml::escapeJsString( wfMsgHtml( 'rich_editor_new_window' ) ), //22.03.16 RL =>$newWinMsg //27.06.16 RL: < MW 1.27
+				'MWnewWinMsg'           => wfMessage('rich_editor_new_window')->escaped(),                  //27.06.16 RL: >= MW 1.27
 				'MWtextfield'           => 'wpTextbox1',    //22.03.16 RL =>$textfield
 				'CKEDITOR_ready'        => true,            //22.03.16 RL Instead of CKEDITOR.ready
 				'CKEDITOR_BASEPATH'     => ( isset($wgCKEditor_BASEPATH) ) ? $wgCKEditor_BASEPATH : 'extensions/WYSIWYG/ckeditor/', //24.03.16 RL Define base path of CKeditor (resourceloader requires this)
-				'RTE_VISIBLE'           => RTE_VISIBLE,     //27.03.16 RL
 				'RTE_TOGGLE_LINK'       => RTE_TOGGLE_LINK, //27.03.16 RL
 				'CKEDITOR_sourcemode'   => ( isset($wgWYSIWYGSourceMode) && $wgWYSIWYGSourceMode == true ) ? 1 : 0, //17.04.16 RL
 				)

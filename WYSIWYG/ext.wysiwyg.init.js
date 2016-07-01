@@ -24,25 +24,36 @@ jQuery( document ).ready( function(){
 } ); 
 *****/
 
-var modules = []; //17.04.16 RL
+
+var modules = [], //17.04.16 RL
+_showFCKEditor = mw.config.get('showFCKEditor');
+_RTE_VISIBLE   = mw.config.get('RTE_VISIBLE');
+_RTE_TOGGLE_LINK = mw.config.get('RTE_TOGGLE_LINK');
 
 // 27.03.16 RL: Hide window of wikieditor because it may take some time until window of WYSIWG is displayed.
-if ( (showFCKEditor & RTE_VISIBLE     == RTE_VISIBLE) ||      // 1 = RTE_VISIBLE
-	 (showFCKEditor & RTE_TOGGLE_LINK == RTE_TOGGLE_LINK) ) { // 2 = RTE_TOGGLE_LINK
+if ( ( _showFCKEditor & _RTE_VISIBLE     == _RTE_VISIBLE ) ||      // 1 = _RTE_VISIBLE
+	 ( _showFCKEditor & _RTE_TOGGLE_LINK == _RTE_TOGGLE_LINK ) ) { // 2 = _RTE_TOGGLE_LINK
 	$('#wpTextbox1').hide();  
 }
 
-if (CKEDITOR_sourcemode == 0) {  //17.04.16 RL
-	modules = ['ext.CKEDITOR','ext.WYSIWYG.func']; //Runtime- mode
-} else {                                           //Source-  mode reuires setting $wgWYSIWYGSourceMode = true; and.. 
-	modules = ['ext.WYSIWYG.func'];                //..$wgResourceLoaderDebug = true; in LocalSettings.php
+if ( mw.config.get('useWikiEditor') == true ) {    //27.06.16 RL
+	modules.push('ext.wikiEditor.toolbar'); 
 }
+
+// Source-  mode of Wysiwyg is not fully resourceloader compatible and it requires 
+// setting $wgWYSIWYGSourceMode = true; and $wgResourceLoaderDebug = true; in LocalSettings.php,
+// which will then load CKeditor on server side.
+if ( mw.config.get( 'CKEDITOR_sourcemode' ) == 0 ) {   //17.04.16 RL Runtime- mode loads CKeditor on client side.
+	modules.push('ext.CKEDITOR'); 
+}                                
+
+modules.push('ext.WYSIWYG.func'); //Functions needed by Wysiwyg.               
 
 // 27.03.16 RL: Client side loading of modules
 $.when(
 	mw.loader.using( modules ),
 	$.ready
 ).done( function () {
-	CKEDITOR_ready = true;
+	mw.config.set('CKEDITOR_ready', true);
 	initEditor();
 } );

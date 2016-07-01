@@ -745,7 +745,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 
 		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
 
-		if ( !is_special_elem_with_text_tags ) {                                //Syntaxhighlight-Nowiki-Pre->       
+		if ( ! mw.config.get('is_special_elem_with_text_tags') ) {                                //Syntaxhighlight-Nowiki-Pre->       
 			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); 
 			CKEDITOR.dialog.add( 'MWTextTagsD', this.path + 'dialogs/texttags.js' ); 
 
@@ -787,7 +787,7 @@ CKEDITOR.plugins.add( 'mediawiki',
         }
 		if ( editor.ui.addButton )
 		{
-			if ( !is_special_elem_with_text_tags ) {
+			if ( ! mw.config.get('is_special_elem_with_text_tags') ) {
 				editor.ui.addButton( 'MWTextTags', {       //Syntaxhighlight-Nowiki-Pre->
 					label: editor.lang.mwplugin.speSpecialTexts, //'Special Texts'
 					command: 'MWTextTags',
@@ -903,7 +903,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			{			
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
-				if ( element.hasAscendant( 'pre', true ) && !is_special_elem_with_text_tags ) { //Syntaxhighlight-Nowiki-Pre 
+				if ( element.hasAscendant( 'pre', true ) && ! mw.config.get('is_special_elem_with_text_tags') ) { //Syntaxhighlight-Nowiki-Pre 
 					evt.data.dialog = 'MWTextTagsD';
 				} else if ( element.is( 'img' ) &&                      //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
@@ -991,7 +991,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 					// Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
 					// by event beforeSetMode or toggle link) is used to allow only one call of 
 					// 'wfSajaxWikiToHTML' in function toHtml.
-					window.parent.editorSrcToWswTrigger = true;
+					//window.parent.editorSrcToWswTrigger = true;
+					mw.config.set('editorSrcToWswTrigger', true);
 				}
 			} 
 		)
@@ -1086,12 +1087,12 @@ function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button
 	// CKEDITOR.instances[objId ].commands.source.enable(); //At this point already enabled by CKeditor
 	if ( oToggleLink ) {
 		if ( editor.mode == 'wysiwyg' ) {
-			oToggleLink.innerHTML = window.parent.editorMsgOff;
+			oToggleLink.innerHTML = mw.config.get('editorMsgOff');
 		} else {  
-			oToggleLink.innerHTML = window.parent.editorMsgOn;
+			oToggleLink.innerHTML = mw.config.get('editorMsgOn');
 		}
 		// Prolonged disable of toggle link with editorForceReadOnly.		
-		if ( editor.mode == 'wysiwyg' && window.parent.editorForceReadOnly == false ) {
+		if ( editor.mode == 'wysiwyg' && mw.config.get('editorForceReadOnly') == false ) {
 			oToggleLink.style.visibility = 'visible'; //Show toggle link in wysiwyg mode
 		} else {
 			oToggleLink.style.visibility = 'hidden';  //Hide toggle link source mode
@@ -1100,7 +1101,7 @@ function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button
 	// Prolonged disable of source button with editorForceReadOnly.
 	// We are waiting for html conversion to be ready, disable source button when menu and editor is ready 
 	// in wysiwyg mode but when source button is still enabled despite of read-only mode.
-	if ( editor.mode == 'wysiwyg' && window.parent.editorForceReadOnly == true ) { 
+	if ( editor.mode == 'wysiwyg' && mw.config.get('editorForceReadOnly') == true ) { 
 		editor.commands.source.disable();
 	} 
 	if ( editor.mode == 'source' ) {
@@ -1131,14 +1132,14 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 	//In read-only mode source button seems still to be enabled, so disable it
 	if ( isReadOnly == true ) {
 		showPageIsLoading( true, 'page_loading_' + objId );
-		window.parent.editorForceReadOnly = true;
+		mw.config.set('editorForceReadOnly',true);
 		editor.commands.source.disable(); //This is here on purpose
 		editor.setReadOnly( true );
 		if ( oToggleLink ) {
 			oToggleLink.style.visibility = 'hidden';
 		}
 	} else {	
-		window.parent.editorForceReadOnly = false;
+		mw.config.set('editorForceReadOnly',false);
 		editor.commands.source.enable(); //This is here on purpose			
 		
 		//editor.setReadOnly( false ); //This seems to crash for some reason! => other plugins will not react to cancel of read-only mode
@@ -1151,9 +1152,9 @@ function toggleReadOnly( isReadOnly ) { //12.01.15 RL
 		if ( oToggleLink ) {
 			oToggleLink.style.visibility = '';
 			if ( editor.mode == 'wysiwyg' ) 
-				oToggleLink.innerHTML = window.parent.editorMsgOff;
+				oToggleLink.innerHTML = mw.config.get('editorMsgOff');
 			else  
-				oToggleLink.innerHTML = window.parent.editorMsgOn;
+				oToggleLink.innerHTML = mw.config.get('editorMsgOn');
 		}
 		showPageIsLoading( false, 'page_loading_' + objId );
 	}	
@@ -1180,7 +1181,7 @@ function showPageIsLoading( disp, loadingId ) { //12.01.15 RL
 		loadingLoc.parentNode.insertBefore( loading, loadingLoc );
 		loading.innerHTML = '<a class="fckPageLoading" id="' + loadingId  
 			+ '" style="display:inline;visibility:hidden;position:absolute;right:5px;font-size:0.8em" href="javascript:void(0)" onclick="">' 
-			+ editorWaitPageLoad +'</a> ';
+			+ mw.config.get('editorWaitPageLoad') +'</a> ';
 		loadingObj = document.getElementById( loadingId );
 	} 
 
@@ -1201,15 +1202,20 @@ function fck_mv_plg_addToStrtr( text, replaceLineBreaks ) { //16.01.15 RL
 	// and return "key" which is used to replace the original text.
 	
 	// Create key
-	key = 'Fckmw' + window.parent.fck_mv_plg_strtr_span_counter + 'fckmw'; 
-	window.parent.fck_mv_plg_strtr_span_counter++;
+	_fck_mv_plg_strtr_span_counter = mw.config.get('fck_mv_plg_strtr_span_counter');
+	key = 'Fckmw' + _fck_mv_plg_strtr_span_counter + 'fckmw'; 
+	mw.config.set('fck_mv_plg_strtr_span_counter', _fck_mv_plg_strtr_span_counter + 1);
 
-	// Store text in array
+	// Store new text in array
+	news = [];
 	if( replaceLineBreaks ) { 
-		window.parent.fck_mv_plg_strtr_span[key] = text.replace( array( "\r\n", "\n", "\r" ), 'fckLR');
+		news[key] = text.replace( array( "\r\n", "\n", "\r" ), 'fckLR');
 	} else {
-		window.parent.fck_mv_plg_strtr_span[key] = text;
+		news[key] = text;
 	}
+	_fck_mv_plg_strtr_span = mwconfig.get('fck_mv_plg_strtr_span');
+	_fck_mv_plg_strtr_span.push(news);
+	mw.config.set('fck_mv_plg_strtr_span', _fck_mv_plg_strtr_span);
 	return key;
 }
 
@@ -1219,17 +1225,18 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 
 	if (matches = text.match(/Fckmw\d+fckmw/g)) { //Are there keys to be replaced.
 		is = matches.length;
-		//alert('commnets_qty:' + is + ' 1.key:' + matches[0] + ' value:' + window.parent.fck_mv_plg_strtr_span[matches[0]]);			
+		//alert('commnets_qty:' + is + ' 1.key:' + matches[0] + ' value:' + mw.config.get('fck_mv_plg_strtr_span')[matches[0]]);			
 		for (i = 0; i < is; i++ ) { // Replace each key with original text.
 			// comments are directly in the main key FckmwXfckmw
-			if ( (typeof window.parent.fck_mv_plg_strtr_span[matches[i]] != 'undefined' ) &&
-				 (window.parent.fck_mv_plg_strtr_span[matches[i]].substr(0, 4) == '<!--') ) {
+			_fck_mv_plg_strtr_span = mw.config.get('fck_mv_plg_strtr_span');
+			if ( (typeof _fck_mv_plg_strtr_span[matches[i]] != 'undefined' ) &&
+				 (_fck_mv_plg_strtr_span[matches[i]].substr(0, 4) == '<!--') ) {
 				text = text.replace( matches[i],
-									 window.parent.fck_mv_plg_strtr_span[matches[i]]);
+									 _fck_mv_plg_strtr_span[matches[i]]);
 			}			
-			else if (typeof window.parent.fck_mv_plg_strtr_span['href="' + matches[i] + '"'] != 'undefined') {
+			else if (typeof _fck_mv_plg_strtr_span['href="' + matches[i] + '"'] != 'undefined') {
 				text = text.replace( matches[i],
-									 window.parent.substr(fck_mv_plg_strtr_span['href="' + matches[i] + '"'], 6, -1) );
+									 substr(_fck_mv_plg_strtr_span['href="' + matches[i] + '"'], 6, -1) );
 			}
 		}
 	}
@@ -1239,8 +1246,8 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL 
 	// For html->wikitext, based on fck_replaceHTMLcomments.
 
-	window.parent.fck_mv_plg_strtr_span = [];
-	window.parent.fck_mv_plg_strtr_span_counter = 0;
+	mw.config.set('fck_mv_plg_strtr_span', []);
+	mw.config.set('fck_mv_plg_strtr_span_counter', 0);
 	
 	while( ( start = text.indexOf( '<!--' ) ) != -1 ) {
 	
@@ -1266,8 +1273,7 @@ function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL
 			spaceLen++;
 
 		if( text.substr( spaceStart, 1 ) == "\n" && text.substr( spaceStart + spaceLen, 1 ) == "\n" ) {
-			// Remove the comment, leading and trailing
-			// spaces, and leave only one newline.
+			// Remove the comment, leading and trailing spaces, and leave only one newline.
 			replacement = fck_mv_plg_addToStrtr( text.substr( spaceStart, spaceLen + 1 ), false );
 			// text = text.replace( replacement + "\n", spaceStart, spaceLen + 1 ); // From php -code
 			text = text.substr(0,spaceStart) + replacement + "\n" + text.substr(spaceStart + spaceLen + 1) ;
@@ -1298,6 +1304,7 @@ CKEDITOR.customprocessor.prototype =
    {	   
         // all converting to html (like: data = data.replace( /</g, '&lt;' );)
         var loadHTMLFromAjax = function( result ){
+			/*27.06.16 RL Not supported****
 			if ( window.parent.popup &&
 				 window.parent.popup.parent.wgCKeditorInstance &&
 				 window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg' ) {
@@ -1309,15 +1316,17 @@ CKEDITOR.customprocessor.prototype =
 
 				 window.parent.popup.parent.wgCKeditorCurrentMode = 'wysiwyg';
 			}
-			else if ( window.parent.wgCKeditorInstance &&
-					  window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) {
+			else 
+			*****/
+			if (  mw.config.get('wgCKeditorInstance') &&
+				 (mw.config.get('wgCKeditorCurrentMode') != 'wysiwyg' ) ) {
 
 				if (typeof result.responseText != 'undefined') //22.02.16 RL MW1.26, change with ajax call
-					window.parent.wgCKeditorInstance.setData(result.responseText);
+					mw.config.get('wgCKeditorInstance').setData(result.responseText);
 				else
-					window.parent.wgCKeditorInstance.setData(result);
+					mw.config.get('wgCKeditorInstance').setData(result);
 
-				window.parent.wgCKeditorCurrentMode = 'wysiwyg';
+				mw.config.set('wgCKeditorCurrentMode', 'wysiwyg');
 				toggleReadOnly( false ); //12.01.15 RL
 			}
 		}
@@ -1335,21 +1344,24 @@ CKEDITOR.customprocessor.prototype =
 		//
 		// if ( (data.match('<p>') == null) && //03.03.15 RL->Commented out
 		//	    (data.match(/<.*?_fck_mw/) == null) &&
-		//	    (data.match(/class="fck_mw_\w+"/i) == null) && //03.03.15 RL<-		
-		if ( window.parent.editorSrcToWswTrigger && //03.03.15 RL
-			 window.parent.wgCKeditorInstance &&                //Because of TransformTextSwitcher plugin
-			 window.parent.wgCKeditorCurrentMode != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
-		{				
+		//	    (data.match(/class="fck_mw_\w+"/i) == null) &&     //03.03.15 RL<-		
+		if ( mw.config.get('editorSrcToWswTrigger') == true && //03.03.15 RL
+			 mw.config.get('wgCKeditorInstance') &&                //Because of TransformTextSwitcher plugin
+			 mw.config.get('wgCKeditorCurrentMode') != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
+		{			
 			// We are here when in wikitext- mode source- button or toggle- link has been pressed and we have "first" pass of toHtml.
-			window.parent.editorSrcToWswTrigger = false; //03.03.15 RL
-			toggleReadOnly( true );                      //12.01.15 RL
+			mw.config.set('editorSrcToWswTrigger', false); //03.03.15 RL
+			toggleReadOnly( true );                        //12.01.15 RL
+			
 			// Use Ajax to transform the Wikitext to HTML
+			/*27.06.16 RL Not supported****
 			if( window.parent.popup ){
 				window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
 			} else {
-				window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.wgPageName], loadHTMLFromAjax );
-			}
-			return '<a class="fckPageLoading"><i>' + editorWaitPageLoad + '</i></a>'; // 24.03.16 RL  Show text "page is loading..."
+			***/	
+				window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, mw.config.get('wgPageName')], loadHTMLFromAjax );
+			/*}*/
+			return '<a class="fckPageLoading"><i>' + mw.config.get('editorWaitPageLoad') + '</i></a>'; // 24.03.16 RL  Show text "page is loading..."
 		}
 		else { // 24.03.16 RL  Added 'else {' and '}'
 			// We are here in case page is opened for editing for the first time or
@@ -1374,15 +1386,16 @@ CKEDITOR.customprocessor.prototype =
 	 */
 	toDataFormat : function( data, fixForBody ){
 		
-        if ( (window.parent.showFCKEditor &&
-             !(window.parent.showFCKEditor & window.parent.RTE_VISIBLE)) )
-             return window.parent.document.getElementById(window.parent.wgCKeditorInstance.name).value;
+        if ( (mw.config.exists('showFCKEditor') &&
+             !(mw.config.get('showFCKEditor') & mw.config.get('RTE_VISIBLE'))) )
+             return window.parent.document.getElementById(mw.config.get('wgCKeditorInstance').name).value;
 
-        if (window.parent.wgCKeditorCurrentMode)
-            window.parent.wgCKeditorCurrentMode = 'source';
+        if (mw.config.exists('wgCKeditorCurrentMode'))
+            mw.config.set('wgCKeditorCurrentMode', 'source');
+		/*27.06.16 RL Not supported****
         else if (window.parent.popup && window.parent.popup.parent.wgCKeditorCurrentMode)
             window.parent.popup.parent.wgCKeditorCurrentMode = 'source';
-
+		****/		
 		if (CKEDITOR.env.ie) {
 			data = this.ieFixHTML(data);
 		}
@@ -1401,13 +1414,28 @@ CKEDITOR.customprocessor.prototype =
 		// in IE the values of the class and alt attribute are not quoted
         data = data.replace(/class=([^\"].*?)\s/gi, 'class="$1" ');
         data = data.replace(/alt=([^\"].*?)\s/gi, 'alt="$1" ');
-        
-		// when inserting data with Excel an unmatched <col> element exists, thus remove it:
-		// data = data.replace(/<col[^>]*>/gi, '' );
-		// 25.06.16 RL: Problem when pasting excel 2016 table using IE11
-		//   Prev. works with this: ...<col width="64" style="width;48pt;">... removing it completely,
-		//   but it corrupts this:  ...<colgroup><col width="64" style="width;48pt;"></colgroup>... leaving ending tag </colgroup> left
-        data = data.replace(/<col [^>]*>/gi, '' ); // 25.06.16 RL =>added space after string 'col'
+
+		// Fix1:
+		//  When pasting data from excel there may be an unmatched <col> elements left, which should be removed,
+		//  this happens at least with IE => remove them:
+		//    data = data.replace(/<col[^>]*>/gi, '' );
+		// Fix2, 27.06.16 RL:
+		//  Problem with prev. reg.ex. /<col[^>]*>/gi is that it matches also <colgroup> elements in unbalanced way
+		//  corrupting data;
+		//    -prev. works with this: ...<col width="64" style="width;48pt;">... by removing it completely,
+		//     but it corrupts this:  ...<colgroup><col width="64" style="width;48pt;"></colgroup>... by leaving ending tag </colgroup> left
+		//  =>following two lines will strip first only <colgroup> tags and after that <col> tags:
+		//    data = data.replace(/<colgroup>.*<\/colgroup>/gi, '' );
+		//    data = data.replace(/<col[^>]*>/gi, '' );                
+		// Fix3, 01.07.16 RL:
+		//  Previous may strip valid <colgroup> tags
+		//  =>following will strip first all starting <col> tags and then possible closing </col> tags: 
+		//  step1:    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      yyyyyyyzzzzz       mmmmmnnnnnooooo
+		//  step2:                                                                                          qqqqqq
+		//  ----------                                              ------                                        -----------
+		//  <colgroup><col width="64" style="width;48pt;">aaaaaaaaaa<tag1><col>  <col></tag1><col><col><col></col></colgroup>
+		data = data.replace(/<col[ >][^<\/]*/gi, '' ); // 01.07.16 RL
+		data = data.replace(/<\/col>/gi, '' );         // 01.07.16 RL
 		
         // 06.04.14 Varlin: remove <wbr> tags that causes parser to crash
         data = data.replace(/<wbr>/gi, '' );
@@ -2411,7 +2439,7 @@ CKEDITOR.customprocessor.prototype =
 				}
 				sort = sort.trim();  //12.12.14 RL->
                 if ( (sort == '') || //Was if (sort == text)
-				     (sort.substr(0,1).toUpperCase() == mw.config.get( 'wgPageName' ).trim().substr(0,1).toUpperCase()) ) {
+				     (sort.substr(0,1).toUpperCase() == mw.config.get('wgPageName').trim().substr(0,1).toUpperCase()) ) {
 					sort = null;  
 				}  //12.12.14 RL<-	
 				if (sort) {

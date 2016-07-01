@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
 # version of WYSIWYG and CKeditor
-define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+25.06.2016]');
+define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+27.06.2016]');
 define('CKEDITOR_VERSION',       'CKEditor 4.5.8 (revision c1fc9a9)');
 
 # Not a valid entry point, skip unless MEDIAWIKI is defined
@@ -191,7 +191,7 @@ $wgResourceModules += array(     // 11.06.16 RL Added + (by 0x539 nero)
 		'skinStyles'      => array(),
 		'messages'        => array(),
 		'position'        => 'bottom',
-		'dependencies'    => array(),
+		'dependencies'    => array('ext.wikiEditor.toolbar'),       // 27.06.16 RL
 		//'dependencies'    => array('ext.WYSIWYG.func'),           // 27.03.16 RL Commented out.
 		'localBasePath'   => __DIR__ ,                              // Defaults to $IP.
 		//'remoteBasePath' => $wgScriptPath . 'extensions/WYSIWYG', // Defaults to $wgScriptPath.

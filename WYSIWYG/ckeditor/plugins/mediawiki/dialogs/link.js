@@ -285,7 +285,7 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                     var e = this.getContentElement( 'mwLinkTab1', 'linkTarget');
                     e.setValue(href);
                 }
-				else if ( linkPasteText ) {  //08.09.14 RL-> Preferences->Editing->"Paste selected text as link text into link -dialog"
+				else if ( mw.config.get('linkPasteText') ) {  //08.09.14 RL-> Preferences->Editing->"Paste selected text as link text into link -dialog"
                     if ( CKEDITOR.env.ie )                                   
                         this.getContentElement( 'mwLinkTab1', 'linkTarget').setValue(editor.getSelection().document.$.selection.createRange().text);                                        
 					else

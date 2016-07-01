@@ -29,7 +29,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                     className = null,
                     textarea = this.getContentElement( 'mwSpecialTagDef', 'tagDefinition'),
                     content = textarea.getValue(),
-                    wgCKeditorMagicWords = window.parent.wgCKeditorMagicWords || window.parent.parent.wgCKeditorMagicWords;
+                    //wgCKeditorMagicWords = window.parent.wgCKeditorMagicWords || window.parent.parent.wgCKeditorMagicWords;
+					_wgCKeditorMagicWords = mw.config.get('wgCKeditorMagicWords');
 
 				content.Trim();
 				content = content.replace(/\r?\n/g, 'fckLR');
@@ -57,7 +58,7 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
 						attrstr   = '';                //23.11.14 RL
                     className = 'FCK__MWSpecial';
 
-                    if (el[1].InArray(wgCKeditorMagicWords.imagewikitags)) { //19.11.14 RL List of "known" MW tags in wysiwyg 
+                    if (el[1].InArray(_wgCKeditorMagicWords.imagewikitags)) { //19.11.14 RL List of "known" MW tags in wysiwyg 
 						spanClass = 'fck_mw_' + el[1];                       //Tag has own element in wysiwyg
                         className = 'FCK__MW' + el[1].substr(0, 1).toUpperCase() + el[1].substr(1);
                     }					
@@ -83,8 +84,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                 }
                 else if (el = content.match(/^{{(#?[\w\d_-]+):(.*?)}}$/)) {
                     var tagType = 'p';
-                    if (el[1].InArray(wgCKeditorMagicWords.datevars)) tagType = 'v';
-                    else if (el[1].InArray(wgCKeditorMagicWords.wikivars)) tagType = 'w';
+                    if (el[1].InArray(_wgCKeditorMagicWords.datevars)) tagType = 'v';
+                    else if (el[1].InArray(_wgCKeditorMagicWords.wikivars)) tagType = 'w';
                     var inner = el[2] || '_';
                     tag = '<span class="fck_mw_special" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '"' +
                           ' _fck_mw_tagtype="' + tagType + '">'
@@ -93,8 +94,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                 }
                 else if (el = content.match(/^{{([A-Z\d]+)}}$/)) {
                     var tagType = '';
-                    if (el[1].InArray(wgCKeditorMagicWords.datevars)) tagType = 'v';
-                    else if (el[1].InArray(wgCKeditorMagicWords.wikivars)) tagType = 'w';
+                    if (el[1].InArray(_wgCKeditorMagicWords.datevars)) tagType = 'v';
+                    else if (el[1].InArray(_wgCKeditorMagicWords.wikivars)) tagType = 'w';
                     if (tagType) {
                         tag = '<span class="fck_mw_special" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '"' +
                               ' _fck_mw_tagtype="' + tagType + '">_</span>'
@@ -105,8 +106,8 @@ CKEDITOR.dialog.add( 'MWSpecialTags', function( editor ) {
                         className = 'FCK__MWTemplate';
                     }
                 }
-                else if ( wgCKeditorMagicWords.sftags && ( el = content.match(/^{{{([\w ]+)((\|[^\|]+)*)}}}$/) ) ) {
-					if (el[1].InArray(wgCKeditorMagicWords.sftags)) tagType = 'sf';
+                else if ( _wgCKeditorMagicWords.sftags && ( el = content.match(/^{{{([\w ]+)((\|[^\|]+)*)}}}$/) ) ) {
+					if (el[1].InArray(_wgCKeditorMagicWords.sftags)) tagType = 'sf';
                     if (tagType) {
                         tag = '<span class="fck_mw_special" _fck_mw_customtag="true" _fck_mw_tagname="' + el[1] + '"' +
                               ' _fck_mw_tagtype="' + tagType + '">' + content + '</span>'
