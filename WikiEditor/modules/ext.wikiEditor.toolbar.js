@@ -13,8 +13,10 @@ jQuery( document ).ready( function ( $ ) {
 	$( '#wpTextbox1' ).wikiEditor(
 		'addModule', $.wikiEditor.modules.toolbar.config.getDefaultConfig()
 	);
-	//17.01.14 RL-> Hide WikiEditor toolbar in case CKeditor WYSIWYG mode is active
-	if ( showFCKEditor & RTE_VISIBLE ) { $('#wikiEditor-ui-toolbar').hide(); }
-	else  { $('#wikiEditor-ui-toolbar').show(); }
-	//17.01.14 RL<-
+	// 01.07.16 RL-> Hide WikiEditor toolbar in case CKeditor WYSIWYG mode is active
+	if ( mw.config.get('useWikiEditor') ) {
+		if ( mw.config.get('showFCKEditor') & mw.config.get('RTE_VISIBLE') ) { $('#wikiEditor-ui-toolbar').hide(); }
+		else  { $('#wikiEditor-ui-toolbar').show(); }
+	}
+	// 01.07.16 RL<-	
 } );

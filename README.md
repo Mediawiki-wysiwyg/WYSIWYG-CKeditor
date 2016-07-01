@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 01.07.16  Fixed Wysiwyg related js-variables when WikiEditor is started. Version 1.5.6_0 [B551++01.07.2016].
+
 - 01.07.16  Fixed mw-config.get/set with js- variables related to html- comments. Version 1.5.6_0 [B551+01.07.2016].   
 
 - 27.06.16  Replaced some deprecated methods with those compatible with MW1.27. Use mv.config.get/set with js-variables. Fixed error with data pasted from excel table. Fixed usage of classic editor and WikiEditor with toggle link (IE, FF, Chrome: added .htaccess files and reload of WikiEditor). Branch wysiwyg_mw127, version 1.5.6_0 [B551+27.06.2016]. 
