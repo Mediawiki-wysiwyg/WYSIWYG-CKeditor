@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 04.07.16  LocalSettings.php: $wgCKEditorWikiEditorActive = true; Use this only with MW<=1.24: tells wysiwyg that text based editor is WikiEditor. Version 1.5.6_0 [B551+04.07.2016].
+
 - 02.07.16  Extension can be activated using wfLoadExtension- method (old require_once- method is supported too). Updated lists of magic words of MW. Fixed qty of parameters for makeFreeExternalLink. Version 1.5.6_0 [B551+02.07.2016].
 
 - 01.07.16  Fixed Wysiwyg related js-variables when WikiEditor is started. Version 1.5.6_0 [B551++01.07.2016].
@@ -377,6 +379,9 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 	
 	#WikiEditor vers. >= 0.5.0
 	#wfLoadExtension( 'WikiEditor' );
+	
+	#Use this only with MW<=1.24: tells wysiwyg that text based editor is WikiEditor
+	#$wgCKEditorWikiEditorActive = true;  
 
     # Examples of setting permissions using $wgGroupPermissions, for more detailed explanation see:
     #   https://www.mediawiki.org/wiki/Manual:$wgGroupPermissions#Example

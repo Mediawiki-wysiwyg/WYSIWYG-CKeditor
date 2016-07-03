@@ -56,7 +56,7 @@ class CKeditor_MediaWiki {
 
 		# Version of WYSIWYG and CKeditor:
 		# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+02.07.2016]');
+		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+04.07.2016]');
 		define('CKEDITOR_VERSION',       'CKEditor 4.5.8 (revision c1fc9a9)');
 		
 		$dir = dirname( __FILE__ ) . '/';
@@ -527,7 +527,8 @@ class CKeditor_MediaWiki {
         global $wgCKEditorUrlparamMode, $wgRequest;
 		global $wgFCKEditorSpecialElementWithTextTags; //Syntaxhighlight-Nowiki-Pre
 		global $wgCKEditor_BASEPATH;                   //24.03.16 RL Installation directory of CKeditor (resourceloader requires this)
-        global $wgWYSIWYGSourceMode;                  //17.04.16 RL Use source mode of CKeditor
+        global $wgWYSIWYGSourceMode;                   //17.04.16 RL Use source mode of CKeditor
+		global $wgCKEditorWikiEditorActive;            //04.07.16 RL With MW<=1.24 Wysiwyg specific variable to tell if WikiEditor is installed or not
 
 		if( !isset( $this->showFCKEditor ) ){
 			$this->showFCKEditor = 0;
@@ -652,11 +653,13 @@ HEREDOC;
 		}
 		*****/
 
-		$useWikiEditor = false;  // 27.06.16 RL
-		if ( ExtensionRegistry::getInstance()->isLoaded( 'WikiEditor' ) ) {
-			//error_log(sprintf("DEBUG WikiEditor is available"));     //debug
-			$useWikiEditor = true;
-		}
+		if ( ! isset($wgCKEditorWikiEditorActive) ) {	//04.07.16 RL For MW <= 1.24 this must be defined in LocalSettings.php
+			$wgCKEditorWikiEditorActive = false;
+			if ( ExtensionRegistry::getInstance()->isLoaded( 'WikiEditor' ) ) { //Works only with MW>=1.25
+				//error_log(sprintf("DEBUG WikiEditor is available"));          //debug
+				$wgCKEditorWikiEditorActive = true;
+			}
+		}   
 		
 		/*13.11.13 RL**
 		wfLoadExtensionMessages( 'CKeditor' );
@@ -679,7 +682,7 @@ HEREDOC;
 				'saveSetting'           => ( $wgUser->getOption( 'riched_toggle_remember_state', $wgDefaultUserOptions['riched_toggle_remember_state']  ) ?  1 : 0 ),
 				'useEditwarning'        => ( $wgUser->getOption( 'useeditwarning' ) ?  1 : 0 ),  //13.04.14 RL
 				'riched_disable'        => ( $wgUser->getOption( 'riched_disable' ) ?  1 : 0 ),  //27.06.16 RL User option "Show WikiTextEditor"
-				'useWikiEditor'         => $useWikiEditor,                                       //27.06.16 RL
+				'useWikiEditor'         => $wgCKEditorWikiEditorActive,                          //27.06.16 RL
 				'EnabledUseEditWarning' => false,                                                //13.04.14 RL Because IE fires onbeforeunload with ToggleCKEditor
 				'RTE_VISIBLE'           => RTE_VISIBLE,
 				'RTE_TOGGLE_LINK'       => RTE_TOGGLE_LINK,
