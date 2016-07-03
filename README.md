@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 04.07.16  Fixed license information and desciption of extension. Version 1.5.6_0 [B551+04.07.2016].
+
 - 04.07.16  LocalSettings.php: $wgCKEditorWikiEditorActive = true; Use this only with MW<=1.24: tells wysiwyg that text based editor is WikiEditor. Version 1.5.6_0 [B551+04.07.2016].
 
 - 02.07.16  Extension can be activated using wfLoadExtension- method (old require_once- method is supported too). Updated lists of magic words of MW. Fixed qty of parameters for makeFreeExternalLink. Version 1.5.6_0 [B551+02.07.2016].

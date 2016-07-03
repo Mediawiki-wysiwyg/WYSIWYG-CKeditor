@@ -1,6 +1,6 @@
 {
 	"@note"  : "---                                                                 ",
-	"@note"  : "--- 02.07.16 RL Registering extension using wfLoadExtension.        ",
+	"@note"  : "--- 04.07.16 RL Registering extension using wfLoadExtension.        ",
 	"@note"  : "---                                                                 ",
 	"version": "Wysiwyg 1.5.6_0 [B551+04.07.2016], CKEditor 4.5.8 (revision c1fc9a9)",
 
@@ -12,8 +12,8 @@
 	],
 	"url"           : "http://www.mediawiki.org/wiki/Extension:WYSIWYG",
 	"descriptionmsg": "fckeditor-desc",
-	"type"          : "parserhook",
-	"license-name"  : "LGPL-2.1",
+	"type"          : "other",
+	"license-name"  : "GPL-2.0",
 	"requires"      : {"MediaWiki": ">= 1.25.0"},	
 	"AutoloadClasses": {
 		"CKEditor"             : "ckeditor/ckeditor_php5.php",

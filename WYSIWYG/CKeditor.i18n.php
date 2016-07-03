@@ -10,7 +10,7 @@ $messages = array();
 
 /** English */
 $messages['en'] = array(
-	'fckeditor-desc' => 'Allow editing using the WYSIWYG editor CKEditor',
+	'fckeditor-desc' => 'Provides a WYSIWYG editing interface by using CKeditor.',
 	'textrichditor' => 'Show RichTextEditor',
 	'prefs-fckeditor' => 'Rich Editor',
 	'tog-riched_disable' => 'Show WikiTextEditor',
@@ -418,7 +418,7 @@ $messages['fa'] = array(
  * @author Jack Phoenix <jack@countervandalism.net>
  */
 $messages['fi'] = array(
-	'fckeditor-desc' => 'Mahdollistaa muokkaamisen WYSIWYG-tyylillä käyttäen CKEditoria.',
+	'fckeditor-desc' => 'Sivujen muokkaus WYSIWYG-tyylillä käyttäen CKEditoria.',
 	'textrichditor' => 'Rikas editori',
 	'prefs-fckeditor' => 'Rich-editori',
 	'tog-riched_disable' => 'Ota rikas editori pois käytöstä',
