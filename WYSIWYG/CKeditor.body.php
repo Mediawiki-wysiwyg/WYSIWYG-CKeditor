@@ -43,6 +43,54 @@ class CKeditor_MediaWiki {
 	'riched_disable_ns_category',
 	'riched_disable_ns_category_talk',
 	);
+	
+	
+    /**
+     * Extension registration wfLoadExtension() + file extension.json does not properly 
+	 * support hooks with 2d arrays. There are also other WYSIWYG / CKeditor specific things
+	 * which can not be done using registration file => do these things here.
+	 * Function is called from extension.json by "callback" definition.
+    **/
+	public static function registerExtension() { // 02.07.16 RL
+		global $wgExtensionMessagesFiles, $wgFCKEditorIsCompatible, $wgAjaxExportList;	
+
+		# Version of WYSIWYG and CKeditor:
+		# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
+		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+02.07.2016]');
+		define('CKEDITOR_VERSION',       'CKEditor 4.5.8 (revision c1fc9a9)');
+		
+		$dir = dirname( __FILE__ ) . '/';
+			
+		// Enable use of AJAX features.
+		require_once('CKeditorSajax.body.php');
+		$wgAjaxExportList[] = 'wfSajaxSearchImageCKeditor';
+		$wgAjaxExportList[] = 'wfSajaxSearchArticleCKeditor';
+		$wgAjaxExportList[] = 'wfSajaxSearchCategoryCKeditor';
+		$wgAjaxExportList[] = 'wfSajaxWikiToHTML';
+		$wgAjaxExportList[] = 'wfSajaxGetImageUrl';
+		$wgAjaxExportList[] = 'wfSajaxGetMathUrl';
+		$wgAjaxExportList[] = 'wfSajaxSearchTemplateCKeditor';
+		$wgAjaxExportList[] = 'wfSajaxSearchSpecialTagCKeditor';
+		$wgAjaxExportList[] = 'wfSajaxToggleCKeditor';
+		
+		// Path to "old" internationalization file, this should be converted to newer format at some point
+		// so that definition "MessagesDirs": {"WYSIWYG": ["i18n"]}  in file extension.json can be used.
+		$wgExtensionMessagesFiles['CKeditor'] = $dir . 'CKeditor.i18n.php';
+
+		// Initialize FCKeditor and the MediaWiki extension
+		$ckeditor = new CKEditor('fake');
+		$wgFCKEditorIsCompatible = $ckeditor->IsCompatible();
+		$oCKeditorExtension = new CKeditor_MediaWiki();
+
+		// Register hooks with 2d arrays
+		Hooks::register( 'ParserAfterTidy',                array( $oCKeditorExtension, 'CKeditor_MediaWiki::onParserAfterTidy' ) );
+		Hooks::register( 'EditPage::showEditForm:initial', array( $oCKeditorExtension, 'CKeditor_MediaWiki::onEditPageShowEditFormInitial' ) );
+		Hooks::register( 'EditPage::showEditForm:fields',  array( $oCKeditorExtension, 'CKeditor_MediaWiki::onEditPageShowEditFormFields' ) );
+		Hooks::register( 'EditPageBeforePreviewText',      array( $oCKeditorExtension, 'CKeditor_MediaWiki::onEditPageBeforePreviewText' ) );
+		Hooks::register( 'EditPagePreviewTextEnd',         array( $oCKeditorExtension, 'CKeditor_MediaWiki::onEditPagePreviewTextEnd' ) );
+		Hooks::register( 'CustomEditor',                   array( $oCKeditorExtension, 'CKeditor_MediaWiki::onCustomEditor' ) );	
+	}
+	
 
 	function __call( $m, $a ) {
 		print "\n#### " . $m . "\n";
@@ -661,6 +709,9 @@ HEREDOC;
 		//22.03.16 RL  All javascripts which earlier were here have been moved into files ext.wysiwyg.func.js and ext.wysiwyg.init.js.
 		//             Resourceloader will register and load them.
 		//             Activate registered init module of WYSIWYG here, rest of the modules will be activated on client side when document is ready
+
+		//error_log(sprintf("DEBUG: before ext.WYSIWYG.init"));	
+		
 		$wgOut->addModules( 'ext.WYSIWYG.init' );
 		return true;
 	}

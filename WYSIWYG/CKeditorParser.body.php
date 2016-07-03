@@ -58,6 +58,7 @@ class CKeditorParser extends CKeditorParserWrapper {
     private $FCKeditorDateTimeVariables= array( // http://www.mediawiki.org/wiki/Help:Magic_words#Page_names
        'CURRENTYEAR',
        'CURRENTMONTH',
+	   'CURRENTMONTH1', //02.07.16 RL
        'CURRENTMONTHNAME',
        'CURRENTMONTHNAMEGEN',
        'CURRENTMONTHABBREV',
@@ -71,6 +72,7 @@ class CKeditorParser extends CKeditorParserWrapper {
        'CURRENTTIMESTAMP',
        'LOCALYEAR',     //26.11.14 RL->Same as the preceding ones, but using the site's server config or $wgLocaltimezone
        'LOCALMONTH',
+	   'LOCALMONTH1',   //02.07.16 RL
        'LOCALMONTHNAME',
        'LOCALMONTHNAMEGEN',
        'LOCALMONTHABBREV',
@@ -121,26 +123,46 @@ class CKeditorParser extends CKeditorParserWrapper {
 	   'ARTICLEPAGENAME',        //26.11.14 RL
        'TALKPAGENAME',
 	   'ROOTPAGENAME',           //26.11.14 RL
+       'FULLPAGENAMEE',          //02.07.16 RL-> 
+       'PAGENAMEE',
+       'BASEPAGENAMEE',
+       'SUBPAGENAMEE',
+       'SUBJECTPAGENAMEE',
+       'ARTICLEPAGENAMEE',
+       'TALKPAGENAMEE',
+       'ROOTPAGENAMEE',          //02.07.16 RL<-
        'NAMESPACE',
 	   'NAMESPACENUMBER',        //26.11.14 RL
 	   'SUBJECTSPACE',           //26.11.14 RL
        'ARTICLESPACE',
-       'TALKSPACE'
+       'TALKSPACE',
+       'NAMESPACEE',             //02.07.16 RL->
+       'SUBJECTSPACEE',
+       'ARTICLESPACEE',
+       'TALKSPACEE'              //02.07.16 RL<-
     );
     private $FCKeditorFunctionHooks = array(
+        'formatnum',
+		'#formatdate',           //02.07.16 RL
+        '#dateformat',           // MW 1.15+
         'lc',
         'lcfirst',
         'uc',
         'ucfirst',
-        'formatnum',
-        '#dateformat',           // MW 1.15+
         'padleft',
         'padright',
         'plural',
         'grammar',
-        '#language',
+		'gender',                //02.07.16 RL
         'int',
-        '#tag',
+		'msg',                   //02.07.16 RL->
+		'msgnw',
+		'raw',
+		'subst',                 //02.07.16 RL<-
+        '#language',
+        '#special',              //02.07.16 RL
+		'#speciale',             //02.07.16 RL
+        '#tag'
     );
     // these tags are for Semantic Forms extension (in a forms page)
     private $FCKeditorSFspecialTags = array(
@@ -239,6 +261,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @private
 	 */
 	function magicLinkCallback( $m ) {
+		//error_log(sprintf("DEBUG %s",print_r($m,true)));		
 		if ( isset( $m[1] ) && $m[1] !== '' ) {
 			# Skip anchor
 			return $m[0];
@@ -246,8 +269,8 @@ class CKeditorParser extends CKeditorParserWrapper {
 			# Skip HTML element
 			return $m[0];
 		} elseif ( isset( $m[3] ) && $m[3] !== '' ) {
-			# Free external link
-			return $this->makeFreeExternalLink( $m[0] );
+			# Free external link	
+			return $this->makeFreeExternalLink( $m[0], strlen($m[4]) ); // 02.07.16 RL Added 2.param, >=MW1.25? 
 		} else { # skip the rest
 			return $m[0];
 		}

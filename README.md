@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 02.07.16  Extension can be activated using wfLoadExtension- method (old require_once- method is supported too). Updated lists of magic words of MW. Fixed qty of parameters for makeFreeExternalLink. Version 1.5.6_0 [B551+02.07.2016].
+
 - 01.07.16  Fixed Wysiwyg related js-variables when WikiEditor is started. Version 1.5.6_0 [B551++01.07.2016].
 
 - 01.07.16  Fixed mw-config.get/set with js- variables related to html- comments. Version 1.5.6_0 [B551+01.07.2016].   
@@ -358,7 +360,16 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 
 Make sure your LocalSettings.php has been set up properly, certain name spaces should be excluded from wysiwyg by default and some of the other settings should be in specific way for wysiwyg and wikieditor to work together. Activation of wysiwyg -extension using require_once( ... ) should be the last of all extensions in your LocalSettings.pgp so that wysiwyg will know all possible tag names of other extensions.
 
+    #02.07.16->
+    #Enable WYSIWYG- extension,	MW >= 1.25
+    wfLoadExtension( 'WYSIWYG' ); 
+    #02.07.16<-
 
+    #10.11.13->
+    #Enable WYSIWYG- extension,	MW <= 1.24 (with newer versions will use wfLoadExtension, if supported)
+    #require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
+    #10.11.13->
+	
     #13.11.13->
 	#WikiEditor may not be compatible with WYSIWYG editor, use it with caution.
 	#WikiEditor vers. <= 0.4.0
@@ -366,9 +377,6 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
 	
 	#WikiEditor vers. >= 0.5.0
 	#wfLoadExtension( 'WikiEditor' );
-	
-    #Enable WYSIWYG- extension	
-    require_once( "$IP/extensions/WYSIWYG/WYSIWYG.php" );
 
     # Examples of setting permissions using $wgGroupPermissions, for more detailed explanation see:
     #   https://www.mediawiki.org/wiki/Manual:$wgGroupPermissions#Example

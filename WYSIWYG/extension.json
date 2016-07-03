@@ -1,0 +1,109 @@
+{
+	"@note"  : "---                                                                 ",
+	"@note"  : "--- 02.07.16 RL Registering extension using wfLoadExtension.        ",
+	"@note"  : "---                                                                 ",
+	"version": "Wysiwyg 1.5.6_0 [B551+02.07.2016], CKEditor 4.5.8 (revision c1fc9a9)",
+
+	"@note"  : "---                                                                 ",
+	"name"   : "WYSIWYG editor",
+	"author" : [
+	  "Mediawiki community of WYSIWYG",
+	  "Ontoprise GmbH"
+	],
+	"url"           : "http://www.mediawiki.org/wiki/Extension:WYSIWYG",
+	"descriptionmsg": "fckeditor-desc",
+	"type"          : "parserhook",
+	"license-name"  : "LGPL-2.1",
+	"requires"      : {"MediaWiki": ">= 1.25.0"},	
+	"AutoloadClasses": {
+		"CKEditor"             : "ckeditor/ckeditor_php5.php",
+		"CKeditorParser"       : "CKeditorParser.body.php",
+		"CKeditorParserOptions": "CKeditorParserOptions.body.php",
+		"CKeditorParserWrapper": "CKeditorParserWrapper.body.php",
+		"CKeditorLinker"       : "CKeditorLinker.php",
+		"CKeditorSkin"         : "CKeditorSkin.body.php",
+		"CKeditorEditPage"     : "CKeditorEditPage.body.php",
+		"CKeditor_MediaWiki"   : "CKeditor.body.php"
+	},
+	"Hooks": {
+		"LanguageGetMagic"              : ["CKeditor_MediaWiki::onLanguageGetMagic"],
+		"LanguageGetMagic"              : ["CKeditor_MediaWiki::onLanguageGetMagic"],
+		"ParserBeforeStrip"             : ["CKeditor_MediaWiki::onParserBeforeStrip"],
+		"ParserBeforeInternalParse"     : ["CKeditor_MediaWiki::onParserBeforeInternalParse"],
+		"EditPageBeforeConflictDiff"    : ["CKeditor_MediaWiki::onEditPageBeforeConflictDiff"],
+		"SanitizerAfterFixTagAttributes": ["CKeditor_MediaWiki::onSanitizerAfterFixTagAttributes"],
+		"MakeGlobalVariablesScript"     : ["CKeditor_MediaWiki::onMakeGlobalVariablesScript"],
+		"GetPreferences"                : ["CKeditor_MediaWiki::onGetPreferences"],
+		"DoEditSectionLink"             : ["CKeditor_MediaWiki::onDoEditSectionLink"],
+		"OutputPageParserOutput"        : ["CKeditor_MediaWiki::onOutputPageParserOutput"],
+		"BeforePageDisplay"             : ["CKeditor_MediaWiki::onBeforePageDisplay"],
+		"EditPageBeforeEditButtons"     : ["CKeditor_MediaWiki::onEditPageBeforeEditButtons"]
+	},
+	"callback"   : "CKeditor_MediaWiki::registerExtension",	
+	"config"     : {
+		"@note"  : "--- Some additional startup actions and hook definitions takes place",
+		"@note"  : "--- in CKeditor.body.php by using abowe callback method.",
+		
+		"@note": "--- Prefix for config variables.",
+		"_prefix": "wg",
+
+		"@note": "--- Path of this extension",
+		"FCKEditorExtDir"             : "extensions/WYSIWYG",
+		
+		"@note": "--- Path of CKeditor",
+		"FCKEditorDir"                : "extensions/WYSIWYG/ckeditor",
+
+		"@note": "--- Toolbar definition (value of variable is not used)",
+		"FCKEditorToolbarSet"         : "Wiki",
+
+		"@note": "--- Height of editor window, use '0' for automatic ('300' minimum)",
+		"FCKEditorHeight"             : 0,
+
+		"@note": "--- Array of namespaces that CKeditor is disabled for. Use constants like NS_MEDIAWIKI here.",
+		"FCKEditorExcludedNamespaces" : [],
+
+		"@note": "--- Set this to true if you want the editor to show up only when the",
+		"@note": "--- URL param mode=wysiwyg is set",
+		"CKEditorUrlparamMode"        : false,
+		
+		"@note": "--- Hide toolbar buttons when some extensions are not installed (default show buttons).",
+		"CKEditorHideDisabledTbutton" : false,
+		
+		"@note": "--- Set default values of some user variables.",
+		"DefaultUserOptions" : {
+			"riched_use_toggle"            : 1,
+			"riched_start_disabled"        : 0,
+			"riched_use_popup"             : 0,
+			"riched_toggle_remember_state" : 1,
+			"riched_link_paste_text"       : 1
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "WYSIWYG"
+	},	
+	"ResourceModules": {
+		"ext.WYSIWYG.init" : {
+			"scripts"      : "ext.wysiwyg.init.js",
+			"dependencies" : ["ext.wikiEditor.toolbar"],
+			"localBasePath": "",
+			"remoteExtPath": "WYSIWYG",
+			"position"     : "bottom"
+		},
+		"ext.WYSIWYG.func" : {
+			"scripts"      : "ext.wysiwyg.func.js",
+			"dependencies" : [],
+			"localBasePath": "",
+			"remoteExtPath": "WYSIWYG",
+			"position"     : "bottom"
+		},
+		"ext.CKEDITOR": {
+			"scripts"      : "ckeditor.js",
+			"dependencies" : [],
+			"localBasePath": "ckeditor",
+			"remoteExtPath": "WYSIWYG/ckeditor",
+			"position"     : "bottom"
+		}		
+	},
+	"manifest_version": 1
+}
