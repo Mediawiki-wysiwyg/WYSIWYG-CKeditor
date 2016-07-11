@@ -44,7 +44,7 @@ CKEDITOR.editorConfig = function( config )
         ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature', 'qiButton', 'wsButton', 'rmButton' ],
         [ 'stbButton' ],
         ['MWCategory'],            //07.01.14 RL  
-        ['MWRef', 'MWReferences'], //03.01.14 RL For references (citation)
+        ['MWRef', 'MWReferences', 'MWReferencesUpd'], //08.07.16 RL For references (citation)
         ['About'], 
         '/',
         ['Styles','Format','Font','FontSize'],

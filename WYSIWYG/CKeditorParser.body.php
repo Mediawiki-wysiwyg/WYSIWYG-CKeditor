@@ -361,7 +361,8 @@ class CKeditorParser extends CKeditorParserWrapper {
             $ret .= htmlspecialchars( $str );
         } else {
 			$ret .= '_';
-		}	
+		}
+
 		$ret .= '</span>';
 
 		//if ($tagName == 'comments') printf("debug_tag_0 %s", preg_replace("/</","",$ret) ); //20.11.14 RL 
@@ -411,6 +412,75 @@ class CKeditorParser extends CKeditorParserWrapper {
 	}
 
 	/**
+	 * Callback function for wiki tags using paragraph format  <span><sup><ref|references>... -tags.
+	 *
+	 * @param string $tagName          tag name: ref | references
+	 * @param string $str              attribute title
+	 * @param string $smbl             text of placeholder  (=textValue)
+	 * @param string $contenteditable  for setting contenteditable="false"
+	 * @param string $sizetag          possible tag to define size of final reference text
+	 * @param array  $argv             arguments
+	 * @return string
+	 */
+	function fck_ref_wikiTag( $tagName, $str, $smbl, $contenteditable, $sizetag, $argv = array() ) { //<span><sup><ref|references>...
+	
+		if( in_array( $tagName, $this->FCKeditorImageWikiTags ) ) {
+			$className = $tagName; 
+		} 
+		else {
+			$className = 'special';  //All others like <calendar>, <poll> ,etc...
+		} 
+		
+		if( !is_null( $str ) && $str != '' ) { 
+            $str = htmlspecialchars( $str );
+        } else {
+			$str = '_';
+		}	
+		
+		$ret = '<span ';
+		
+		// NOTE! Functions of CKeditor related to selection of element when contenteditable="false" work ok with IE but not with FF or Chrome,
+		//       this is browser related issue, not problem of CKeditor.
+		if( $contenteditable == false ) $ret .= 'contenteditable="false" ';
+		
+		$ret .= 'class="fck_mw_' . $className . '">';
+		
+		if( !is_null( $sizetag ) && $sizetag != '' ) $ret .= '<' . $sizetag . '>';
+		
+		$ret .= '<' . $tagName . ' class="fck_mw_' . $className . '"';
+		
+		if( $str != '_' ) 
+			$ret .= ' title="' . $str . '"';              //will be overwritten later by plugin.js -> references_build_list
+		
+		if( $tagName == 'ref' ) 
+			$ret .= ' fck_mw_reftagtext="' . $str . '"';  //will be overwritten later by plugin.js -> references_build_list
+
+		if( empty( $argv ) ) {
+			$ret .= '>';
+		} else {
+			foreach( $argv as $key => $value ) {
+				$ret .= " " . $key . "=\"" . $value . "\"";				
+			}
+			$ret .= '>'; 
+		}
+		
+		if( !is_null( $smbl ) && $smbl != '' ) { 
+            $ret .= htmlspecialchars( $smbl );
+        } else {
+			$ret .= '_';
+		}	
+		$ret .= '</' . $tagName . '>'; 
+		
+		if( !is_null( $sizetag ) && $sizetag != '' ) $ret .= '</' . $sizetag . '>'; 
+		
+		$ret .= '</span>'; 
+
+		$replacement = $this->fck_addToStrtr( $ret, false ); // false = do not convert LF
+
+		return $replacement;
+	}	
+	
+	/**
 	 * Strips and renders nowiki, pre, math, hiero
 	 * If $render is set, performs necessary rendering operations on plugins
 	 * Returns the text, and fills an array with data needed in unstrip()
@@ -447,7 +517,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		}
 		if ( ( isset( $wgHooks['ParserFirstCallInit'] ) && in_array( 'wfCite', $wgHooks['ParserFirstCallInit'] ) )
 			|| ( isset( $wgExtensionFunctions ) && in_array( 'wfCite', $wgExtensionFunctions ) ) ) {
-			$elements = array_merge( $elements, array( 'ref', 'references' ) );
+			//$elements = array_merge( $elements, array( 'ref', 'references' ) );
 		}
 		
 		global $wgRawHtml;
@@ -512,10 +582,14 @@ class CKeditorParser extends CKeditorParserWrapper {
 						}
 						break;
 					case 'references':
-						$output = $this->fck_wikiTag( 'references', $content, $params );
+						// $output = $this->fck_wikiTag( 'references', $content, $params );   //08.07.16 RL
+						
+						// Create only placeholder tag here, contents of tag will be modified further in CKeditor when page is open and ready.
+						$output = $this->fck_ref_wikiTag( 'references', $content, '<References>', true, '', $params );  //Text based <references> element
 						break;
 					case 'ref':
-						$output = $this->fck_wikiTag( 'ref', $content, $params );
+						//$output = $this->fck_wikiTag( 'ref', $content, $params );           //08.07.16 RL
+						$output = $this->fck_ref_wikiTag( 'ref', $content, '<R>', true, 'sup', $params );  //Text based <ref> element
 						break;
 					case 'source':                                                            //02.11.14 RL   
 						//Treat tag source equal to tag syntaxhighlight and continue below.   //30.10.14 Wingsofcourage
@@ -1064,9 +1138,9 @@ class CKeditorParser extends CKeditorParserWrapper {
                 $appendString .= $linebreak;
 				//if ($val == $title->mTextform) { //12.12.14 RL This has earlier been always false and mTextform returns 'AJAX', not name of page, in case editing starts in wikitext mode
 				if ($val == '') {                  //12.12.14 RL, 05.12.14 RL Added htmlspecialchars below 
-					$appendString .= '<span class="fck_mw_category" ' . $args . '>' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';
+					$appendString .= '<span class="fck_mw_category" contenteditable="false" ' . $args . '>' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';
                 } else {
-					$appendString .= '<span class="fck_mw_category" ' . $args . ' sort="' . htmlspecialchars ( $val ) . '">' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';					
+					$appendString .= '<span class="fck_mw_category" contenteditable="false" ' . $args . ' sort="' . htmlspecialchars ( $val ) . '">' . htmlspecialchars( str_replace('_', ' ', $cat) ) . '</span>';					
                 } 
                 $linebreak = ' '; //Value '<br />' produces element (type=3) in CKeditor, otherwise it will be text (type=2)
               }

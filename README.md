@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 08.07.16  Do not allow editing of text within placeholders of category- elements. Reload buttons of WikiEditor. Elements related to references (Cite- extension) in wysiwyg- mode are now text based elements (they were previously <R> and <References> special image- elements): placing pointer over reference shows text of reference as tooltip ("mouseover"), references are now numbered (<ref>..</ref>) and list of references are displayed as non-editable text- block at place of <references/> tag. Version 1.5.6_0 [B551+08.07.2016].
+
 - 04.07.16  Fixed license information and desciption of extension. Version 1.5.6_0 [B551+04.07.2016].
 
 - 04.07.16  LocalSettings.php: $wgCKEditorWikiEditorActive = true; Use this only with MW<=1.24: tells wysiwyg that text based editor is WikiEditor. Version 1.5.6_0 [B551+04.07.2016].

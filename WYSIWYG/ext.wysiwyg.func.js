@@ -461,10 +461,13 @@ function ToggleCKEditor( mode, objId ){
 			
 				// Add toolbar of WikiEditor only if it does not exist, this prevents double toolbars in case toggle 
 				// is used multiple times per editing session of page.
-				if ( ! toolbar ) {
+				if ( ! toolbar && $.wikiEditor.isSupported( $.wikiEditor.modules.dialogs ) ) {
 					//alert('#wikiEditor-ui-toolbar will be added...');
-			
-					// Add toolbar of WikiEditor on page, objId = wpTextbox1
+
+					// Replace icons
+					$.wikiEditor.modules.dialogs.config.replaceIcons( $( '#' + objId ) );
+					
+					// Add dialogs module of WikiEditor on page, objId = wpTextbox1
 					$( '#' + objId ).wikiEditor('addModule', $.wikiEditor.modules.toolbar.config.getDefaultConfig());						
 				} 
 			} 
@@ -474,9 +477,11 @@ function ToggleCKEditor( mode, objId ){
 
 			// For some reason in Chrome and FF toolbar of WikiEditor is  not fully functional after switch, 
 			// it has to be rebuilt and reloaded in order to make it operational.
-			if ( ! CKEDITOR.env.ie ) { // CKEDITOR.env.webkit || CKEDITOR.env.gecko
-				$( '#wikiEditor-ui-toolbar' ).remove();  // remove original to prevent duplicate toolbar
-				$( '#' + objId ).wikiEditor('addModule', $.wikiEditor.modules.toolbar.config.getDefaultConfig()); // reload WikiEditor
+			if ( ! CKEDITOR.env.ie && $.wikiEditor.isSupported( $.wikiEditor.modules.dialogs ) ) { // CKEDITOR.env.webkit || CKEDITOR.env.gecko
+				$( '#wikiEditor-ui-toolbar' ).remove();                               // remove original to prevent duplicate toolbar
+				$.wikiEditor.modules.dialogs.config.replaceIcons( $( '#' + objId ) ); // Replace icons
+				// Add dialogs module of WikiEditor on page, objId = wpTextbox1
+				$( '#' + objId ).wikiEditor('addModule', $.wikiEditor.modules.toolbar.config.getDefaultConfig()); 
 			}
 		}
 

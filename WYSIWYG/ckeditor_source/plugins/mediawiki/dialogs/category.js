@@ -338,7 +338,8 @@ CKEDITOR.dialog.add( 'MWCategory', function( editor ) {
 					var realElement = CKEDITOR.dom.element.createFromHtml('<span></span>');
 
 					//Name FCK class for category element.	
-					realElement.setAttribute('class','fck_mw_category');					
+					realElement.setAttribute('class','fck_mw_category');
+					realElement.setAttribute('contenteditable','false'); //disable editing of object
 					
 					//Name of category	 
 					if ( category.length > 0 )

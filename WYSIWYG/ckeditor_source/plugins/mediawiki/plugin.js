@@ -57,16 +57,15 @@ CKEDITOR.plugins.add( 'mediawiki',
             '{' +
                 'border: 1px solid #dddddd;' +
             '}\n' +
-
             // Add the CSS styles for special wiki placeholders.
-			'img.FCK__MWRef' +
+			'img.FCK__MWRef' +   //<ref>  Img element was replaced by <R>
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_ref.gif' ) + ');' +
 				'background-position: center center;' +
 				'background-repeat: no-repeat;' +
 				'border: 1px solid #a9a9a9;' +
-				'width: 18px !important;' +
-				'height: 15px !important;' +
+				'width: 18px !important;'  +  
+				'height: 15px !important;' + 
 			'}\n' +
 			'img.FCK__MWReferences' +
 			'{' +
@@ -204,20 +203,46 @@ CKEDITOR.plugins.add( 'mediawiki',
 			'{' +
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
-			'}\n' +                                                                 //Syntaxhighlight-Nowiki-Pre<-
+			'}\n' +                         //Syntaxhighlight-Nowiki-Pre<-
 			'pre._fck_mw_lspace' +          //29.11.15 RL For MW special space initiated <pre> block (related to class _fck_mw_lspace and this._inLSpace)
 			'{' +
 				'background-color:rgb(245,245,245);' + 
 				'border: 1px solid rgb(224,224,224);' +
 				'padding-left: 10pt' +      //Width of ~1 character indent for each line
-			'}\n' +                                                                 //Syntaxhighlight-Nowiki-Pre<-			
+			'}\n' +                  		//Syntaxhighlight-Nowiki-Pre<-
 			'table.wikitable {' +           //30.10.15 RL Predefined wikitable class for MW table formatting
 				'margin: 1em 0;' +
 				'background-color: #f9f9f9;' +
 				'border: 1px #aaa solid;' +
 				'border-collapse: collapse;' +
 				'color: black;' +
-			'}\n';		
+			'}\n' +
+			'span.fck_mw_ref' +             //<ref>  Img element was replaced by this (=<R>)
+			'{' +         
+				'display: inline;' +
+				//'background-color: #ffff99;' + 
+				'color: blue;' + 
+				'font-weight: bold;' +
+				'font-size: 100%;' +
+				//'resize: both;' +
+				//'border: 1px solid #a9a9a9;' +
+				'float: none' +
+			'}\n' +
+			'span.fck_mw_references' +      //<references>  Img element was replaced by this
+			'{' +         
+				//'background-color: #ffffcc;' +  //light yellow  //light blue: rgba(0, 127, 255, 0.133)
+				//'border: 1px solid rgb(224,224,224);' +
+				'font-size: 100%;' +
+				'display: inline-block;' +
+			'}\n';
+			/****
+			'span.fck_mw_ref ref:target,' +
+			'span.fck_mw_references references span:target' +
+			'{' +
+				'background-color: #def;' +                 
+				'background-color: rgba(0, 127, 255, 0.133);' +
+			'}\n';
+			***/
         return str;
     },
 
@@ -242,12 +267,16 @@ CKEDITOR.plugins.add( 'mediawiki',
                         switch ( eClassName ){
                             case 'fck_mw_syntaxhighlight' :          //02.11.14 RL Was source
                                 className = 'FCK__MWSyntaxhighlight';
+                            /***   <ref>  Img element was replaced by <R>
                             case 'fck_mw_ref' :
                                 if (className == null)
                                     className = 'FCK__MWRef';
+					        ***/			
+							/***   <references>  Img element was replaced by text block
                             case 'fck_mw_references' :
                                 if ( className == null )
                                     className = 'FCK__MWReferences';
+							***/	
                 			/*28.07.2015***
 							case 'fck_mw_category' :                 //07.01.14 RL->
                                if ( className == null )              
@@ -346,14 +375,39 @@ CKEDITOR.plugins.add( 'mediawiki',
     	{
         	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
             exec : function( editor ) {
-                var ref = '<span class="fck_mw_references">_</span>',
-                    element = CKEDITOR.dom.element.createFromHtml(ref, editor.document),
-                    newFakeObj = editor.createFakeElement( element, 'FCK__MWReferences', 'span' );
-                editor.insertElement( newFakeObj );
+                var //ref = '<span class="fck_mw_references">_</span>',
+                    element, // = CKEDITOR.dom.element.createFromHtml(ref, editor.document),
+                    newFakeObj; // = editor.createFakeElement( element, 'FCK__MWReferences', 'span' );
+					
+				element = new CKEDITOR.dom.element('references');
+				element.setAttribute('class','fck_mw_references');             
+				element.setText('<References>');
+				
+				newFakeObj = new CKEDITOR.dom.element('span');              
+				newFakeObj.setAttribute('class','fck_mw_references');             
+				
+				editor.insertElement(element.appendTo( newFakeObj )); 				
+					
+                //editor.insertElement( newFakeObj );
+				
+				// 08.07.16 RL: To get texts of references into <references> text based block 
+				references_build_list( editor );
             }
         };
         //03.01.14 RL<-
 
+        //08.07.16 RL->For references (citation)
+		var referencesUpdCommand =
+    	{
+        	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
+            exec : function( editor ) {
+				
+				//To get texts of references into <references> text based block 
+				references_build_list( editor );
+            }
+        };
+        //08.07.16 RL<-		
+		
         var signatureCommand =
     	{
         	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
@@ -448,6 +502,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			refDefName         : 'Name of reference (if same text is referenced at multible places on page, if not, leave empty):',
 			ref				   : 'Add a reference',                              //03.01.14 RL
 			references		   : 'Add references block',                         //03.01.14 RL
+			references_upd	   : 'Update references',                            //08.07.16 RL
+			references_noedit  : 'Do not modify references here.',                //08.07.16 RL
             // category
 			categorybtn        : 'Create new category',                          //20.01.15 RL   'Ajouter'
 			categoryTitle      : 'Add/edit categories',                          //20.01.15 RL
@@ -527,7 +583,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 			refDefName         : 'Viitteen nimi (anna nimi vain jos samaan viitetekstiin viitataan useasta paikasta):', //'Name of reference'
 			ref				   : 'Viite',                                        //'Add a reference' for button of menu
 			references		   : 'Lista viitteistä',                             //'Add references block' for button of menu
-            // category
+            references_upd	   : 'Päivitä viitteet',                            //08.07.16 RL
+			references_noedit  : 'Älä muuta viitteitä tässä kohdassa.',          //08.07.16 RL
+			// category
 			categorybtn    	   : 'Luo uusi luokka',                           //'Create new category' //20.01.15 RL
 			categoryTitle      : 'Sivun luokkien määritys',                 //'Add/edit categories' //20.01.15 RL 
 			category           : 'Etsi / luo uusi luokka (tyhjä kenttä listaa kaikki luokat):', //'Type text to search for or create a new category' //20.01.15 RL
@@ -606,6 +664,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			refDefName         : 'Nom de la référence :',
 			ref				   : 'Ajouter une référence',
 			references		   : 'Ajouter le bloc des références',
+			references_upd	   : 'Mise à jour des références',                            //08.07.16 RL
+			references_noedit  : 'Ne pas mettre à jour les références ici.',               //08.07.16 RL
 			// category        
 			categorybtn		   : 'Ajouter/modifier une catégorie',
 			categoryTitle	   : 'Ajouter/modifier une catégorie',
@@ -685,6 +745,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             refDefName          : 'Name der Referenz',
             ref                 : 'Referenz hinzufügen',
             references          : 'Referenzblock hinzufügen',
+			references_upd	    : 'Referenz aktualisierung',                         //08.07.16 RL
+			references_noedit   : 'Ändern Sie nicht hier Referenzen.',                //08.07.16 RL
             // category
             categorybtn         : 'Neue Kategorie erstellen',
             categoryTitle       : 'Kategorie hinzufügen/bearbeiten',
@@ -736,7 +798,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 
 		editor.addCommand( 'MWRef', new CKEDITOR.dialogCommand( 'MWRef' ) ); //03.01.14 RL For references (citation)
         CKEDITOR.dialog.add( 'MWRef', this.path + 'dialogs/ref.js' );        //03.01.14 RL
-		editor.addCommand( 'MWReferences', referencesCommand);               //03.01.14 RL
+		editor.addCommand( 'MWReferences',    referencesCommand);            //03.01.14 RL
+		editor.addCommand( 'MWReferencesUpd', referencesUpdCommand);         //08.07.16 RL
+		
 
 		editor.addCommand( 'MWCategory', new CKEDITOR.dialogCommand( 'MWCategory' ) ); //07.01.14 RL
         CKEDITOR.dialog.add( 'MWCategory', this.path + 'dialogs/category.js' );        //07.01.14 RL
@@ -803,21 +867,27 @@ CKEDITOR.plugins.add( 'mediawiki',
                     icon: this.path + 'images/tb_icon_special.gif'
 				});
 
-            //03.01.14 RL->For references (citation)
-			editor.ui.addButton( 'MWRef',
+			editor.ui.addButton( 'MWRef',           //03.01.14 RL For references (citation)
 				{
 					label : editor.lang.mwplugin.ref,
 					command : 'MWRef',
                     icon: this.path + 'images/icon_ref.gif'
 				});
-			editor.ui.addButton( 'MWReferences',
+				
+			editor.ui.addButton( 'MWReferences',    //03.01.14 RL
 				{
 					label : editor.lang.mwplugin.references,
 					command : 'MWReferences',
                     icon: this.path + 'images/icon_references.gif'
 				});
-            //03.01.14 RL<-
-
+			
+			editor.ui.addButton( 'MWReferencesUpd', //08.07.16 RL
+				{
+					label : editor.lang.mwplugin.references_upd,
+					command : 'MWReferencesUpd',
+                    icon: this.path + 'images/icon_refupd.png'
+				});		
+			
 			editor.ui.addButton( 'MWSignature',
 				{
 					label : editor.lang.mwplugin.signature,
@@ -860,50 +930,42 @@ CKEDITOR.plugins.add( 'mediawiki',
             });
         }
 		
-		editor.on( 'contentDom', function( evt ) // Necessary to get onMouseUp / onKeyUp events 
-			{ 
-				//To enable / disable unlink button, taken from 
-				//http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html 
-
-				// 06.03.15 Varlin: 
-				// Event editor.on( 'selectionChange' is fired only on selection change (and not within a same <p>)
-				// Enabling/disabling link buttons moved from event "editor.on( 'selectionChange'...)" here,
-				// which test all kind of selections. 
-				
-				buttons_on_off = function(sel)  
-				{				 
-					if ( editor.readOnly ) return; 
+		editor.on( 'contentDom', function( evt )  // Necessary to get onMouseUp / onKeyUp events 
+			{
 		
-					var cmd_unlink = editor.getCommand( 'unlink' ), 
-						cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' );
-		
-					// get html in selection and search for links (can't be donne with sel) 
-					var iframe2 = document.getElementsByClassName('cke_wysiwyg_frame cke_reset')[0]; 
-					var sel2 = iframe2.contentDocument.getSelection(); 
-					if (sel2.rangeCount > 0) var clonedSelection = sel2.getRangeAt(0).cloneContents(); 
-		
-					cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED );     //Disable Simplelink 
+				// 06.03.15 Varlin: To enable / disable unlink button, taken
+				editor.document.on('keyup',    function() { linkbuttons_on_off( editor ) } ); 
+				editor.document.on('mouseup',  function() { linkbuttons_on_off( editor ) } ); 
 			
-					// if selection is inside a link or has a link inside...      
-					if ( typeof clonedSelection != 'undefined' && ( editor.elementPath().contains('a') || clonedSelection.querySelectorAll('a').length > 0 ) ) 
-						cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable Unlink 
-					else { 
-						cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED ); 		 //Disable Unlink 
-						// if selection is a text (not an element), at least one character 
-						if (sel.getType() != CKEDITOR.SELECTION_ELEMENT && sel.getSelectedText().length > 0) 
-						cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //Enable Simplelink 
-					} 
-				} 
-				editor.document.on('keyup',    function() { buttons_on_off( editor.getSelection() ) } ); 
-				editor.document.on('mouseup',  function() { buttons_on_off( editor.getSelection() ) } ); 
+				// 08.07.16 RL: To disable edits of <ref> and <references> text based elements
+				editor.document.on('keyup',    function() { reference_disable_sel( evt, editor ) } );
+				editor.document.on('mouseup',  function() { reference_disable_sel( evt, editor ) } );
+				
+				// 08.07.16 RL: To get texts of references into <references> text based block 
+				//editor.document.on('mouseup',  function() { references_build_list( evt, editor ) } );
+				references_build_list( editor );			
+				
+				//editor.editable().attachListener( editor.document, 'mouseup', function() { linkbuttons_on_off( editor ) } );
+				//editor.editable().attachListener( editor.document, 'mouseup', function() { reference_disable_sel( evt, editor ) } );
+				
+				//var editable = editor.editable();
+				//editable.attachListener( editable, 'mouseup', function() { linkbuttons_on_off( editor ) } );
+				//editable.attachListener( editable, 'mouseup', function() { reference_disable_sel( evt, editor ) } );	
 			} 
-		) 		
-
+		) 
+		
         editor.on( 'doubleclick', function( evt )
 			{			
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
-				if ( element.hasAscendant( 'pre', true ) && ! mw.config.get('is_special_elem_with_text_tags') ) { //Syntaxhighlight-Nowiki-Pre 
+				if ( element == null ) {
+					element = selection.getStartElement();           //For <ref> as text based element, img element is not used
+				}
+				
+				if ( element.hasAscendant( 'ref', true ) == true ) { //For <ref> as text based element, img element is not used
+					evt.data.dialog = 'MWRef';	
+				}
+				else if ( element.hasAscendant( 'pre', true ) && ! mw.config.get('is_special_elem_with_text_tags') ) { //Syntaxhighlight-Nowiki-Pre 
 					evt.data.dialog = 'MWTextTagsD';
 				} else if ( element.is( 'img' ) &&                      //07.01.14 RL->
 				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
@@ -920,12 +982,12 @@ CKEDITOR.plugins.add( 'mediawiki',
 				//              ckeditor/plugins/mwtemplate/plugins.js has following code but for some reason it is not
 				//              activated there on doubleclick of icon_template.gif, placing code here seems to solve the case.
 				else if ( element.is( 'img' ) &&
-                     element.getAttribute( 'class' ) &&
-                     element.getAttribute( 'class' ) == 'FCK__MWTemplate' )
-					evt.data.dialog = 'MWTemplate';
-				//03.02.14 RL<-
+						  element.hasAttribute( 'class' ) &&
+						  element.getAttribute( 'class' ) == 'FCK__MWTemplate' ) {
+							evt.data.dialog = 'MWTemplate';
+				} //03.02.14 RL<-
 				else
-                {                                                        //07.01.14 RL<-
+				{                                                        //07.01.14 RL<-
 					if ( element.is( 'a' ) || ( element.is( 'img' ) && element.getAttribute( '_cke_real_element_type' ) == 'anchor' ) )
 						evt.data.dialog = 'MWLink';
 					else if ( element.getAttribute( 'class' ) == 'fck_mw_category' )     //01.09.2015 RL For categories (28.07.2015)
@@ -936,7 +998,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 							evt.data.dialog = 'MWCategory';                              //07.01.2014 RL
 						else 
 						***/
-						if ( element.getAttribute( 'class' )  == 'FCK__MWRef' )          //04.01.2014 RL For references (citation)
+						if ( element.getAttribute( 'class' )  == 'FCK__MWRef' )          ////For <ref> as img element
 							evt.data.dialog = 'MWRef';                                   //04.01.2014 RL
 						else if ( element.getAttribute( 'class' ) &&                     //07.01.14 RL This was earlier one step below
 							element.getAttribute( 'class' ).InArray( [
@@ -1003,18 +1065,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				//editor = evt.editor; //This is from CKeditor example of read-only mode...does not work ok here.				
 				editor.setReadOnly( false );	//24.02.16 RL
 			} 
-		)
-		
-		/**
-		editor.on( 'contentDom', function () //21.01.15 RL 
-			{
-				editor.editable().attachListener( this.fakeObj, 'click', function() {
-						//alert('test');
-					} 
-				);
-			} 
-		)
-		**/		
+		)		
 		
 		// When opening a dialog, its "definition" is created for it, for
 		// each editor instance. The "dialogDefinition" event is then
@@ -1079,6 +1130,235 @@ function printObject(o) { //For debug purposes
   alert(out);
 }
 **/
+
+
+function reference_disable_sel( evt, editor ) { // 08.07.16 RL
+	// Try to disable editing of <ref> and <references> elements, img elements are not used.
+	// NOTE! Attr. contenteditable="false" would work ok with IE but not with FF or Chrome
+
+	var sel = editor.getSelection(),
+		element = sel.getStartElement();	
+	if ( element.hasAscendant( 'ref', true ) == true || element.hasAscendant( 'references', true ) == true ) { 
+		sel.scrollIntoView();
+	}
+
+	/****
+    var ranges = editor.getSelection().getRanges();
+    if (ranges.length == 1) {
+        var parent = ranges[0].startContainer.getParent();
+
+        // is the cursor is inside element
+        //if (parent && parent.getAttribute('data-tab') == 'true') {
+		if ( parent.hasAscendant( 'ref', true ) == true || parent.hasAscendant( 'references', true ) == true ) { 	
+            var newRange = editor.createRange();
+            newRange.setStartAfter(parent);
+            newRange.setEndAfter(parent);
+            // move the cursor after element
+            editor.getSelection().selectRanges([newRange]);
+        }
+    }
+	****/
+}
+				
+
+function references_build_list( editor ) { // 08.07.16 RL
+	// "editor.document.$" is the native DOM document object for "editor.document" 
+	var arr = editor.document.$.getElementsByTagName("*"),  
+		h = 0, i = 0, j = 0, k = 0, m = 0, num = 0, 
+		refs = [], refs_name = [], 
+		refid = '', sstr = '', text_of_ref = '';	
+		
+	for ( i = 0; i < arr.length; i++ ) {
+		if ( arr[i].tagName == 'REF' ) {
+			/**
+			alert('<ref> ind:' + i + ' tagname:' + arr[i].tagName + ' has fck_mw_reftagtext:' + 
+				  arr[i].hasAttribute('fck_mw_reftagtext') + ' :' + arr[i].getAttribute('fck_mw_reftagtext')
+				);
+			**/
+			refid = 'cite_ref-' + (h + j + 1);
+			if ( arr[i].hasAttribute('fck_mw_reftagtext') && arr[i].getAttribute('fck_mw_reftagtext') != '_' )
+				text_of_ref = arr[i].getAttribute('fck_mw_reftagtext');
+			else 
+				text_of_ref = '';
+			
+			name_of_ref = '';
+			
+			if ( arr[i].hasAttribute('name') ) {
+				name_of_ref = arr[i].getAttribute('name');
+				if ( refs_name[ name_of_ref ] == null ) {
+					num = j + 1;  // Number displayed on reference text and on list
+					
+					// Remember name and reference pair, at this point reference text may be undefined
+					// depending on place of named reference where text is defined.
+					refs.push( {reftxt:  text_of_ref,
+								refname: name_of_ref
+								} );
+
+					// For list of reference texts in <references> tag.
+					refs_name[ name_of_ref ] = {
+						refids:  [refid],
+						nbr:     num,
+						qty:     1,
+						reftxt:  text_of_ref
+					};
+					
+					// Set tooltip for "mouseover"
+					arr[i].setAttribute( 'title', '[' + name_of_ref + ']: ' + refs_name[ name_of_ref ][ 'reftxt' ] );
+					
+					/***
+					alert('ref_name:' + arr[i].getAttribute('name') 
+							+ ' fck_mw_reftagtext:' + text_of_ref 
+							+ ' tulos:'   + refs_name[arr[i].getAttribute('name')]['reftxt']
+							+ ' refids[0]:' + refs_name[ name_of_ref ][ 'refids' ][0]
+						
+						);
+					***/
+
+					j += 1;      //for next loop
+				}
+				else {
+					num = refs_name[ name_of_ref ]['nbr'];            // Use earlier defined number for this reference
+					refs_name[ name_of_ref ][ 'qty'    ] += 1;        // Qty of references to this named reference 
+					refs_name[ name_of_ref ][ 'refids' ].push(refid); // Build list of id's of places where this named reference is used
+
+					/***
+					//This fixes missing tooltip with later <ref>'s which are using same "name"
+					if ( refs_name[ name_of_ref ]['reftxt'] != '_' ) {
+						arr[i].setAttribute( 'title', '[' + name_of_ref + ']: ' + refs_name[ name_of_ref ][ 'reftxt' ] );
+					}
+					***/
+					
+					// Fix tooltip for "mouseover" when <ref>'s using name=".."
+					arr[i].setAttribute( 'title', '[' + name_of_ref + ']: ' + text_of_ref );
+					
+					// Update reference text in our lists, in case it has not yet been defined.
+					if ( text_of_ref != '' && 
+						 refs_name[ name_of_ref ]['reftxt'] == '' ) {
+						/***
+						alert('3fixing prev. name,' 
+								+ nmb:' + refs_name[ name_of_ref ]['reftxt'] 
+								+ ' :'  + refs_name[ name_of_ref ]['nbr'] 
+								+ ' :'  + refs_name[ name_of_ref ]['refids'][0] );
+						***/
+							 
+						refs_name[ name_of_ref ]['reftxt']                    = text_of_ref;
+						refs[refs_name[ name_of_ref ]['nbr'] - 1][ 'reftxt' ] = text_of_ref;	
+						
+						/***
+						// This fixes tooltip in earlier places where this named reference has been used.
+						for ( m = 0; m < refs_name[ name_of_ref ][ 'refids' ].length; m++) {
+							
+						}
+						***/
+					}			
+				}
+			} else {
+				num = j + 1;  // Number displayed on reference text and on list
+				refs.push( {reftxt:  text_of_ref, // For list of references
+							refname: ''
+						   } );
+				arr[i].setAttribute( 'title', text_of_ref );   // Set tooltip for "mouseover"
+					
+				j += 1;       // for next loop
+			}
+			
+			arr[i].setAttribute( 'id', refid );                                                          // F.ex id="cite_ref-1"
+			
+			//arr[i].innerHTML = '<a href="#cite_note-' + (h + num) + '">&#91;' + (num) + '&#93;</a>';   // <a href="#cite_note-1">[1]</a>
+			arr[i].innerHTML = '&#91;' + (num) + '&#93;';
+			//arr[i].innerHTML = '&#91;' + (num + (name_of_ref != '' ? '.' + (refs_name[ name_of_ref ][ 'qty' ] - 1) : '' )) + '&#93;';  
+		} 
+		else if ( arr[i].tagName == 'REFERENCES') { 
+			//alert('<references> ind:' + i + ' tagname:' + arr[i].tagName + ' class:' + arr[i].getAttribute('class'));
+
+			/**
+			for ( k = 0; k < refs.length; k++ ) {
+				if ( refs[k]['refname'] != '' )
+				alert('ref:' + refs[k]['reftxt'] + ' refname:' + refs[k]['refname'] 
+						+ ' refids[0]' + refs_name[ refs[k]['refname'] ]['refids'][0]
+						+ ' qty:'    + refs_name[ refs[k]['refname'] ]['qty']
+						+ ' nbr:'    + refs_name[ refs[k]['refname'] ]['nbr']
+						);
+			}
+			**/
+			
+			arr[i].setAttribute( 'title', editor.lang.mwplugin.references_noedit ); // Tooltip: "Do not modify references here."
+			arr[i].innerHTML = '';
+						
+			if ( refs.length == 0 ) {                                        // Remove unnecessary <references> element.
+				arr[i].innerHTML = '&lt;references&gt;';                     // In case remove fails, so we can see placeholder on page
+				arr[i].parentNode.parentNode.removeChild(arr[i].parentNode); // <..parenttag..><span ..childtag..><refereces>...
+			} else {
+				for ( k = 0; k < refs.length; k++ ) {
+					if ( arr[i].innerHTML.length > 0 ) arr[i].innerHTML += '<br/>';
+					
+					// If we have named reference, build list of these numbers in sstr, f.ex. "4.0  4.1  4.2"
+					sstr = '';
+					if ( refs[k]['refname'] != '' && refs_name[ refs[k]['refname'] ]['qty'] > 1 ) {
+						for ( m=0; m < refs_name[ refs[k]['refname'] ]['qty']; m++ ) {
+							sstr += refs_name[ refs[k]['refname'] ]['nbr'] + '.' + m + '&nbsp;&nbsp;';	
+						}
+						sstr = '<font color="blue"><sup>' + sstr + '[' + refs[k]['refname'] + ']&nbsp;&nbsp;</sup></font>';
+					} else sstr = '';
+
+					// Numbered list of references. 
+					// NOTE! For some reason href- links between reference number and reference text on list did not work inside CKeditor window
+					// <span id="cite_note-1">1. <a href="#cite_ref-1">↑</a> xxxxxxxxxx</span><br/>
+					// arr[i].innerHTML += '<span id="cite_note-' + (h + k + 1) + '">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ( k + 1 ) + '. <a href="#cite_ref-' + (h + k + 1) + '">&uarr;</a> ' + refs[k] + '</span>';
+					arr[i].innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ( k + 1 ) + '. <font color="blue">&uarr;</font> ' + sstr + refs[k]['reftxt'];
+				}
+			}
+			// Reset variables for next <references> tag
+			refs_name = [];
+			refs = [];
+			h = j;     //Link id's (href="...") are numbered sequentially over all <references> tags.
+			j = 0;
+		}
+	}	
+
+	// Update the "CKEDITOR.dom.document" object based on the native DOM object.
+	// http://ckeditor.com/forums/CKEditor-3.x/Traversing-NodesElements-CKEditors-Content
+	editor.updateElement();  
+}
+
+
+function linkbuttons_on_off( editor ) {
+
+	// To enable / disable unlink button, taken from 
+	// http://docs.cksource.com/ckeditor_api/symbols/src/plugins_link_plugin.js.html 
+	// 06.03.15 Varlin: 
+	// Event editor.on( 'selectionChange' is fired only on selection change (and not within a same <p>)
+	// Enabling/disabling link buttons moved from event "editor.on( 'selectionChange'...)" here,
+	// which test all kind of selections. 
+
+	if ( editor.readOnly ) return; 
+	
+
+	var sel = editor.getSelection(), 
+		cmd_unlink = editor.getCommand( 'unlink' ), 
+		cmd_MWSimpleLink = editor.getCommand( 'MWSimpleLink' );
+
+	// get html in selection and search for links (can't be donne with sel) 
+	// 08.07.16 RL:-> Replaced by "editor.document.$"
+	// var iframe2 = document.getElementsByClassName('cke_wysiwyg_frame cke_reset')[0]; 
+	// var sel2 = iframe2.contentDocument.getSelection(); 
+	
+	var sel2 = editor.document.$.getSelection();  // 08.07.16 RL:<- "editor.document.$" = native DOM document object for "editor.document"
+	if (sel2.rangeCount > 0) var clonedSelection = sel2.getRangeAt(0).cloneContents(); 
+
+	cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_DISABLED );     //Disable Simplelink 
+
+	// if selection is inside a link or has a link inside...      
+	if ( typeof clonedSelection != 'undefined' && ( editor.elementPath().contains('a') || clonedSelection.querySelectorAll('a').length > 0 ) ) 
+		cmd_unlink.setState( CKEDITOR.TRISTATE_OFF );            //Enable Unlink 
+	else { 
+		cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED ); 		 //Disable Unlink 
+		// if selection is a text (not an element), at least one character 
+		if (sel.getType() != CKEDITOR.SELECTION_ELEMENT && sel.getSelectedText().length > 0) 
+		cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //Enable Simplelink 					
+	} 
+} 
+
 
 function setSourceToggle( editor ) { //12.01.15 RL: Enable/disable source button and toggle link
 
@@ -2035,20 +2315,29 @@ CKEDITOR.customprocessor.prototype =
 									return;
 
 								case 'fck_mw_ref' :
-									var refName = htmlNode.getAttribute( 'name' );
+
+									var nodeChild = htmlNode.firstChild;             //08.07.16 RL <ref>
+									var nodeChild2 = nodeChild.firstChild;           //08.07.16 RL <ref>
+								
+									var refName = nodeChild2.getAttribute( 'name' ); //08.07.16 RL <ref> htmlNode.
 
 									stringBuilder.push( '<ref' );
 
-									if ( refName && refName.length > 0 )
+									if ( refName && refName.length > 0 ) {
 										stringBuilder.push( ' name="' + refName + '"' );
-
-									if ( this._GetNodeText(htmlNode).length == 0 )
+									}
+									
+									if ( !nodeChild2.hasAttribute('fck_mw_reftagtext') || 
+										 (nodeChild2.getAttribute('fck_mw_reftagtext').length == 0) ||           //08.07.16 RL <ref> ( this._GetNodeText(htmlNode).length == 0 )
+										 (refName && (nodeChild2.getAttribute('fck_mw_reftagtext') == '_') ) ) { //08.07.16 RL 
 										stringBuilder.push( ' />' );
+									}
 									else {
 										stringBuilder.push( '>' );
-										stringBuilder.push( this._GetNodeText(htmlNode) );
+										stringBuilder.push( nodeChild2.getAttribute('fck_mw_reftagtext') );      //08.07.16 RL <ref> ( this._GetNodeText(htmlNode) );
 										stringBuilder.push( '</ref>' );
 									}
+
 									return;
 
 								case 'fck_mw_references' :
