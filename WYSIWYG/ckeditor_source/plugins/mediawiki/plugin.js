@@ -1,18 +1,17 @@
-/*
-Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
-For licensing, see LICENSE.html or http://ckeditor.com/license
-*/
+/**
+ * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or http://ckeditor.com/license
+ */
 
 /**
  * @fileOverview The "sourcearea" plugin. It registers the "source" editing
  *		mode, which displays the raw data being edited in the editor.
  */
 
+	
 CKEDITOR.plugins.add( 'mediawiki',
 {
-
-	requires : [ 'fakeobjects', 'htmlwriter', 'dialog' ],
-
+	requires : [ 'fakeobjects', 'htmlwriter', 'dialog', 'widget' ],  //14.07.16 RL Added widget
     getMWElementCss : function() {  //01.03.14 RL Because of CKeditor 3.x and 4.x differences
        var str =
             // add the CSS for general styles of Mediawiki elements
@@ -58,6 +57,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'border: 1px solid #dddddd;' +
             '}\n' +
             // Add the CSS styles for special wiki placeholders.
+			/*14.07.16 RL*******
 			'img.FCK__MWRef' +   //<ref>  Img element was replaced by <R>
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_ref.gif' ) + ');' +
@@ -76,6 +76,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				'width: 66px !important;' +
 				'height: 15px !important;' +
 			'}\n' +
+			********/
 			'img.FCK__MWSignature' +
 			'{' +
 				'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_signature.gif' ) + ');' +
@@ -219,7 +220,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			'}\n' +
 			'span.fck_mw_ref' +             //<ref>  Img element was replaced by this (=<R>)
 			'{' +         
-				'display: inline;' +
+				//'display: inline;' +
 				//'background-color: #ffff99;' + 
 				'color: blue;' + 
 				'font-weight: bold;' +
@@ -233,7 +234,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				//'background-color: #ffffcc;' +  //light yellow  //light blue: rgba(0, 127, 255, 0.133)
 				//'border: 1px solid rgb(224,224,224);' +
 				'font-size: 100%;' +
-				'display: inline-block;' +
+				//'display: inline-block;' +
 			'}\n';
 			/****
 			'span.fck_mw_ref ref:target,' +
@@ -338,7 +339,14 @@ CKEDITOR.plugins.add( 'mediawiki',
 				}
 			};
 
-        var dataProcessor = editor.dataProcessor = new CKEDITOR.customprocessor( editor );
+		// 14.07.16 RL:
+		// CKEDITOR.customprocessor is original custom dataProcessor which is defined later in this file.			
+		// We do not use custom dataProcessor anymore because:
+		//  -it does not support Advanced Content Filter (ACF) (CKeditor >= 4.1)
+		//  -it makes other plugins uncompatible with wysiwyg, because custom processor did not react to events properly
+		// => ACF is disabled by setting "config.allowedContent = true;" otherwise it will require tag by tag 
+		//    definitions for wysiwyg editor contents) in ckeditor/config.js
+		var dataProcessor = editor.dataProcessor; // = new CKEDITOR.customprocessor( editor ); // 14.07.16 RL:
         dataProcessor.dataFilter.addRules( wikiFilterRules );
 
 		//28.03.14 RL->
@@ -375,22 +383,29 @@ CKEDITOR.plugins.add( 'mediawiki',
     	{
         	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
             exec : function( editor ) {
+
                 var //ref = '<span class="fck_mw_references">_</span>',
                     element, // = CKEDITOR.dom.element.createFromHtml(ref, editor.document),
-                    newFakeObj; // = editor.createFakeElement( element, 'FCK__MWReferences', 'span' );
-					
-				element = new CKEDITOR.dom.element('references');
+                    spanelement,
+					realElement;
+					// newFakeObj= editor.createFakeElement( element, 'FCK__MWReferences', 'span' );
+
+				element = CKEDITOR.dom.element.createFromHtml('<references></references>', editor.document);
 				element.setAttribute('class','fck_mw_references');             
-				element.setText('<References>');
+				element.setText('&lt;References&gt;');
+
+				spanelement = CKEDITOR.dom.element.createFromHtml('<span></span>', editor.document);              
+				spanelement.setAttribute('class','fck_mw_references');             
 				
-				newFakeObj = new CKEDITOR.dom.element('span');              
-				newFakeObj.setAttribute('class','fck_mw_references');             
-				
-				editor.insertElement(element.appendTo( newFakeObj )); 				
+				realElement = element.appendTo( spanelement );
 					
-                //editor.insertElement( newFakeObj );
+                editor.insertElement( realElement );
 				
-				// 08.07.16 RL: To get texts of references into <references> text based block 
+				// Initialize widget recognition for new element.
+				// http://ckeditor.com/forums/CKEditor/help-Inserting-a-widget-from-my-own-button
+				editor.widgets.initOn( realElement, 'mwrefmarker' );         //14.07.16 RL
+				
+				// 08.07.16 RL: To get texts of references into <references> tags
 				references_build_list( editor );
             }
         };
@@ -778,7 +793,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			CKEDITOR.lang[editor.langCode].fakeobjects['unknown'] = editor.lang.mwplugin.mouseOverUnknownObj; //31.01.15 RL
 		}
 
-        // define commands and dialogues
+        // define commands and dialogs
 
 		//This overrides 'link' function of CKeditor, button is already on screen drawn by CKeditor
 		//Works with CKeditor 3.6 and 4.3.3
@@ -793,14 +808,119 @@ CKEDITOR.plugins.add( 'mediawiki',
 
         editor.addCommand( 'image', new CKEDITOR.dialogCommand( 'MWImage' ) );
         CKEDITOR.dialog.add( 'MWImage', this.path + 'dialogs/image.js' );
+
         editor.addCommand( 'MWSpecialTags', new CKEDITOR.dialogCommand( 'MWSpecialTags' ) );
         CKEDITOR.dialog.add( 'MWSpecialTags', this.path + 'dialogs/special.js' );
 
-		editor.addCommand( 'MWRef', new CKEDITOR.dialogCommand( 'MWRef' ) ); //03.01.14 RL For references (citation)
-        CKEDITOR.dialog.add( 'MWRef', this.path + 'dialogs/ref.js' );        //03.01.14 RL
-		editor.addCommand( 'MWReferences',    referencesCommand);            //03.01.14 RL
-		editor.addCommand( 'MWReferencesUpd', referencesUpdCommand);         //08.07.16 RL
+		/*14.07.16 RL** Replaces by widgets refmarker and referencesmarker 
+		editor.addCommand(   'MWRef', new CKEDITOR.dialogCommand( 'MWRef' ) ); //03.01.14 RL-> For references (citation)
+        CKEDITOR.dialog.add( 'MWRef', this.path + 'dialogs/ref.js' );
+		editor.ui.addButton( 'MWRef',
+			{
+				label : editor.lang.mwplugin.ref,
+				command : 'MWRef',
+				icon: this.path + 'images/icon_ref.gif'
+			});
+			
+		editor.addCommand(   'MWReferences', referencesCommand);	
+		editor.ui.addButton( 'MWReferences',
+			{
+				label : editor.lang.mwplugin.references,
+				command : 'MWReferences',
+				icon: this.path + 'images/icon_references.gif'
+			});                                                               //03.01.14 RL<-
+		******/	
+
 		
+		// Widget 'referencesmarker' for <references>
+		editor.widgets.add( 'mwreferencesmarker', {
+			//button:  'Create a references widget', //Do not use automatic registration because of button image.
+			template:
+				'<span class="fck_mw_references">' +
+					'<references>&lt;references_tag&gt;</references>' +
+				'</span>',
+
+			dialog: 'referencesCommand',
+			
+			//requiredContent: 'span(fck_mw_references)',
+			upcast: function(element) {
+				return element.name == 'span' && element.hasClass('fck_mw_references') ; 
+			}
+		});		
+		
+		// Activate command of 'referencesmarker'
+		editor.addCommand( 'mwreferencesmarker', referencesCommand ); 
+		
+		// Add button of 'referencesmarker' into toolbar
+		editor.ui.addButton( 'MWReferencesmarker', {
+			label: editor.lang.mwplugin.references,   //Create a references block
+			command: 'mwreferencesmarker',
+			icon: this.path + 'images/icon_references.gif'
+			// Toolbar group name.
+			//toolbar: 'insert'
+		} );
+
+
+		// Widget 'MWRefmarker' for <ref>. 
+		// NOTE! The way widget is defined here is heavily customized solution, 
+		// related dialog is also using widget in customized way.
+		// If you want an example how widgets are supposed to work, see  
+		// http://docs.ckeditor.com/#!/guide/widget_sdk_tutorial_1
+		editor.widgets.add( 'mwrefmarker', {
+			
+			// Do not use automatic registration of button because of the image filename and location.
+			// button:   'Create a ref widget', 
+			
+			// template: Dialog is not using this, new element will be created by dialog and initialized using editor.widgets.initOn.
+				
+			dialog: 'MWRefmarker',
+			
+			/*****
+			allowedContent:
+				'span(!fck_mw_ref); sup; ref(!fck_mw_ref)[title,fck_mw_reftagtext,name]',
+			
+			requiredContent: 				
+				'span(!fck_mw_ref); sup; ref(!fck_mw_ref)[title,fck_mw_reftagtext,name]',
+			*****/
+		
+			upcast: function(element) {
+				return element.name == 'span' && element.hasClass('fck_mw_ref');
+				//if ( element.name == 'span' && element.hasClass('fck_mw_ref') )
+				//	return element;
+			}
+		} );
+		
+		// Register dialog file of widget 'MWRefmarker' ('this.path' is the path of the plugin folder).
+		CKEDITOR.dialog.add('MWRefmarker', this.path + 'dialogs/ref.js');
+
+		// Define an editor command 'MWRefmarker' that opens dialog.
+		editor.addCommand('MWRefmarker', new CKEDITOR.dialogCommand('MWRefmarker') );
+		/***
+		, {
+			// This needs some testing:
+			//allowedContent:  'span[*](*);header[*](*);li[*];a[*];ref(*)[*];sup[*];p[*]',
+			//requiredContent: 'span[*](*);header[*](*);li[*];a[*];ref(*)[*];sup[*];p[*]'
+		}
+		***/		
+	
+		// Add button of 'MWRefmarker'
+		editor.ui.addButton( 'MWRefmarker', {
+			label: editor.lang.mwplugin.ref,   //Create a reference
+			command: 'MWRefmarker',
+			//toolbar: 'basicstyles,1',
+			icon: this.path + 'images/icon_ref.gif'
+		} );
+
+		
+		// Button to renumber references and fill up references- block.
+		editor.addCommand( 'MWReferencesUpd', referencesUpdCommand);         //08.07.16 RL
+
+		editor.ui.addButton( 'MWReferencesUpd',                              //08.07.16 RL
+			{
+				label : editor.lang.mwplugin.references_upd,
+				command : 'MWReferencesUpd',
+				icon: this.path + 'images/icon_refupd.png'
+			});			
 
 		editor.addCommand( 'MWCategory', new CKEDITOR.dialogCommand( 'MWCategory' ) ); //07.01.14 RL
         CKEDITOR.dialog.add( 'MWCategory', this.path + 'dialogs/category.js' );        //07.01.14 RL
@@ -866,27 +986,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 					command : 'MWSpecialTags',
                     icon: this.path + 'images/tb_icon_special.gif'
 				});
-
-			editor.ui.addButton( 'MWRef',           //03.01.14 RL For references (citation)
-				{
-					label : editor.lang.mwplugin.ref,
-					command : 'MWRef',
-                    icon: this.path + 'images/icon_ref.gif'
-				});
-				
-			editor.ui.addButton( 'MWReferences',    //03.01.14 RL
-				{
-					label : editor.lang.mwplugin.references,
-					command : 'MWReferences',
-                    icon: this.path + 'images/icon_references.gif'
-				});
-			
-			editor.ui.addButton( 'MWReferencesUpd', //08.07.16 RL
-				{
-					label : editor.lang.mwplugin.references_upd,
-					command : 'MWReferencesUpd',
-                    icon: this.path + 'images/icon_refupd.png'
-				});		
 			
 			editor.ui.addButton( 'MWSignature',
 				{
@@ -942,8 +1041,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 				editor.document.on('mouseup',  function() { reference_disable_sel( evt, editor ) } );
 				
 				// 08.07.16 RL: To get texts of references into <references> text based block 
-				//editor.document.on('mouseup',  function() { references_build_list( evt, editor ) } );
-				references_build_list( editor );			
+				//editor.document.on('mouseup',  function() { references_build_list( evt, editor ) } ); // for debug purposes
+				references_build_list( editor ); // when page is opened use this to update list
 				
 				//editor.editable().attachListener( editor.document, 'mouseup', function() { linkbuttons_on_off( editor ) } );
 				//editor.editable().attachListener( editor.document, 'mouseup', function() { reference_disable_sel( evt, editor ) } );
@@ -951,8 +1050,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 				//var editable = editor.editable();
 				//editable.attachListener( editable, 'mouseup', function() { linkbuttons_on_off( editor ) } );
 				//editable.attachListener( editable, 'mouseup', function() { reference_disable_sel( evt, editor ) } );	
-			} 
-		) 
+			}
+		)	
 		
         editor.on( 'doubleclick', function( evt )
 			{			
@@ -961,28 +1060,33 @@ CKEDITOR.plugins.add( 'mediawiki',
 				if ( element == null ) {
 					element = selection.getStartElement();           //For <ref> as text based element, img element is not used
 				}
-				
+				/****
 				if ( element.hasAscendant( 'ref', true ) == true ) { //For <ref> as text based element, img element is not used
 					evt.data.dialog = 'MWRef';	
 				}
-				else if ( element.hasAscendant( 'pre', true ) && ! mw.config.get('is_special_elem_with_text_tags') ) { //Syntaxhighlight-Nowiki-Pre 
+				
+				else
+				****/
+				if ( element.hasAscendant( 'pre', true ) && ! mw.config.get('is_special_elem_with_text_tags') ) { //Syntaxhighlight-Nowiki-Pre 
 					evt.data.dialog = 'MWTextTagsD';
-				} else if ( element.is( 'img' ) &&                      //07.01.14 RL->
-				     element.getAttribute( 'class' ) &&                 //03.02.14 RL Added
-					 element.getAttribute( 'class' ).InArray( [         //03.02.14 RL Modified to use InArray(..)
+				} 
+				/*14.07.16 RL****
+				else if ( element.is( 'img' ) &&                      //07.01.14 RL->
+				     element.hasAttribute( 'class' ) &&               //03.02.14 RL Added
+					 element.getAttribute( 'class' ).InArray( [       //03.02.14 RL Modified to use InArray(..)
 								'FCK__MWReferences'   
-								/**,'FCK__MWMath'**/                    //19.11.14 RL Commented out
+								// ,'FCK__MWMath'                     //19.11.14 RL Commented out
 								])
 				   ) {
-				  /*Do nothing, because otherwise doubleclick of math or reference object
-				    will open dialog for linking image to page.
-				  */
+				  // Do nothing, because otherwise doubleclick of math or reference object
+				  // will open dialog for linking image to page.
 				}
+				*******/
 				//03.02.14 RL-> Dialog to edit template definitions is defined in ckeditor/plugins/mwtemplate/dialogs/teplate.js.
 				//              ckeditor/plugins/mwtemplate/plugins.js has following code but for some reason it is not
 				//              activated there on doubleclick of icon_template.gif, placing code here seems to solve the case.
 				else if ( element.is( 'img' ) &&
-						  element.hasAttribute( 'class' ) &&
+						  element.getAttribute( 'class' ) &&
 						  element.getAttribute( 'class' ) == 'FCK__MWTemplate' ) {
 							evt.data.dialog = 'MWTemplate';
 				} //03.02.14 RL<-
@@ -998,9 +1102,12 @@ CKEDITOR.plugins.add( 'mediawiki',
 							evt.data.dialog = 'MWCategory';                              //07.01.2014 RL
 						else 
 						***/
+						/*14.07.16 RL****
 						if ( element.getAttribute( 'class' )  == 'FCK__MWRef' )          ////For <ref> as img element
 							evt.data.dialog = 'MWRef';                                   //04.01.2014 RL
-						else if ( element.getAttribute( 'class' ) &&                     //07.01.14 RL This was earlier one step below
+						else 
+						*****/	
+						if ( element.getAttribute( 'class' ) &&                     //07.01.14 RL This was earlier one step below
 							element.getAttribute( 'class' ).InArray( [
 								'FCK__MWSpecial',
 								'FCK__MWMagicWord',
@@ -1030,14 +1137,14 @@ CKEDITOR.plugins.add( 'mediawiki',
 		**/
 		editor.on('beforeModeUnload', function (evt) 
 			{
-				showPageIsLoading(true, 'page_loading_wpTextbox1');
+				showPageIsLoading(true, 'page_loading_wpTextbox1');		
 			}
 		)
 		
 		editor.on('mode', function( evt ) // Editor opened or source buttons pressed, selected editor mode is ready
 			{
 				setSourceToggle( editor ); // 12.01.15 RL: This is required by source button (source->wysiwyg). 				
-			} 
+			} 		
 		)
 		
 		editor.on( 'readOnly', function () // Event fired when the readOnly property changes.
@@ -1056,16 +1163,55 @@ CKEDITOR.plugins.add( 'mediawiki',
 					//window.parent.editorSrcToWswTrigger = true;
 					mw.config.set('editorSrcToWswTrigger', true);
 				}
+				
+				// Release lock of wikitext=>wysiwyg conversion, conversion may now be activated.
+				mw.config.set('wgCKeditortoDataFormatLocked', false); // 14.07.16 RL
+
 			} 
 		)
+
 		
+		editor.on( 'toDataFormat', function( evt) { // 14.07.16 RL
+
+			// Call of conv_toDataFormat has to be controlled because event toDataFormat may fire also when
+			// wikitext => wysiwyg conversion is ready (this does not make any sence)
+			// => use variable wgCKeditortoDataFormatLocked as locking flag for this:
+			//  -plugins.js->editor.on( 'beforeSetMode'...  1. releasea lock wgCKeditortoDataFormatLocked = false 
+			//  -ext.wysiwyg.func.js->ToggleCKEditor        1. releasea lock wgCKeditortoDataFormatLocked = false
+			//  -plugins.js->conv_toHtml                    2. set lock of  wgCKeditortoDataFormatLocked = true
+			//  -plugins.js->conv_toHtml=>loadHTMLFromAjax  3. end of wikitext->wysiwyg conversion triggeres toDataFormat event, lock is not released here
+			//  -plugins.js->editor.on( 'toDataFormat'...   4. test lock status, prevent unnecessary call of conv_toDataFormat triggered by event toDataFormat
+			//  -CKeditor.body.php->
+			//     (ext.wysiwyg.func.js):set_save_diff_preview_buttons
+			//                                              5. release lock wgCKeditortoDataFormatLocked = false with save, preview and diff buttons of page
+			
+			if ( mw.config.get('wgCKeditortoDataFormatLocked') == false ) {	
+
+				//alert('toDataFormat start, estwt:' + mw.config.get('editorSrcToWswTrigger'));
+	
+				var data = evt.data.dataValue;   //14:evt.data.dataValue.getHtml(); 15:evt.data.dataValue;
+		
+				evt.data.dataValue = conv_toDataFormat( editor, data);
+			}	
+		}, null, null, 15 )	// 15 = data is available in an HTML string
+
+		
+		editor.on( 'toHtml', function( evt) { // 14.07.16 RL
+	
+			var data = evt.data.dataValue;
+			evt.data.dataValue = conv_toHtml( editor, data, new CKEDITOR.htmlParser.filter());
+
+		}, null, null, 4 )	// 0..4 = data is available in original string format	
+
+
 		CKEDITOR.on( 'instanceReady', function ( evt ) //12.01.15 RL
 			{
 				//instanceReady fires when page is opened in wysiwyg or if browser is refreshed.
 				//editor = evt.editor; //This is from CKeditor example of read-only mode...does not work ok here.				
 				editor.setReadOnly( false );	//24.02.16 RL
 			} 
-		)		
+		)
+		
 		
 		// When opening a dialog, its "definition" is created for it, for
 		// each editor instance. The "dialogDefinition" event is then
@@ -1132,16 +1278,20 @@ function printObject(o) { //For debug purposes
 **/
 
 
+
 function reference_disable_sel( evt, editor ) { // 08.07.16 RL
 	// Try to disable editing of <ref> and <references> elements, img elements are not used.
 	// NOTE! Attr. contenteditable="false" would work ok with IE but not with FF or Chrome
 
 	var sel = editor.getSelection(),
+		element = null;
+		
+	if ( typeof(sel) != 'undefined' ) {
 		element = sel.getStartElement();	
-	if ( element.hasAscendant( 'ref', true ) == true || element.hasAscendant( 'references', true ) == true ) { 
-		sel.scrollIntoView();
+		if ( typeof element != 'undefined' && element.hasAscendant( 'ref', true ) == true || element.hasAscendant( 'references', true ) == true ) {
+			sel.scrollIntoView();
+		}
 	}
-
 	/****
     var ranges = editor.getSelection().getRanges();
     if (ranges.length == 1) {
@@ -1164,7 +1314,7 @@ function reference_disable_sel( evt, editor ) { // 08.07.16 RL
 function references_build_list( editor ) { // 08.07.16 RL
 	// "editor.document.$" is the native DOM document object for "editor.document" 
 	var arr = editor.document.$.getElementsByTagName("*"),  
-		h = 0, i = 0, j = 0, k = 0, m = 0, num = 0, 
+		h = 0, i = 0, j = 0, k = 0, m = 0, num = 0, refid_num = 0,
 		refs = [], refs_name = [], 
 		refid = '', sstr = '', text_of_ref = '';	
 		
@@ -1175,7 +1325,9 @@ function references_build_list( editor ) { // 08.07.16 RL
 				  arr[i].hasAttribute('fck_mw_reftagtext') + ' :' + arr[i].getAttribute('fck_mw_reftagtext')
 				);
 			**/
-			refid = 'cite_ref-' + (h + j + 1);
+			refid_num += 1;
+			refid = 'cite_ref-' +  refid_num; //refid_num (=count of all <ref>'s) is not same as (h + j + 1) (=count of unic <ref>'s
+			
 			if ( arr[i].hasAttribute('fck_mw_reftagtext') && arr[i].getAttribute('fck_mw_reftagtext') != '_' )
 				text_of_ref = arr[i].getAttribute('fck_mw_reftagtext');
 			else 
@@ -1250,7 +1402,7 @@ function references_build_list( editor ) { // 08.07.16 RL
 							
 						}
 						***/
-					}			
+					}
 				}
 			} else {
 				num = j + 1;  // Number displayed on reference text and on list
@@ -1261,7 +1413,7 @@ function references_build_list( editor ) { // 08.07.16 RL
 					
 				j += 1;       // for next loop
 			}
-			
+
 			arr[i].setAttribute( 'id', refid );                                                          // F.ex id="cite_ref-1"
 			
 			//arr[i].innerHTML = '<a href="#cite_note-' + (h + num) + '">&#91;' + (num) + '&#93;</a>';   // <a href="#cite_note-1">[1]</a>
@@ -1285,16 +1437,23 @@ function references_build_list( editor ) { // 08.07.16 RL
 			arr[i].setAttribute( 'title', editor.lang.mwplugin.references_noedit ); // Tooltip: "Do not modify references here."
 			arr[i].innerHTML = '';
 						
-			if ( refs.length == 0 ) {                                        // Remove unnecessary <references> element.
-				arr[i].innerHTML = '&lt;references&gt;';                     // In case remove fails, so we can see placeholder on page
-				arr[i].parentNode.parentNode.removeChild(arr[i].parentNode); // <..parenttag..><span ..childtag..><refereces>...
+			if ( refs.length == 0 ) {                                // Remove unnecessary <references> element.
+				arr[i].innerHTML = 'References_remove_tag';          // In case remove fails, so we can see placeholder on page
+				
+				 // <..parenttag..><span -childtag- ><refereces>...  <R>- text based element
+				//arr[i].parentNode.parentNode.removeChild( arr[i].parentNode );
+				
+				 // <..parenttag..><span -childtag- > <span -childtag- ><refereces>... <R>- widget has addition parent <span> tag
+				arr[i].parentNode.parentNode.parentNode.removeChild( arr[i].parentNode.parentNode );
 			} else {
+				//arr[i].innerHTML = 'References2';
+				/***/
 				for ( k = 0; k < refs.length; k++ ) {
-					if ( arr[i].innerHTML.length > 0 ) arr[i].innerHTML += '<br/>';
+					if ( arr[i].innerHTML.length > 0 ) arr[i].innerHTML += '<br>';
 					
 					// If we have named reference, build list of these numbers in sstr, f.ex. "4.0  4.1  4.2"
 					sstr = '';
-					if ( refs[k]['refname'] != '' && refs_name[ refs[k]['refname'] ]['qty'] > 1 ) {
+					if ( refs[k]['refname'] != '' && refs_name[ refs[k]['refname'] ]['qty'] > 0 ) {
 						for ( m=0; m < refs_name[ refs[k]['refname'] ]['qty']; m++ ) {
 							sstr += refs_name[ refs[k]['refname'] ]['nbr'] + '.' + m + '&nbsp;&nbsp;';	
 						}
@@ -1305,8 +1464,9 @@ function references_build_list( editor ) { // 08.07.16 RL
 					// NOTE! For some reason href- links between reference number and reference text on list did not work inside CKeditor window
 					// <span id="cite_note-1">1. <a href="#cite_ref-1">↑</a> xxxxxxxxxx</span><br/>
 					// arr[i].innerHTML += '<span id="cite_note-' + (h + k + 1) + '">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ( k + 1 ) + '. <a href="#cite_ref-' + (h + k + 1) + '">&uarr;</a> ' + refs[k] + '</span>';
-					arr[i].innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ( k + 1 ) + '. <font color="blue">&uarr;</font> ' + sstr + refs[k]['reftxt'];
+					arr[i].innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ( k + 1 ) + '. <font color="blue">↑</font> ' + sstr + refs[k]['reftxt']; //&uarr;
 				}
+				/***/
 			}
 			// Reset variables for next <references> tag
 			refs_name = [];
@@ -1354,7 +1514,7 @@ function linkbuttons_on_off( editor ) {
 	else { 
 		cmd_unlink.setState( CKEDITOR.TRISTATE_DISABLED ); 		 //Disable Unlink 
 		// if selection is a text (not an element), at least one character 
-		if (sel.getType() != CKEDITOR.SELECTION_ELEMENT && sel.getSelectedText().length > 0) 
+		if ( typeof sel != 'undefined' && sel.getType() != CKEDITOR.SELECTION_ELEMENT && sel.getSelectedText().length > 0 ) 
 		cmd_MWSimpleLink.setState( CKEDITOR.TRISTATE_OFF );      //Enable Simplelink 					
 	} 
 } 
@@ -1511,6 +1671,15 @@ function fck_mv_plg_addToStrtr( text, replaceLineBreaks ) { //16.01.15 RL
 	return key;
 }
 
+function remove_htmlhead(text) { //14.07.16 RL 
+	// _getNodeFromHtml switched from "text/xml" to "text/html" 
+	// =>this leaves extra <html><head></head> tags as first
+	//   and </html> as last elements => remove them.
+	text = text.replace(/^<html><head><\/head>\n/, ''); // starting "<html><head></head>\n"
+	text = text.replace(/\n<\/html>$/, '');             // ending   "\n</html>"
+	return text;	
+}
+
 function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL 
 	// For html->wikitext, based on revertEncapsulatedString.
 	// Restore original texts into page from array [key1:"text1", key2:"text2", ...]
@@ -1532,7 +1701,7 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 									 substr(_fck_mv_plg_strtr_span['href="' + matches[i] + '"'], 6, -1) );
 			}
 		}
-	}
+	}	
 	return text;
 }
 
@@ -1579,92 +1748,244 @@ function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL
 	return text;
 }
 
+
+/*
+ * 14.07.16 RL: Following function has earlier been inside custom dataprocessor definitions.
+ * conv_toHtml:
+ */ 
+function conv_toHtml ( editor, data, dataFilter, fixForBody ) {
+
+	// Set lock ofor wikitext=>wysiwyg conversion, conversion may not be activated, 
+	// because we are doing conversion in other direction.
+	// See editor.on( 'toDataFormat'... for some details about wgCKeditortoDataFormatLocked.
+	mw.config.set('wgCKeditortoDataFormatLocked', true); // 14.07.16 RL
+	//alert('conv_toHtml start, etdfl:' + mw.config.get('wgCKeditortoDataFormatLocked'));
+		
+	var loadHTMLFromAjax = function( result ){
+		// We are here (2.) when async responce from server has been received and
+		// wikitext data has been converted to wysiwyg mode.
+		
+		/*27.06.16 RL Not supported****
+		if ( window.parent.popup &&
+			 window.parent.popup.parent.wgCKeditorInstance &&
+			 window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg' ) {
+
+			if (typeof result.responseText != 'undefined') //22.02.16 RL MW1.26, change with ajax call
+				window.parent.popup.parent.wgCKeditorInstance.setData(result.responseText);
+			else
+				window.parent.popup.parent.wgCKeditorInstance.setData(result);
+
+			 window.parent.popup.parent.wgCKeditorCurrentMode = 'wysiwyg';
+		}
+		else 
+		*****/
+		if (  mw.config.get('wgCKeditorInstance') &&
+			 (mw.config.get('wgCKeditorCurrentMode') != 'wysiwyg' ) ) {
+
+			if (typeof result.responseText != 'undefined') //22.02.16 RL MW1.26, change with ajax call
+				mw.config.get('wgCKeditorInstance').setData(result.responseText);
+			else
+				mw.config.get('wgCKeditorInstance').setData(result);
+
+			mw.config.set('wgCKeditorCurrentMode', 'wysiwyg');
+			toggleReadOnly( false ); //12.01.15 RL
+			
+			// 14.07.15 RL:
+			// For some reason after this step event toDataFormat will be activated, which does not 
+			// make any sence because we just did wikitext->wysiwyg conversion which is ready after this step.
+			// For this reason keep wgCKeditortoDataFormatLocked locked so that it will prevent call of function
+			// conv_toDataFormat by event.
+			// mw.config.set('wgCKeditortoDataFormatLocked', false); // true=keep locked, do not release here.
+			
+			//alert('toHtml 2 loadHTMLFromAjax set, edtfl:' + mw.config.get('wgCKeditortoDataFormatLocked'));
+		}
+	}
+
+    // Prevent double transformation because of some weird issue.
+	// 12.01.15 RL, 03.03.15 RL:
+	//   There are two calls of "toHtml" when source button or toggle link is pressed in source mode.
+	//   Rule below tests when page still has wikitext and is in source mode.
+	//   Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
+	//   by event beforeSetMode or toggle link) is used to allow only one call of 'wfSajaxWikiToHTML' below.
+	//
+    // if ( !(data.indexOf('<p>') == 0 && //12.01.15 RL->Commented out
+    //        data.match(/<.*?_fck_mw/) || 
+	//        data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL<-
+	//
+	// if ( (data.match('<p>') == null) && //03.03.15 RL->Commented out
+	//	    (data.match(/<.*?_fck_mw/) == null) &&
+	//	    (data.match(/class="fck_mw_\w+"/i) == null) &&     //03.03.15 RL<-		
+	if ( mw.config.get('editorSrcToWswTrigger') == true && //03.03.15 RL
+		 mw.config.get('wgCKeditorInstance') &&                //Because of TransformTextSwitcher plugin
+		 mw.config.get('wgCKeditorCurrentMode') != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
+	{			
+		//alert('toHtml 1 if,  emode:' + editor.mode + ' data:' + data);
+		
+		// We are here (1.) when in wikitext- mode source- button or toggle- link has been pressed and we have "first" pass of toHtml.
+		mw.config.set('editorSrcToWswTrigger', false); //03.03.15 RL
+		toggleReadOnly( true );                        //12.01.15 RL
+		
+		// Use Ajax to transform the Wikitext to HTML
+		/*27.06.16 RL Not supported****
+		if( window.parent.popup ){
+			window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
+		} else {
+		***/	
+			window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, mw.config.get('wgPageName')], loadHTMLFromAjax );
+		/*}*/
+		return '<a class="fckPageLoading"><i>' + mw.config.get('editorWaitPageLoad') + '</i></a>'; // 24.03.16 RL  Show text "page is loading..."
+	}
+	else { // 24.03.16 RL  Added 'else {' and '}'
+		//alert('toHtml 3, else,  emode:' + editor.mode);
+		
+		// We are here (3.) in case page is opened for editing for the first time or
+		// when in wikitext- mode source- button or toggle- link has been pressed and we have "second" pass of toHtml.
+		var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
+			writer = new CKEDITOR.htmlParser.basicWriter();
+	
+		fragment.writeHtml( writer, dataFilter ); //this.dataFilter
+		data = writer.getHtml( true );
+		return data; // Show wikipage in html format...
+	}	
+}
+
+
+/*
+ * 14.07.16 RL: Following function has earlier been inside custom dataprocessor definitions.
+ *              See editor.on( 'toDataFormat'... for some details.
+ * Converts a DOM (sub-)tree to a string in the data format.
+ *     @param {Object} rootNode The node that contains the DOM tree to be
+ *            converted to the data format.
+ *     @param {Boolean} excludeRoot Indicates that the root node must not
+ *            be included in the conversion, only its children.
+ *     @param {Boolean} format Indicates that the data must be formatted
+ *            for human reading. Not all Data Processors may provide it.
+ */
+function conv_toDataFormat(editor, data, fixForBody) {
+	
+	if ( (mw.config.exists('showFCKEditor') &&
+		!(mw.config.get('showFCKEditor') & mw.config.get('RTE_VISIBLE'))) )
+		return window.parent.document.getElementById(mw.config.get('wgCKeditorInstance').name).value;
+	
+	if (mw.config.exists('wgCKeditorCurrentMode'))
+		mw.config.set('wgCKeditorCurrentMode', 'source');
+	/*27.06.16 RL Not supported****
+		else if (window.parent.popup && window.parent.popup.parent.wgCKeditorCurrentMode)
+			window.parent.popup.parent.wgCKeditorCurrentMode = 'source';
+	****/		
+	
+	if (CKEDITOR.env.ie) {
+		data = ieFixHTML(data, false); //this.ieFixHTML
+	}
+	
+	//data = '<body xmlns:x="http://excel">' + data.htmlEntities() + '</body>';              //14.07.16 RL
+	data = '<?xml version="1.0" encoding="UTF-8"?><body>' + data.htmlEntities() + '</body>'; //14.07.16 RL
+	//data = '<!DOCTYPE html><html><head></head>' + data.htmlEntities() + '</html>;
+	
+	// fix <img> tags
+	data = data.replace(/(<img[^>]*)([^/])>/gi, '$1$2/>' );
+	// fix <hr> and <br> tags
+	data = data.replace(/<(hr|br)>/gi, '<$1/>' );
+	// and the same with attributes
+	data = data.replace(/<(hr|br)([^>]*)([^/])>/gi, '<$1$2$3/>' );
+	// remove some unncessary br tags that are followed by a </p> or </li>
+	data = data.replace(/<br\/>(\s*<\/(p|li|h1|h2|h3|h4|h5|h6)>)/gi, '$1');  //09.01.14 RL Added h1,h2,h3,h4,h5,h6 to keep edit link on same line as header
+	// also remove <br/> before nested lists
+	data = data.replace(/<br\/>(\s*<(ol|ul)>)/gi, '$1');
+	// in IE the values of the class and alt attribute are not quoted
+	data = data.replace(/class=([^\"].*?)\s/gi, 'class="$1" ');
+	data = data.replace(/alt=([^\"].*?)\s/gi, 'alt="$1" ');
+	
+	// Fix1:
+	//  When pasting data from excel there may be an unmatched <col> elements left, which should be removed,
+	//  this happens at least with IE => remove them:
+	//    data = data.replace(/<col[^>]*>/gi, '' );
+	// Fix2, 27.06.16 RL:
+	//  Problem with prev. reg.ex. /<col[^>]*>/gi is that it matches also <colgroup> elements in unbalanced way
+	//  corrupting data;
+	//    -prev. works with this: ...<col width="64" style="width;48pt;">... by removing it completely,
+	//     but it corrupts this:  ...<colgroup><col width="64" style="width;48pt;"></colgroup>... by leaving ending tag </colgroup> left
+	//  =>following two lines will strip first only <colgroup> tags and after that <col> tags:
+	//    data = data.replace(/<colgroup>.*<\/colgroup>/gi, '' );
+	//    data = data.replace(/<col[^>]*>/gi, '' );                
+	// Fix3, 01.07.16 RL:
+	//  Previous may strip valid <colgroup> tags
+	//  =>following will strip first all starting <col> tags and then possible closing </col> tags: 
+	//  step1:    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      yyyyyyyzzzzz       mmmmmnnnnnooooo
+	//  step2:                                                                                          qqqqqq
+	//  ----------                                              ------                                        -----------
+	//  <colgroup><col width="64" style="width;48pt;">aaaaaaaaaa<tag1><col>  <col></tag1><col><col><col></col></colgroup>
+	data = data.replace(/<col[ >][^<\/]*/gi, '' ); // 01.07.16 RL
+	data = data.replace(/<\/col>/gi, '' );         // 01.07.16 RL
+	
+	// 06.04.14 Varlin: remove <wbr> tags that causes parser to crash
+	data = data.replace(/<wbr>/gi, '' );
+	
+	// Replace html comments by "Fckmw<id>fckmw" -keys (where <id>=0,1,2..) 
+	// so that possible incomplete xml structure of commented block
+	// will not prevent page handling (f.ex <!-- 1. incomplete html comment -- <!-- 2. complete html comment -->)
+	// MW seems to work like this with wikitext -> html conversion.	
+	data = fck_mw_plg_replaceHTMLcomments( data ); //16.01.14 RL
+	
+	/***
+	var hsrt = data;
+	while( hsrt.length > 0 ) {
+		if (hsrt.length > 160) {
+			console.log (hsrt.substring(0,160));
+			hsrt = hsrt.substring(160);
+		} else {
+			console.log (hsrt);
+			hsrt = '';
+		}	
+	}
+	****/
+	
+	var rootNode = _getNodeFromHtml( data ); //this.
+	
+	if ( !rootNode ) return false; //16.01.14 RL IE catches some exeptions with page
+	
+	// rootNode is <body>.
+	// Normalize the document for text node processing (except IE - #1586).
+	if ( !CKEDITOR.env.ie ) {
+		rootNode.normalize();
+		}
+	
+	var stringBuilder = new Array();
+	_AppendNode( editor, rootNode, stringBuilder, '' );  //this.
+	
+	// 14.07.16 RL _getNodeFromHtml switched from "text/xml" to "text/html" 
+	// =>variable "data" contains extra <html><head></head> tags as first
+	//   and </html> as last elementa => remove them.
+	var data2 =  remove_htmlhead(stringBuilder.join( '' ).Trim());                    //14.07.16 RL
+		
+	// Restore original html comments from "Fckmw<id>fckmw" -keys.
+	return fck_mv_plg_revertEncapsulatedString( data2 );                              //14.07.16 RL
+	// return fck_mv_plg_revertEncapsulatedString( stringBuilder.join( '' ).Trim() ); //16.01.15 RL
+	// return stringBuilder.join( '' ).Trim();                                        //16.01.15 RL
+	
+}
+
+
+// 14.07.16 RL Custom dataprocessor is not used anymore, 
+// replaced by events toDataFormat and toHtml, needed only for debug/testing purposes.
 CKEDITOR.customprocessor = function( editor )
 {
    this.editor = editor;
    this.writer = new CKEDITOR.htmlWriter();
    this.dataFilter = new CKEDITOR.htmlParser.filter();
-   this.htmlFilter = new CKEDITOR.htmlParser.filter();
+   this.htmlFilter = new CKEDITOR.htmlParser.filter(); 
 };
 
+// 14.07.16 RL Custom dataprocessor is not used anymore, 
+// replaced by events toDataFormat and toHtml, needed only for debug/testing purposes.
 CKEDITOR.customprocessor.prototype =
 {
-	_inPre : false,
-	_inLSpace : false,
-
+   _inPre    : false,
+   _inLSpace : false,
+ 
    toHtml : function( data, fixForBody )
    {	   
-        // all converting to html (like: data = data.replace( /</g, '&lt;' );)
-        var loadHTMLFromAjax = function( result ){
-			/*27.06.16 RL Not supported****
-			if ( window.parent.popup &&
-				 window.parent.popup.parent.wgCKeditorInstance &&
-				 window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg' ) {
-
-				if (typeof result.responseText != 'undefined') //22.02.16 RL MW1.26, change with ajax call
-					window.parent.popup.parent.wgCKeditorInstance.setData(result.responseText);
-				else
-					window.parent.popup.parent.wgCKeditorInstance.setData(result);
-
-				 window.parent.popup.parent.wgCKeditorCurrentMode = 'wysiwyg';
-			}
-			else 
-			*****/
-			if (  mw.config.get('wgCKeditorInstance') &&
-				 (mw.config.get('wgCKeditorCurrentMode') != 'wysiwyg' ) ) {
-
-				if (typeof result.responseText != 'undefined') //22.02.16 RL MW1.26, change with ajax call
-					mw.config.get('wgCKeditorInstance').setData(result.responseText);
-				else
-					mw.config.get('wgCKeditorInstance').setData(result);
-
-				mw.config.set('wgCKeditorCurrentMode', 'wysiwyg');
-				toggleReadOnly( false ); //12.01.15 RL
-			}
-		}
-
-        // Prevent double transformation because of some weird runtime issue.
-		// 12.01.15 RL, 03.03.15 RL:
-		//   There are two calls of "toHtml" when source button or toggle link is pressed in source mode.
-		//   Rule below tests when page still has wikitext and is in source mode.
-		//   Variable window.parent.editorSrcToWswTrigger (defined in CKeditor.body.php and set to true 
-		//   by event beforeSetMode or toggle link) is used to allow only one call of 'wfSajaxWikiToHTML' below.
-		//
-        // if ( !(data.indexOf('<p>') == 0 && //12.01.15 RL->Commented out
-        //        data.match(/<.*?_fck_mw/) || 
-		//        data.match(/class="fck_mw_\w+"/i)) ) { //12.01.15 RL<-
-		//
-		// if ( (data.match('<p>') == null) && //03.03.15 RL->Commented out
-		//	    (data.match(/<.*?_fck_mw/) == null) &&
-		//	    (data.match(/class="fck_mw_\w+"/i) == null) &&     //03.03.15 RL<-		
-		if ( mw.config.get('editorSrcToWswTrigger') == true && //03.03.15 RL
-			 mw.config.get('wgCKeditorInstance') &&                //Because of TransformTextSwitcher plugin
-			 mw.config.get('wgCKeditorCurrentMode') != 'wysiwyg' ) //Because of TransformTextSwitcher plugin
-		{			
-			// We are here when in wikitext- mode source- button or toggle- link has been pressed and we have "first" pass of toHtml.
-			mw.config.set('editorSrcToWswTrigger', false); //03.03.15 RL
-			toggleReadOnly( true );                        //12.01.15 RL
-			
-			// Use Ajax to transform the Wikitext to HTML
-			/*27.06.16 RL Not supported****
-			if( window.parent.popup ){
-				window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
-			} else {
-			***/	
-				window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, mw.config.get('wgPageName')], loadHTMLFromAjax );
-			/*}*/
-			return '<a class="fckPageLoading"><i>' + mw.config.get('editorWaitPageLoad') + '</i></a>'; // 24.03.16 RL  Show text "page is loading..."
-		}
-		else { // 24.03.16 RL  Added 'else {' and '}'
-			// We are here in case page is opened for editing for the first time or
-			// when in wikitext- mode source- button or toggle- link has been pressed and we have "second" pass of toHtml.
-			var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
-			writer = new CKEDITOR.htmlParser.basicWriter();
-		
-			fragment.writeHtml( writer, this.dataFilter );
-			data = writer.getHtml( true );
-			return data; // Show wikipage in html format...
-		}
+		return conv_toHtml(this.editor, data, fixForBody, this.dataFilter);
    },
 
 	/*
@@ -1677,116 +1998,61 @@ CKEDITOR.customprocessor.prototype =
 	 *            for human reading. Not all Data Processors may provide it.
 	 */
 	toDataFormat : function( data, fixForBody ){
+		return conv_toDataFormat( this.editor, data, fixForBody);
+	}
+};
+
+
+// 14.07.16 RL:
+// Following functions have earlier been inside custom dataprocessor definitions.
+// After using toDataFormat and toHtml listenr events, they were moved outside of it
+{
+	/*** Testing effects of prototype definition for "xmlDoc=parser.parseFromString();" ***
+	(function(DOMParser) {  
+		"use strict";  
+		var DOMParser_proto = DOMParser.prototype  
+		, real_parseFromString = DOMParser_proto.parseFromString;
+	
+		// Firefox/Opera/IE throw errors on unsupported types  
+		try {  
+			// WebKit returns null on unsupported types  
+			if ((new DOMParser).parseFromString("", "text/html")) {  
+				// text/html parsing is natively supported  
+				return;  
+			}  
+		} catch (ex) {}  
+	
+		DOMParser_proto.parseFromString = function(markup, type) {  
 		
-        if ( (mw.config.exists('showFCKEditor') &&
-             !(mw.config.get('showFCKEditor') & mw.config.get('RTE_VISIBLE'))) )
-             return window.parent.document.getElementById(mw.config.get('wgCKeditorInstance').name).value;
+			if (/^\s*text\/html\s*(?:;|$)/i.test(type)) {  
+				var doc = document.implementation.createHTMLDocument("")
+				, doc_elt = doc.documentElement
+				, first_elt;
+	
+				doc_elt.innerHTML = markup;
+				first_elt = doc_elt.firstElementChild;
+	
+				if (doc_elt.childElementCount === 1
+					&& first_elt.localName.toLowerCase() === "html") {  
+					doc.replaceChild(first_elt, doc_elt);  
+				}  
+	
+				return doc;  
+			} else {  
+				return real_parseFromString.apply(this, arguments);  
+			}  
+		};  
+	}(DOMParser));	
+	********/
 
-        if (mw.config.exists('wgCKeditorCurrentMode'))
-            mw.config.set('wgCKeditorCurrentMode', 'source');
-		/*27.06.16 RL Not supported****
-        else if (window.parent.popup && window.parent.popup.parent.wgCKeditorCurrentMode)
-            window.parent.popup.parent.wgCKeditorCurrentMode = 'source';
-		****/		
-		if (CKEDITOR.env.ie) {
-			data = this.ieFixHTML(data);
-		}
-
-        data = '<body xmlns:x="http://excel">' + data.htmlEntities() + '</body>';
-        // fix <img> tags
-        data = data.replace(/(<img[^>]*)([^/])>/gi, '$1$2/>' );
-        // fix <hr> and <br> tags
-        data = data.replace(/<(hr|br)>/gi, '<$1/>' );
-        // and the same with attributes
-        data = data.replace(/<(hr|br)([^>]*)([^/])>/gi, '<$1$2$3/>' );
-        // remove some unncessary br tags that are followed by a </p> or </li>
-        data = data.replace(/<br\/>(\s*<\/(p|li|h1|h2|h3|h4|h5|h6)>)/gi, '$1');  //09.01.14 RL Added h1,h2,h3,h4,h5,h6 to keep edit link on same line as header
-        // also remove <br/> before nested lists
-        data = data.replace(/<br\/>(\s*<(ol|ul)>)/gi, '$1');
-		// in IE the values of the class and alt attribute are not quoted
-        data = data.replace(/class=([^\"].*?)\s/gi, 'class="$1" ');
-        data = data.replace(/alt=([^\"].*?)\s/gi, 'alt="$1" ');
-
-		// Fix1:
-		//  When pasting data from excel there may be an unmatched <col> elements left, which should be removed,
-		//  this happens at least with IE => remove them:
-		//    data = data.replace(/<col[^>]*>/gi, '' );
-		// Fix2, 27.06.16 RL:
-		//  Problem with prev. reg.ex. /<col[^>]*>/gi is that it matches also <colgroup> elements in unbalanced way
-		//  corrupting data;
-		//    -prev. works with this: ...<col width="64" style="width;48pt;">... by removing it completely,
-		//     but it corrupts this:  ...<colgroup><col width="64" style="width;48pt;"></colgroup>... by leaving ending tag </colgroup> left
-		//  =>following two lines will strip first only <colgroup> tags and after that <col> tags:
-		//    data = data.replace(/<colgroup>.*<\/colgroup>/gi, '' );
-		//    data = data.replace(/<col[^>]*>/gi, '' );                
-		// Fix3, 01.07.16 RL:
-		//  Previous may strip valid <colgroup> tags
-		//  =>following will strip first all starting <col> tags and then possible closing </col> tags: 
-		//  step1:    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      yyyyyyyzzzzz       mmmmmnnnnnooooo
-		//  step2:                                                                                          qqqqqq
-		//  ----------                                              ------                                        -----------
-		//  <colgroup><col width="64" style="width;48pt;">aaaaaaaaaa<tag1><col>  <col></tag1><col><col><col></col></colgroup>
-		data = data.replace(/<col[ >][^<\/]*/gi, '' ); // 01.07.16 RL
-		data = data.replace(/<\/col>/gi, '' );         // 01.07.16 RL
-		
-        // 06.04.14 Varlin: remove <wbr> tags that causes parser to crash
-        data = data.replace(/<wbr>/gi, '' );
-		
-		// Replace html comments by "Fckmw<id>fckmw" -keys (where <id>=0,1,2..) 
-		// so that possible incomplete xml structure of commented block
-		// will not prevent page handling (f.ex <!-- 1. incomplete html comment -- <!-- 2. complete html comment -->)
-		// MW seems to work like this with wikitext -> html conversion.	
-	    data = fck_mw_plg_replaceHTMLcomments( data ); //16.01.14 RL
-
-        var rootNode = this._getNodeFromHtml( data );
-		if ( !rootNode ) return false; //16.01.14 RL IE catches some exeptions with page
-
-		// rootNode is <body>.
-		// Normalize the document for text node processing (except IE - #1586).
-		if ( !CKEDITOR.env.ie ) {
-			rootNode.normalize();
-        }
-
-		var stringBuilder = new Array();
-		this._AppendNode( rootNode, stringBuilder, '' );  
-
-		// Restore original html comments from "Fckmw<id>fckmw" -keys.
-		return fck_mv_plg_revertEncapsulatedString( stringBuilder.join( '' ).Trim() ); //16.01.15 RL
-		// return stringBuilder.join( '' ).Trim();  //16.01.15 RL Commented out
-	},
-
-    _getNodeFromHtml : function( data ) {
-        if (window.DOMParser) {  // all browsers, except IE before version 9
-            parser=new DOMParser();
-            try {         // 16.01.15 RL	
-                var xmlDoc=parser.parseFromString(data,"text/xml");
-            } catch (e) { // 16.01.15 RL
-                // not well-formed text raises an exception in IE from version 9, others let it continue
-                alert ("XML parsing error [ plugin.js->_getNodeFromHtml (if) ]");
-                return false;
-			};
-        }
-        else // Internet Explorer before version 9       
-		{
-            data = this.ieFixHTML(data);
-			try {         // 16.01.15 RL
-                var xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-            } catch (e) { // 16.01.15 RL
-                alert ("XML parsing error [ plugin.js->_getNodeFromHtml (else) ]");
-                return false;                
-            }
-			xmlDoc.async="false";
-            xmlDoc.loadXML(data);
-        }
-        var rootNode = xmlDoc.documentElement;
-        return rootNode;
-    },
-
+	this._inLSpace = false;
+	this._inPre    = false;
+	
 	// Collection of element definitions:
 	//		0 : Prefix
 	//		1 : Suffix
 	//		2 : Ignore children
-	_BasicElements : {
+	_BasicElements = {
 		body	: [ ],
 		b		: [ "'''", "'''" ],
 		strong	: [ "'''", "'''" ],
@@ -1801,13 +2067,112 @@ CKEDITOR.customprocessor.prototype =
 		h6		: [ '\n====== ', ' ======\n' ],
 		br		: [ '<br/>', null, true ],
 		hr		: [ '\n----\n', null, true ]
-	} ,
+	};
+	
+	
+	_getNodeFromHtml = function( data ) {
+
+		// 14.07.16 RL 
+		// Originally, custom dataprocessor used format "text/xml" (with all browsers) but
+		// dataprocessor of CKeditor (=listener event toDataFormat, CKeditor >=4.1) fails with this, 
+		// because toDataFormat event takes place at different stage compared to custom dataprocessor.
+		// With listeners of events 'toDataFormat' (and toHtml):
+		//  -"text/xml" fails fails with all browsers (wysiwyg->wikitext)
+		//  -FF and Chrome work with "text/html" but not IE
+		//  -FF, Chrome and IE parses ok with "application/xml" but fails otherwise
+		//  -IE works ok with application/xhtml+xml (NOTE! compatibility mode is forced to IE9)
+		var xmlform = 'text/html';
+		
+		if (CKEDITOR.env.ie) 
+			xmlform = 'application/xhtml+xml';
+
+        if (window.DOMParser) {  // all other browsers, except IE before version 9 (<=IE8)	
+            parser=new DOMParser();
+            try {         // 16.01.15 RL	
+                var xmlDoc=parser.parseFromString(data,xmlform); //14.07.16 RL Was "text/xml"
+            } catch (e) { // 16.01.15 RL
+                // not well-formed text raises an exception in IE from version 9, others let it continue
+                alert ("XML parsing error [ plugin.js->_getNodeFromHtml (if) ]");
+                //return false;
+			};
+        }
+        else // Internet Explorer before version 9    
+		{
+            data = ieFixHTML(data); //this.ieFixHTML(data);	
+			try {         // 16.01.15 RL
+                var xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+            } catch (e) { // 16.01.15 RL
+                alert ("XML parsing error [ plugin.js->_getNodeFromHtml (else) ]");
+                return false;                
+            }
+			xmlDoc.async="false";
+            xmlDoc.loadXML(data);
+        }
+
+		/****
+		alert ("Parsing status check:" + xmlDoc);
+		var errorMsg = null;
+		if (xmlDoc.parseError && xmlDoc.parseError.errorCode != 0) {
+			errorMsg = "XML Parsing Error: " + xmlDoc.parseError.reason
+					+ " at line " + xmlDoc.parseError.line
+					+ " at position " + xmlDoc.parseError.linepos;
+		}
+		else {
+			if (xmlDoc.documentElement) {
+				if (xmlDoc.documentElement.nodeName == "parsererror") {
+					errorMsg = xmlDoc.documentElement.childNodes[0].nodeValue;
+				}
+			}
+			else {
+				errorMsg = "XML Parsing Error!";
+			}
+		}
+		
+		if (errorMsg) {
+			alert (errorMsg);
+			return false;
+		}
+		alert ("Parsing was successful!");
+		*****/
+    	
+        var rootNode = xmlDoc.documentElement;
+        return rootNode;
+    };
+	
+	ieFixHTML = function(html, convertToLowerCase){
+		var zz = html;
+        zz = zz.replace( /\s+data-cke-expando=".*?"/g, '' ); //09.02.14 RL: In IE8, we need to remove the expando attributes.	
+		var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
+		if (z) {
+			for (var i = 0; i < z.length; i++) {
+				var y, zSaved = z[i], attrRE = /\=[a-zA-Z\.\:\[\]_\(\)\&\$\%#\@\!0-9]+[?\s+|?>]/g;
+				z[i] = z[i].replace(/(<?\w+)|(<\/?\w+)\s/, function(a){
+					return a.toLowerCase();
+				});
+				y = z[i].match(attrRE);//deze match
+				if (y) {
+					var j = 0, len = y.length
+					while (j < len) {
+						var replaceRE = /(\=)([a-zA-Z\.\:\[\]_\(\)\&\$\%#\@\!0-9]+)?([\s+|?>])/g, replacer = function(){
+							var args = Array.prototype.slice.call(arguments);
+							return '="' + (convertToLowerCase ? args[2].toLowerCase() : args[2]) + '"' + args[3];
+						};
+						z[i] = z[i].replace(y[j], y[j].replace(replaceRE, replacer));
+						j++;
+					}
+				}
+				zz = zz.replace(zSaved, z[i]);
+			}
+		}
+		return zz;
+	};
+
 
 	// This function is based on FCKXHtml._AppendNode.
-	_AppendNode : function( htmlNode, stringBuilder, prefix ){
+	_AppendNode = function( editor, htmlNode, stringBuilder, prefix ){
 		if ( !htmlNode )
 			return;
-
+		
 		switch ( htmlNode.nodeType ){
 			// Element Node.
 			case 1 :
@@ -1820,9 +2185,8 @@ CKEDITOR.customprocessor.prototype =
 					return;
 
                 // get real element from fake element
-//			    if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
 	            if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
-                    this._AppendNode( this._getRealElement( htmlNode ), stringBuilder, prefix );
+                    _AppendNode( editor, _getRealElement( htmlNode ), stringBuilder, prefix ); //this._AppendNode this._getRealElement
                     return;
                 }
 
@@ -1844,9 +2208,9 @@ CKEDITOR.customprocessor.prototype =
 				if ( sNodeName == "" || sNodeName.substring(0, 1) == '/' || sNodeName == "style")
 					return;
 
-				if ( sNodeName == 'br' && ( this._inPre || this._inLSpace ) ){
+				if ( sNodeName == 'br' && ( this._inPre || this._inLSpace ) ){ 
 					stringBuilder.push( "\n" );
-					if ( this._inLSpace )
+					if ( this._inLSpace ) 
 						stringBuilder.push( " " );
 					return;
 				}
@@ -1869,7 +2233,7 @@ CKEDITOR.customprocessor.prototype =
 				if ( htmlNode._fckxhtmljob && htmlNode._fckxhtmljob == FCKXHtml.CurrentJobNum )
 					return;
                 */
-				var basicElement = this._BasicElements[ sNodeName ];
+				var basicElement = _BasicElements[ sNodeName ]; //this.
 				if ( basicElement ){
 				
 					var basic0 = basicElement[0];
@@ -1881,7 +2245,7 @@ CKEDITOR.customprocessor.prototype =
                             var style = htmlNode.getAttribute('style') || '',
                                 alignment = style.match(/text-align:\s*(\w+);?/i);
                             if ( alignment[1].toLowerCase().IEquals("right", "center", "justify" ) ) {
-                                this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix);
+                                _AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix); //this.
                                 return;
                             }
                         } catch (e) {};
@@ -1909,7 +2273,7 @@ CKEDITOR.customprocessor.prototype =
 					var len = stringBuilder.length;
 
 					if ( !basicElement[2] ){
-						this._AppendChildNodes( htmlNode, stringBuilder, prefix );
+						_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 						// only empty element inside, remove it to avoid quotes
 						if ( ( stringBuilder.length == len || ( stringBuilder.length == len + 1 && !stringBuilder[len].length ) )
 							&& basicElement[0] && basicElement[0].charAt(0) == "'" ){
@@ -1921,6 +2285,7 @@ CKEDITOR.customprocessor.prototype =
 
 					if ( basic1 )
 						stringBuilder.push( basic1 );
+					
 				} else {
 					switch ( sNodeName ){
 						case 'ol' :
@@ -1928,8 +2293,8 @@ CKEDITOR.customprocessor.prototype =
 							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dt', 'dd' ),
                                 listStyle = htmlNode.getAttribute('style') || '',
                                 startNum = htmlNode.getAttribute('start') || '';
-                            this.preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1');
-                            if (this.preserveLiNode) {
+                            preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1'); //this.
+                            if (this.preserveLiNode) {  
                                 stringBuilder.push('<' + sNodeName);
                                 if (startNum)
                                     stringBuilder.push(' start="' + startNum + '"');
@@ -1938,9 +2303,9 @@ CKEDITOR.customprocessor.prototype =
                                 stringBuilder.push('>\n');
                             }
 
-							this._AppendChildNodes( htmlNode, stringBuilder, prefix );
+							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 
-                            if (this.preserveLiNode)
+                            if (this.preserveLiNode) 
                                 stringBuilder.push('</' + sNodeName + '>');
 
 							if ( isFirstLevel && stringBuilder[ stringBuilder.length - 1 ] != "\n" ) {
@@ -1951,9 +2316,9 @@ CKEDITOR.customprocessor.prototype =
 
 						case 'li' :
 
-                            if (this.preserveLiNode) {
+                            if (this.preserveLiNode) {  
                                 stringBuilder.push('<li>');
-                                this._AppendChildNodes( htmlNode, stringBuilder, prefix );
+                                _AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
                                 stringBuilder.push('</li>\n');
                                 break;
                             }
@@ -1984,13 +2349,13 @@ CKEDITOR.customprocessor.prototype =
 							}
 
 							stringBuilder.push( listType );
-							this._AppendChildNodes( htmlNode, stringBuilder, prefix + listType );
+							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix + listType ); //this.
 
 							break;
 
 						case 'a' :
                             // if there is no inner HTML in the Link, do not add it to the wikitext
-                            if (! this._GetNodeText(htmlNode).Trim() ) break;
+                            if (! _GetNodeText(htmlNode).Trim() ) break; //this.
 
 							var pipeline = true;
 							// Get the actual Link href.
@@ -2045,7 +2410,7 @@ CKEDITOR.customprocessor.prototype =
 							// #2223
 							if( htmlNode.getAttribute( '_fcknotitle' ) && htmlNode.getAttribute( '_fcknotitle' ) == "true" ){
 								var testHref = decodeURIComponent(htmlNode.getAttribute('href'));
-								var testInner = this._GetNodeText(htmlNode) || '';
+								var testInner = _GetNodeText(htmlNode) || ''; //this.
 								if ( href.toLowerCase().StartsWith( 'category:' ) )
 									testInner = 'Category:' + testInner;
 								if ( testHref.toLowerCase().StartsWith( 'rtecolon' ) )
@@ -2065,10 +2430,10 @@ CKEDITOR.customprocessor.prototype =
 								
 							stringBuilder.push( href );
 
-                            var innerHTML = this._GetNodeText(htmlNode)
+                            var innerHTML = _GetNodeText(htmlNode); //this.
 							if ( pipeline && innerHTML != '[n]' && ( !isWikiUrl || href != innerHTML || !href.toLowerCase().StartsWith( "category:" ) ) ){
 								stringBuilder.push( isWikiUrl? '|' : ' ' );
-								this._AppendChildNodes( htmlNode, stringBuilder, prefix );
+								_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 							}
 							stringBuilder.push( isWikiUrl ? ']]' : ']' );
 
@@ -2076,7 +2441,7 @@ CKEDITOR.customprocessor.prototype =
 
 						case 'dl' :
 
-							this._AppendChildNodes( htmlNode, stringBuilder, prefix );
+							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dd', 'dt' );
 							if ( isFirstLevel && stringBuilder[ stringBuilder.length - 1 ] != "\n" )
 								stringBuilder.push( '\n' );
@@ -2091,7 +2456,7 @@ CKEDITOR.customprocessor.prototype =
  									stringBuilder.push( '\n' + prefix );
 							}
 							stringBuilder.push( ';' );
-							this._AppendChildNodes( htmlNode, stringBuilder, prefix + ";" );
+							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix + ";" ); //this.
 
 							break;
 
@@ -2103,13 +2468,13 @@ CKEDITOR.customprocessor.prototype =
  									stringBuilder.push( '\n' + prefix );
 							}
 							stringBuilder.push( ':' );
-							this._AppendChildNodes( htmlNode, stringBuilder, prefix + ":" );
+							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix + ":" ); //this.
 
 							break;
 
 						case 'table' :
 
-							var attribs = this._GetAttributesStr( htmlNode );
+							var attribs = _GetAttributesStr( htmlNode ); //this.
 							// start table definition of MW, format is: '{|'..
 							stringBuilder.push( '\n{|' );
 							if ( attribs.length > 0 )
@@ -2132,17 +2497,17 @@ CKEDITOR.customprocessor.prototype =
 										// start caption definition of MW, format is: ..'|+'..
 										stringBuilder.push( '|+ ' );										
 										// caption may also have attributes defined, format is: ..'atributes |'..
-										attribs = this._GetAttributesStr( currentNode );
+										attribs = _GetAttributesStr( currentNode ); //this.
 										if ( attribs.length > 0 ) {
 											stringBuilder.push( attribs + '|');
 										}
 										// append text of caption, format is: ..'formatted text of caption'..
-										this._AppendChildNodes( currentNode, stringBuilder, prefix ); 
+										_AppendChildNodes( editor, currentNode, stringBuilder, prefix ); //this.
 										stringBuilder.push( '\n' );
 									}
                                     // we have a table row tag
                                     else if (currentTagName == "tr") {
-                                        attribs = this._GetAttributesStr( currentNode ) ;
+                                        attribs = _GetAttributesStr( currentNode ) ; //this.
 
                                         stringBuilder.push( '|-' ) ;
                                         if ( attribs.length > 0 )
@@ -2152,7 +2517,7 @@ CKEDITOR.customprocessor.prototype =
 										// var cell = currentNode.firstElementChild;
                                         var cell = currentNode.firstChild;
                                         while ( cell ) {
-                                            attribs = this._GetAttributesStr( cell ) ;
+                                            attribs = _GetAttributesStr( cell ) ; //this.
 
                                             if ( cell.tagName.toLowerCase() == "th" )
                                                 stringBuilder.push( '!' ) ;
@@ -2164,8 +2529,8 @@ CKEDITOR.customprocessor.prototype =
 
                                             stringBuilder.push( ' ' ) ;
 
-                                            this._IsInsideCell = true ;
-                                            this._AppendChildNodes( cell, stringBuilder, prefix ) ;
+                                            this._IsInsideCell = true ;  
+                                            _AppendChildNodes( editor, cell, stringBuilder, prefix ) ; //this.
                                             this._IsInsideCell = false ;
 
                                             stringBuilder.push( '\n' ) ;
@@ -2184,7 +2549,7 @@ CKEDITOR.customprocessor.prototype =
 
                                                 stringBuilder.push( '|-\n' ) ;
                                                 this._IsInsideCell = true ;
-                                                this._AppendNode( currentNode, stringBuilder, prefix ) ;
+                                                _AppendNode( editor, currentNode, stringBuilder, prefix ) ; //this.
                                                 this._IsInsideCell = false ;
                                                 stringBuilder.push( '\n' ) ;
                                         }
@@ -2310,7 +2675,7 @@ CKEDITOR.customprocessor.prototype =
 									stringBuilder.push( '<syntaxhighlight' );    //02.11.14 RL Was source
 									stringBuilder.push( ' lang="' + refLang + '"' );
 									stringBuilder.push( '>' );
-									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //30.10.14 RL fckSPACE
+									stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //this. //30.10.14 RL fckSPACE
 									stringBuilder.push( '</syntaxhighlight>' );  //02.11.14 RL Was source
 									return;
 
@@ -2345,19 +2710,19 @@ CKEDITOR.customprocessor.prototype =
 									return;
 
 								case 'fck_mw_signature' :
-									stringBuilder.push( this.editor.config.WikiSignature );
+									stringBuilder.push( editor.config.WikiSignature ); //this.editor
 									return;
 
 								case 'fck_mw_template' :
                                 case 'fck_smw_query' :
-                                    var inner= this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n');
+                                    var inner= _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n'); //this.
                                     if (inner == '{{!}}')
                                         stringBuilder.push( '\n' );
                                     stringBuilder.push( inner );
 									return;
                                 case 'fck_smw_webservice' :
                                 case 'fck_smw_rule' :
-									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
+									stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') ); //this.
 									return;
 								case 'fck_mw_magic' :
                                     var magicWord = htmlNode.getAttribute( '_fck_mw_tagname' ) || '';
@@ -2369,14 +2734,14 @@ CKEDITOR.customprocessor.prototype =
                                     var tagName = htmlNode.getAttribute( '_fck_mw_tagname' ) || '';
 								    switch (tagType) {
 								        case 't' :
-                                            var attribs = this._GetAttributesStr( htmlNode ) ;
+                                            var attribs = _GetAttributesStr( htmlNode ) ; //this.
                 							stringBuilder.push( '<' + tagName ) ;
 
                                             if ( attribs.length > 0 )
                                                 stringBuilder.push( attribs ) ;
 
                 							stringBuilder.push( '>' ) ;
-                                			stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
+                                			stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); // this. //04.02.15 RL fckSPACE
                                             stringBuilder.push( '<\/' + tagName + '>' ) ;
 
 								            break;
@@ -2389,12 +2754,12 @@ CKEDITOR.customprocessor.prototype =
 								            break;
 								        case 'p' :
 								            stringBuilder.push( '{{' + tagName );
-								            if (this._GetNodeText(htmlNode).length > 0)
-								                stringBuilder.push( ':' + this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
+								            if (_GetNodeText(htmlNode).length > 0) //this.
+								                stringBuilder.push( ':' + _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //this. //04.02.15 RL fckSPACE
 								            stringBuilder.push( '}}');
 								            break;
                                         case 'sf' :
-                                            stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //04.02.15 RL fckSPACE
+                                            stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //this. //04.02.15 RL fckSPACE
                                             break;
 								    }
 								    return;
@@ -2425,40 +2790,41 @@ CKEDITOR.customprocessor.prototype =
 									break;
 								case 'fck_mw_property' :
 								case 'fck_mw_category' :
-									stringBuilder.push( this._formatSemanticValues( htmlNode ) ) ;
+									stringBuilder.push( _formatSemanticValues( htmlNode ) ) ; //this.
 									return ;
 							}
 
 							// Change the node name and fell in the "default" case.
 							if ( htmlNode.getAttribute( '_fck_mw_customtag' ) )
 								sNodeName = htmlNode.getAttribute( '_fck_mw_tagname' );
-                            this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix );
+                            _AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix ); //this.
 							break;
 						case 'pre' :
-							var attribs = this._GetAttributesStr( htmlNode );
+							var attribs = _GetAttributesStr( htmlNode );        //this.
                             var eClassName = htmlNode.getAttribute('class');
 
 							if ( eClassName == "fck_mw_nowiki" ){ //Syntaxhighlight-Nowiki-Pre
 							    // Edit text directly on page: <pre><nowiki>....</nowiki></pre>
 								//var nodeChild = htmlNode.firstChild;
 								stringBuilder.push( '<nowiki>' );
-								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
+								stringBuilder.push( _GetNodeText(htmlNode) ); //.htmlDecode() //this.
 								stringBuilder.push( '</nowiki>\n' ); 
 							}							
 							else if ( eClassName == "fck_mw_syntaxhighlight" ){ //Syntaxhighlight-Nowiki-Pre
 							    // Edit text directly on page: <pre><syntaxhighlight lang="xxx">....</syntaxhighlight></pre>
-								var nodeChild = htmlNode.firstChild,
-									refLang = nodeChild.getAttribute( 'lang' );
+								var nodeChild = htmlNode.firstChild, refLang = null;
+								if ( typeof nodeChild != 'undefined' && nodeChild.hasAttribute( 'lang' ) ) refLang = nodeChild.getAttribute( 'lang' );
+								else refLang = 'unknown';  //14.07.16 RL
 								stringBuilder.push( '<syntaxhighlight' );
 								stringBuilder.push( ' lang="' + refLang + '"' );
 								stringBuilder.push( '>' );
-								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() 
+								stringBuilder.push( _GetNodeText(htmlNode) ); //.htmlDecode() //this.
 								stringBuilder.push( '</syntaxhighlight>\n' ); //26.03.16 RL Added \n 
 							}
 							else if ( eClassName == "_fck_mw_lspace" ){ //MW special <pre> block which is indicated by space at peginning of line
 								stringBuilder.push( "\n " );            //Add one space because MW html has one space less than what is in wikitext code
 								this._inLSpace = true;
-								this._AppendChildNodes( htmlNode, stringBuilder, prefix );
+								_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 								this._inLSpace = false;
 								var len = stringBuilder.length;
 								if ( len > 1 ) {
@@ -2478,12 +2844,12 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( sNodeName );
 								if ( attribs.length > 0 )
 									stringBuilder.push( attribs );
-								if( this._GetNodeText(htmlNode) == '' )
+								if( _GetNodeText(htmlNode) == '' ) //this.
 									stringBuilder.push( ' />' );
 								else {
 									stringBuilder.push( '>' );
 									this._inPre = true;
-									this._AppendChildNodes( htmlNode, stringBuilder, prefix );
+									_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 									this._inPre = false;
 
 									stringBuilder.push( '<\/' );
@@ -2495,7 +2861,7 @@ CKEDITOR.customprocessor.prototype =
 							}
 							break;
 						default :
-                            this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix )
+                            _AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix ); //this.
 							break;
 					}
 				}
@@ -2552,7 +2918,7 @@ CKEDITOR.customprocessor.prototype =
 						// => _EscapeWikiMarkup seems to convert in wrong direction, 
 						// because here we are converting from html to wikitext, after call of _EscapeWikiMarkup we got: 
 						//   &#x5B;&#x5B;../SomePage|LinkText&#x5D;&#x5D;
-                        // textValue = this._EscapeWikiMarkup(textValue); //24.04.16 RL Commented out.
+                        // textValue = _EscapeWikiMarkup(textValue); //24.04.16 RL Commented out. //this.
                     }
 
 					if ( this._inLSpace && textValue.length == 1 && textValue.charCodeAt(0) == 13 )
@@ -2585,7 +2951,7 @@ CKEDITOR.customprocessor.prototype =
 			case 8 :
 				// IE catches the <!DOTYPE ... > as a comment, but it has no
 				// innerHTML, so we can catch it, and ignore it.
-				if ( CKEDITOR.env.ie && !this._GetNodeText(htmlNode) )
+				if ( CKEDITOR.env.ie && !_GetNodeText(htmlNode) ) //this.
 					return;
 
 				stringBuilder.push( "<!--"  );
@@ -2597,18 +2963,18 @@ CKEDITOR.customprocessor.prototype =
 				stringBuilder.push( "-->" );							
 				return;
 		}
-	},
+	};
 
-	_AppendChildNodes : function( htmlNode, stringBuilder, listPrefix ){
+	_AppendChildNodes = function( editor, htmlNode, stringBuilder, listPrefix ){
 		var child = htmlNode.firstChild;
 		while ( child ){
-			this._AppendNode( child, stringBuilder, listPrefix );
+			_AppendNode( editor, child, stringBuilder, listPrefix ); //this.
 			child = child.nextSibling;
 		}
-	},
+	};
 
-    _AppendTextNode : function( htmlNode, stringBuilder, sNodeName, prefix ) {
-    	var attribs = this._GetAttributesStr( htmlNode ) ;
+	_AppendTextNode = function( editor, htmlNode, stringBuilder, sNodeName, prefix ) {
+    	var attribs = _GetAttributesStr( htmlNode ) ; //this.
 
 		stringBuilder.push( '<' ) ;
 		stringBuilder.push( sNodeName ) ;
@@ -2617,13 +2983,13 @@ CKEDITOR.customprocessor.prototype =
 			stringBuilder.push( attribs ) ;
 
 		stringBuilder.push( '>' ) ;
-		this._AppendChildNodes( htmlNode, stringBuilder, prefix ) ;
+		_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ) ;  //this.
 		stringBuilder.push( '<\/' ) ;
 		stringBuilder.push( sNodeName ) ;
 		stringBuilder.push( '>' ) ;
-    },
+    };
 
-	_GetAttributesStr : function( htmlNode ){
+	_GetAttributesStr = function( htmlNode ){
 		var attStr = '';
 		var aAttributes = htmlNode.attributes;
 
@@ -2680,9 +3046,10 @@ CKEDITOR.customprocessor.prototype =
 			}
 		}
 		return attStr;
-	},
+	};
+	
     // in FF htmlNode.textContent is set, while IE needs htmlNode.text;
-    _GetNodeText : function( htmlNode ) {
+    _GetNodeText = function( htmlNode ) {
         var text = '';
         /*06.02.14 RL->*To make category work with IE11 and maintaining backwards compatibility***
         if (CKEDITOR.env.ie)
@@ -2694,12 +3061,12 @@ CKEDITOR.customprocessor.prototype =
         else text = htmlNode.text;
         /*06.02.14 RL<-*/
 		return (typeof text == 'undefined') ? '' : text;
-    },
+    };
 
 	// Property and Category values must be of a certain format. Otherwise this will break
 	// the semantic annotation when switching between wikitext and WYSIWYG view
-	_formatSemanticValues : function (htmlNode) {
-		var text = this._GetNodeText(htmlNode).htmlDecode(); //05.12.14 RL Added htmlDecode
+	_formatSemanticValues = function(htmlNode) {
+		var text = _GetNodeText(htmlNode).htmlDecode(); //05.12.14 RL Added htmlDecode //this.
 
 		// remove any &nbsp;
 		text = text.replace('&nbsp;', ' ');
@@ -2750,14 +3117,15 @@ CKEDITOR.customprocessor.prototype =
 				if (emptyVal.exec(text)) return '';
 				return '[[' + labelCategory + ':' + text + ']]'
 		}
-	},
+	};
+	
     // Get real element from a fake element.
-    _getRealElement : function( element ) {
+    _getRealElement = function( element ) {
 
         var attributes = element.attributes;
         var realHtml = attributes && attributes.getNamedItem('data-cke-realelement');
 		var realNode = realHtml && decodeURIComponent( realHtml.nodeValue );
-        var realElement = realNode && this._getNodeFromHtml( realNode );
+        var realElement = realNode && _getNodeFromHtml( realNode ); //this.
 
  	    // If we have width/height in the element, we must move it into
  	    // the real element.
@@ -2781,9 +3149,9 @@ CKEDITOR.customprocessor.prototype =
  	    }
 
  	    return realElement;
-    },
+    };
 
-    _EscapeWikiMarkup : function (text) {
+    _EscapeWikiMarkup = function (text) {
 
         // wiki links
         var result, pattern = new RegExp( "\\[\\[.*?\\]\\]", "g" );
@@ -2816,38 +3184,9 @@ CKEDITOR.customprocessor.prototype =
         }
 
         return text;
-    },
+    };
+}
 
-	ieFixHTML: function(html, convertToLowerCase){
-		var zz = html;
-        zz = zz.replace( /\s+data-cke-expando=".*?"/g, '' ); //09.02.14 RL: In IE8, we need to remove the expando attributes.
-		var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
-
-		if (z) {
-			for (var i = 0; i < z.length; i++) {
-				var y, zSaved = z[i], attrRE = /\=[a-zA-Z\.\:\[\]_\(\)\&\$\%#\@\!0-9]+[?\s+|?>]/g;
-				z[i] = z[i].replace(/(<?\w+)|(<\/?\w+)\s/, function(a){
-					return a.toLowerCase();
-				});
-				y = z[i].match(attrRE);//deze match
-				if (y) {
-					var j = 0, len = y.length
-					while (j < len) {
-						var replaceRE = /(\=)([a-zA-Z\.\:\[\]_\(\)\&\$\%#\@\!0-9]+)?([\s+|?>])/g, replacer = function(){
-							var args = Array.prototype.slice.call(arguments);
-							return '="' + (convertToLowerCase ? args[2].toLowerCase() : args[2]) + '"' + args[3];
-						};
-						z[i] = z[i].replace(y[j], y[j].replace(replaceRE, replacer));
-						j++;
-					}
-				}
-				zz = zz.replace(zSaved, z[i]);
-			}
-		}
-		return zz;
-	}
-
-};
 
 if (!String.prototype.InArray) {
 	String.prototype.InArray = function(arr) {
@@ -2912,7 +3251,7 @@ if (!String.prototype.htmlEntities) {
                            'Ø','Ù','Ú','Û','Ü','Ý','Þ','€','\"','ß',
                            '¢','£','¤','¥','¦','§','¨','©','ª','«',
                            '¬','­','®','¯','°','±','²','³','´','µ','¶',
-                           '·','¸','¹','º','»','¼','½','¾');
+                           '·','¸','¹','º','»','¼','½','¾','↑');
 
     var entities = new Array ('agrave','aacute','acirc','atilde','auml','aring',
                               'aelig','ccedil','egrave','eacute','ecirc','euml','igrave',
@@ -2926,7 +3265,7 @@ if (!String.prototype.htmlEntities) {
                               'cent','pound','curren','yen','brvbar','sect','uml',
                               'copy','ordf','laquo','not','shy','reg','macr','deg','plusmn',
                               'sup2','sup3','acute','micro','para','middot','cedil','sup1',
-                              'ordm','raquo','frac14','frac12','frac34');
+                              'ordm','raquo','frac14','frac12','frac34','&uarr;');
 //    var chars = new Array ('&','à','á','â','ã','ä','å','æ','ç','è','é',
 //                           'ê','ë','ì','í','î','ï','ð','ñ','ò','ó','ô',
 //                           'õ','ö','ø','ù','ú','û','ü','ý','þ','ÿ','À',
@@ -2957,7 +3296,11 @@ if (!String.prototype.htmlEntities) {
       myRegExp.compile('&' + entities[i]+';','g');
       string = string.replace (myRegExp, chars[i]);
     }
+	// use numeric values with following because otherwise xmlDoc=parser.parseFromString(data,"text/xml") will fail
     string = string.replace(/&nbsp;/g, '&#160;');
+	string = string.replace(/&uarr;/g, '&#8593;');
     return string;
   }
 }
+
+

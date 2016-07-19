@@ -582,14 +582,15 @@ class CKeditorParser extends CKeditorParserWrapper {
 						}
 						break;
 					case 'references':
-						// $output = $this->fck_wikiTag( 'references', $content, $params );   //08.07.16 RL
+						// $output = $this->fck_wikiTag( 'references', $content, $params );                //08.07.16 RL
 						
 						// Create only placeholder tag here, contents of tag will be modified further in CKeditor when page is open and ready.
-						$output = $this->fck_ref_wikiTag( 'references', $content, '<References>', true, '', $params );  //Text based <references> element
+						$output = $this->fck_ref_wikiTag( 'references', $content, '<References>', true, '', $params );  //Widget <references> element
 						break;
 					case 'ref':
-						//$output = $this->fck_wikiTag( 'ref', $content, $params );           //08.07.16 RL
-						$output = $this->fck_ref_wikiTag( 'ref', $content, '<R>', true, 'sup', $params );  //Text based <ref> element
+						//$output = $this->fck_wikiTag( 'ref', $content, $params );                        //08.07.16 RL
+						$output = $this->fck_ref_wikiTag( 'ref', $content, '<R>', true, 'sup', $params );  //Widget <ref> element
+						//error_log(sprintf("DEBUG: CKeditorParser.body.php ref tag %s",$output));						
 						break;
 					case 'source':                                                            //02.11.14 RL   
 						//Treat tag source equal to tag syntaxhighlight and continue below.   //30.10.14 Wingsofcourage

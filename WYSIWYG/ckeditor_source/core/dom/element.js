@@ -611,6 +611,28 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		} )(),
 
 		/**
+		 * Gets the values of all element attributes.
+		 *
+		 * @param {Array} exclude The names of attributes to be excluded from the returned object.
+		 * @return {Object} An object containing all element attributes with their values.
+		 */
+		getAttributes: function( exclude ) {
+			var attributes = {},
+				attrDefs = this.$.attributes,
+				i;
+
+			exclude = CKEDITOR.tools.isArray( exclude ) ? exclude : [];
+
+			for ( i = 0; i < attrDefs.length; i++ ) {
+				if ( CKEDITOR.tools.indexOf( exclude, attrDefs[ i ].name ) === -1 ) {
+					attributes[ attrDefs[ i ].name ] = attrDefs[ i ].value;
+				}
+			}
+
+			return attributes;
+		},
+
+		/**
 		 * Gets the nodes list containing all children of this element.
 		 *
 		 * @returns {CKEDITOR.dom.nodeList}
@@ -1292,11 +1314,15 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 */
 		removeAttributes: function( attributes ) {
 			if ( CKEDITOR.tools.isArray( attributes ) ) {
-				for ( var i = 0; i < attributes.length; i++ )
+				for ( var i = 0; i < attributes.length; i++ ) {
 					this.removeAttribute( attributes[ i ] );
+				}
 			} else {
-				for ( var attr in attributes )
+				attributes = attributes || this.getAttributes();
+
+				for ( var attr in attributes ) {
 					attributes.hasOwnProperty( attr ) && this.removeAttribute( attr );
+				}
 			}
 		},
 

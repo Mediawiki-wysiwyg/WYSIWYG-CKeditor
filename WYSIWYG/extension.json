@@ -1,8 +1,8 @@
 {
 	"@note"  : "---                                                                 ",
-	"@note"  : "--- 04.07.16 RL Registering extension using wfLoadExtension.        ",
+	"@note"  : "--- Registering Wysiwyg- extension using wfLoadExtension.           ",
 	"@note"  : "---                                                                 ",
-	"version": "Wysiwyg 1.5.6_0 [B551+08.07.2016], CKEditor 4.5.8 (revision c1fc9a9)",
+	"version": "Wysiwyg 1.5.6_0 [B551+14.07.2016], CKEditor 4.5.9 (revision a35abfe)",
 
 	"@note"  : "---                                                                 ",
 	"name"   : "WYSIWYG editor",
@@ -85,7 +85,7 @@
 	"ResourceModules": {
 		"ext.WYSIWYG.init" : {
 			"scripts"      : "ext.wysiwyg.init.js",
-			"dependencies" : ["ext.wikiEditor.toolbar"],
+			"dependencies" : ["ext.wikiEditor"],
 			"localBasePath": "",
 			"remoteExtPath": "WYSIWYG",
 			"position"     : "bottom"
@@ -98,12 +98,12 @@
 			"position"     : "bottom"
 		},	
 		"ext.CKEDITOR": {
-			"scripts"      : "ckeditor.js",
+			"scripts"      : ["ckeditor.js"],
 			"dependencies" : [],
 			"localBasePath": "ckeditor",
 			"remoteExtPath": "WYSIWYG/ckeditor",
 			"position"     : "bottom"
-		}		
+		}
 	},
 	"manifest_version": 1
 }

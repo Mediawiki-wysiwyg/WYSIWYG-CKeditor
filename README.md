@@ -35,11 +35,19 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 08.07.16  Do not allow editing of text within placeholders of category- elements. Reload buttons of WikiEditor. Elements related to references (Cite- extension) in wysiwyg- mode are now text based elements (they were previously <R> and <References> special image- elements): placing pointer over reference shows text of reference as tooltip ("mouseover"), references are now numbered (<ref>..</ref>) and list of references are displayed as non-editable text- block at place of <references/> tag. Version 1.5.6_0 [B551+08.07.2016].
+- 14.07.16  Elements related to references (Cite- extension, ref- and references tags) in Wysiwyg- mode are now widgets: drag and drop of these elements is supported, elements are protected so that they can not be tampered with by mistake. Version 1.5.6_0 [B551+14.07.2016].
+
+- 13.07.16  Replaced custom dataprocessor of Wysiwyg by standard dataprocessor of CKeditor: advanced content filtering (ACF) of CKeditor will now work (at this moment all kind of content is allowed by setting "config.allowedContent = true;" of config.js), this will also provide possibility for other plugins to work properly with Wysiwyg (f.ex Widget- plugin). Version 1.5.6_0 [B551+14.07.2016].
+
+- 12.07.16  Update of CKEditor from version CKeditor 4.5.8 [revision c1fc9a9] to CKEditor 4.5.9 (revision a35abfe) (runtime- and source- files)) (added Widget- plugin). Version 1.5.6_0 [B551+14.07.2016].
+
+- 11.07.16  Hide unsupported option for usage of popups with Wysiwyg in user preferences. Version 1.5.6_0 [B551+14.07.2016].
+
+- 08.07.16  Do not allow editing of text within placeholders of category- elements. Reload buttons of WikiEditor. Elements related to references (Cite- extension) in Wysiwyg- mode are now text based elements (they were previously R- and References- special image- elements): placing pointer over reference shows text of reference as tooltip ("mouseover"), references are now numbered (ref- tags) and list of references are displayed as non-editable text- block at place of references- tag. Version 1.5.6_0 [B551+08.07.2016].
 
 - 04.07.16  Fixed license information and desciption of extension. Version 1.5.6_0 [B551+04.07.2016].
 
-- 04.07.16  LocalSettings.php: $wgCKEditorWikiEditorActive = true; Use this only with MW<=1.24: tells wysiwyg that text based editor is WikiEditor. Version 1.5.6_0 [B551+04.07.2016].
+- 04.07.16  LocalSettings.php: $wgCKEditorWikiEditorActive = true; Use this only with MW<=1.24: tells Wysiwyg that text based editor is WikiEditor. Version 1.5.6_0 [B551+04.07.2016].
 
 - 02.07.16  Extension can be activated using wfLoadExtension- method (old require_once- method is supported too). Updated lists of magic words of MW. Fixed qty of parameters for makeFreeExternalLink. Version 1.5.6_0 [B551+02.07.2016].
 
@@ -71,11 +79,11 @@ History of modifications:
 
 - 17.04.16  Fixed source mode of CKeditor: does not use resourceloader and requires setting variables $wgWYSIWYGSourceMode = true and $wgResourceLoaderDebug = true in LocalSettings.php (and rename ckeditor_source=>ckeditor). Version 1.5.6_0 [B551++17.04.2016].
 
-- 27.03.16  Hide window of wikieditor when page is opened in wysiwyg mode. Version 1.5.6_0 [B551++27.03.2016].
+- 27.03.16  Hide window of wikieditor when page is opened in Wysiwyg mode. Version 1.5.6_0 [B551++27.03.2016].
 
 - 27.03.16  Parallel loading of modules with resourceloader. Modification with injected definitions for style sheets. Version 1.5.6_0 [B551+27.03.2016].
 
-- 26.03.16  Fixed line deletion issue in case there were syntaxhighlight- block on page and view was toggled between wysiwyg-wikitext multiple times. Version 1.5.6_0 [B551++26.03.2016].
+- 26.03.16  Fixed line deletion issue in case there were syntaxhighlight- block on page and view was toggled between Wysiwyg-wikitext multiple times. Version 1.5.6_0 [B551++26.03.2016].
 
 - 26.03.16  Use resourceloader also with CKeditor: variable CKEDITOR_BASEPATH (javascript) fixed problems at start, variable $wgCKEditor_BASEPATH of LocalSettings.php can be used to change default path ('extensions/WYSIWYG/ckeditor/'). Removed functions InitializeScripts and ToggleScript because code has been earlier moved into ext.wysiwyg.func.js and ext.wysiwyg.init.js files. Changed start mode of editor to read-only. Source- button and toggle- link: show text "page is loading..." on editor area. Version 1.5.6_0 [B551+26.03.2016].
 
@@ -83,23 +91,23 @@ History of modifications:
 
 - 23.03.16  Modifications: resourceloader of MW, hybrid solution where javascript of ckeditor is injected directly on page while wysiwyg related javascripts are loaded using resourceloader of MW, variable $wgFCKEditor_delay_addonloadhook of LocalSettings.php removed. Source files of ckeditor seem to require setting $wgResourceLoaderDebug = true; in LocalSettings.php. Version 1.5.6_0 [B551+22.03.2016].
 
-- 28.02.16  Modifications because of MW1.26: replaced deprecated calls of sajax_do_call and addOnloadHook. Known issue: async. loading of javascript files by MW1.26 may cause wysiwyg fail when page is opened for editing => variable $wgFCKEditor_delay_addonloadhook of LocalSettings.php can be used to define delay in ms as temporary fix for this (f.ex 1000 = delay of 1s). Version 1.5.6_0 [B551+22.02.2016].
+- 28.02.16  Modifications because of MW1.26: replaced deprecated calls of sajax_do_call and addOnloadHook. Known issue: async. loading of javascript files by MW1.26 may cause Wysiwyg fail when page is opened for editing => variable $wgFCKEditor_delay_addonloadhook of LocalSettings.php can be used to define delay in ms as temporary fix for this (f.ex 1000 = delay of 1s). Version 1.5.6_0 [B551+22.02.2016].
 
-- 29.11.15  Fixed handling of space indented text (in MW wikitext mode) resulting pre- block in wysiwyg mode (related to class _fck_mw_lspace and variable _inLSpace). Version 1.5.6_0 [B551+29.11.2015].
+- 29.11.15  Fixed handling of space indented text (in MW wikitext mode) resulting pre- block in Wysiwyg mode (related to class _fck_mw_lspace and variable _inLSpace). Version 1.5.6_0 [B551+29.11.2015].
 
-- 06.11.15  Fixed version data of WYSIWYG. Version 1.5.6_0 [B551+02.11.2015].
+- 06.11.15  Fixed version data of Wysiwyg. Version 1.5.6_0 [B551+02.11.2015].
 
-- 02.11.15  Fixed special characters of image names in wfSajaxGetImageUrl (by Aarakast 29.04.15). Cancelled previous File- prefix modification, because it is reserved for images in WYSIWYG. Version 1.5.6_0 [B551+02.11.2015].
+- 02.11.15  Fixed special characters of image names in wfSajaxGetImageUrl (by Aarakast 29.04.15). Cancelled previous File- prefix modification, because it is reserved for images in Wysiwyg. Version 1.5.6_0 [B551+02.11.2015].
 
 - 01.11.15  Fixed copy-paste issue with table cells (by VA). Fixed File- prefix to act as link. Version 1.5.6_0 [B551+01.11.2015].
 
-- 30.10.15  Modifications with table captions: added attribute support, fixed error which caused WYSIWYG to crash with table caption. Version 1.5.6_0 [B551+30.10.2015].
+- 30.10.15  Modifications with table captions: added attribute support, fixed error which caused Wysiwyg to crash with table caption. Version 1.5.6_0 [B551+30.10.2015].
 
 - 25.10.15  Updated version of CKeditor source files to version 4.5.4 [revision d4677a3]. Moved source- files of CKeditor-WYSIWYG into ckeditor_source- directory, removed old plugins and other files, updated compile-minify instructions. Fixed error of previous WYSIWYG versions from [B551+31.01.2015] to [B551+19.10.2015] which prevented WYSIWYG to start in source mode. Version 1.5.6_0 [B551+25.10.2015].
 
 - 19.10.15  Update of CKEditor from version 4.5.1 [revision a513a92] to CKeditor 4.5.4 [revision d4677a3] (_source directory was not yet updated). In About- dialog of CKeditor, show also info about version of WYSIWYG. Version 1.5.6_0 [B551+19.10.2015].
 
-- 01.09.15  Show names of categories in wysiwyg mode (by Varlin 28.07.15). Fixed double click of category element and tooltip of category button in menu. Workaround to avoid manual modifications because of "protected property OutputPage". Version 1.5.6_0 [B551+01.09.2015].
+- 01.09.15  Show names of categories in Wysiwyg mode (by Varlin 28.07.15). Fixed double click of category element and tooltip of category button in menu. Workaround to avoid manual modifications because of "protected property OutputPage". Version 1.5.6_0 [B551+01.09.2015].
 
 - 07.07.15  Fixed in link dialog: when editing existing external link without separate display text (just save, no modifications), display text was changed to something like this "[1]". Version 1.5.6_0 [B551+07.07.2015].
 
@@ -125,7 +133,7 @@ History of modifications:
 
 - 23.02.15  Added language variables for link- and template- dialogs (by Varlin). Modified translations: fi, de. Version: 1.5.6_0  [B551+23.02.2015].
 
-- 10.02.15  Fixed activation of undo/redo buttons when switching from source to wysiwyg view.  Version: 1.5.6_0 [B551+10.02.2015].
+- 10.02.15  Fixed activation of undo/redo buttons when switching from source to Wysiwyg view.  Version: 1.5.6_0 [B551+10.02.2015].
 
 - 08.02.15  Show paragraph format "Formatted" with light grey background. Version: 1.5.6_0 [B551+08.02.2015].
 
@@ -133,7 +141,7 @@ History of modifications:
 
 - 04.02.15  Merged branch "CKeditor_v4_HtmlComments" to "CKeditor_v4". Version: 1.5.6_0 [B551+02.02.2015].
 
-- 02.02.15  Fix with new category dialog in case name of category contains double quotes. Show text "Double-click to edit the value" with editable elements in wysiwyg mode. Show link target as tooltip with external links. Show text of caption as tooltip with images. Version: 1.5.6_0 [B551+02.02.2015].
+- 02.02.15  Fix with new category dialog in case name of category contains double quotes. Show text "Double-click to edit the value" with editable elements in Wysiwyg mode. Show link target as tooltip with external links. Show text of caption as tooltip with images. Version: 1.5.6_0 [B551+02.02.2015].
 
 - 31.01.15  Removed modification "disabled unknown object message of CKeditor" which is not needed after new category dialog. Version: 1.5.6_0 [B551+31.01.2015].
 
@@ -149,7 +157,7 @@ History of modifications:
 
 - 19.01.15  Created new branch "CKeditor_v4_Category" for modifications of new category dialog by DavidBeaumier.
 
-- 12.01.15  Modified wikitext to html conversions so that toHtml function is not called unnecessarily two times (with page is opening, source button and toggle link). Keep editor in read-only mode and buttons of wysiwyg menu disabled during wysiwyg-wikitext conversion in both directions (this has visible effect with big wiki pages, when conversion takes long time). Added partial support of text "Page is loading, please wait...". Version: 1.5.6_0 [B551+12.01.2015].
+- 12.01.15  Modified wikitext to html conversions so that toHtml function is not called unnecessarily two times (with page is opening, source button and toggle link). Keep editor in read-only mode and buttons of Wysiwyg menu disabled during wysiwyg-wikitext conversion in both directions (this has visible effect with big wiki pages, when conversion takes long time). Added partial support of text "Page is loading, please wait...". Version: 1.5.6_0 [B551+12.01.2015].
 
 - 09.01.15  Updated WYSIWYG\ckeditor\_source directory. Version: 1.5.6_0 [B551+09.01.2015].
 
@@ -163,7 +171,7 @@ History of modifications:
 
 - 27.12.14  Fixed use of formats italic, bold and undeline inside display text of internal/external link. Version: 1.5.6_0 [B551+27.12.2014].
 
-- 23.12.14  Fixed handling of image link in case image file is not yet available in MW and link is edited in wysiwyg (=noimage.png is always considered internal link). Version: 1.5.6_0 [B551+++23.12.2014].
+- 23.12.14  Fixed handling of image link in case image file is not yet available in MW and link is edited in Wysiwyg (=noimage.png is always considered internal link). Version: 1.5.6_0 [B551+++23.12.2014].
 
 - 23.12.14  Fixed clearing preview of image (uploading of new image failed). Version: 1.5.6_0 [B551++23.12.2014].
 
@@ -183,19 +191,19 @@ History of modifications:
 
 - 25.11.14  Fixed handling of empty lines inside numbered and bulleted lists.
 
-- 23.11.14  Fixed tag- dialog (try to parse any simple tags of wikitext unknown to wysiwyg): pass name of attributes of wikitags to special.js using own special attribute (_fck_mw_tagattributes); removed extension specific predefined attribute list; do not use tag names of MW in tag -dialog (except converting source -tag to syntaxhighlight -tag).
+- 23.11.14  Fixed tag- dialog (try to parse any simple tags of wikitext unknown to Wysiwyg): pass name of attributes of wikitags to special.js using own special attribute (_fck_mw_tagattributes); removed extension specific predefined attribute list; do not use tag names of MW in tag -dialog (except converting source -tag to syntaxhighlight -tag).
 
 - 21.11.14  It is possible to enter also template definition with tag -dialog (template dialog, template.js, is preferred method to work with template definitions).
 
-- 21.11.14  Fixed data of gallery -tag to be edited with tag -dialog (tag is displayed as gallery -element in wysiwyg). Enabled use of attributes for hovergallery -tag (tag is displayed as special -element in wysiwyg).
+- 21.11.14  Fixed data of gallery -tag to be edited with tag -dialog (tag is displayed as gallery -element in Wysiwyg). Enabled use of attributes for hovergallery -tag (tag is displayed as special -element in Wysiwyg).
 
-- 20.11.14  Fixed tag- dialog: support comments -tag (about 99% compatible); try to parse any simple tags of wikitext unknown to wysiwyg.
+- 20.11.14  Fixed tag- dialog: support comments -tag (about 99% compatible); try to parse any simple tags of wikitext unknown to Wysiwyg.
 
-- 20.11.14  Fixed tag- dialog: allow more advanced tag definitions in tag -dialog; reactivated text-html-text conversions using browser (related to fix dated 19.11.14 below); use tag -dialog to edit math -formulas. Changed handling of math -element from img- to span- tag making it identical with other similar elements of wysiwyg.
+- 20.11.14  Fixed tag- dialog: allow more advanced tag definitions in tag -dialog; reactivated text-html-text conversions using browser (related to fix dated 19.11.14 below); use tag -dialog to edit math -formulas. Changed handling of math -element from img- to span- tag making it identical with other similar elements of Wysiwyg.
 
 - 19.11.14  Fixed tag- dialog: support multiple nested tags of wikitext or html syntax by converting inserted text to html format (related to fix dated 30.10.14 below).
 
-- 17.11.14  Modified wysiwyg to work with poll- extension (by default all unkown simple wikitext tags should now work as "special" -element).
+- 17.11.14  Modified Wysiwyg to work with poll- extension (by default all unkown simple wikitext tags should now work as "special" -element).
 
 - 07.11.14  Updated CKBuilder and run instructions of _source directory. Fixed CKBuilder warnings with smwtoolbar/plugin.js. Added command _source/dev/builder/build_leave-js-unminified.sh.
 

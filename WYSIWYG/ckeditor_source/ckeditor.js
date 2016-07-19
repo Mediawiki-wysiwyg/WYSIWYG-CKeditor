@@ -45,4 +45,4 @@ else {
  * @cfg {String} [skinName='moono']
  * @member CKEDITOR
  */
-CKEDITOR.skinName = 'kama'; //25.10.15 RL
+CKEDITOR.skinName = 'kama';

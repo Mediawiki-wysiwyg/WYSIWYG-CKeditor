@@ -15,6 +15,7 @@
 // To test if module has been loaded, in console of browser type:
 // mw.loader.getState( '_name_of_module_' );  where _name_of_module is ext.WYSIWYG.init, ext.WYSIWYG.func or ext.CKEDITOR
 
+
 /*****
 jQuery( document ).ready( function(){
 	mw.loader.using( ['ext.CKEDITOR'], function () {
@@ -37,7 +38,7 @@ if ( ( _showFCKEditor & _RTE_VISIBLE     == _RTE_VISIBLE ) ||      // 1 = _RTE_V
 }
 
 if ( mw.config.get('useWikiEditor') == true ) {    //27.06.16 RL
-	modules.push('ext.wikiEditor.toolbar'); 
+	modules.push('ext.wikiEditor'); 
 }
 
 // Source-  mode of Wysiwyg is not fully resourceloader compatible and it requires 
@@ -47,7 +48,7 @@ if ( mw.config.get( 'CKEDITOR_sourcemode' ) == 0 ) {   //17.04.16 RL Runtime- mo
 	modules.push('ext.CKEDITOR'); 
 }                                
 
-modules.push('ext.WYSIWYG.func'); //Functions needed by Wysiwyg.               
+modules.push('ext.WYSIWYG.func');       //Functions needed by Wysiwyg.
 
 // 27.03.16 RL: Client side loading of modules
 $.when(

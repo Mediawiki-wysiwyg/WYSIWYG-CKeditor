@@ -9,7 +9,7 @@ set -e
 echo "CKBuilder - Builds a release version of ckeditor-dev."
 echo ""
 
-CKBUILDER_VERSION="2.3.0"
+CKBUILDER_VERSION="2.3.1"
 CKBUILDER_URL="http://download.cksource.com/CKBuilder/$CKBUILDER_VERSION/ckbuilder.jar"
 
 PROGNAME=$(basename $0)
@@ -57,14 +57,13 @@ echo "Starting CKBuilder..."
 
 JAVA_ARGS=${ARGS// -t / } # Remove -t from args.
 
-VERSION="4.5.8 DEV"
+VERSION="4.5.9 DEV"
 REVISION=$(git rev-parse --verify --short HEAD)
 SEMVER_REGEX="^([0-9]+)\.([0-9]+)\.([0-9]+)(\-[0-9A-Za-z-]+)?(\+[0-9A-Za-z-]+)?$"
 
 # Get version number from tag (if available and follows semantic versioning principles).
 # Use 2>/dev/null to block "fatal: no tag exactly matches", true is needed because of "set -e".
-#TAG=$(git symbolic-ref -q --short HEAD || git describe --tags --exact-match 2>/dev/null) || true
-TAG=$(git symbolic-ref -q HEAD || git describe --tags --exact-match 2>/dev/null) || true
+TAG=$(git symbolic-ref -q --short HEAD || git describe --tags --exact-match 2>/dev/null) || true
 # "Git Bash" does not support regular expressions.
 if echo $TAG | grep -E "$SEMVER_REGEX" > /dev/null
 then

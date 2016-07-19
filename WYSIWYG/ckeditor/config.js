@@ -20,17 +20,17 @@ CKEDITOR.editorConfig = function( config )
 	// config.uiColor = '#AADC6E';
     var showTbButton = (typeof window.parent.wgCKEditorHideDisabledTbutton == 'undefined');
     
-    CKEDITOR.plugins.addExternal( 'mediawiki', CKEDITOR.basePath + 'plugins/mediawiki/' );
-    CKEDITOR.plugins.addExternal( 'mwtemplate', CKEDITOR.basePath + 'plugins/mwtemplate/' );
+    CKEDITOR.plugins.addExternal( 'mediawiki',   CKEDITOR.basePath + 'plugins/mediawiki/' );
+    CKEDITOR.plugins.addExternal( 'mwtemplate',  CKEDITOR.basePath + 'plugins/mwtemplate/' );
+	//CKEDITOR.plugins.addExternal( 'mwrefmarker', CKEDITOR.basePath + 'plugins/mwrefmarker/' );
     
     // Remove the link plugin because it's replaced with the mediawiki plugin
     //CKEDITOR.config.plugins = CKEDITOR.config.plugins.replace( /(?:^|,)link(?=,|$)/, '' );
-	var extraPlugins = "mediawiki,mwtemplate,tableresize,textselection,texttransform";   //08.09.14 RL
+	var extraPlugins = "mediawiki,mwtemplate,textselection,tableresize,texttransform";   //08.09.14 RL // ,mwrefmarker
 
 	config.toolbar = 'Wiki';
     // var origToolbar = CKEDITOR.config.toolbar_Full
 
- 
     config.toolbar_Wiki = [
         // 27.11.13 RL  When editing section, "Save" button replaces whole text => disable it
 		// 27.11.13 RL  ['Source'],['Save','Print','SpellChecker','Scayt'],
@@ -43,8 +43,8 @@ CKEDITOR.editorConfig = function( config )
         ['Image', 'Table', 'HorizontalRule', 'SpecialChar'],
         ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature', 'qiButton', 'wsButton', 'rmButton' ],
         [ 'stbButton' ],
-        ['MWCategory'],            //07.01.14 RL  
-        ['MWRef', 'MWReferences', 'MWReferencesUpd'], //08.07.16 RL For references (citation)
+        ['MWCategory'],                   //07.01.14 RL  
+        ['MWRefmarker', 'MWReferencesmarker', 'MWReferencesUpd'], //'MWRef','MWReferences'  //For references (citation)   //14.07.16 RL
         ['About'], 
         '/',
         ['Styles','Format','Font','FontSize'],
@@ -70,5 +70,7 @@ CKEDITOR.editorConfig = function( config )
     //config.image2_captionedClass = 'caption';  //05.05.14 RL Possible CKeditor 4.4.0 backwards compatibility setting.
 
     config.readOnly = true; //24.02.16 RL
+	
+	config.allowedContent = true; //14.07.15 RL Disable ACF
 	
 };

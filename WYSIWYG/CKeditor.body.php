@@ -56,8 +56,8 @@ class CKeditor_MediaWiki {
 
 		# Version of WYSIWYG and CKeditor:
 		# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+08.07.2016]');
-		define('CKEDITOR_VERSION',       'CKEditor 4.5.8 (revision c1fc9a9)');
+		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+14.07.2016]');
+		define('CKEDITOR_VERSION',       'CKEditor 4.5.9 (revision a35abfe)');
 		
 		$dir = dirname( __FILE__ ) . '/';
 			
@@ -430,11 +430,13 @@ class CKeditor_MediaWiki {
 			'label-message' => 'tog-riched_start_disabled',
 		);
 
+		/**11.07.16 RL** Popup is not supported.
 		$preferences['riched_use_popup'] = array(
 			'type' => 'toggle',
 			'section' => 'editing/fckeditor',
 			'label-message' => 'tog-riched_use_popup',
 		);
+		***/
 
 		$preferences['riched_use_toggle'] = array(
 			'type' => 'toggle',
@@ -496,18 +498,20 @@ class CKeditor_MediaWiki {
     **/
     public static function onEditPageBeforeEditButtons( &$editpage, &$buttons, &$tabindex ) { //13.04.14 RL
 
+		// 14.07.16 RL: Use set_save_diff_preview_buttons to:
+		//  -disable onbeforeunload event (EnabledUseEditWarning) to get rid of warning about unsaved changes
+		//  -release wgCKeditortoDataFormatLocked to enable call of conv_toDataFormat by event toDataFormat
         $buttons['save'] = str_replace(
-            '/>', 'onclick="mw.config.set(\'EnabledUseEditWarning\', false);" />', $buttons['save']    //Disable onbeforeunload event
+			'/>', 'onclick="set_save_diff_preview_buttons();" />', $buttons['save']    //EnabledUseEditWarning=false, wgCKeditortoDataFormatLocked=false
         );
 
         $buttons['preview'] = str_replace(
-            '/>', 'onclick="mw.config.set(\'EnabledUseEditWarning\', false);" />', $buttons['preview'] //Disable onbeforeunload event
+			'/>', 'onclick="set_save_diff_preview_buttons();" />', $buttons['preview'] //EnabledUseEditWarning=false, wgCKeditortoDataFormatLocked=false
         );
 
         $buttons['diff'] = str_replace(
-            '/>', 'onclick="mw.config.set(\'EnabledUseEditWarning\', false);" />', $buttons['diff']    //Disable onbeforeunload event
+			'/>', 'onclick="set_save_diff_preview_buttons();" />', $buttons['diff']    //EnabledUseEditWarning=false, wgCKeditortoDataFormatLocked=false
         );
-
 
         // Continue
         return true;
@@ -713,7 +717,7 @@ HEREDOC;
 		//             Resourceloader will register and load them.
 		//             Activate registered init module of WYSIWYG here, rest of the modules will be activated on client side when document is ready
 
-		//error_log(sprintf("DEBUG: before ext.WYSIWYG.init"));	
+		//error_log(sprintf("DEBUG: CKeditor.body.php before ext.WYSIWYG.init"));	
 		
 		$wgOut->addModules( 'ext.WYSIWYG.init' );
 		return true;

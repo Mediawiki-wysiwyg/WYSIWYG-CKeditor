@@ -1,7 +1,7 @@
-/*
-Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
-For licensing, see LICENSE.html or http://ckeditor.com/license
-*/
+/**
+ * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or http://ckeditor.com/license
+ */
 
 if (!String.prototype.InArray) {
 	String.prototype.InArray = function(arr) {
@@ -20,8 +20,9 @@ CKEDITOR.editorConfig = function( config )
 	// config.uiColor = '#AADC6E';
 	var showTbButton = (typeof window.parent.wgCKEditorHideDisabledTbutton == 'undefined');
     
-	CKEDITOR.plugins.addExternal( 'mediawiki', CKEDITOR.basePath + 'plugins/mediawiki/' );
+	CKEDITOR.plugins.addExternal( 'mediawiki',  CKEDITOR.basePath + 'plugins/mediawiki/' );
 	CKEDITOR.plugins.addExternal( 'mwtemplate', CKEDITOR.basePath + 'plugins/mwtemplate/' );
+	//CKEDITOR.plugins.addExternal( 'mwrefmarker', CKEDITOR.basePath + 'plugins/mwrefmarker/' );
 
 	// %REMOVE_START%
 	//07.11.14 RL Plugin "textselection" is not included in download bundle of CKeditor, because
@@ -33,7 +34,7 @@ CKEDITOR.editorConfig = function( config )
 	// Remove the link plugin because it's replaced with the mediawiki plugin
 	//CKEDITOR.config.plugins = CKEDITOR.config.plugins.replace( /(?:^|,)link(?=,|$)/, '' );
    
-	var extraPlugins = "mediawiki,mwtemplate,tableresize,textselection,texttransform";   //08.09.14 RL
+	var extraPlugins = "mediawiki,mwtemplate,textselection,tableresize,texttransform";   //08.09.14 RL // ,mwrefmarker
    
 	config.toolbar = 'Wiki';
 	// var origToolbar = CKEDITOR.config.toolbar_Full
@@ -51,7 +52,7 @@ CKEDITOR.editorConfig = function( config )
         ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature', 'qiButton', 'wsButton', 'rmButton' ],
         [ 'stbButton' ],
         ['MWCategory'],            //07.01.14 RL  
-        ['MWRef', 'MWReferences', 'MWReferencesUpd'], //08.07.16 RL For references (citation)
+        ['MWRefmarker', 'MWReferencesmarker', 'MWReferencesUpd'], //'MWRef','MWReferences'  //For references (citation)   //14.07.16 RL
         ['About'], 
         '/',
         ['Styles','Format','Font','FontSize'],
@@ -78,10 +79,12 @@ CKEDITOR.editorConfig = function( config )
     //config.image2_captionedClass = 'caption';  //05.05.14 RL Possible CKeditor 4.4.0 backwards compatibility setting.
 
     config.readOnly = true;  //24.03.16 RL 
+	
+	config.allowedContent = true; //14.07.15 RL Disable ACF
 
 	// %REMOVE_START%	
 	// 25.10.15 RL: Source mode requires all plugins to be listed here in order to get toolbar, editor area etc. on screen. %REMOVE_LINE%
-	config.plugins = 
+	config.plugins =
 		'about,' +
 		'a11yhelp,' +
 		'basicstyles,' +
@@ -138,8 +141,8 @@ CKEDITOR.editorConfig = function( config )
 		'templates,' +
 		'toolbar,' +
 		'undo,' +
+		'widget,' +
 		'wysiwygarea';
-		;
 	// %REMOVE_END%
 };
 

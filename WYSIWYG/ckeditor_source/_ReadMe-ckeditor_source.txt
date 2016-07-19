@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------
-Versions of ckeditor_source directory (updated 11.07.2016 RL):
-  Wysiwyg  1.5.6_0 [B551+08.07.2016]
-  CKeditor 4.5.8   (31.03.2016 12:51 timestamp of version in git repository)
+Versions of ckeditor_source directory (updated 14.07.2016 RL):
+  Wysiwyg  1.5.6_0 [B551+14.07.2016] 
+  CKeditor 4.5.9   (12.05.2016 14:07 timestamp of version in git repository)
 
 ---------------------------------------------------------------------------------
 This directory is intended for development and debug purposes only.
@@ -19,14 +19,16 @@ How to run source codes of CKeditor with WYSIWYG and MW:
 
    ckeditor_source\plugins\
      mediawiki
+     mwrefmarker                #NOTE! Test/demo widget- plugin, not used by WYSIWYG.
      mwtemplate
      smwqueryinterface
      smwrichmedia
      smwrule
      smwtoolbar
      smwwebservice
-     textselection              #Heavily modified with MediaWiki, not fully functional
-     texttransform              #Included in ckeditor runtime bundle but not in source bundle => manual download/update
+    #tableresize                #NOTE! This is included in source files of CKeditor but not in configuration of runtime bundle
+     textselection              #NOTE! Heavily modified with MediaWiki, not fully functional. Update of plugin will require manual modifications. 
+     texttransform              #NOTE! Not included in source files of CKeditor => manual download/update of source files. Plugin is included in configuration of runtime bundle.
    
    ckeditor_source\
      ckeditor.asp

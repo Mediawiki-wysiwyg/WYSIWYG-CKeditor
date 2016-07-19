@@ -316,9 +316,26 @@ function initEditor(){
 window.initEditor = initEditor;
 
 
+function set_save_diff_preview_buttons(){ //14.07.16 RL
+	// Do stuff when edit-, diff- or save- buttons of MW page are activated.
+	
+	// Disable warning about unsaved modifications.
+	mw.config.set('EnabledUseEditWarning', false); 
+	
+	// Enable call of conv_toDataFormat by toDataFormat event so that wysiwyg => wikitext conversion can take place.
+	mw.config.set('wgCKeditortoDataFormatLocked', false);
+}
+window.set_save_diff_preview_buttons = set_save_diff_preview_buttons;
+
+
 function ToggleCKEditor( mode, objId ){ 
 
-	_showFCKEditor = mw.config.get('showFCKEditor');  // 27.07.16 RL
+	_showFCKEditor = mw.config.get('showFCKEditor');      // 27.07.16 RL
+	
+	// Release lock of wikitext=>wysiwyg conversion, conversion may now be activated.
+	// This is related to wikitext=>wysiwyg, but release it always here no matter what direction we have,
+	// it will be set locked in plugins.js->conv_toHtml when needed.
+	mw.config.set('wgCKeditortoDataFormatLocked', false); // 14.07.16 RL
 	
 	if (typeof window.toggleRTESemaphore !== 'undefined') {
 		if (window.toggleRTESemaphore === true) {
