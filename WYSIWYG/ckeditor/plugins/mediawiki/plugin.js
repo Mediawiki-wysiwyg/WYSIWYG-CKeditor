@@ -1192,7 +1192,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				var data = evt.data.dataValue;   //14:evt.data.dataValue.getHtml(); 15:evt.data.dataValue;
 		
 				evt.data.dataValue = conv_toDataFormat( editor, data);
-			}	
+			}
 		}, null, null, 15 )	// 15 = data is available in an HTML string
 
 		
@@ -1843,7 +1843,7 @@ function conv_toHtml ( editor, data, dataFilter, fixForBody ) {
 		var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
 			writer = new CKEDITOR.htmlParser.basicWriter();
 	
-		fragment.writeHtml( writer, dataFilter ); //this.dataFilter
+		fragment.writeHtml( writer, this.dataFilter ); //this.dataFilter
 		data = writer.getHtml( true );
 		return data; // Show wikipage in html format...
 	}	
@@ -1875,7 +1875,7 @@ function conv_toDataFormat(editor, data, fixForBody) {
 	****/		
 	
 	if (CKEDITOR.env.ie) {
-		data = ieFixHTML(data, false); //this.ieFixHTML
+		data = this.ieFixHTML(data, false); //this.ieFixHTML
 	}
 	
 	//data = '<body xmlns:x="http://excel">' + data.htmlEntities() + '</body>';              //14.07.16 RL
@@ -1929,7 +1929,7 @@ function conv_toDataFormat(editor, data, fixForBody) {
 	
 	/***
 	var hsrt = data;
-	while( hsrt.length > 0 ) {
+	while( hsrt && hsrt.length > 0 ) {
 		if (hsrt.length > 160) {
 			console.log (hsrt.substring(0,160));
 			hsrt = hsrt.substring(160);
@@ -1939,8 +1939,8 @@ function conv_toDataFormat(editor, data, fixForBody) {
 		}	
 	}
 	****/
-	
-	var rootNode = _getNodeFromHtml( data ); //this.
+
+	var rootNode = this._getNodeFromHtml( data ); //this.
 	
 	if ( !rootNode ) return false; //16.01.14 RL IE catches some exeptions with page
 	
@@ -1949,15 +1949,15 @@ function conv_toDataFormat(editor, data, fixForBody) {
 	if ( !CKEDITOR.env.ie ) {
 		rootNode.normalize();
 		}
-	
+
 	var stringBuilder = new Array();
-	_AppendNode( editor, rootNode, stringBuilder, '' );  //this.
+	this._AppendNode( editor, rootNode, stringBuilder, '' );  //this.
 	
 	// 14.07.16 RL _getNodeFromHtml switched from "text/xml" to "text/html" 
 	// =>variable "data" contains extra <html><head></head> tags as first
 	//   and </html> as last elementa => remove them.
 	var data2 =  remove_htmlhead(stringBuilder.join( '' ).Trim());                    //14.07.16 RL
-		
+
 	// Restore original html comments from "Fckmw<id>fckmw" -keys.
 	return fck_mv_plg_revertEncapsulatedString( data2 );                              //14.07.16 RL
 	// return fck_mv_plg_revertEncapsulatedString( stringBuilder.join( '' ).Trim() ); //16.01.15 RL
@@ -2098,7 +2098,7 @@ CKEDITOR.customprocessor.prototype =
         }
         else // Internet Explorer before version 9    
 		{
-            data = ieFixHTML(data); //this.ieFixHTML(data);	
+            data = this.ieFixHTML(data); //this.ieFixHTML(data);	
 			try {         // 16.01.15 RL
                 var xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
             } catch (e) { // 16.01.15 RL
@@ -2186,7 +2186,7 @@ CKEDITOR.customprocessor.prototype =
 
                 // get real element from fake element
 	            if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
-                    _AppendNode( editor, _getRealElement( htmlNode ), stringBuilder, prefix ); //this._AppendNode this._getRealElement
+                    this._AppendNode( editor,this._getRealElement( htmlNode ), stringBuilder, prefix ); //this._AppendNode this._getRealElement
                     return;
                 }
 
@@ -2233,7 +2233,7 @@ CKEDITOR.customprocessor.prototype =
 				if ( htmlNode._fckxhtmljob && htmlNode._fckxhtmljob == FCKXHtml.CurrentJobNum )
 					return;
                 */
-				var basicElement = _BasicElements[ sNodeName ]; //this.
+				var basicElement = this._BasicElements[ sNodeName ]; //this.
 				if ( basicElement ){
 				
 					var basic0 = basicElement[0];
@@ -2245,7 +2245,7 @@ CKEDITOR.customprocessor.prototype =
                             var style = htmlNode.getAttribute('style') || '',
                                 alignment = style.match(/text-align:\s*(\w+);?/i);
                             if ( alignment[1].toLowerCase().IEquals("right", "center", "justify" ) ) {
-                                _AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix); //this.
+                                this._AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix); //this.
                                 return;
                             }
                         } catch (e) {};
@@ -2273,7 +2273,7 @@ CKEDITOR.customprocessor.prototype =
 					var len = stringBuilder.length;
 
 					if ( !basicElement[2] ){
-						_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
+						this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 						// only empty element inside, remove it to avoid quotes
 						if ( ( stringBuilder.length == len || ( stringBuilder.length == len + 1 && !stringBuilder[len].length ) )
 							&& basicElement[0] && basicElement[0].charAt(0) == "'" ){
@@ -2293,7 +2293,7 @@ CKEDITOR.customprocessor.prototype =
 							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dt', 'dd' ),
                                 listStyle = htmlNode.getAttribute('style') || '',
                                 startNum = htmlNode.getAttribute('start') || '';
-                            preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1'); //this.
+                            this.preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1'); //this.
                             if (this.preserveLiNode) {  
                                 stringBuilder.push('<' + sNodeName);
                                 if (startNum)
@@ -2303,7 +2303,7 @@ CKEDITOR.customprocessor.prototype =
                                 stringBuilder.push('>\n');
                             }
 
-							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
+							this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 
                             if (this.preserveLiNode) 
                                 stringBuilder.push('</' + sNodeName + '>');
@@ -2318,7 +2318,7 @@ CKEDITOR.customprocessor.prototype =
 
                             if (this.preserveLiNode) {  
                                 stringBuilder.push('<li>');
-                                _AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
+                                this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
                                 stringBuilder.push('</li>\n');
                                 break;
                             }
@@ -2349,13 +2349,13 @@ CKEDITOR.customprocessor.prototype =
 							}
 
 							stringBuilder.push( listType );
-							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix + listType ); //this.
+							this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix + listType ); //this.
 
 							break;
 
 						case 'a' :
                             // if there is no inner HTML in the Link, do not add it to the wikitext
-                            if (! _GetNodeText(htmlNode).Trim() ) break; //this.
+                            if (! this._GetNodeText(htmlNode).Trim() ) break; //this.
 
 							var pipeline = true;
 							// Get the actual Link href.
@@ -2410,7 +2410,7 @@ CKEDITOR.customprocessor.prototype =
 							// #2223
 							if( htmlNode.getAttribute( '_fcknotitle' ) && htmlNode.getAttribute( '_fcknotitle' ) == "true" ){
 								var testHref = decodeURIComponent(htmlNode.getAttribute('href'));
-								var testInner = _GetNodeText(htmlNode) || ''; //this.
+								var testInner = this._GetNodeText(htmlNode) || ''; //this.
 								if ( href.toLowerCase().StartsWith( 'category:' ) )
 									testInner = 'Category:' + testInner;
 								if ( testHref.toLowerCase().StartsWith( 'rtecolon' ) )
@@ -2430,10 +2430,10 @@ CKEDITOR.customprocessor.prototype =
 								
 							stringBuilder.push( href );
 
-                            var innerHTML = _GetNodeText(htmlNode); //this.
+                            var innerHTML = this._GetNodeText(htmlNode); //this.
 							if ( pipeline && innerHTML != '[n]' && ( !isWikiUrl || href != innerHTML || !href.toLowerCase().StartsWith( "category:" ) ) ){
 								stringBuilder.push( isWikiUrl? '|' : ' ' );
-								_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
+								this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 							}
 							stringBuilder.push( isWikiUrl ? ']]' : ']' );
 
@@ -2441,7 +2441,7 @@ CKEDITOR.customprocessor.prototype =
 
 						case 'dl' :
 
-							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
+							this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dd', 'dt' );
 							if ( isFirstLevel && stringBuilder[ stringBuilder.length - 1 ] != "\n" )
 								stringBuilder.push( '\n' );
@@ -2456,7 +2456,7 @@ CKEDITOR.customprocessor.prototype =
  									stringBuilder.push( '\n' + prefix );
 							}
 							stringBuilder.push( ';' );
-							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix + ";" ); //this.
+							this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix + ";" ); //this.
 
 							break;
 
@@ -2468,13 +2468,14 @@ CKEDITOR.customprocessor.prototype =
  									stringBuilder.push( '\n' + prefix );
 							}
 							stringBuilder.push( ':' );
-							_AppendChildNodes( editor, htmlNode, stringBuilder, prefix + ":" ); //this.
+							this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix + ":" ); //this.
 
 							break;
 
 						case 'table' :
 
-							var attribs = _GetAttributesStr( htmlNode ); //this.
+							var attribs = this._GetAttributesStr( htmlNode ); //this.
+
 							// start table definition of MW, format is: '{|'..
 							stringBuilder.push( '\n{|' );
 							if ( attribs.length > 0 )
@@ -2497,47 +2498,54 @@ CKEDITOR.customprocessor.prototype =
 										// start caption definition of MW, format is: ..'|+'..
 										stringBuilder.push( '|+ ' );										
 										// caption may also have attributes defined, format is: ..'atributes |'..
-										attribs = _GetAttributesStr( currentNode ); //this.
+										attribs = this._GetAttributesStr( currentNode ); //this.
 										if ( attribs.length > 0 ) {
 											stringBuilder.push( attribs + '|');
 										}
 										// append text of caption, format is: ..'formatted text of caption'..
-										_AppendChildNodes( editor, currentNode, stringBuilder, prefix ); //this.
+										this._AppendChildNodes( editor, currentNode, stringBuilder, prefix ); //this.
 										stringBuilder.push( '\n' );
 									}
                                     // we have a table row tag
                                     else if (currentTagName == "tr") {
-                                        attribs = _GetAttributesStr( currentNode ) ; //this.
+                                        attribs = this._GetAttributesStr( currentNode ) ; //this.
 
-                                        stringBuilder.push( '|-' ) ;
+                                        stringBuilder.push( '|-' ) ;  // new row
                                         if ( attribs.length > 0 )
                                             stringBuilder.push( attribs ) ;
                                         stringBuilder.push( '\n' ) ;
 
 										// var cell = currentNode.firstElementChild;
                                         var cell = currentNode.firstChild;
-                                        while ( cell ) {
-                                            attribs = _GetAttributesStr( cell ) ; //this.
 
-                                            if ( cell.tagName.toLowerCase() == "th" )
-                                                stringBuilder.push( '!' ) ;
-                                            else
-                                                stringBuilder.push( '|' ) ;
+										if ( typeof cell != 'undefined' ) {      //20.07.16 RL (with tables)
+											while ( cell && cell.nextSibling ) { //20.07.16 RL Added && cell.nextSibling, removes creation of last extra column 
+												attribs = this._GetAttributesStr( cell ) ; //this.
 
-                                            if ( attribs.length > 0 )
-                                                stringBuilder.push( attribs + ' |' ) ;
-
-                                            stringBuilder.push( ' ' ) ;
-
-                                            this._IsInsideCell = true ;  
-                                            _AppendChildNodes( editor, cell, stringBuilder, prefix ) ; //this.
-                                            this._IsInsideCell = false ;
-
-                                            stringBuilder.push( '\n' ) ;
-											// cell = cell.nextElementSibling;
-                                            cell = cell.nextSibling;
-                                        }
-                                    }
+												if (typeof cell.nodeValue != 'string') {                      //20.07.16 RL removes creation of first extra column
+													if ( cell.tagName && cell.tagName.toLowerCase() == "th" ) //20.07.16 RL "cell.tagName &&"
+														stringBuilder.push( '!' ) ; //header row
+													else
+														stringBuilder.push( '|' ) ; //normal row, "td"	
+	
+													if ( attribs.length > 0 )
+														stringBuilder.push( attribs + ' |' ) ; //attributes of row
+	
+													stringBuilder.push( ' ' ) ;
+												}                                                             //20.07.16 RL
+	
+												this._IsInsideCell = true ;  
+												this._AppendChildNodes( editor, cell, stringBuilder, prefix ) ; //this.
+												this._IsInsideCell = false ;
+												
+												if (typeof cell.nodeValue != 'string')                        //20.07.16 RL removes creation of empty line
+													stringBuilder.push( '\n' ) ;
+												
+												// cell = cell.nextElementSibling;
+												cell = cell.nextSibling;
+											}
+										}
+									}
                                     // not a <tr> found, then we only accept templates and special functions
                                     // which then probably build the table row in the wiki text
                                     else if (currentTagName == "img") {
@@ -2549,7 +2557,7 @@ CKEDITOR.customprocessor.prototype =
 
                                                 stringBuilder.push( '|-\n' ) ;
                                                 this._IsInsideCell = true ;
-                                                _AppendNode( editor, currentNode, stringBuilder, prefix ) ; //this.
+                                                this._AppendNode( editor, currentNode, stringBuilder, prefix ) ; //this.
                                                 this._IsInsideCell = false ;
                                                 stringBuilder.push( '\n' ) ;
                                         }
@@ -2675,7 +2683,7 @@ CKEDITOR.customprocessor.prototype =
 									stringBuilder.push( '<syntaxhighlight' );    //02.11.14 RL Was source
 									stringBuilder.push( ' lang="' + refLang + '"' );
 									stringBuilder.push( '>' );
-									stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //this. //30.10.14 RL fckSPACE
+									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //this. //30.10.14 RL fckSPACE
 									stringBuilder.push( '</syntaxhighlight>' );  //02.11.14 RL Was source
 									return;
 
@@ -2710,19 +2718,19 @@ CKEDITOR.customprocessor.prototype =
 									return;
 
 								case 'fck_mw_signature' :
-									stringBuilder.push( editor.config.WikiSignature ); //this.editor
+									stringBuilder.push( this.editor.config.WikiSignature ); //this.editor
 									return;
 
 								case 'fck_mw_template' :
                                 case 'fck_smw_query' :
-                                    var inner= _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n'); //this.
+                                    var inner= this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n'); //this.
                                     if (inner == '{{!}}')
                                         stringBuilder.push( '\n' );
                                     stringBuilder.push( inner );
 									return;
                                 case 'fck_smw_webservice' :
                                 case 'fck_smw_rule' :
-									stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') ); //this.
+									stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') ); //this.
 									return;
 								case 'fck_mw_magic' :
                                     var magicWord = htmlNode.getAttribute( '_fck_mw_tagname' ) || '';
@@ -2734,14 +2742,14 @@ CKEDITOR.customprocessor.prototype =
                                     var tagName = htmlNode.getAttribute( '_fck_mw_tagname' ) || '';
 								    switch (tagType) {
 								        case 't' :
-                                            var attribs = _GetAttributesStr( htmlNode ) ; //this.
+                                            var attribs = this._GetAttributesStr( htmlNode ) ; //this.
                 							stringBuilder.push( '<' + tagName ) ;
 
                                             if ( attribs.length > 0 )
                                                 stringBuilder.push( attribs ) ;
 
                 							stringBuilder.push( '>' ) ;
-                                			stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); // this. //04.02.15 RL fckSPACE
+                                			stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); // this. //04.02.15 RL fckSPACE
                                             stringBuilder.push( '<\/' + tagName + '>' ) ;
 
 								            break;
@@ -2754,12 +2762,12 @@ CKEDITOR.customprocessor.prototype =
 								            break;
 								        case 'p' :
 								            stringBuilder.push( '{{' + tagName );
-								            if (_GetNodeText(htmlNode).length > 0) //this.
-								                stringBuilder.push( ':' + _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //this. //04.02.15 RL fckSPACE
+								            if (this._GetNodeText(htmlNode).length > 0) //this.
+								                stringBuilder.push( ':' + this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/_$/, '').replace(/fckSPACE/g,' ') ); //this. //04.02.15 RL fckSPACE
 								            stringBuilder.push( '}}');
 								            break;
                                         case 'sf' :
-                                            stringBuilder.push( _GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //this. //04.02.15 RL fckSPACE
+                                            stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n').replace(/fckSPACE/g,' ') ); //this. //04.02.15 RL fckSPACE
                                             break;
 								    }
 								    return;
@@ -2790,24 +2798,24 @@ CKEDITOR.customprocessor.prototype =
 									break;
 								case 'fck_mw_property' :
 								case 'fck_mw_category' :
-									stringBuilder.push( _formatSemanticValues( htmlNode ) ) ; //this.
+									stringBuilder.push( this._formatSemanticValues( htmlNode ) ) ; //this.
 									return ;
 							}
 
 							// Change the node name and fell in the "default" case.
 							if ( htmlNode.getAttribute( '_fck_mw_customtag' ) )
 								sNodeName = htmlNode.getAttribute( '_fck_mw_tagname' );
-                            _AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix ); //this.
+                            this._AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix ); //this.
 							break;
 						case 'pre' :
-							var attribs = _GetAttributesStr( htmlNode );        //this.
+							var attribs = this._GetAttributesStr( htmlNode );        //this.
                             var eClassName = htmlNode.getAttribute('class');
 
 							if ( eClassName == "fck_mw_nowiki" ){ //Syntaxhighlight-Nowiki-Pre
 							    // Edit text directly on page: <pre><nowiki>....</nowiki></pre>
 								//var nodeChild = htmlNode.firstChild;
 								stringBuilder.push( '<nowiki>' );
-								stringBuilder.push( _GetNodeText(htmlNode) ); //.htmlDecode() //this.
+								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() //this.
 								stringBuilder.push( '</nowiki>\n' ); 
 							}							
 							else if ( eClassName == "fck_mw_syntaxhighlight" ){ //Syntaxhighlight-Nowiki-Pre
@@ -2818,13 +2826,13 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( '<syntaxhighlight' );
 								stringBuilder.push( ' lang="' + refLang + '"' );
 								stringBuilder.push( '>' );
-								stringBuilder.push( _GetNodeText(htmlNode) ); //.htmlDecode() //this.
+								stringBuilder.push( this._GetNodeText(htmlNode) ); //.htmlDecode() //this.
 								stringBuilder.push( '</syntaxhighlight>\n' ); //26.03.16 RL Added \n 
 							}
 							else if ( eClassName == "_fck_mw_lspace" ){ //MW special <pre> block which is indicated by space at peginning of line
 								stringBuilder.push( "\n " );            //Add one space because MW html has one space less than what is in wikitext code
 								this._inLSpace = true;
-								_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
+								this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 								this._inLSpace = false;
 								var len = stringBuilder.length;
 								if ( len > 1 ) {
@@ -2844,12 +2852,12 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( sNodeName );
 								if ( attribs.length > 0 )
 									stringBuilder.push( attribs );
-								if( _GetNodeText(htmlNode) == '' ) //this.
+								if( this._GetNodeText(htmlNode) == '' ) //this.
 									stringBuilder.push( ' />' );
 								else {
 									stringBuilder.push( '>' );
 									this._inPre = true;
-									_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
+									this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
 									this._inPre = false;
 
 									stringBuilder.push( '<\/' );
@@ -2861,7 +2869,7 @@ CKEDITOR.customprocessor.prototype =
 							}
 							break;
 						default :
-                            _AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix ); //this.
+                            this._AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix ); //this.
 							break;
 					}
 				}
@@ -2918,7 +2926,7 @@ CKEDITOR.customprocessor.prototype =
 						// => _EscapeWikiMarkup seems to convert in wrong direction, 
 						// because here we are converting from html to wikitext, after call of _EscapeWikiMarkup we got: 
 						//   &#x5B;&#x5B;../SomePage|LinkText&#x5D;&#x5D;
-                        // textValue = _EscapeWikiMarkup(textValue); //24.04.16 RL Commented out. //this.
+                        // textValue = this._EscapeWikiMarkup(textValue); //24.04.16 RL Commented out. //this.
                     }
 
 					if ( this._inLSpace && textValue.length == 1 && textValue.charCodeAt(0) == 13 )
@@ -2951,7 +2959,7 @@ CKEDITOR.customprocessor.prototype =
 			case 8 :
 				// IE catches the <!DOTYPE ... > as a comment, but it has no
 				// innerHTML, so we can catch it, and ignore it.
-				if ( CKEDITOR.env.ie && !_GetNodeText(htmlNode) ) //this.
+				if ( CKEDITOR.env.ie && !this._GetNodeText(htmlNode) ) //this.
 					return;
 
 				stringBuilder.push( "<!--"  );
@@ -2968,13 +2976,13 @@ CKEDITOR.customprocessor.prototype =
 	_AppendChildNodes = function( editor, htmlNode, stringBuilder, listPrefix ){
 		var child = htmlNode.firstChild;
 		while ( child ){
-			_AppendNode( editor, child, stringBuilder, listPrefix ); //this.
+			this._AppendNode( editor, child, stringBuilder, listPrefix ); //this.
 			child = child.nextSibling;
 		}
 	};
 
 	_AppendTextNode = function( editor, htmlNode, stringBuilder, sNodeName, prefix ) {
-    	var attribs = _GetAttributesStr( htmlNode ) ; //this.
+    	var attribs = this._GetAttributesStr( htmlNode ) ; //this.
 
 		stringBuilder.push( '<' ) ;
 		stringBuilder.push( sNodeName ) ;
@@ -2983,7 +2991,7 @@ CKEDITOR.customprocessor.prototype =
 			stringBuilder.push( attribs ) ;
 
 		stringBuilder.push( '>' ) ;
-		_AppendChildNodes( editor, htmlNode, stringBuilder, prefix ) ;  //this.
+		this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ) ;  //this.
 		stringBuilder.push( '<\/' ) ;
 		stringBuilder.push( sNodeName ) ;
 		stringBuilder.push( '>' ) ;
@@ -2992,6 +3000,8 @@ CKEDITOR.customprocessor.prototype =
 	_GetAttributesStr = function( htmlNode ){
 		var attStr = '';
 		var aAttributes = htmlNode.attributes;
+
+		if ( !aAttributes ) { return attStr; }; //20.07.16 RL FF does not work with test "typeof aAttributes != 'undefined'" (with tables)
 
 		for ( var n = 0; n < aAttributes.length; n++ ){
 			var oAttribute = aAttributes[n];
@@ -3066,7 +3076,7 @@ CKEDITOR.customprocessor.prototype =
 	// Property and Category values must be of a certain format. Otherwise this will break
 	// the semantic annotation when switching between wikitext and WYSIWYG view
 	_formatSemanticValues = function(htmlNode) {
-		var text = _GetNodeText(htmlNode).htmlDecode(); //05.12.14 RL Added htmlDecode //this.
+		var text = this._GetNodeText(htmlNode).htmlDecode(); //05.12.14 RL Added htmlDecode //this.
 
 		// remove any &nbsp;
 		text = text.replace('&nbsp;', ' ');
@@ -3125,7 +3135,7 @@ CKEDITOR.customprocessor.prototype =
         var attributes = element.attributes;
         var realHtml = attributes && attributes.getNamedItem('data-cke-realelement');
 		var realNode = realHtml && decodeURIComponent( realHtml.nodeValue );
-        var realElement = realNode && _getNodeFromHtml( realNode ); //this.
+        var realElement = realNode && this._getNodeFromHtml( realNode ); //this.
 
  	    // If we have width/height in the element, we must move it into
  	    // the real element.

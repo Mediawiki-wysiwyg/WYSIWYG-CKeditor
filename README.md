@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 20.07.16  Fixed problems with tables: crashed with save and source toggle; do not create extra columns. Enabled Templates- plugin by default. Version 1.5.6_0 [B551+20.07.2016].
+
 - 14.07.16  Elements related to references (Cite- extension, ref- and references tags) in Wysiwyg- mode are now widgets: drag and drop of these elements is supported, elements are protected so that they can not be tampered with by mistake. Version 1.5.6_0 [B551+14.07.2016].
 
 - 13.07.16  Replaced custom dataprocessor of Wysiwyg by standard dataprocessor of CKeditor: advanced content filtering (ACF) of CKeditor will now work (at this moment all kind of content is allowed by setting "config.allowedContent = true;" of config.js), this will also provide possibility for other plugins to work properly with Wysiwyg (f.ex Widget- plugin). Version 1.5.6_0 [B551+14.07.2016].

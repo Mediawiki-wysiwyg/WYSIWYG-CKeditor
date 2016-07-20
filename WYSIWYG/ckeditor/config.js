@@ -40,12 +40,10 @@ CKEDITOR.editorConfig = function( config )
         ['Subscript','Superscript'],
         ['Link','MWSimpleLink','Unlink'], //05.09.14 RL
         ['Undo','Redo'],
-        ['Image', 'Table', 'HorizontalRule', 'SpecialChar'],
-        ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature', 'qiButton', 'wsButton', 'rmButton' ],
-        [ 'stbButton' ],
+        ['Image', 'Table', 'HorizontalRule', 'SpecialChar','Templates'],  //20.07.16 RL
+        ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature'],  //20.07.16 RL ,'qiButton', 'wsButton', 'rmButton', 'stbButton' 
         ['MWCategory'],                   //07.01.14 RL  
-        ['MWRefmarker', 'MWReferencesmarker', 'MWReferencesUpd'], //'MWRef','MWReferences'  //For references (citation)   //14.07.16 RL
-        ['About'], 
+        ['MWRefmarker', 'MWReferencesmarker', 'MWReferencesUpd'], //'MWRef','MWReferences'  //For references (citation)   //14.07.16 RL 
         '/',
         ['Styles','Format','Font','FontSize'],
         ['Bold','Italic','Underline','Strike','TransformTextSwitcher'],                                                   //08.09.14 RL
@@ -53,7 +51,8 @@ CKEDITOR.editorConfig = function( config )
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
         ['NumberedList','BulletedList', '-', 'Outdent','Indent', 'Blockquote'],
         ['TextColor','BGColor'],
-        ['Maximize', 'ShowBlocks']
+        ['Maximize', 'ShowBlocks'],
+		['About']
     ];
     config.extraPlugins = extraPlugins;
     config.height = '26em';
