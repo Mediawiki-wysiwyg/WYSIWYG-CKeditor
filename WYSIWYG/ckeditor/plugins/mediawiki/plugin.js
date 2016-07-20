@@ -925,7 +925,16 @@ CKEDITOR.plugins.add( 'mediawiki',
 		editor.addCommand( 'MWCategory', new CKEDITOR.dialogCommand( 'MWCategory' ) ); //07.01.14 RL
         CKEDITOR.dialog.add( 'MWCategory', this.path + 'dialogs/category.js' );        //07.01.14 RL
 
+	
         editor.addCommand( 'MWSignature', signatureCommand);
+		
+		editor.ui.addButton( 'MWSignature',
+			{
+				label : editor.lang.mwplugin.signature,
+				command : 'MWSignature',
+                   icon: this.path + 'images/tb_icon_sig.gif'
+			});
+				
 
 		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
 
@@ -985,13 +994,6 @@ CKEDITOR.plugins.add( 'mediawiki',
 					label : editor.lang.mwplugin.specialTags,
 					command : 'MWSpecialTags',
                     icon: this.path + 'images/tb_icon_special.gif'
-				});
-			
-			editor.ui.addButton( 'MWSignature',
-				{
-					label : editor.lang.mwplugin.signature,
-					command : 'MWSignature',
-                    icon: this.path + 'images/tb_icon_sig.gif'
 				});
 
 			editor.ui.addButton( 'MWCategory',    //07.01.14 RL
@@ -1070,18 +1072,17 @@ CKEDITOR.plugins.add( 'mediawiki',
 				if ( element.hasAscendant( 'pre', true ) && ! mw.config.get('is_special_elem_with_text_tags') ) { //Syntaxhighlight-Nowiki-Pre 
 					evt.data.dialog = 'MWTextTagsD';
 				} 
-				/*14.07.16 RL****
 				else if ( element.is( 'img' ) &&                      //07.01.14 RL->
 				     element.hasAttribute( 'class' ) &&               //03.02.14 RL Added
 					 element.getAttribute( 'class' ).InArray( [       //03.02.14 RL Modified to use InArray(..)
-								'FCK__MWReferences'   
-								// ,'FCK__MWMath'                     //19.11.14 RL Commented out
+								'FCK__MWSignature'                    //20.07.16 RL
+								// 'FCK__MWReferences',
+								// 'FCK__MWMath'                      //19.11.14 RL Commented out
 								])
 				   ) {
 				  // Do nothing, because otherwise doubleclick of math or reference object
 				  // will open dialog for linking image to page.
 				}
-				*******/
 				//03.02.14 RL-> Dialog to edit template definitions is defined in ckeditor/plugins/mwtemplate/dialogs/teplate.js.
 				//              ckeditor/plugins/mwtemplate/plugins.js has following code but for some reason it is not
 				//              activated there on doubleclick of icon_template.gif, placing code here seems to solve the case.
@@ -1185,6 +1186,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			//     (ext.wysiwyg.func.js):set_save_diff_preview_buttons
 			//                                              5. release lock wgCKeditortoDataFormatLocked = false with save, preview and diff buttons of page
 			
+			/*****/
 			if ( mw.config.get('wgCKeditortoDataFormatLocked') == false ) {	
 
 				//alert('toDataFormat start, estwt:' + mw.config.get('editorSrcToWswTrigger'));
@@ -1193,6 +1195,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 		
 				evt.data.dataValue = conv_toDataFormat( editor, data);
 			}
+			/****/
+			
 		}, null, null, 15 )	// 15 = data is available in an HTML string
 
 		
@@ -1843,7 +1847,7 @@ function conv_toHtml ( editor, data, dataFilter, fixForBody ) {
 		var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
 			writer = new CKEDITOR.htmlParser.basicWriter();
 	
-		fragment.writeHtml( writer, this.dataFilter ); //this.dataFilter
+		fragment.writeHtml( writer, dataFilter ); //this.dataFilter
 		data = writer.getHtml( true );
 		return data; // Show wikipage in html format...
 	}	
@@ -1952,7 +1956,7 @@ function conv_toDataFormat(editor, data, fixForBody) {
 
 	var stringBuilder = new Array();
 	this._AppendNode( editor, rootNode, stringBuilder, '' );  //this.
-	
+
 	// 14.07.16 RL _getNodeFromHtml switched from "text/xml" to "text/html" 
 	// =>variable "data" contains extra <html><head></head> tags as first
 	//   and </html> as last elementa => remove them.
@@ -2052,7 +2056,7 @@ CKEDITOR.customprocessor.prototype =
 	//		0 : Prefix
 	//		1 : Suffix
 	//		2 : Ignore children
-	_BasicElements = {
+	this._BasicElements = {
 		body	: [ ],
 		b		: [ "'''", "'''" ],
 		strong	: [ "'''", "'''" ],
@@ -2234,6 +2238,7 @@ CKEDITOR.customprocessor.prototype =
 					return;
                 */
 				var basicElement = this._BasicElements[ sNodeName ]; //this.
+
 				if ( basicElement ){
 				
 					var basic0 = basicElement[0];
@@ -2718,7 +2723,7 @@ CKEDITOR.customprocessor.prototype =
 									return;
 
 								case 'fck_mw_signature' :
-									stringBuilder.push( this.editor.config.WikiSignature ); //this.editor
+									stringBuilder.push( editor.config.WikiSignature ); //this.editor
 									return;
 
 								case 'fck_mw_template' :

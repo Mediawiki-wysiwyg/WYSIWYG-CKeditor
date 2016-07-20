@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 20.07.16  Fixed signature function. Version 1.5.6_0 [B551++20.07.2016].
+
 - 20.07.16  Fixed problems with tables: crashed with save and source toggle; do not create extra columns. Enabled Templates- plugin by default. Version 1.5.6_0 [B551+20.07.2016].
 
 - 14.07.16  Elements related to references (Cite- extension, ref- and references tags) in Wysiwyg- mode are now widgets: drag and drop of these elements is supported, elements are protected so that they can not be tampered with by mistake. Version 1.5.6_0 [B551+14.07.2016].
