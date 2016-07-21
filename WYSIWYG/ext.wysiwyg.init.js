@@ -37,7 +37,8 @@ if ( ( _showFCKEditor & _RTE_VISIBLE     == _RTE_VISIBLE ) ||      // 1 = _RTE_V
 	$('#wpTextbox1').hide();  
 }
 
-if ( mw.config.get('useWikiEditor') == true ) {    //27.06.16 RL
+
+if ( mw.config.get('useWikiEditor') == true && mw.loader.getState('ext.wikiEditor') != null ) {  //Use WikiEditor + module is registered
 	modules.push('ext.wikiEditor'); 
 }
 
