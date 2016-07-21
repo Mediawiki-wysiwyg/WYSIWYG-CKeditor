@@ -1144,8 +1144,20 @@ CKEDITOR.plugins.add( 'mediawiki',
 		
 		editor.on('mode', function( evt ) // Editor opened or source buttons pressed, selected editor mode is ready
 			{
-				setSourceToggle( editor ); // 12.01.15 RL: This is required by source button (source->wysiwyg). 				
-			} 		
+				// This is required by source button (source->wysiwyg).                     //12.01.15 RL 
+				setSourceToggle( editor );
+				
+				// Remove tooltip (mouseover text) "Rich Text Editor, wpTextbox1" which is  //21.07.16 RL 
+				// displayed in source mode editor view of wikitext mode
+				// (based on core/editable.js at editor.on( 'mode') .. 'title'... 'ariaEditorHelpLabel').
+				var editable = editor.editable();
+				if ( editable  ) {
+					var ariaLabel = editor.title; // = "Rich Text Editor, wpTextbox1"
+					if ( ariaLabel ) {
+						editable.changeAttr( 'title', '' );  
+					}
+				}
+			}
 		)
 		
 		editor.on( 'readOnly', function () // Event fired when the readOnly property changes.
@@ -1167,10 +1179,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 				
 				// Release lock of wikitext=>wysiwyg conversion, conversion may now be activated.
 				mw.config.set('wgCKeditortoDataFormatLocked', false); // 14.07.16 RL
-
 			} 
-		)
-
+		)		
 		
 		editor.on( 'toDataFormat', function( evt) { // 14.07.16 RL
 

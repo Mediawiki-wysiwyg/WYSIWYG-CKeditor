@@ -44,7 +44,7 @@ if ( function_exists( 'wfLoadExtension' ) ) { // MW>=1.25 // 02.07.16 RL->
 
 	# Version of WYSIWYG and CKeditor:
 	# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-	define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551++20.07.2016]');
+	define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+21.07.2016]');
 	define('CKEDITOR_VERSION',       'CKEditor 4.5.9 (revision a35abfe)');
 
 	define('INSTALL_MSG', 'To install WYSIWYG extension, put the following line in LocalSettings.php: require_once( "\$IP/extensions/WYSIWYG/WYSIWYG.php"');

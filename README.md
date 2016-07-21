@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 21.07.16  Removed tooltip text (Rich Text Editor, wpTextbox1) in source- mode of wikitext view. Version 1.5.6_0 [B551+21.07.2016].
+
 - 20.07.16  Fixed signature function. Version 1.5.6_0 [B551++20.07.2016].
 
 - 20.07.16  Fixed problems with tables: crashed with save and source toggle; do not create extra columns. Enabled Templates- plugin by default. Version 1.5.6_0 [B551+20.07.2016].
