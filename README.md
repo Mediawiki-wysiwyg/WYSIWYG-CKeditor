@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 09.08.16  Fixed "Uninitialized string offset: 0" error with pre- block. Fixed doubleclick hangup with references- placeholder (widget problem). Version 1.5.6_0 [B551+09.08.2016].
+
 - 21.07.16  Minor fix with loading modules of WikiEditor. Version 1.5.6_0 [B551++21.07.2016].
 
 - 21.07.16  Removed tooltip text (Rich Text Editor, wpTextbox1) in source- mode of wikitext view. Version 1.5.6_0 [B551+21.07.2016].

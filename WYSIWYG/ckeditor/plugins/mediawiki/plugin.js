@@ -403,7 +403,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				
 				// Initialize widget recognition for new element.
 				// http://ckeditor.com/forums/CKEditor/help-Inserting-a-widget-from-my-own-button
-				editor.widgets.initOn( realElement, 'mwrefmarker' );         //14.07.16 RL
+				editor.widgets.initOn( realElement, 'mwreferencesmarker' );         //09.08.16 RL
 				
 				// 08.07.16 RL: To get texts of references into <references> tags
 				references_build_list( editor );
@@ -835,12 +835,13 @@ CKEDITOR.plugins.add( 'mediawiki',
 		// Widget 'referencesmarker' for <references>
 		editor.widgets.add( 'mwreferencesmarker', {
 			//button:  'Create a references widget', //Do not use automatic registration because of button image.
-			template:
-				'<span class="fck_mw_references">' +
-					'<references>&lt;references_tag&gt;</references>' +
-				'</span>',
+			
+			//template:                              //09.08.16 RL Widget is not using this template
+			//	'<span class="fck_mw_references">' +
+			//		'<references>&lt;references_tag&gt;</references>' +
+			//	'</span>',
 
-			dialog: 'referencesCommand',
+			//dialog: 'referencesCommand',           //09.08.16 RL Widget is not using dialog window.
 			
 			//requiredContent: 'span(fck_mw_references)',
 			upcast: function(element) {
@@ -1056,7 +1057,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 		)	
 		
         editor.on( 'doubleclick', function( evt )
-			{			
+			{					
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
 				if ( element == null ) {

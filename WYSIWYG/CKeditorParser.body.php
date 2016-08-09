@@ -1321,7 +1321,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 						$inBlockElem = true;
 					}
 				} else if ( !$inBlockElem && !$this->mInPre ) {
-					if ( ' ' == $t{0} and ( $this->mLastSection == 'pre' or trim( $t ) != '' ) ) {
+					if ( ( !empty($t) and $t{0} == ' ' ) and ( $this->mLastSection == 'pre' or trim( $t ) != '' ) ) { //07.08.16 RL !empty($t)
 						// pre
 						if( $this->mLastSection != 'pre' ) {
 							$paragraphStack = false;
