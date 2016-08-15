@@ -95,6 +95,9 @@ class CKeditorLinker {
        */
       static function makeImageLink2( $skin, Title $nt, $file, $frameParams = array(), $handlerParams = array(), $time, &$ret ) {	          
 			  global $IP, $wgUploadDirectory;
+			  
+			  //error_log(sprintf("DEBUG makeImageLink2 fp:%s hp:%s",print_r($fp,true), print_r($hp,true) ));
+			  
 			  $orginal = $nt->getText();
               $file = RepoGroup::singleton()->getLocalRepo()->newFile( $nt );
               $found = $file->exists();
@@ -118,8 +121,8 @@ class CKeditorLinker {
 
               // Shortcuts
               $fp =& $frameParams;
-              $hp =& $handlerParams;
-
+              $hp =& $handlerParams;	
+			  
               if( !isset( $fp['align'] ) ) {
                       $fp['align'] = '';
               }
@@ -255,7 +258,7 @@ class CKeditorLinker {
               if( !$found ) {
                       $class .= ( $class ? ' ' : '' ) . 'fck_mw_notfound';
               }
-
+			  
               if( isset( $fp['alt'] ) && !empty( $fp['alt'] ) && $fp['alt'] != 'Image:' . $orginal ) {
                       $ret .= "alt=\""  . htmlspecialchars( $fp['alt'] ) . "\" "
 						   . "title=\"" . htmlspecialchars( $fp['alt'] ) . "\" ";     //31.01.15 RL

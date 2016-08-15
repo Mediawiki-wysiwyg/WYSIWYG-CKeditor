@@ -237,10 +237,32 @@ class CKeditorParser extends CKeditorParserWrapper {
 		return $key;
 	}
 
-    function htmlDecode ( $string ) { //27.12.14 RL	
-		$string = str_replace( array( '&amp;', '&quot;', '#039', '&lt;', '&gt;'  ), array( '&', '"', '\'', '<', '>' ), $string );
-        return $string;
-    }
+    //function htmlDecode ( $string ) { //27.12.14 RL	//15.08.16 RL Not used
+    //    $string = str_replace( array( '&amp;', '&quot;', '#039', '&lt;', '&gt;'  ), array( '&', '"', '\'', '<', '>' ), $string );
+    //    return $string;
+    //}
+
+	// Escape link characters . f.ex with links inside image ref. [[File:..|..[[..]]..]]
+    function EscapeIntExtLinkChars( $string ) {  // For RestoreIntExtLinkChars // 15.08.16 RL 
+        //$string = preg_replace('/\[\[File:([^\]]*)\[\[(.*?)\]\](.*?)\]\]/', '[[File:$1-fck_OPEN_INTLINK-$2-fck_CLOSE_INTLINK-$3]]', $string ); // 11.05.2015 Varlin
+		//$string = preg_replace('/\[\[File:([^\]]*)\[(.*?)\](.*?)\]\]/',     '[[File:$1-fck_OPEN_EXTLINK-$2-fck_CLOSE_EXTLINK-$3]]', $string ); // 11.05.2015 Varlin
+		$string = str_replace("[[","-fck_OPEN_INTLINK-", $string);
+		$string = str_replace("]]","-fck_CLOSE_INTLINK-",$string);
+		$string = str_replace("[", "-fck_OPEN_EXTLINK-", $string);
+		$string = str_replace("]", "-fck_CLOSE_EXTLINK-",$string);
+		$string = str_replace("|", "-fck_PIPE_CHAR-",    $string);
+        return $string;  
+    } 
+	
+	// Restore escaped link characters
+    function RestoreIntExtLinkChars( $string ) { // For EscapeIntExtLinkChars  // 15.08.2015 RL
+        $string = str_replace('-fck_OPEN_INTLINK-', '[[', $string);            // 11.05.2015 Varlin
+        $string = str_replace('-fck_CLOSE_INTLINK-',']]', $string);            // 11.05.2015 Varlin
+        $string = str_replace('-fck_OPEN_EXTLINK-', '[',  $string);
+        $string = str_replace('-fck_CLOSE_EXTLINK-',']',  $string); 
+		$string = str_replace('-fck_PIPE_CHAR-',    '|',  $string); 
+        return $string;  
+    } 
 	
 	/**
 	 * Handle link to subpage if necessary
@@ -887,6 +909,8 @@ class CKeditorParser extends CKeditorParserWrapper {
 
 	function internalParse( $text, $isMain = true, $frame = false ) {
 		
+		//error_log(sprintf("DEBUG intenalParse START text:%s",$text));
+
 		$this->fck_internal_parse_text =& $text;
 		
 		/****
@@ -920,8 +944,8 @@ class CKeditorParser extends CKeditorParserWrapper {
         //$text = strtr($text, array("\n" => "\nFCKLR_fcklr_FCKLR", "\r" => ''));
         // this doesn't work when inside tables. So leave this for later.
 		
-        $text = $this->parseExternalLinksWithTmpl($text); //26.11.14 RL Parses both external and internal links
-
+        $text = $this->parseExternalLinksWithTmpl($text); //26.11.14 RL Parses both external and internal links //15.08.16 RL Captions with links
+		
 		// Use MW function Parser.php->internalParse for wikitext->html conversion. 
         $finalString = parent::internalParse( $text, $isMain );	
 		
@@ -939,7 +963,10 @@ class CKeditorParser extends CKeditorParserWrapper {
 			}
 		}
 		*********/
-		
+
+		// Restore link characters [[, ]], [, ] and | inside image caption. 
+		$finalString = $this->RestoreIntExtLinkChars ( $finalString ); //11.05.2015 //11.08.16 RL For EscapeIntExtLinkChars
+
 		//error_log(sprintf("DEBUG internalParse END finalString:%s",$finalString));
 
 		return $finalString;
@@ -1008,23 +1035,30 @@ class CKeditorParser extends CKeditorParserWrapper {
 		//     )
 		// [lineStart] => 1
 		
-		$title = '';                                         // 30.04.16 RL
+		$title = $part = '';                                   // 30.04.16 RL
+		$part = '';                                            // 15.08.16 RL
         $p = strpos($matches['title'], ' ');
         if ($p === false) return $matches['text'];
         $target = substr($matches['title'], 0, $p);
         $title = substr($matches['title'], $p + 1);
 
-		for ($i= 0; $i<count($matches['parts']); $i++) {     // 30.04.16 RL->
+		for ($i= 0; $i<count($matches['parts']); $i++) {       // 30.04.16 RL->
+			$part = $matches['parts'][$i];                     // 15.08.16 RL->
+			
+			// Escape possible link characters [[, ]], [ and ] inside captions of images, this makes
+			// links invisible to MW, caption may still contain html or wikitext formats
+			if ( (substr($target, 0, 5) === 'File:') && (strpos($part, '[') !== false) ) {
+				$part = $this->EscapeIntExtLinkChars($part);   // For RestoreIntExtLinkChars
+			}   		                                       // 15.08.16 RL<-
+			
 			if (strlen( $title ) > 0) $title = $title . '|';
-			$title = $title . $matches['parts'][$i];
-		}                                                    // 30.04.16 RL<-
+			$title = $title . $part; // $matches['parts'][$i]; // 15.08.16 RL
+		}                                                      // 30.04.16 RL<-
 		
         if (!preg_match('/Fckmw\d+fckmw/', $title) &&
             !preg_match('/Fckmw\d+fckmw/', $target)) {
 			return $matches['text'];
 		}
-
-		//error_log(sprintf("DEBUG fck_replaceCkmarkupInLink: Matches02 title:%s target:%s",$title,$target));
 		
         $title  = $this->revertEncapsulatedString($title);
         $target = $this->revertEncapsulatedString($target);
@@ -1053,12 +1087,21 @@ class CKeditorParser extends CKeditorParserWrapper {
 		// Get link details...
 		$target = $matches['title'];		
 		$title = '';
+		$part = '';                                            // 15.08.16 RL
 		for ($i= 0; $i<count($matches['parts']); $i++) {
+			$part = $matches['parts'][$i];                     // 15.08.16 RL->
+
+			// Escape possible link characters [[, ]], [ and ] inside captions of images, this makes
+			// links invisible to MW, caption may still contain html or wikitext formats			
+			if ( (substr($target, 0, 5) === 'File:') && (strpos($part, '[') !== false) ) {
+				$part = $this->EscapeIntExtLinkChars($part);   // For RestoreIntExtLinkChars
+			}                                                  // 15.08.16 RL<-
+
 			if (strlen( $title ) > 0) $title = $title . '|';
-			$title = $title . $matches['parts'][$i];
+			$title = $title . $part; // $matches['parts'][$i]; // 15.08.16 RL			
 		}
 		
-		//if ( !preg_match('/Fckmw\d+fckmw/', $title) &&     // Link does not contain encoded FckmwXXfckmw elements..
+		//if ( !preg_match('/Fckmw\d+fckmw/', $title) &&       // Link does not contain encoded FckmwXXfckmw elements..
 		//	 !preg_match('/Fckmw\d+fckmw/', $target) ) {
 
 			// If MW subpage feature is enabled and relative internal link to other subpage is used, parse of link by MW 
@@ -1070,6 +1113,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 			if ((substr($target, 0, 3) === '../')) {                      // 01.05.16 RL->
 				$target = $this->fck_addToStrtr($target);
 			}
+			
 			if ($title === '') return '[['. $target .               ']]';
 			else               return '[['. $target . '|' . $title .']]'; // 01.05.16 RL<-
 			//return $matches['text'];                                    // 01.05.16 RL Original
@@ -1204,8 +1248,11 @@ class CKeditorParser extends CKeditorParserWrapper {
 			$parserOutput->setText(preg_replace('/(href="):([mM]edia)(.*?")/', '$1Media$3', $parserOutput->getText()));         //09.05.14 RL [[:Media:xxx|yyy]] => [[Media:xxx|yyy]]
 			//Restore title of media -links:  [[Media:xxx|:Media:xxx]] => [[Media:xxx|Media:xxx]]
 			$parserOutput->setText(preg_replace('/(href="Media)(.*?" *)(>:Media:)/', '$1$2>Media:', $parserOutput->getText())); //01.11.15 RL Removes ':' from title (used only in case original title was empty)
-			
+		
             CKeditorLinker::removeHooks();
+			
+			//error_log(sprintf("DEBUG Parse END text:%s",$parserOutput->getText()));						
+			
             return $parserOutput;
 
         } catch (Exception $e) {
