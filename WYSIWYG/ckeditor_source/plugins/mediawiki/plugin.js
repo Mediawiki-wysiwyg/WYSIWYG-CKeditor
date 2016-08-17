@@ -403,7 +403,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				
 				// Initialize widget recognition for new element.
 				// http://ckeditor.com/forums/CKEditor/help-Inserting-a-widget-from-my-own-button
-				editor.widgets.initOn( realElement, 'mwrefmarker' );         //14.07.16 RL
+				editor.widgets.initOn( realElement, 'mwreferencesmarker' );         //09.08.16 RL
 				
 				// 08.07.16 RL: To get texts of references into <references> tags
 				references_build_list( editor );
@@ -835,12 +835,13 @@ CKEDITOR.plugins.add( 'mediawiki',
 		// Widget 'referencesmarker' for <references>
 		editor.widgets.add( 'mwreferencesmarker', {
 			//button:  'Create a references widget', //Do not use automatic registration because of button image.
-			template:
-				'<span class="fck_mw_references">' +
-					'<references>&lt;references_tag&gt;</references>' +
-				'</span>',
+			
+			//template:                              //09.08.16 RL Widget is not using this template
+			//	'<span class="fck_mw_references">' +
+			//		'<references>&lt;references_tag&gt;</references>' +
+			//	'</span>',
 
-			dialog: 'referencesCommand',
+			//dialog: 'referencesCommand',           //09.08.16 RL Widget is not using dialog window.
 			
 			//requiredContent: 'span(fck_mw_references)',
 			upcast: function(element) {
@@ -1056,7 +1057,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 		)	
 		
         editor.on( 'doubleclick', function( evt )
-			{			
+			{					
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
 				if ( element == null ) {
@@ -1190,7 +1191,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			//  -plugins.js->editor.on( 'beforeSetMode'...  1. releasea lock wgCKeditortoDataFormatLocked = false 
 			//  -ext.wysiwyg.func.js->ToggleCKEditor        1. releasea lock wgCKeditortoDataFormatLocked = false
 			//  -plugins.js->conv_toHtml                    2. set lock of  wgCKeditortoDataFormatLocked = true
-			//  -plugins.js->conv_toHtml=>loadHTMLFromAjax  3. end of wikitext->wysiwyg conversion triggeres toDataFormat event, lock is not released here
+			//  -plugins.js->conv_toHtml=>loadHTMLFromAjax  3. end of wikitext->wysiwyg conversion triggers toDataFormat event, lock is not released here
 			//  -plugins.js->editor.on( 'toDataFormat'...   4. test lock status, prevent unnecessary call of conv_toDataFormat triggered by event toDataFormat
 			//  -CKeditor.body.php->
 			//     (ext.wysiwyg.func.js):set_save_diff_preview_buttons
@@ -1689,8 +1690,8 @@ function remove_htmlhead(text) { //14.07.16 RL
 	// _getNodeFromHtml switched from "text/xml" to "text/html" 
 	// =>this leaves extra <html><head></head> tags as first
 	//   and </html> as last elements => remove them.
-	text = text.replace(/^<html><head><\/head>\n/, ''); // starting "<html><head></head>\n"
-	text = text.replace(/\n<\/html>$/, '');             // ending   "\n</html>"
+	text = text.replace(/^<html><head><\/head>/, ''); // ^ = starting "<html><head></head>" //11.08.16 RL Removed \n
+	text = text.replace(/<\/html>$/, '');             // $ = ending   "</html>"             //11.08.16 RL Removed \n
 	return text;	
 }
 
@@ -1962,7 +1963,7 @@ function conv_toDataFormat(editor, data, fixForBody) {
 	// Normalize the document for text node processing (except IE - #1586).
 	if ( !CKEDITOR.env.ie ) {
 		rootNode.normalize();
-		}
+	}
 
 	var stringBuilder = new Array();
 	this._AppendNode( editor, rootNode, stringBuilder, '' );  //this.
@@ -2678,8 +2679,16 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( 'px' );
 							}
 
-							if ( imgCaption.length > 0 )
-								stringBuilder.push( '|' + imgCaption );
+							if ( imgCaption.length > 0 ) {
+								//stringBuilder.push( '|' + imgCaption ); //15.08.16 RL
+								
+								// imgCaption is text string and may contain html formats like bold, italic etc.
+								// =>parse it using conv_toDataFormat so that we get html=>wikitext conversion with text of caption.
+								// This is related to EscapeIntExtLinkChars and RestoreIntExtLinkChars,
+								// which escapes/restores link  [[, ]], [ and ] inside caption of images.
+								stringBuilder.push( '|' + conv_toDataFormat(editor, imgCaption) ); //15.08.16 RL
+							}
+							
                             if ( imgNolink )
                                 stringBuilder.push( '|link=' );
                             else if ( imgLink )

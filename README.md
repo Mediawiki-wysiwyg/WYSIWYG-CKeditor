@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 16.08.16  Fixed problem with textselection- plugin: empty line was created by each wysiwyg-source toggle (with FF browser when editor did not have focus in wysiwyg mode). Version 1.5.6_0 [B551+16.08.2016].
+
 - 15.08.16  Caption of images: support internal and external links inside caption, caption supports html and wikitext formatings, possible html formats are converted to wikitext. Version 1.5.6_0 [B551+15.08.2016].
 
 - 09.08.16  Fixed "Uninitialized string offset: 0" error with pre- block. Fixed doubleclick hangup with references- placeholder (widget problem). Version 1.5.6_0 [B551+09.08.2016].
@@ -528,8 +530,8 @@ About browser compatibility
 
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE11
-- FireFox (26.x - 47.x)
-- Chrome  (v.32.x, v.51.x)
+- FireFox (26.x - 48.x)
+- Chrome  (v.32.x, v.52.x)
 
 - Recommended browser: FireFox
 

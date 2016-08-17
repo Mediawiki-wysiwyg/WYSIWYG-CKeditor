@@ -7,7 +7,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
      */
     CKEDITOR.plugins.add('textselection',
     {
-        version: 1.04,
+        version: 1.05,
         init: function (editor) {
             // Corresponding text range of wysiwyg bookmark.
             var wysiwygBookmark;
@@ -16,39 +16,44 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
             if (editor.config.syncSelection
                     && CKEDITOR.plugins.sourcearea) {
                 editor.on('beforeModeUnload', function (evt) {
-                // 12.09.14 RL:-> 
-                // wikitext => wysiwyg direction disabled because it left bookmarks on page => disabled this direction.
-                // Reason to this is that switching from wikitext to wysiwyg uses two windows, and this extension does all its 
-                // job in wikieditor window, which is closed before wysiwyg window is activated. Bookmarks were added in wikieditor, 
-                // so they will remain in text when result of wikitext=>wysiwyg conversion is updated into other window. 
-                // In original wikieditor window bookmarks are cleared and cursor is also repositioned,
-                // but this is no good for us because that window is closed.    How can we fix this ? ...anybody?
-                //    if (editor.mode === 'source') {
-                //        if (editor.mode === 'source' && !editor.plugins.codemirror) {
-                //            var range = editor.getTextSelection();
-                //
-                //            // Fly the range when create bookmark. 
-                //            delete range.element;
-                //            range.createBookmark(editor);
-                //            sourceBookmark = true;
-                //            evt.data = range.content;
-                //       }
-                //    }
+					// 12.09.14 RL:-> 
+					// wikitext => wysiwyg direction disabled because it left bookmarks on page => disabled this direction.
+					// Reason to this is that switching from wikitext to wysiwyg uses two windows, and this extension does all its 
+					// job in wikieditor window, which is closed before wysiwyg window is activated. Bookmarks were added in wikieditor, 
+					// so they will remain in text when result of wikitext=>wysiwyg conversion is updated into other window. 
+					// In original wikieditor window bookmarks are cleared and cursor is also repositioned,
+					// but this is no good for us because that window is closed.    How can we fix this ? ...anybody?
+	
+					//    if (editor.mode === 'source') {
+					//        if (editor.mode === 'source' && !editor.plugins.codemirror) {
+					//            var range = editor.getTextSelection();
+	
+					//            // Fly the range when create bookmark. 
+					//            delete range.element;
+					//            range.createBookmark(editor);
+					//            sourceBookmark = true;
+					//            evt.data = range.content;
+					//        }
+					//    }
+				
+					// 16.08.16 RL &nbsp; problem. blur() makes editor area to loose focus so that in case source-button is pressed immediatedly again
+					// in wysiwyg- mode without placing cursor somewhere inside editor area, it does not have focus and this plugin will not activate.
+					editor.focusManager.blur(); //16.08.16 RL 
                 });
+
                 editor.on('mode', function () {
                     if (editor.mode === 'wysiwyg' && sourceBookmark) {
 
                         editor.focus();
                         var doc = editor.document,
                             range = new CKEDITOR.dom.range(editor.document),
-                            walker,
                             startNode,
                             endNode,
                             isTextNode = false;
 
                         range.setStartAt(doc.getBody(), CKEDITOR.POSITION_AFTER_START);
                         range.setEndAt(doc.getBody(), CKEDITOR.POSITION_BEFORE_END);
-                        walker = new CKEDITOR.dom.walker(range);
+                        var walker = new CKEDITOR.dom.walker(range);
                         // walker.type = CKEDITOR.NODE_COMMENT;
                         walker.evaluator = function (node) {
                             //
@@ -57,7 +62,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 // 08.09.14 RL To debug: alert('match:' + match + ' match_1:' + match[1]  + ' decodeURIComponent:' + 
 // decodeURIComponent(node.$.nodeValue).match(/<!--cke_bookmark_[0-9]+S-->.*<!--cke_bookmark_[0-9]+E-->/) );                             
 // Bookmarks are like this: <!--cke_bookmark_97S-->dsssd<!--cke_bookmark_97E-->
-
                                 if(decodeURIComponent(node.$.nodeValue)
                                     .match(/<!--cke_bookmark_[0-9]+S-->.*<!--cke_bookmark_[0-9]+E-->/)){
                                     isTextNode = true;
@@ -73,7 +77,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                                 }
                             }
                         };
-
                         walker.lastForward();
                         range.setStartAfter(startNode);
                         range.setEndBefore(endNode);
@@ -91,7 +94,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 //alert('isTextNode_4 isTextNode:' + isTextNode);                         
 
                         } // Remove the comments node which are out of range.
-
                         if(isTextNode){
                             //remove all of our bookmarks from the text node
                             //then remove all of the cke_protected bits that added because we had a comment
@@ -105,21 +107,26 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                             startNode.remove();
                             endNode.remove();
                         }
-//08.09.14 RL To debug alert('isTextNode_5 LOPPU');                         
+//08.09.14 RL To debug alert('isTextNode_5 END');                         
                     }
                 }, null, null, 10);
 
                 editor.on('beforeGetModeData', function () {
                     if (editor.mode === 'wysiwyg' && editor.getData()) {
+//08.09.14 RL To debug: alert('beforeGetModeData gecko:' + CKEDITOR.env.gecko + ' focus:' + editor.focusManager.hasFocus);
+
                         if (CKEDITOR.env.gecko && !editor.focusManager.hasFocus) {
                             return;
                         }
 
+						// editor.focus(); // 16.08.16 RL &nbsp; problem: force focus to editor area. This was replaced by blur()
+
                         var sel = editor.getSelection(), range;
                         if (sel && (range = sel.getRanges()[0])) {
+							
+							// NOTE! createBookmark is method of CKeditor, it is not "createBookmark:" defined in this plugin below.
                             wysiwygBookmark = range.createBookmark(editor);
-
-//08.09.14 RL To debug: alert('wysiwygssä: beforeGetModeData_01 luotiin wysiwygBookmark:' + wysiwygBookmark);                         
+//08.09.14 RL To debug: alert('wysiwyg-mode: beforeGetModeData_01 created wysiwygBookmark:' + wysiwygBookmark);                         
                         }
                     }
                 });
@@ -127,14 +134,13 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 editor.on('afterModeUnload', function (evt) {
                     if (editor.mode === 'wysiwyg' && wysiwygBookmark) {
 
-//08.09.14 RL To debug: alert('wysiwygssä: afterModeUnload wysiwygBookmark:' + wysiwygBookmark);  
-
                         textRange = new CKEDITOR.dom.textRange(evt.data);
+//08.09.14 RL To debug: alert('wysiwyg-mode: afterModeUnload_02 wysiwygBookmark:' + wysiwygBookmark + ' textRange.content:' + textRange.content);  						
                         textRange.moveToBookmark(wysiwygBookmark, editor);
 
                         evt.data = textRange.content;
 
-//08.09.14 RL To debug: alert('wysiwygssä: afterModeUnload_01 evt.data:' + evt.data);  
+//08.09.14 RL To debug: alert('wysiwyg-mode: afterModeUnload_03 evt.data:' + evt.data);  
                         
                     }
                 });
@@ -176,7 +182,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
             startOffset = element.selectionStart;
             endOffset = element.selectionEnd;
         } else {
-        
             element.focus();
             
             // The current selection 
@@ -251,7 +256,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
         if (editor.mode) {
             var isDirty = editor.checkDirty();
 
-            editor._.previousMode = editor.mode;            
+            editor._.previousMode = editor.mode;
 
             editor.fire('beforeModeUnload');                //source:  createbookmark
 
@@ -345,7 +350,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                  // 12.09.14 RL  In wysiwyg->wikitext direction created bookmarks are like "cke_bm_95s" or "cke_bm_95e". 
                  // Here in "bookmarkId" we get bookmarks like "cke_bm_95S" or "cke_bm_95E". 
                  // FF and Chrome are immune to case, but IE is not => added 'i' as parameter in RegExp call below
-                 var bookmarkRegex = new RegExp('<span[^<]*?' + bookmarkId + '.*?/span>','i'), 
+                 var bookmarkRegex = new RegExp('<span[^<]*?' + bookmarkId + '.*?/span>','i'), //(&nbsp;\n)?
                     offset;
 
 // 08.09.14 RL To debug: alert('removeBookmarkText bookmarkId:' + bookmarkId + ' bookmarkRegex:' + bookmarkRegex);
@@ -375,7 +380,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
          * If startOffset/endOffset anchor inside element tag, start the range before/after the element 
          */
         enlarge: function() {
-            var htmlTagRegexp = /<[^>]+>/g;
+            var htmlOpenTagRegexp = /<[a-zA-Z]+(>|.*?[^?]>)/g;
+            var htmlCloseTagRegexp = /<\/[^>]+>/g;
             var content = this.content,
                 start = this.startOffset,
                 end = this.endOffset,
@@ -384,16 +390,40 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 tagEndIndex;
 
             // Adjust offset position on parsing result. 
-            while (match = htmlTagRegexp.exec(content)) {
-                tagStartIndex = match.index;
-                tagEndIndex = tagStartIndex + match[0].length;
-                if (start > tagStartIndex && start < tagEndIndex)
-                    start = tagStartIndex;
-                if (end > tagStartIndex && end < tagEndIndex) {
-                    end = tagEndIndex;
-                    break;
-                }
-            }
+             while (match = htmlCloseTagRegexp.exec(content)) {
+
+                 tagStartIndex = match.index;
+
+                 if (start > tagStartIndex) {
+                     start = tagStartIndex;
+                 }
+
+                 if (end > tagStartIndex) {
+                     end = tagStartIndex;
+                     break;
+                 }
+
+                break;
+             }
+
+             while (match = htmlOpenTagRegexp.exec(content)) {
+
+                 tagStartIndex = match.index;
+
+                 tagEndIndex = tagStartIndex + match[0].length;
+
+                 if (start < tagEndIndex) {
+                     start = tagEndIndex;
+                 }
+
+                 if (end < tagEndIndex) {
+                     end = tagEndIndex;
+                     break;
+                 }
+
+                 break;
+             }
+            
 
             this.startOffset = start;
             this.endOffset = end;
@@ -402,7 +432,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
         createBookmark: function(editor) {
             // Enlarge the range to avoid tag partial selection. 
 
-//12.09.14 RL To debug: This is called in wikitext=>wysiwwyg direction.   alert('createBookmark'); 
+//12.09.14 RL To debug: alert('createBookmark begin'); 
             
             this.enlarge();
             var content = this.content,
@@ -410,11 +440,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 end = this.endOffset,
                 id = CKEDITOR.tools.getNextNumber(),
                 bookmarkTemplate = '<!--cke_bookmark_%1-->';
-            content = content.substring(0, start) + bookmarkTemplate.replace('%1', id + 'S') 
-                + content.substring(start, end) + bookmarkTemplate.replace('%1', id + 'E')   
-                + content.substring(end);
 
-//12.09.14 RL To debug:alert(content);
+            content = content.substring(0, start) + bookmarkTemplate.replace('%1', id + 'S')
+                + content.substring(start, end) + bookmarkTemplate.replace('%1', id + 'E')
+                + content.substring(end);
 
             if (editor.undoManager) {
                 editor.undoManager.lock();
