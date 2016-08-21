@@ -660,6 +660,8 @@ class CKeditorParser extends CKeditorParserWrapper {
 						//$output = $this->renderImageGallery( $content, $params );
 						break;
 					default: //case 'calendar': case 'poll':  ..etc...                   //17.11.14 RL 
+                        //error_log(sprintf("DEBUG strip default tagName:%s content:%s",$tagName,$content));
+			
 						$content = str_replace( ' ', 'fckSPACE', $content );             //04.02.15 RL fckSPACE
 						$output = $this->fck_wikiTag( $tagName, $content, $params );     //17.11.14 RL  
 
@@ -884,15 +886,19 @@ class CKeditorParser extends CKeditorParserWrapper {
                             $this->fck_mw_strtr_span['Fckmw' . $this->fck_mw_strtr_span_counter . 'fckmw'] = str_replace( array( "\r\n", "\n", "\r" ), 'fckLR', $inner );
                         }
                     } else if (strlen($fck_mw_template) > 1) { // SF tag
+                        //error_log(sprintf("DEBUG fck_replaceTemplates-02 fck_mw_template:%s funcName:%s inner:%s",$fck_mw_template,$funcName,$inner));					
                         $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw'] = '<span class="fck_mw_special" _fck_mw_customtag="true" _fck_mw_tagname="'.$funcName.'" _fck_mw_tagtype="'.$fck_mw_template.'">'
                                 . str_replace( array( "\r\n", "\n", "\r" ), 'fckLR', $inner ) . '</span>';
                     } else {
+                        //error_log(sprintf("DEBUG fck_replaceTemplates-03 START len:%d fck_mw_template:%s funcName:%s inner:%s",strlen($fck_mw_template),$fck_mw_template,$funcName,$inner));		
                         $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw'] = '<span class="fck_mw_special" _fck_mw_customtag="true" _fck_mw_tagname="'.$funcName.'" _fck_mw_tagtype="'.$fck_mw_template.'">';
                         if (strlen($inner) > strlen($funcName) + 5) {
-                            $content = substr($inner, strlen($funcName) + 3, -2);
+                            //$content = substr($inner, strlen($funcName) + 3, -2);                                                    // 19.08.16 RL
+							$content = str_replace( array( "\r\n", "\n", "\r" ), 'fckLR', substr($inner, strlen($funcName) + 3, -2) ); // 19.08.16 RL Keep linefeeds
                             $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw'].= $content;
                         }
                         $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw'].= '_</span>';
+                        //error_log(sprintf("DEBUG fck_replaceTemplates-03 END fck_mw_template:%s len:%d funcName:%s content:%s",$fck_mw_template,strlen($fck_mw_template),$funcName,$content));
                     }
                     $this->fck_mw_strtr_span['href="Fckmw' . $this->fck_mw_strtr_span_counter . 'fckmw"'] = 'href="' . $inner . '"';
 					$startingPos = $pos + 19;

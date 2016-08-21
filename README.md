@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 19.08.16  Keep linefeeds with special elements (f.ex. the one created by TreeAndMenu- plugin). Version 1.5.6_0 [B551+19.08.2016].
+
 - 16.08.16  Fixed problem with textselection- plugin: empty line was created by each wysiwyg-source toggle (with FF browser when editor did not have focus in wysiwyg mode). Version 1.5.6_0 [B551+16.08.2016].
 
 - 15.08.16  Caption of images: support internal and external links inside caption, caption supports html and wikitext formatings, possible html formats are converted to wikitext. Version 1.5.6_0 [B551+15.08.2016].
