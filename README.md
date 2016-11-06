@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 06.11.16  Fixed problem where html comment string was not restored properly when toggling source- button.  Version 1.5.6_0 [B551+06.11.2016].
+
 - 19.08.16  Keep linefeeds with special elements (f.ex. the one created by TreeAndMenu- plugin). Version 1.5.6_0 [B551+19.08.2016].
 
 - 16.08.16  Fixed problem with textselection- plugin: empty line was created by each wysiwyg-source toggle (with FF browser when editor did not have focus in wysiwyg mode). Version 1.5.6_0 [B551+16.08.2016].

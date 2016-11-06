@@ -2,7 +2,7 @@
 	"@note"  : "---                                                                 ",
 	"@note"  : "--- Registering Wysiwyg- extension using wfLoadExtension.           ",
 	"@note"  : "---                                                                 ",
-	"version": "Wysiwyg 1.5.6_0 [B551+19.08.2016], CKEditor 4.5.9 (revision a35abfe)",
+	"version": "Wysiwyg 1.5.6_0 [B551+06.11.2016], CKEditor 4.5.9 (revision a35abfe)",
 
 	"@note"  : "---                                                                 ",
 	"name"   : "WYSIWYG editor",

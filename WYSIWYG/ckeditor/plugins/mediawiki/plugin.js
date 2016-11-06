@@ -1198,7 +1198,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 			//                                              5. release lock wgCKeditortoDataFormatLocked = false with save, preview and diff buttons of page
 			
 			/*****/
-			if ( mw.config.get('wgCKeditortoDataFormatLocked') == false ) {	
+			if ( mw.config.get('wgCKeditortoDataFormatLocked') == false ) {
+				
+				mw.config.set('fck_mv_plg_strtr_span', []);  //06.11.16 RL
 
 				//alert('toDataFormat start, estwt:' + mw.config.get('editorSrcToWswTrigger'));
 	
@@ -1701,11 +1703,11 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 
 	if (matches = text.match(/Fckmw\d+fckmw/g)) { //Are there keys to be replaced.
 		is = matches.length;
-		// alert('commnets_qty:' + is + ' 1.key:' + matches[0] + ' value:' + mw.config.get('fck_mv_plg_strtr_span')[matches[0]]);			
+		//alert('comments_qty:' + is + ' 1.key:' + matches[0] + ' value:' + mw.config.get('fck_mv_plg_strtr_span')[matches[0]]);			
 		for (i = 0; i < is; i++ ) { // Replace each key with original text.
 			// comments are directly in the main key FckmwXfckmw
 			_fck_mv_plg_strtr_span = mw.config.get('fck_mv_plg_strtr_span');
-			// alert('comments_qty:' + (i + 1) + '/' + is + ' key:' + matches[i] + ' value:' + _fck_mv_plg_strtr_span[matches[i]]);						
+			//alert('comments_qty:' + (i + 1) + '/' + is + ' key:' + matches[i] + ' value:' + _fck_mv_plg_strtr_span[matches[i]]);						
 			if ( (typeof _fck_mv_plg_strtr_span[matches[i]] != 'undefined' ) &&
 				 (_fck_mv_plg_strtr_span[matches[i]].substr(0, 4) == '<!--') ) {
 				text = text.replace( matches[i],
@@ -1723,7 +1725,7 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL 
 	// For html->wikitext, based on fck_replaceHTMLcomments.
 
-	mw.config.set('fck_mv_plg_strtr_span', []);
+	//mw.config.set('fck_mv_plg_strtr_span', []);  //06.11.16 RL
 	mw.config.set('fck_mv_plg_strtr_span_counter', 0);
 	
 	while( ( start = text.indexOf( '<!--' ) ) != -1 ) {
@@ -1759,6 +1761,7 @@ function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL
 			// text = text.replace( replacement, start, end - start ); // From php -code
 			text = text.substr(0,start) + replacement + text.substr(end) ;
 		}
+		//alert('fck_mw_plg_replaceHTMLcomments fck_mv_plg_strtr_span_counter:' + fck_mv_plg_strtr_span_counter + ' replacement:' + replacement + ' text:' + text );		
 	}
 	return text;
 }
@@ -1954,7 +1957,7 @@ function conv_toDataFormat(editor, data, fixForBody) {
 		}	
 	}
 	****/
-
+	
 	var rootNode = this._getNodeFromHtml( data ); //this.
 	
 	if ( !rootNode ) return false; //16.01.14 RL IE catches some exeptions with page
@@ -1967,12 +1970,12 @@ function conv_toDataFormat(editor, data, fixForBody) {
 
 	var stringBuilder = new Array();
 	this._AppendNode( editor, rootNode, stringBuilder, '' );  //this.
-
+	
 	// 14.07.16 RL _getNodeFromHtml switched from "text/xml" to "text/html" 
 	// =>variable "data" contains extra <html><head></head> tags as first
 	//   and </html> as last elementa => remove them.
 	var data2 =  remove_htmlhead(stringBuilder.join( '' ).Trim());                    //14.07.16 RL
-
+	
 	// Restore original html comments from "Fckmw<id>fckmw" -keys.
 	return fck_mv_plg_revertEncapsulatedString( data2 );                              //14.07.16 RL
 	// return fck_mv_plg_revertEncapsulatedString( stringBuilder.join( '' ).Trim() ); //16.01.15 RL
@@ -2013,6 +2016,7 @@ CKEDITOR.customprocessor.prototype =
 	 *            for human reading. Not all Data Processors may provide it.
 	 */
 	toDataFormat : function( data, fixForBody ){
+		mw.config.set('fck_mv_plg_strtr_span', []);  //06.11.16 RL
 		return conv_toDataFormat( this.editor, data, fixForBody);
 	}
 };
