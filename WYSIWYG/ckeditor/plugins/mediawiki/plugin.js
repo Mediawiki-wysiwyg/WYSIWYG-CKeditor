@@ -2310,10 +2310,12 @@ CKEDITOR.customprocessor.prototype =
 					switch ( sNodeName ){
 						case 'ol' :
 						case 'ul' :
-							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dt', 'dd' ),
+
+							var isFirstLevel = !htmlNode.parentNode.nodeName.toLowerCase().IEquals( 'ul', 'ol', 'li', 'dl', 'dt', 'dd' ), // 09.11.16 RL Added toLowerCase()
                                 listStyle = htmlNode.getAttribute('style') || '',
                                 startNum = htmlNode.getAttribute('start') || '';
-                            this.preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1'); //this.
+
+							this.preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1'); //this.
                             if (this.preserveLiNode) {  
                                 stringBuilder.push('<' + sNodeName);
                                 if (startNum)
@@ -2462,7 +2464,7 @@ CKEDITOR.customprocessor.prototype =
 						case 'dl' :
 
 							this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
-							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dd', 'dt' );
+							var isFirstLevel = !htmlNode.parentNode.nodeName.toLowerCase().IEquals( 'ul', 'ol', 'li', 'dl', 'dd', 'dt' );  // 09.11.16 RL Added toLowerCase()
 							if ( isFirstLevel && stringBuilder[ stringBuilder.length - 1 ] != "\n" )
 								stringBuilder.push( '\n' );
 
