@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 22.11.16  Fixed dash- character with IE.  Version 1.5.6_0 [B551+22.11.2016].
+
 - 09.11.16  Fixed problem with extra empty lines with numbered and bulleted lists when saving page or toggling from wysiwyg to wikitext view.  Version 1.5.6_0 [B551+09.11.2016].
 
 - 06.11.16  Fixed problem where html comment string was not restored properly when toggling source- button.  Version 1.5.6_0 [B551+06.11.2016].

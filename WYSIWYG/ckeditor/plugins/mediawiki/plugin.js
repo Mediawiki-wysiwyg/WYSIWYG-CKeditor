@@ -3291,7 +3291,9 @@ if (!String.prototype.htmlEntities) {
                            'Ø','Ù','Ú','Û','Ü','Ý','Þ','€','\"','ß',
                            '¢','£','¤','¥','¦','§','¨','©','ª','«',
                            '¬','­','®','¯','°','±','²','³','´','µ','¶',
-                           '·','¸','¹','º','»','¼','½','¾','↑');
+                           '·','¸','¹','º','»','¼','½','¾',
+						   '↑','–'  //22.11.16 RL
+						   );
 
     var entities = new Array ('agrave','aacute','acirc','atilde','auml','aring',
                               'aelig','ccedil','egrave','eacute','ecirc','euml','igrave',
@@ -3305,7 +3307,10 @@ if (!String.prototype.htmlEntities) {
                               'cent','pound','curren','yen','brvbar','sect','uml',
                               'copy','ordf','laquo','not','shy','reg','macr','deg','plusmn',
                               'sup2','sup3','acute','micro','para','middot','cedil','sup1',
-                              'ordm','raquo','frac14','frac12','frac34','&uarr;');
+                              'ordm','raquo','frac14','frac12','frac34',
+							  'uarr','ndash'  //22.11.16 RL
+							  );
+							  
 //    var chars = new Array ('&','à','á','â','ã','ä','å','æ','ç','è','é',
 //                           'ê','ë','ì','í','î','ï','ð','ñ','ò','ó','ô',
 //                           'õ','ö','ø','ù','ú','û','ü','ý','þ','ÿ','À',
@@ -3336,10 +3341,9 @@ if (!String.prototype.htmlEntities) {
       myRegExp.compile('&' + entities[i]+';','g');
       string = string.replace (myRegExp, chars[i]);
     }
-	// use numeric values with following because otherwise xmlDoc=parser.parseFromString(data,"text/xml") will fail
+	// use numeric values with spaces because otherwise they will disappear from text
     string = string.replace(/&nbsp;/g, '&#160;');
-	string = string.replace(/&uarr;/g, '&#8593;');
-    return string;
+	return string;
   }
 }
 
