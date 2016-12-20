@@ -161,9 +161,10 @@ function wfSajaxSearchImageCKeditor( $term ) {
 }
 
 function wfSajaxSearchArticleCKeditor( $term ) {
-	global $wgContLang, $wgExtraNamespaces;
+	global $wgContLang, $wgExtraNamespaces, $wgUser; // 11.03.15 : + $wgUser
 	$limit = 30;
-	$ns = array(NS_MAIN, NS_CATEGORY, NS_IMAGE, NS_TEMPLATE, NS_USER);
+	$ns = array(NS_MAIN, NS_CATEGORY, NS_IMAGE, NS_TEMPLATE, NS_USER); // 11.03.15 : - NS_IMAGE
+	if ($wgUser->getOption( 'riched_link_to_media', $wgDefaultUserOptions['riched_link_to_media']  )) $ns[] = NS_IMAGE;  // 11.03.15
     if (defined('SF_NS_FORM')) $ns[]= SF_NS_FORM;
     if (defined('SMW_NS_PROPERTY')) $ns[]= SMW_NS_PROPERTY;
 

@@ -93,6 +93,8 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
             select = dialog.getContentElement( 'mwLinkTab1', 'linkList' );
         target.setValue(select.getValue().replace(/_/g, ' '));
     }
+    
+    if ( linkToMedia ) { var displayLinkAsMedia = ''; } else { var displayLinkAsMedia = 'display: none;' } // 11.03.2015
 
         return {
             title : editor.lang.mwplugin.linkTitle,
@@ -137,6 +139,7 @@ CKEDITOR.dialog.add( 'MWLink', function( editor ) {
                             type : 'checkbox',
                             label : editor.lang.mwplugin.linkAsMedia,
                             title : editor.lang.mwplugin.linkAsMediaTitle,
+                            style : displayLinkAsMedia, // 11.03.15
                             'default' : false
                         },						
                         { //01.03.14 RL
