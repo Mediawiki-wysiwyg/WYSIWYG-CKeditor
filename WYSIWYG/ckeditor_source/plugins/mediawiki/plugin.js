@@ -1198,7 +1198,9 @@ CKEDITOR.plugins.add( 'mediawiki',
 			//                                              5. release lock wgCKeditortoDataFormatLocked = false with save, preview and diff buttons of page
 			
 			/*****/
-			if ( mw.config.get('wgCKeditortoDataFormatLocked') == false ) {	
+			if ( mw.config.get('wgCKeditortoDataFormatLocked') == false ) {
+				
+				mw.config.set('fck_mv_plg_strtr_span', []);  //06.11.16 RL
 
 				//alert('toDataFormat start, estwt:' + mw.config.get('editorSrcToWswTrigger'));
 	
@@ -1701,11 +1703,11 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 
 	if (matches = text.match(/Fckmw\d+fckmw/g)) { //Are there keys to be replaced.
 		is = matches.length;
-		// alert('commnets_qty:' + is + ' 1.key:' + matches[0] + ' value:' + mw.config.get('fck_mv_plg_strtr_span')[matches[0]]);			
+		//alert('comments_qty:' + is + ' 1.key:' + matches[0] + ' value:' + mw.config.get('fck_mv_plg_strtr_span')[matches[0]]);			
 		for (i = 0; i < is; i++ ) { // Replace each key with original text.
 			// comments are directly in the main key FckmwXfckmw
 			_fck_mv_plg_strtr_span = mw.config.get('fck_mv_plg_strtr_span');
-			// alert('comments_qty:' + (i + 1) + '/' + is + ' key:' + matches[i] + ' value:' + _fck_mv_plg_strtr_span[matches[i]]);						
+			//alert('comments_qty:' + (i + 1) + '/' + is + ' key:' + matches[i] + ' value:' + _fck_mv_plg_strtr_span[matches[i]]);						
 			if ( (typeof _fck_mv_plg_strtr_span[matches[i]] != 'undefined' ) &&
 				 (_fck_mv_plg_strtr_span[matches[i]].substr(0, 4) == '<!--') ) {
 				text = text.replace( matches[i],
@@ -1723,7 +1725,7 @@ function fck_mv_plg_revertEncapsulatedString(text) { //16.01.15 RL
 function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL 
 	// For html->wikitext, based on fck_replaceHTMLcomments.
 
-	mw.config.set('fck_mv_plg_strtr_span', []);
+	//mw.config.set('fck_mv_plg_strtr_span', []);  //06.11.16 RL
 	mw.config.set('fck_mv_plg_strtr_span_counter', 0);
 	
 	while( ( start = text.indexOf( '<!--' ) ) != -1 ) {
@@ -1759,6 +1761,7 @@ function fck_mw_plg_replaceHTMLcomments( text ) { //16.01.15 RL
 			// text = text.replace( replacement, start, end - start ); // From php -code
 			text = text.substr(0,start) + replacement + text.substr(end) ;
 		}
+		//alert('fck_mw_plg_replaceHTMLcomments fck_mv_plg_strtr_span_counter:' + fck_mv_plg_strtr_span_counter + ' replacement:' + replacement + ' text:' + text );		
 	}
 	return text;
 }
@@ -1954,7 +1957,7 @@ function conv_toDataFormat(editor, data, fixForBody) {
 		}	
 	}
 	****/
-
+	
 	var rootNode = this._getNodeFromHtml( data ); //this.
 	
 	if ( !rootNode ) return false; //16.01.14 RL IE catches some exeptions with page
@@ -1967,12 +1970,12 @@ function conv_toDataFormat(editor, data, fixForBody) {
 
 	var stringBuilder = new Array();
 	this._AppendNode( editor, rootNode, stringBuilder, '' );  //this.
-
+	
 	// 14.07.16 RL _getNodeFromHtml switched from "text/xml" to "text/html" 
 	// =>variable "data" contains extra <html><head></head> tags as first
 	//   and </html> as last elementa => remove them.
 	var data2 =  remove_htmlhead(stringBuilder.join( '' ).Trim());                    //14.07.16 RL
-
+	
 	// Restore original html comments from "Fckmw<id>fckmw" -keys.
 	return fck_mv_plg_revertEncapsulatedString( data2 );                              //14.07.16 RL
 	// return fck_mv_plg_revertEncapsulatedString( stringBuilder.join( '' ).Trim() ); //16.01.15 RL
@@ -2013,6 +2016,7 @@ CKEDITOR.customprocessor.prototype =
 	 *            for human reading. Not all Data Processors may provide it.
 	 */
 	toDataFormat : function( data, fixForBody ){
+		mw.config.set('fck_mv_plg_strtr_span', []);  //06.11.16 RL
 		return conv_toDataFormat( this.editor, data, fixForBody);
 	}
 };
@@ -2306,10 +2310,12 @@ CKEDITOR.customprocessor.prototype =
 					switch ( sNodeName ){
 						case 'ol' :
 						case 'ul' :
-							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dt', 'dd' ),
+
+							var isFirstLevel = !htmlNode.parentNode.nodeName.toLowerCase().IEquals( 'ul', 'ol', 'li', 'dl', 'dt', 'dd' ), // 09.11.16 RL Added toLowerCase()
                                 listStyle = htmlNode.getAttribute('style') || '',
                                 startNum = htmlNode.getAttribute('start') || '';
-                            this.preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1'); //this.
+
+							this.preserveLiNode = (listStyle && !listStyle.match(/list-style-type:\s*decimal;/i) || startNum && startNum != '1'); //this.
                             if (this.preserveLiNode) {  
                                 stringBuilder.push('<' + sNodeName);
                                 if (startNum)
@@ -2458,7 +2464,7 @@ CKEDITOR.customprocessor.prototype =
 						case 'dl' :
 
 							this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); //this.
-							var isFirstLevel = !htmlNode.parentNode.nodeName.IEquals( 'ul', 'ol', 'li', 'dl', 'dd', 'dt' );
+							var isFirstLevel = !htmlNode.parentNode.nodeName.toLowerCase().IEquals( 'ul', 'ol', 'li', 'dl', 'dd', 'dt' );  // 09.11.16 RL Added toLowerCase()
 							if ( isFirstLevel && stringBuilder[ stringBuilder.length - 1 ] != "\n" )
 								stringBuilder.push( '\n' );
 
@@ -3277,64 +3283,542 @@ if (!String.prototype.htmlDecode) {
 
 if (!String.prototype.htmlEntities) {
   String.prototype.htmlEntities = function() {
-    var chars = new Array ('à','á','â','ã','ä','å','æ','ç','è','é',
-                           'ê','ë','ì','í','î','ï','ð','ñ','ò','ó','ô',
-                           'õ','ö','ø','ù','ú','û','ü','ý','þ','ÿ','À',
-                           'Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë',
-                           'Ì','Í','Î','Ï','Ð','Ñ','Ò','Ó','Ô','Õ','Ö',
-                           'Ø','Ù','Ú','Û','Ü','Ý','Þ','€','\"','ß',
-                           '¢','£','¤','¥','¦','§','¨','©','ª','«',
-                           '¬','­','®','¯','°','±','²','³','´','µ','¶',
-                           '·','¸','¹','º','»','¼','½','¾','↑');
+    /**** 
+    var chars = new Array (
+	                     //'&','<','>',
+	                       'à','á','â','ã','ä','å','†',
+						   'æ','ç','è','é','ê','ë','ì',
+						   'í','î','ï','ð','ñ','ò','ó',
+						   'ô','õ','ö','ø','ù','ú','û',
+						   'ü','ý','þ','ÿ','À','Á','Â',
+						   'Ã','Ä','Å','Æ','Ç','È','É',
+						   'Ê','Ë','Ì','Í','Î','Ï','Ð',
+						   'Ñ','Ò','Ó','Ô','Õ','Ö','Ø',
+						   'Ù','Ú','Û','Ü','Ý','Þ','€',
+						   '\"','ß','¢','£','¤','¥','¦',
+						   '§','¨','©','ª','«','¬','­',
+						   '®','¯','°','±','²','³','´',
+						   'µ','¶','·','¸','¹','º','»',
+						   '¼','½','¾','–','—','˜ ','‡', //22.11.16 RL: 3-4, 07.01.17 RL: 5-7
+						   'š','Š','Ÿ','œ','Œ','ƒ','ˆ', //07.01.17 RL->
+						   '‘','’','‚','“','”','„','•', 
+                           '…','‰','′','″','‹','›','‾',
+						   '€','™','←','↑','→','↓','↔',
+						   '↵','⌈','⌉','⌊','⌋','◊','♠',
+						   '♣','♥','♦' 	                //07.01.17 RL<-
+						   );
 
-    var entities = new Array ('agrave','aacute','acirc','atilde','auml','aring',
-                              'aelig','ccedil','egrave','eacute','ecirc','euml','igrave',
-                              'iacute','icirc','iuml','eth','ntilde','ograve','oacute',
-                              'ocirc','otilde','ouml','oslash','ugrave','uacute','ucirc',
-                              'uuml','yacute','thorn','yuml','Agrave','Aacute','Acirc',
-                              'Atilde','Auml','Aring','AElig','Ccedil','Egrave','Eacute',
-                              'Ecirc','Euml','Igrave','Iacute','Icirc','Iuml','ETH','Ntilde',
-                              'Ograve','Oacute','Ocirc','Otilde','Ouml','Oslash','Ugrave',
-                              'Uacute','Ucirc','Uuml','Yacute','THORN','euro','quot','szlig',
-                              'cent','pound','curren','yen','brvbar','sect','uml',
-                              'copy','ordf','laquo','not','shy','reg','macr','deg','plusmn',
-                              'sup2','sup3','acute','micro','para','middot','cedil','sup1',
-                              'ordm','raquo','frac14','frac12','frac34','&uarr;');
-//    var chars = new Array ('&','à','á','â','ã','ä','å','æ','ç','è','é',
-//                           'ê','ë','ì','í','î','ï','ð','ñ','ò','ó','ô',
-//                           'õ','ö','ø','ù','ú','û','ü','ý','þ','ÿ','À',
-//                           'Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë',
-//                           'Ì','Í','Î','Ï','Ð','Ñ','Ò','Ó','Ô','Õ','Ö',
-//                           'Ø','Ù','Ú','Û','Ü','Ý','Þ','€','\"','ß','<',
-//                           '>','¢','£','¤','¥','¦','§','¨','©','ª','«',
-//                           '¬','­','®','¯','°','±','²','³','´','µ','¶',
-//                           '·','¸','¹','º','»','¼','½','¾');
-//
-//    var entities = new Array ('amp','agrave','aacute','acirc','atilde','auml','aring',
-//                              'aelig','ccedil','egrave','eacute','ecirc','euml','igrave',
-//                              'iacute','icirc','iuml','eth','ntilde','ograve','oacute',
-//                              'ocirc','otilde','ouml','oslash','ugrave','uacute','ucirc',
-//                              'uuml','yacute','thorn','yuml','Agrave','Aacute','Acirc',
-//                              'Atilde','Auml','Aring','AElig','Ccedil','Egrave','Eacute',
-//                              'Ecirc','Euml','Igrave','Iacute','Icirc','Iuml','ETH','Ntilde',
-//                              'Ograve','Oacute','Ocirc','Otilde','Ouml','Oslash','Ugrave',
-//                              'Uacute','Ucirc','Uuml','Yacute','THORN','euro','quot','szlig',
-//                              'lt','gt','cent','pound','curren','yen','brvbar','sect','uml',
-//                              'copy','ordf','laquo','not','shy','reg','macr','deg','plusmn',
-//                              'sup2','sup3','acute','micro','para','middot','cedil','sup1',
-//                              'ordm','raquo','frac14','frac12','frac34');
-
+    var entities = new Array (
+	                        //'amp','lt','gt',
+	                          'agrave','aacute','acirc' ,'atilde','auml'  ,'aring' ,'dagger',
+                              'aelig' ,'ccedil','egrave','eacute','ecirc' ,'euml'  ,'igrave',
+                              'iacute','icirc' ,'iuml'  ,'eth'   ,'ntilde','ograve','oacute',
+                              'ocirc' ,'otilde','ouml'  ,'oslash','ugrave','uacute','ucirc',
+                              'uuml'  ,'yacute','thorn' ,'yuml'  ,'Agrave','Aacute','Acirc',
+                              'Atilde','Auml'  ,'Aring' ,'AElig' ,'Ccedil','Egrave','Eacute',
+                              'Ecirc' ,'Euml'  ,'Igrave','Iacute','Icirc' ,'Iuml'  ,'ETH',
+							  'Ntilde','Ograve','Oacute','Ocirc' ,'Otilde','Ouml'  ,'Oslash',
+							  'Ugrave','Uacute','Ucirc' ,'Uuml'  ,'Yacute','THORN' ,'euro',
+							  'quot'  ,'szlig' ,'cent'  ,'pound' ,'curren','yen'   ,'brvbar',
+							  'sect'  ,'uml'   ,'copy'  ,'ordf'  ,'laquo' ,'not'   ,'shy',
+							  'reg'   ,'macr'  ,'deg'   ,'plusmn','sup2'  ,'sup3'  ,'acute',
+							  'micro' ,'para'  ,'middot','cedil' ,'sup1'  ,'ordm'  ,'raquo',
+							  'frac14','frac12','frac34','ndash' ,'mdash' ,'tilde' ,'Dagger', //22.11.16 RL: 3-4, 07.01.17 RL: 5-7
+							  'scaron','Scaron','Yuml'  ,'oelig' ,'OElig' ,'fnof'  ,'circ',   //07.01.17 RL->
+							  'lsquo' ,'rsquo' ,'sbquo' ,'ldquo' ,'rdquo' ,'bdquo' ,'bull',   
+                              'hellip','permil','prime' ,'Prime' ,'lsaquo','rsaquo','oline',
+							  'euro'  ,'trade' ,'larr'  ,'uarr'  ,'rarr'  ,'darr'  ,'harr',
+							  'crarr' ,'lceil' ,'rceil' ,'lfloor','rfloor','loz'   ,'spades',
+							  'clubs' ,'hearts','diams'                                       //07.01.17 RL<-
+							  );
+    ******/
+ 
+  
+ 
+    var chars = new Array ( //07.01.17 RL-> http://www.freeformatter.com/html-entities.html
+	  '\"',       //                                            'quot',
+	  '·',        //                                            'middot',
+      'À',        // #192;	Capital a with grave accent         'Agrave',         
+      'Á',        // #193;	Capital a with acute accent         'Aacute',         
+      'Â',        // #194;	Capital a with circumflex accent    'Acirc',          
+      'Ã',        // #195;	Capital a with tilde                'Atilde',         
+      'Ä',        // #196;	Capital a with umlaut               'Auml',           
+      'Å',        // #197;	Capital a with ring                 'Aring',          
+      'Æ',        // #198;	Capital ae                          'AElig',          
+      'Ç',        // #199;	Capital c with cedilla              'Ccedil',         
+      'È',        // #200;	Capital e with grave accent         'Egrave',         
+      'É',        // #201;	Capital e with acute accent         'Eacute',         
+      'Ê',        // #202;	Capital e with circumflex accent    'Ecirc',          
+      'Ë',        // #203;	Capital e with umlaut               'Euml',           
+      'Ì',        // #204;	Capital i with grave accent         'Igrave',         
+      'Í',        // #205;	Capital i with accute accent        'Iacute',         
+      'Î',        // #206;	Capital i with circumflex accent    'Icirc',          
+      'Ï',        // #207;	Capital i with umlaut               'Iuml',           
+      'Ð',        // #208;	Capital eth (Icelandic)             'ETH',            
+      'Ñ',        // #209;	Capital n with tilde                'Ntilde',         
+      'Ò',        // #210;	Capital o with grave accent         'Ograve',         
+      'Ó',        // #211;	Capital o with accute accent        'Oacute',         
+      'Ô',        // #212;	Capital o with circumflex accent    'Ocirc',          
+      'Õ',        // #213;	Capital o with tilde                'Otilde',         
+      'Ö',        // #214;	Capital o with umlaut               'Ouml',           
+      'Ø',        // #216;	Capital o with slash                'Oslash',         
+      'Ù',        // #217;	Capital u with grave accent         'Ugrave',         
+      'Ú',        // #218;	Capital u with acute accent         'Uacute',         
+      'Û',        // #219;	Capital u with circumflex accent    'Ucirc',          
+      'Ü',        // #220;	Capital u with umlaut               'Uuml',           
+      'Ý',        // #221;	Capital y with acute accent         'Yacute',         
+      'Þ',        // #222;	Capital thorn (Icelandic)           'THORN',          
+      'ß',        // #223;	Lowercase sharp s (German)          'szlig',          
+      'à',        // #224;	Lowercase a with grave accent       'agrave',         
+      'á',        // #225;	Lowercase a with acute accent       'aacute',         
+      'â',        // #226;	Lowercase a with circumflex accent  'acirc',          
+      'ã',        // #227;	Lowercase a with tilde              'atilde',         
+      'ä',        // #228;	Lowercase a with umlaut             'auml',           
+      'å',        // #229;	Lowercase a with ring               'aring',          
+      'æ',        // #230;	Lowercase ae                        'aelig',          
+      'ç',        // #231;	Lowercase c with cedilla            'ccedil',         
+      'è',        // #232;	Lowercase e with grave accent       'egrave',         
+      'é',        // #233;	Lowercase e with acute accent       'eacute',         
+      'ê',        // #234;	Lowercase e with circumflex accent  'ecirc',          
+      'ë',        // #235;	Lowercase e with umlaut             'euml',           
+      'ì',        // #236;	Lowercase i with grave accent       'igrave',         
+      'í',        // #237;	Lowercase i with acute accent       'iacute',         
+      'î',        // #238;	Lowercase i with circumflex accent  'icirc',          
+      'ï',        // #239;	Lowercase i with umlaut             'iuml',           
+      'ð',        // #240;	Lowercase eth (Icelandic)           'eth',            
+      'ñ',        // #241;	Lowercase n with tilde              'ntilde',         
+      'ò',        // #242;	Lowercase o with grave accent       'ograve',         
+      'ó',        // #243;	Lowercase o with acute accent       'oacute',         
+      'ô',        // #244;	Lowercase o with circumflex accent  'ocirc',          
+      'õ',        // #245;	Lowercase o with tilde              'otilde',         
+      'ö',        // #246;	Lowercase o with umlaut             'ouml',           
+      'ø',        // #248;	Lowercase o with slash              'oslash',         
+      'ù',        // #249;	Lowercase u with grave accent       'ugrave',         
+      'ú',        // #250;	Lowercase u with acute accent       'uacute',         
+      'û',        // #251;	Lowercase u with circumflex accent  'ucirc',          
+      'ü',        // #252;	Lowercase u with umlaut             'uuml',           
+      'ý',        // #253;	Lowercase y with acute accent       'yacute',         
+      'þ',        // #254;	Lowercase thorn (Icelandic)         'thorn',          
+      'ÿ',        // #255;	Lowercase y with umlaut             'yuml',           
+      '¡',        // #161;	Inverted exclamation mark           'iexcl',          
+      '¢',        // #162;	Cent                                'cent',           
+      '£',        // #163;	Pound                               'pound',          
+      '¤',        // #164;	Currency                            'curren',         
+      '¥',        // #165;	Yen                                 'yen',            
+      '¦',        // #166;	Broken vertical bar                 'brvbar',         
+      '§',        // #167;	Section                             'sect',           
+      '¨',        // #168;	Spacing diaeresis                   'uml',            
+      '©',        // #169;	Copyright                           'copy',           
+      'ª',        // #170;	Feminine ordinal indicator          'ordf',           
+      '«',        // #171;	Opening/Left angle quotation mark   'laquo',          
+      '¬',        // #172;	Negation                            'not',            
+      '­',        // #173;	Soft hyphen                         'shy',            
+      '®',        // #174;	Registered trademark                'reg',            
+      '¯',        // #175;	Spacing macron                      'macr',           
+      '°',        // #176;	Degree                              'deg',            
+      '±',        // #177;	Plus or minus                       'plusmn',         
+      '²',        // #178;	Superscript 2                       'sup2',           
+      '³',        // #179;	Superscript 3                       'sup3',           
+      '´',        // #180;	Spacing acute                       'acute',          
+      'µ',        // #181;	Micro                               'micro',          
+      '¶',        // #182;	Paragraph                           'para',           
+      '¸',        // #184;	Spacing cedilla                     'cedil',          
+      '¹',        // #185;	Superscript 1                       'sup1',           
+      'º',        // #186;	Masculine ordinal indicator         'ordm',           
+      '»',        // #187;	Closing/Right angle quotation mark  'raquo',          
+      '¼',        // #188;	Fraction 1/4                        'frac14',         
+      '½',        // #189;	Fraction 1/2                        'frac12',         
+      '¾',        // #190;	Fraction 3/4                        'frac34',         
+      '¿',        // #191;	Inverted question mark              'iquest',         
+      '×',        // #215;	Multiplication                      'times',          
+      '÷',        // #247;	Divide                              'divide',         
+      '∀',       // #8704;	For all                             'forall',         
+      '∂',        // #8706;	Part                                'part',           
+      '∃',       // #8707;	Exist                               'exist',          
+      '∅',        // #8709;	Empty                               'empty',          
+      '∇',       // #8711;	Nabla                               'nabla',          
+      '∈',       // #8712;	Is in                               'isin',           
+      '∉',        // #8713;	Not in                              'notin',          
+      '∋',       // #8715;	Ni                                  'ni',             
+      '∏',        // #8719;	Product                             'prod',           
+      '∑',        // #8721;	Sum                                 'sum',            
+      '−',        // #8722;	Minus                               'minus',          
+      '∗',        // #8727;	Asterisk (Lowast)                   'lowast',         
+      '√',        // #8730;	Square root                         'radic',          
+      '∝',       // #8733;	Proportional to                     'prop',           
+      '∞',        // #8734;	Infinity                            'infin',          
+      '∠',       // #8736;	Angle                               'ang',            
+      '∧',       // #8743;	And                                 'and',            
+      '∨',       // #8744;	Or                                  'or',             
+      '∩',        // #8745;	Cap                                 'cap',            
+      '∪',       // #8746;	Cup                                 'cup',            
+      '∫',        // #8747;	Integral                            'int',            
+      '∴',       // #8756;	Therefore                           'there4',         
+      '∼',        // #8764;	Similar to                          'sim',            
+      '≅',        // #8773;	Congurent to                        'cong',           
+      '≈',        // #8776;	Almost equal                        'asymp',          
+      '≠',        // #8800;	Not equal                           'ne',             
+      '≡',        // #8801;	Equivalent                          'equiv',          
+      '≤',        // #8804;	Less or equal                       'le',             
+      '≥',        // #8805;	Greater or equal                    'ge',             
+      '⊂',       // #8834;	Subset of                           'sub',            
+      '⊃',       // #8835;	Superset of                         'sup',            
+      '⊄',        // #8836;	Not subset of                       'nsub',           
+      '⊆',       // #8838;	Subset or equal                     'sube',           
+      '⊇',       // #8839;	Superset or equal                   'supe',           
+      '⊕',        // #8853;	Circled plus                        'oplus',          
+      '⊗',        // #8855;	Circled times                       'otimes',         
+      '⊥',       // #8869;	Perpendicular                       'perp',           
+      '⋅',        // #8901;	Dot operator                        'sdot',           
+      'Α',        // #913;	Alpha                               'Alpha',          
+      'Β',        // #914;	Beta                                'Beta',           
+      'Γ',        // #915;	Gamma                               'Gamma',          
+      'Δ',        // #916;	Delta                               'Delta',          
+      'Ε',        // #917;	Epsilon                             'Epsilon',        
+      'Ζ',        // #918;	Zeta                                'Zeta',           
+      'Η',        // #919;	Eta                                 'Eta',            
+      'Θ',        // #920;	Theta                               'Theta',          
+      'Ι',        // #921;	Iota                                'Iota',           
+      'Κ',        // #922;	Kappa                               'Kappa',          
+      'Λ',        // #923;	Lambda                              'Lambda',         
+      'Μ',        // #924;	Mu                                  'Mu',             
+      'Ν',        // #925;	Nu                                  'Nu',             
+      'Ξ',        // #926;	Xi                                  'Xi',             
+      'Ο',        // #927;	Omicron                             'Omicron',        
+      'Π',        // #928;	Pi                                  'Pi',             
+      'Ρ',        // #929;	Rho                                 'Rho',            
+      'Σ',        // #931;	Sigma                               'Sigma',          
+      'Τ',        // #932;	Tau                                 'Tau',            
+      'Υ',        // #933;	Upsilon                             'Upsilon',        
+      'Φ',        // #934;	Phi                                 'Phi',            
+      'Χ',        // #935;	Chi                                 'Chi',            
+      'Ψ',        // #936;	Psi                                 'Psi',            
+      'Ω',        // #937;	Omega                               'Omega',          
+      'α',        // #945;	alpha                               'alpha',          
+      'β',        // #946;	beta                                'beta',           
+      'γ',        // #947;	gamma                               'gamma',          
+      'δ',        // #948;	delta                               'delta',          
+      'ε',        // #949;	epsilon                             'epsilon',        
+      'ζ',        // #950;	zeta                                'zeta',           
+      'η',        // #951;	eta                                 'eta',            
+      'θ',        // #952;	theta                               'theta',          
+      'ι',        // #953;	iota                                'iota',           
+      'κ',        // #954;	kappa                               'kappa',          
+      'λ',        // #955;	lambda                              'lambda',         
+      'μ',        // #956;	mu                                  'mu',             
+      'ν',        // #957;	nu                                  'nu',             
+      'ξ',        // #958;	xi                                  'xi',             
+      'ο',        // #959;	omicron                             'omicron',        
+      'π',        // #960;	pi                                  'pi',             
+      'ρ',        // #961;	rho                                 'rho',            
+      'ς',        // #962;	sigmaf                              'sigmaf',         
+      'σ',        // #963;	sigma                               'sigma',          
+      'τ',        // #964;	tau                                 'tau',            
+      'υ',        // #965;	upsilon                             'upsilon',        
+      'φ',        // #966;	phi                                 'phi',            
+      'χ',        // #967;	chi                                 'chi',            
+      'ψ',        // #968;	psi                                 'psi',            
+      'ω',        // #969;	omega                               'omega',          
+      'ϑ',        // #977;	Theta symbol                        'thetasym',       
+      'ϒ',        // #978;	Upsilon symbol                      'upsih',          
+      'ϖ',        // #982;	Pi symbol                           'piv',            
+      'Œ',        // #338;	Uppercase ligature OE               'OElig',          
+      'œ',        // #339;	Lowercase ligature OE               'oelig',          
+      'Š',        // #352;	Uppercase S with caron              'Scaron',         
+      'š',        // #353;	Lowercase S with caron              'scaron',         
+      'Ÿ',        // #376;	Capital Y with diaeres              'Yuml',           
+      'ƒ',        // #402;	Lowercase with hook                 'fnof',           
+      'ˆ',        // #710;	Circumflex accent                   'circ',           
+      '˜ ',        // #732;	Tilde                               'tilde',          
+      ' ',        // #8194;	En space                            'ensp',           
+      ' ',        // #8195;	Em space                            'emsp',           
+      ' ',        // #8201;	Thin space                          'thinsp',         
+      '–',        // #8211;	En dash                             'ndash',          
+      '—',        // #8212;	Em dash                             'mdash',          
+      '‘',        // #8216;	Left single quotation mark          'lsquo',          
+      '’',        // #8217;	Right single quotation mark         'rsquo',          
+      '‚',        // #8218;	Single low-9 quotation mark         'sbquo',          
+      '“',        // #8220;	Left double quotation mark          'ldquo',          
+      '”',        // #8221;	Right double quotation mark         'rdquo',          
+      '„',        // #8222;	Double low-9 quotation mark         'bdquo',          
+      '†',        // #8224;	Dagger                              'dagger',         
+      '‡',        // #8225;	Double dagger                       'Dagger',         
+      '•',        // #8226;	Bullet                              'bull',           
+      '…',        // #8230;	Horizontal ellipsis                 'hellip',         
+      '‰',        // #8240;	Per mille                           'permil',         
+      '′',        // #8242;	Minutes (Degrees)                   'prime',          
+      '″',        // #8243;	Seconds (Degrees)                   'Prime',          
+      '‹',        // #8249;	Single left angle quotation         'lsaquo',         
+      '›',        // #8250;	Single right angle quotation        'rsaquo',         
+      '‾',        // #8254;	Overline                            'oline',          
+      '€',        // #8364;	Euro                                'euro',           
+      '™',        // #8482;	Trademark                           'trade',          
+      '←',        // #8592;	Left arrow                          'larr',           
+      '↑',        // #8593;	Up arrow                            'uarr',           
+      '→',        // #8594;	Right arrow                         'rarr',           
+      '↓',        // #8595;	Down arrow                          'darr',           
+      '↔',        // #8596;	Left right arrow                    'harr',           
+      '↵',        // #8629;	Carriage return arrow               'crarr',          
+      '⌈',        // #8968;	Left ceiling                        'lceil',          
+      '⌉',        // #8969;	Right ceiling                       'rceil',          
+      '⌊',        // #8970;	Left floor                          'lfloor',         
+      '⌋',        // #8971;	Right floor                         'rfloor',         
+      '◊',        // #9674;	Lozenge                             'loz',            
+      '♠',        // #9824;	Spade                               'spades',         
+      '♣',        // #9827;	Club                                'clubs',          
+      '♥',        // #9829;	Heart                               'hearts',         
+      '♦'         // #9830;	Diamond                             'diams'           
+    );
+    
+    var entities = new Array (
+	  'quot',
+	  'middot',
+      'Agrave',         // #192;	Capital a with grave accent
+      'Aacute',         // #193;	Capital a with acute accent
+      'Acirc',          // #194;	Capital a with circumflex accent
+      'Atilde',         // #195;	Capital a with tilde
+      'Auml',           // #196;	Capital a with umlaut
+      'Aring',          // #197;	Capital a with ring
+      'AElig',          // #198;	Capital ae
+      'Ccedil',         // #199;	Capital c with cedilla
+      'Egrave',         // #200;	Capital e with grave accent
+      'Eacute',         // #201;	Capital e with acute accent
+      'Ecirc',          // #202;	Capital e with circumflex accent
+      'Euml',           // #203;	Capital e with umlaut
+      'Igrave',         // #204;	Capital i with grave accent
+      'Iacute',         // #205;	Capital i with accute accent
+      'Icirc',          // #206;	Capital i with circumflex accent
+      'Iuml',           // #207;	Capital i with umlaut
+      'ETH',            // #208;	Capital eth (Icelandic)
+      'Ntilde',         // #209;	Capital n with tilde
+      'Ograve',         // #210;	Capital o with grave accent
+      'Oacute',         // #211;	Capital o with accute accent
+      'Ocirc',          // #212;	Capital o with circumflex accent
+      'Otilde',         // #213;	Capital o with tilde
+      'Ouml',           // #214;	Capital o with umlaut
+      'Oslash',         // #216;	Capital o with slash
+      'Ugrave',         // #217;	Capital u with grave accent
+      'Uacute',         // #218;	Capital u with acute accent
+      'Ucirc',          // #219;	Capital u with circumflex accent
+      'Uuml',           // #220;	Capital u with umlaut
+      'Yacute',         // #221;	Capital y with acute accent
+      'THORN',          // #222;	Capital thorn (Icelandic)
+      'szlig',          // #223;	Lowercase sharp s (German)
+      'agrave',         // #224;	Lowercase a with grave accent
+      'aacute',         // #225;	Lowercase a with acute accent
+      'acirc',          // #226;	Lowercase a with circumflex accent
+      'atilde',         // #227;	Lowercase a with tilde
+      'auml',           // #228;	Lowercase a with umlaut
+      'aring',          // #229;	Lowercase a with ring
+      'aelig',          // #230;	Lowercase ae
+      'ccedil',         // #231;	Lowercase c with cedilla
+      'egrave',         // #232;	Lowercase e with grave accent
+      'eacute',         // #233;	Lowercase e with acute accent
+      'ecirc',          // #234;	Lowercase e with circumflex accent
+      'euml',           // #235;	Lowercase e with umlaut
+      'igrave',         // #236;	Lowercase i with grave accent
+      'iacute',         // #237;	Lowercase i with acute accent
+      'icirc',          // #238;	Lowercase i with circumflex accent
+      'iuml',           // #239;	Lowercase i with umlaut
+      'eth',            // #240;	Lowercase eth (Icelandic)
+      'ntilde',         // #241;	Lowercase n with tilde
+      'ograve',         // #242;	Lowercase o with grave accent
+      'oacute',         // #243;	Lowercase o with acute accent
+      'ocirc',          // #244;	Lowercase o with circumflex accent
+      'otilde',         // #245;	Lowercase o with tilde
+      'ouml',           // #246;	Lowercase o with umlaut
+      'oslash',         // #248;	Lowercase o with slash
+      'ugrave',         // #249;	Lowercase u with grave accent
+      'uacute',         // #250;	Lowercase u with acute accent
+      'ucirc',          // #251;	Lowercase u with circumflex accent
+      'uuml',           // #252;	Lowercase u with umlaut
+      'yacute',         // #253;	Lowercase y with acute accent
+      'thorn',          // #254;	Lowercase thorn (Icelandic)
+      'yuml',           // #255;	Lowercase y with umlaut
+      'iexcl',          // #161;	Inverted exclamation mark
+      'cent',           // #162;	Cent
+      'pound',          // #163;	Pound
+      'curren',         // #164;	Currency
+      'yen',            // #165;	Yen
+      'brvbar',         // #166;	Broken vertical bar
+      'sect',           // #167;	Section
+      'uml',            // #168;	Spacing diaeresis
+      'copy',           // #169;	Copyright
+      'ordf',           // #170;	Feminine ordinal indicator
+      'laquo',          // #171;	Opening/Left angle quotation mark
+      'not',            // #172;	Negation
+      'shy',            // #173;	Soft hyphen
+      'reg',            // #174;	Registered trademark
+      'macr',           // #175;	Spacing macron
+      'deg',            // #176;	Degree
+      'plusmn',         // #177;	Plus or minus
+      'sup2',           // #178;	Superscript 2
+      'sup3',           // #179;	Superscript 3
+      'acute',          // #180;	Spacing acute
+      'micro',          // #181;	Micro
+      'para',           // #182;	Paragraph
+      'cedil',          // #184;	Spacing cedilla
+      'sup1',           // #185;	Superscript 1
+      'ordm',           // #186;	Masculine ordinal indicator
+      'raquo',          // #187;	Closing/Right angle quotation mark
+      'frac14',         // #188;	Fraction 1/4
+      'frac12',         // #189;	Fraction 1/2
+      'frac34',         // #190;	Fraction 3/4
+      'iquest',         // #191;	Inverted question mark
+      'times',          // #215;	Multiplication
+      'divide',         // #247;	Divide
+      'forall',         // #8704;	For all
+      'part',           // #8706;	Part
+      'exist',          // #8707;	Exist
+      'empty',          // #8709;	Empty
+      'nabla',          // #8711;	Nabla
+      'isin',           // #8712;	Is in
+      'notin',          // #8713;	Not in
+      'ni',             // #8715;	Ni
+      'prod',           // #8719;	Product
+      'sum',            // #8721;	Sum
+      'minus',          // #8722;	Minus
+      'lowast',         // #8727;	Asterisk (Lowast)
+      'radic',          // #8730;	Square root
+      'prop',           // #8733;	Proportional to
+      'infin',          // #8734;	Infinity
+      'ang',            // #8736;	Angle
+      'and',            // #8743;	And
+      'or',             // #8744;	Or
+      'cap',            // #8745;	Cap
+      'cup',            // #8746;	Cup
+      'int',            // #8747;	Integral
+      'there4',         // #8756;	Therefore
+      'sim',            // #8764;	Similar to
+      'cong',           // #8773;	Congurent to
+      'asymp',          // #8776;	Almost equal
+      'ne',             // #8800;	Not equal
+      'equiv',          // #8801;	Equivalent
+      'le',             // #8804;	Less or equal
+      'ge',             // #8805;	Greater or equal
+      'sub',            // #8834;	Subset of
+      'sup',            // #8835;	Superset of
+      'nsub',           // #8836;	Not subset of
+      'sube',           // #8838;	Subset or equal
+      'supe',           // #8839;	Superset or equal
+      'oplus',          // #8853;	Circled plus
+      'otimes',         // #8855;	Circled times
+      'perp',           // #8869;	Perpendicular
+      'sdot',           // #8901;	Dot operator
+      'Alpha',          // #913;	Alpha
+      'Beta',           // #914;	Beta
+      'Gamma',          // #915;	Gamma
+      'Delta',          // #916;	Delta
+      'Epsilon',        // #917;	Epsilon
+      'Zeta',           // #918;	Zeta
+      'Eta',            // #919;	Eta
+      'Theta',          // #920;	Theta
+      'Iota',           // #921;	Iota
+      'Kappa',          // #922;	Kappa
+      'Lambda',         // #923;	Lambda
+      'Mu',             // #924;	Mu
+      'Nu',             // #925;	Nu
+      'Xi',             // #926;	Xi
+      'Omicron',        // #927;	Omicron
+      'Pi',             // #928;	Pi
+      'Rho',            // #929;	Rho
+      'Sigma',          // #931;	Sigma
+      'Tau',            // #932;	Tau
+      'Upsilon',        // #933;	Upsilon
+      'Phi',            // #934;	Phi
+      'Chi',            // #935;	Chi
+      'Psi',            // #936;	Psi
+      'Omega',          // #937;	Omega
+      'alpha',          // #945;	alpha
+      'beta',           // #946;	beta
+      'gamma',          // #947;	gamma
+      'delta',          // #948;	delta
+      'epsilon',        // #949;	epsilon
+      'zeta',           // #950;	zeta
+      'eta',            // #951;	eta
+      'theta',          // #952;	theta
+      'iota',           // #953;	iota
+      'kappa',          // #954;	kappa
+      'lambda',         // #955;	lambda
+      'mu',             // #956;	mu
+      'nu',             // #957;	nu
+      'xi',             // #958;	xi
+      'omicron',        // #959;	omicron
+      'pi',             // #960;	pi
+      'rho',            // #961;	rho
+      'sigmaf',         // #962;	sigmaf
+      'sigma',          // #963;	sigma
+      'tau',            // #964;	tau
+      'upsilon',        // #965;	upsilon
+      'phi',            // #966;	phi
+      'chi',            // #967;	chi
+      'psi',            // #968;	psi
+      'omega',          // #969;	omega
+      'thetasym',       // #977;	Theta symbol
+      'upsih',          // #978;	Upsilon symbol
+      'piv',            // #982;	Pi symbol
+      'OElig',          // #338;	Uppercase ligature OE
+      'oelig',          // #339;	Lowercase ligature OE
+      'Scaron',         // #352;	Uppercase S with caron
+      'scaron',         // #353;	Lowercase S with caron
+      'Yuml',           // #376;	Capital Y with diaeres
+      'fnof',           // #402;	Lowercase with hook
+      'circ',           // #710;	Circumflex accent
+      'tilde',          // #732;	Tilde
+      'ensp',           // #8194;	En space
+      'emsp',           // #8195;	Em space
+      'thinsp',         // #8201;	Thin space
+      'ndash',          // #8211;	En dash
+      'mdash',          // #8212;	Em dash
+      'lsquo',          // #8216;	Left single quotation mark
+      'rsquo',          // #8217;	Right single quotation mark
+      'sbquo',          // #8218;	Single low-9 quotation mark
+      'ldquo',          // #8220;	Left double quotation mark
+      'rdquo',          // #8221;	Right double quotation mark
+      'bdquo',          // #8222;	Double low-9 quotation mark
+      'dagger',         // #8224;	Dagger
+      'Dagger',         // #8225;	Double dagger
+      'bull',           // #8226;	Bullet
+      'hellip',         // #8230;	Horizontal ellipsis
+      'permil',         // #8240;	Per mille
+      'prime',          // #8242;	Minutes (Degrees)
+      'Prime',          // #8243;	Seconds (Degrees)
+      'lsaquo',         // #8249;	Single left angle quotation
+      'rsaquo',         // #8250;	Single right angle quotation
+      'oline',          // #8254;	Overline
+      'euro',           // #8364;	Euro
+      'trade',          // #8482;	Trademark
+      'larr',           // #8592;	Left arrow
+      'uarr',           // #8593;	Up arrow
+      'rarr',           // #8594;	Right arrow
+      'darr',           // #8595;	Down arrow
+      'harr',           // #8596;	Left right arrow
+      'crarr',          // #8629;	Carriage return arrow
+      'lceil',          // #8968;	Left ceiling
+      'rceil',          // #8969;	Right ceiling
+      'lfloor',         // #8970;	Left floor
+      'rfloor',         // #8971;	Right floor
+      'loz',            // #9674;	Lozenge
+      'spades',         // #9824;	Spade
+      'clubs',          // #9827;	Club
+      'hearts',         // #9829;	Heart
+      'diams'           // #9830;	Diamond							  
+    );                  // 07.01.17 RL<-
+  
     string = this;
     for (var i = 0; i < entities.length; i++) {
       myRegExp = new RegExp();
       myRegExp.compile('&' + entities[i]+';','g');
       string = string.replace (myRegExp, chars[i]);
     }
-	// use numeric values with following because otherwise xmlDoc=parser.parseFromString(data,"text/xml") will fail
-    string = string.replace(/&nbsp;/g, '&#160;');
-	string = string.replace(/&uarr;/g, '&#8593;');
-    return string;
+	
+	// use numeric values with these entities because otherwise they will disappear from text
+    string = string.replace(/&nbsp;/g, '&#160;' );  // Non-breaking space
+	string = string.replace(/&zwnj;/g, '&#8204;' ); // Zero width non-joiner // 07.01.17 RL->
+	string = string.replace(/&zwj;/g,  '&#8205;' ); // Zero width joiner
+	string = string.replace(/&lrm;/g,  '&#8206;' ); // Left-to-right mark
+	string = string.replace(/&rlm;/g,  '&#8207;' ); // Right-to-left mark    // 07.01.17 RL<- 
+	return string;
   }
 }
-
-
+	

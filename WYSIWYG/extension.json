@@ -2,7 +2,7 @@
 	"@note"  : "---                                                                 ",
 	"@note"  : "--- Registering Wysiwyg- extension using wfLoadExtension.           ",
 	"@note"  : "---                                                                 ",
-	"version": "Wysiwyg 1.5.6_0 [B551+22.11.2016], CKEditor 4.5.9 (revision a35abfe)",
+	"version": "Wysiwyg 1.5.6_0 [B551+07.01.2017], CKEditor 4.5.9 (revision a35abfe)",
 
 	"@note"  : "---                                                                 ",
 	"name"   : "WYSIWYG editor",
@@ -14,7 +14,7 @@
 	"descriptionmsg": "fckeditor-desc",
 	"type"          : "other",
 	"license-name"  : "GPL-2.0",
-	"requires"      : {"MediaWiki": ">= 1.25.0"},	
+	"requires"      : {"MediaWiki": ">= 1.25.0"},
 	"AutoloadClasses": {
 		"CKEditor"             : "ckeditor/ckeditor_php5.php",
 		"CKeditorParser"       : "CKeditorParser.body.php",
