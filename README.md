@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 14.01.17  Modifications for MW1.28.  Version 1.5.6_0 [B551+14.01.2017].
+
 - 07.01.17  Fixed multiple html- entities (IE).  Version 1.5.6_0 [B551+07.01.2017].
 
 - 22.11.16  Fixed html dash- entity (IE).  Version 1.5.6_0 [B551+22.11.2016].
