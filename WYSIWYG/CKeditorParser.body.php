@@ -19,6 +19,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	const COLON_STATE_COMMENT = 5;
 	const COLON_STATE_COMMENTDASH = 6;
 	const COLON_STATE_COMMENTDASHDASH = 7;
+	const MARKER_PREFIX = "\x7f'\"`UNIQ-";  // 09.02.17 RL: Copied here from includes/parser/Parser.php because of MW1.23
     // 14.01.17 RL<-	
 	
 	protected $fck_mw_strtr_span;
@@ -1789,7 +1790,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 				$closeMatch = preg_match(
 					'/(?:<\\/table|<\\/h1|<\\/h2|<\\/h3|<\\/h4|<\\/h5|<\\/h6|'
 						. '<td|<th|<\\/?blockquote|<\\/?div|<hr|<\\/pre|<\\/p|<\\/mw:|'
-						. Parser::MARKER_PREFIX
+						. self::MARKER_PREFIX    // 09.02.17 RL:  "Parser::" => "self::" because of MW1.23
 						. '-pre|<\\/li|<\\/ul|<\\/ol|<\\/dl|<\\/?center)/iS',
 					$t
 				);
