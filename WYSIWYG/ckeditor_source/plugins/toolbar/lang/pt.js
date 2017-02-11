@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'toolbar', 'pt', {
@@ -10,7 +10,7 @@ CKEDITOR.plugins.setLang( 'toolbar', 'pt', {
 		clipboard: 'Área de transferência/Anular',
 		editing: 'Edição',
 		forms: 'Formulários',
-		basicstyles: 'Estilos Básicos',
+		basicstyles: 'Estilos básicos',
 		paragraph: 'Parágrafo',
 		links: 'Hiperligações',
 		insert: 'Inserir',
@@ -18,5 +18,5 @@ CKEDITOR.plugins.setLang( 'toolbar', 'pt', {
 		colors: 'Cores',
 		tools: 'Ferramentas'
 	},
-	toolbars: 'Editor de Barras de Ferramentas'
+	toolbars: 'Editor de barras de ferramentas'
 } );

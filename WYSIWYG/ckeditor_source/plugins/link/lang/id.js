@@ -1,5 +1,5 @@
-/*
-Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+﻿/*
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'link', 'id', {
@@ -19,6 +19,8 @@ CKEDITOR.plugins.setLang( 'link', 'id', {
 	anchorName: 'By Anchor Name', // MISSING
 	charset: 'Linked Resource Charset', // MISSING
 	cssClasses: 'Kelas Stylesheet',
+	download: 'Force Download', // MISSING
+	displayText: 'Display Text', // MISSING
 	emailAddress: 'Alamat E-mail',
 	emailBody: 'Message Body', // MISSING
 	emailSubject: 'Judul Pesan',

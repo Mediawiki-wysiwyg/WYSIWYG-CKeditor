@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'basicstyles', 'pt', {
@@ -7,6 +7,6 @@ CKEDITOR.plugins.setLang( 'basicstyles', 'pt', {
 	italic: 'Itálico',
 	strike: 'Rasurado',
 	subscript: 'Superior à linha',
-	superscript: 'Inferior à Linha',
+	superscript: 'Superior à linha',
 	underline: 'Sublinhado'
 } );

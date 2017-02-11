@@ -35,9 +35,11 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
-- 09.02.17  Modifications for MW1.23.15.  Version 1.5.6_0 [B551+09.02.2017].
+- 11.02.17  WikiEditor is from MW 1.28. Update of CKEditor from version CKEditor 4.5.9 (revision a35abfe) to CKEditor 4.6.2 (revision 20af917) (runtime- and source- files)).  Version 1.5.6_0 [B551+09.02.2017].
 
-- 14.01.17  Modifications for MW1.28.  Version 1.5.6_0 [B551+14.01.2017].
+- 09.02.17  Modifications for MW 1.23.15.  Version 1.5.6_0 [B551+09.02.2017].
+
+- 14.01.17  Modifications for MW 1.28.  Version 1.5.6_0 [B551+14.01.2017].
 
 - 07.01.17  Fixed multiple html- entities (IE).  Version 1.5.6_0 [B551+07.01.2017].
 

@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------
-Versions of ckeditor_source directory (updated 14.07.2016 RL):
-  Wysiwyg  1.5.6_0 [B551+14.07.2016] 
-  CKeditor 4.5.9   (12.05.2016 14:07 timestamp of version in git repository)
+Versions of ckeditor_source directory (updated 11.02.2017 RL):
+  Wysiwyg  1.5.6_0 [B551+09.02.2017] 
+  CKeditor 4.6.2   (12.01.2017 16:49 timestamp of version in git repository)
 
 ---------------------------------------------------------------------------------
 This directory is intended for development and debug purposes only.
@@ -55,13 +55,15 @@ How to run source codes of CKeditor with WYSIWYG and MW:
 
    NOTE! Source files of CKeditor have not been configured to use resourceloader of MediaWiki.
          To succesfully load source files of CKeditor, debug mode of resourceloader should be used too.
-         Use value "true" with variables above only with source files of CKeditor, do not use them in production.
+         Use value "true" with variables above only with source files of CKeditor, do not use them in production. 
    
-   This solution has been verified to work with MW1.26. Please give feedback in case this works with other versions too.
-   
+   This solution has been verified to work with MW 1.26 - 1.28.
+   Proper solution would require all javascripts of source files to be loaded by resource loader.   
 
 7. For compile purposes
-   ckeditor_source\dev\builder\build-config.js #Set: "skin: 'kama'" and list all included plugins.
+   ckeditor_source\dev\builder\build-config.js  
+    -set: "skin: 'kama'" 
+    -list all included plugins (=plugins which are not loaded by config.js as external)
 
    
 ---------------------------------------------------------------------------------
@@ -75,7 +77,7 @@ How to compile CKeditor and WYSIWYG and create minified runtime version:
 
 3. Go to directory ckeditor_source/dev/builder
 
-4. Modify skin of CKeditor to be "kama" (skin: 'kama',) in build-config.js (list of included plugins)
+4. Modify skin of CKeditor to be "kama" (skin: 'kama',) in build-config.js (list of included plugins which are not loaded by config.js as external)
 
 5. Compile using command: ./build.sh (may require X-server connection if used through ssh -session)
 

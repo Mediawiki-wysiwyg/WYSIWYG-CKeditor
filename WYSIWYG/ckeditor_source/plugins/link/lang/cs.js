@@ -1,5 +1,5 @@
-/*
-Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+﻿/*
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'link', 'cs', {
@@ -19,6 +19,8 @@ CKEDITOR.plugins.setLang( 'link', 'cs', {
 	anchorName: 'Podle jména kotvy',
 	charset: 'Přiřazená znaková sada',
 	cssClasses: 'Třída stylu',
+	download: 'Force Download', // MISSING
+	displayText: 'Zobrazit text',
 	emailAddress: 'E-mailová adresa',
 	emailBody: 'Tělo zprávy',
 	emailSubject: 'Předmět zprávy',

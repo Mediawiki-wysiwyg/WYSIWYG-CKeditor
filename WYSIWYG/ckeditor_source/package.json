@@ -1,6 +1,6 @@
 {
 	"name": "ckeditor-dev",
-	"version": "4.5.9",
+	"version": "4.6.2",
 	"description": "The development version of CKEditor - JavaScript WYSIWYG web text editor.",
 	"devDependencies": {
 		"benderjs-coverage": "^0.2.1",
@@ -8,6 +8,7 @@
 		"benderjs-jquery": "^0.3.0",
 		"benderjs-sinon": "^0.3.1",
 		"benderjs-yui": "^0.3.2",
+    	"benderjs-yui-beautified": "0.0.5",
 		"grunt": "^0",
 		"grunt-contrib-imagemin": "^1.0.0",
 		"grunt-jscs": "^2.0.0",
@@ -18,14 +19,14 @@
 		"grunt-jsduck": "^1.0.1",
 		"grunt-githooks": "^0.5.0",
 		"less": "^2.5.0",
-		"shelljs": "^0",
+		"shelljs": "~0.6",
 		"cksource-samples-framework": "^1.0.1"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "CKSource (http://cksource.com/)",
-	"license": "For licensing, see LICENSE.md or http://ckeditor.com/license.",
+	"license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
 	"bugs": "http://dev.ckeditor.com",
 	"homepage": "http://ckeditor.com",
 	"repository": {

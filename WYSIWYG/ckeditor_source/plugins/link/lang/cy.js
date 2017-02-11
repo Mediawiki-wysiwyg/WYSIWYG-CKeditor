@@ -1,5 +1,5 @@
-/*
-Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+﻿/*
+Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'link', 'cy', {
@@ -19,6 +19,8 @@ CKEDITOR.plugins.setLang( 'link', 'cy', {
 	anchorName: 'Gan Enw\'r Angor',
 	charset: 'Set Nodau\'r Adnodd Cysylltiedig',
 	cssClasses: 'Dosbarthiadau Dalen Arddull',
+	download: 'Force Download', // MISSING
+	displayText: 'Display Text', // MISSING
 	emailAddress: 'Cyfeiriad E-Bost',
 	emailBody: 'Corff y Neges',
 	emailSubject: 'Testun y Neges',

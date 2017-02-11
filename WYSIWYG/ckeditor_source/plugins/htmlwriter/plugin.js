@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -289,6 +289,7 @@ CKEDITOR.htmlWriter = CKEDITOR.tools.createClass( {
 			this._.indentation = '';
 			this._.afterCloser = 0;
 			this._.inPre = 0;
+			this._.needsSpace = 0;
 		},
 
 		/**

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -8,17 +8,19 @@
 // Mock the real XMLHttpRequest so the upload test may work locally.
 
 window.FormData = function() {
-	var total, filename;
+	var total, uploadedFilename;
 	return {
 		append: function( name, file, filename ) {
-			total = file.size;
-			filename = filename;
+			if ( name == 'upload' ) {
+				total = file.size;
+				uploadedFilename = filename;
+			}
 		},
 		getTotal: function() {
 			return total;
 		},
 		getFileName: function() {
-			return filename;
+			return uploadedFilename;
 		}
 	};
 };

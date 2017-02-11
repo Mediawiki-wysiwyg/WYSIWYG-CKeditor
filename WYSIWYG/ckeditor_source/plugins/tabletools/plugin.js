@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -661,7 +661,18 @@
 
 			addCmd( 'cellProperties', new CKEDITOR.dialogCommand( 'cellProperties', createDef( {
 				allowedContent: 'td th{width,height,border-color,background-color,white-space,vertical-align,text-align}[colspan,rowspan]',
-				requiredContent: 'table'
+				requiredContent: 'table',
+				contentTransformations: [
+					[ {
+						element: 'td',
+						left: function( element ) {
+							return element.styles.background && element.styles.background.match( /^(#[a-fA-F0-9]{3,6}|rgb\([\d, ]+\)|\w+)$/ );
+						},
+						right: function( element ) {
+							element.styles[ 'background-color' ] = element.styles.background;
+						}
+					} ]
+				]
 			} ) ) );
 			CKEDITOR.dialog.add( 'cellProperties', this.path + 'dialogs/tableCell.js' );
 

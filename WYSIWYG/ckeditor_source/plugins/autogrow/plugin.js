@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -82,7 +82,10 @@
 		editor.on( 'contentDom', refreshCache );
 
 		refreshCache();
-		editor.config.autoGrow_onStartup && editor.execCommand( 'autogrow' );
+
+		if ( editor.config.autoGrow_onStartup && editor.editable().isVisible() ) {
+			editor.execCommand( 'autogrow' );
+		}
 
 		function refreshCache() {
 			doc = editor.document;

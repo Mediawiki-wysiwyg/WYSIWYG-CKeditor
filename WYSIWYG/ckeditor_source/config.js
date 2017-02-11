@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -82,7 +82,7 @@ CKEDITOR.editorConfig = function( config )
 	
 	config.allowedContent = true; //14.07.15 RL Disable ACF
 
-	// %REMOVE_START%	
+	// %REMOVE_START%
 	// 25.10.15 RL: Source mode requires all plugins to be listed here in order to get toolbar, editor area etc. on screen. %REMOVE_LINE%
 	config.plugins =
 		'about,' +
@@ -93,6 +93,7 @@ CKEDITOR.editorConfig = function( config )
 		'clipboard,' +
 		'colorbutton,' +
 		'colordialog,' +
+		'copyformatting,' +
 		'contextmenu,' +
 		'dialogadvtab,' +
 		'div,' +

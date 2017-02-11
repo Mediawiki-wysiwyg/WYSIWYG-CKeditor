@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -368,13 +368,36 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 			range.setEndAfter( parent );
 
 			// Extract it.
-			var docFrag = range.extractContents( false, cloneId || false );
+			var docFrag = range.extractContents( false, cloneId || false ),
+				tmpElement,
+				current;
 
 			// Move the element outside the broken element.
 			range.insertNode( this.remove() );
 
-			// Re-insert the extracted piece after the element.
-			docFrag.insertAfterNode( this );
+			// In case of Internet Explorer, we must check if there is no background-color
+			// added to the element. In such case, we have to overwrite it to prevent "switching it off"
+			// by a browser (#14667).
+			if ( CKEDITOR.env.ie && !CKEDITOR.env.edge ) {
+				tmpElement = new CKEDITOR.dom.element( 'div' );
+
+				while ( current = docFrag.getFirst() ) {
+					if ( current.$.style.backgroundColor ) {
+						// This is a necessary hack to make sure that IE will track backgroundColor CSS property, see
+						// http://dev.ckeditor.com/ticket/14667#comment:8 for more details.
+						current.$.style.backgroundColor = current.$.style.backgroundColor;
+					}
+
+					tmpElement.append( current );
+				}
+
+				// Re-insert the extracted piece after the element.
+				tmpElement.insertAfter( this );
+				tmpElement.remove( true );
+			} else {
+				// Re-insert the extracted piece after the element.
+				docFrag.insertAfterNode( this );
+			}
 		},
 
 		/**
@@ -1468,7 +1491,8 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 				body = doc.getBody(),
 				quirks = doc.$.compatMode == 'BackCompat';
 
-			if ( document.documentElement.getBoundingClientRect ) {
+			if ( document.documentElement.getBoundingClientRect &&
+				( CKEDITOR.env.ie ? CKEDITOR.env.version !== 8 : true ) ) {
 				var box = this.$.getBoundingClientRect(),
 					$doc = doc.$,
 					$docElem = $doc.documentElement;
@@ -1650,6 +1674,16 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 			// calculated margin size.
 			function margin( element, side ) {
 				return parseInt( element.getComputedStyle( 'margin-' + side ) || 0, 10 ) || 0;
+			}
+
+			// [WebKit] Reset stored scrollTop value to not break scrollIntoView() method flow.
+			// Scrolling breaks when range.select() is used right after element.scrollIntoView(). (#14659)
+			if ( CKEDITOR.env.webkit ) {
+				var editor = this.getEditor( false );
+
+				if ( editor ) {
+					editor._.previousScrollTop = null;
+				}
 			}
 
 			var win = parent.getWindow();
@@ -1931,17 +1965,32 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		 *		CKEDITOR.replace( element );
 		 *		alert( element.getEditor().name ); // 'editor1'
 		 *
+		 * By default this method considers only original DOM elements upon which the editor
+		 * was created. Setting `optimized` parameter to `false` will consider editor editable
+		 * and its children.
+		 *
+		 * @param {Boolean} [optimized=true] If set to `false` it will scan every editor editable.
 		 * @returns {CKEDITOR.editor} An editor instance or null if nothing has been found.
 		 */
-		getEditor: function() {
+		getEditor: function( optimized ) {
 			var instances = CKEDITOR.instances,
-				name, instance;
+				name, instance, editable;
+
+			optimized = optimized || optimized === undefined;
 
 			for ( name in instances ) {
 				instance = instances[ name ];
 
 				if ( instance.element.equals( this ) && instance.elementMode != CKEDITOR.ELEMENT_MODE_APPENDTO )
 					return instance;
+
+				if ( !optimized ) {
+					editable = instance.editable();
+
+					if ( editable && ( editable.equals( this ) || editable.contains( this ) ) ) {
+						return instance;
+					}
+				}
 			}
 
 			return null;
@@ -2064,7 +2113,8 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 	}
 
 	function getContextualizedSelector( element, selector ) {
-		return '#' + element.$.id + ' ' + selector.split( /,\s*/ ).join( ', #' + element.$.id + ' ' );
+		var id = CKEDITOR.tools.escapeCss( element.$.id );
+		return '#' + id + ' ' + selector.split( /,\s*/ ).join( ', #' + id + ' ' );
 	}
 
 	var sides = {
@@ -2096,7 +2146,7 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 	function marginAndPaddingSize( type ) {
 		var adjustment = 0;
 		for ( var i = 0, len = sides[ type ].length; i < len; i++ )
-			adjustment += parseInt( this.getComputedStyle( sides[ type ][ i ] ) || 0, 10 ) || 0;
+			adjustment += parseFloat( this.getComputedStyle( sides[ type ][ i ] ) || 0, 10 ) || 0;
 		return adjustment;
 	}
 
