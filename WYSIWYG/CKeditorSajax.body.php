@@ -261,7 +261,7 @@ function wfSajaxSearchCategoryCKeditor(){
 		"AND tmpSelectCatPage.page_namespace =$ns ) ".
 		"LEFT JOIN ".$dbr->tableName('categorylinks')." AS tmpSelectCat2 ON tmpSelectCatPage.page_id = tmpSelectCat2.cl_from ".
 		"WHERE tmpSelectCat2.cl_from IS NULL ".
-		"GROUP BY tmpSelectCat1.cl_to";
+		"GROUP BY tmpSelectCat1.cl_to COLLATE utf8_unicode_ci";
 
 	$res = $dbr->query( $m_sql, __METHOD__ );
 
