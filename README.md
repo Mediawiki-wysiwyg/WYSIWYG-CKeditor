@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 10.12.17  Changed compatibility mode of IE from 9 to Edge. Version 1.5.6_0 [B551+10.12.2017].
+
 - 16.11.17  Alphabetical sorting of categories is not always correct, for example in French the letter "É" is not like "E", it is put to the end of the list. With this fix, it will correctly be sorted between "D" and "F".  Version 1.5.6_0 [B551+16.11.2017].
 
 - 07.04.17  Fixed version info of CKEditor 4.6.2 (revision 20af917). Version 1.5.6_0 [B551+09.02.2017].

@@ -56,7 +56,7 @@ class CKeditor_MediaWiki {
 
 		# Version of WYSIWYG and CKeditor:
 		# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+16.11.2017]');
+		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+10.12.2017]');
 		define('CKEDITOR_VERSION',       'CKEditor 4.6.2 (revision 20af917)');
 		
 		$dir = dirname( __FILE__ ) . '/';
@@ -236,7 +236,7 @@ class CKeditor_MediaWiki {
 		//04.11.14 RL: This will be the last place to define compatibility mode of browser.
 		//             Following definition will make it to be the first of all meta's and will
 		//             produce string: <META content="IE=9.0000" http-equiv="X-UA-Compatible">
-		$wgRequest->response()->header("X-UA-Compatible: IE=9"); //forces IE to render in IE9 compatible mode
+		$wgRequest->response()->header("X-UA-Compatible: IE=EDGE"); //forces IE to render in this compatibility mode //10.12.17 RL: 9=>Edge
 
         //var_dump($out->styles);
         $action = $wgRequest->getText( 'action' );
