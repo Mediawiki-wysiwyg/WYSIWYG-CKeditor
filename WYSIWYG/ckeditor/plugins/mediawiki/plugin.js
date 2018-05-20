@@ -2898,6 +2898,17 @@ CKEDITOR.customprocessor.prototype =
 								}
 							}
 							break;
+	
+						case 'div' :                             
+                            var eClassName = htmlNode.getAttribute('class');
+							if ( eClassName == "mw-parser-output" ){                               // MV1.30+ skip this div-tag..
+								// 19.05.18 RL M1.30+  T37247: Output from Parser::parse() is wrapped in a div with class="mw-parser-output" by default:
+								//             => <div class="mw-parser-output"> ... </div>
+								this._AppendChildNodes( editor, htmlNode, stringBuilder, prefix ); // ..but append rest inside of it
+								return;
+							}							
+							// break;  // all other div elements are processed as before, continue to default case.
+
 						default :
                             this._AppendTextNode( editor, htmlNode, stringBuilder, sNodeName, prefix ); //this.
 							break;
