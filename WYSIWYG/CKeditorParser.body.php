@@ -542,7 +542,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	function strip( $text, $state, $stripcomments = false, $dontstrip = array() ) {
 		global $wgContLang, $wgUseTeX, $wgScriptPath, $wgVersion, $wgHooks, $wgExtensionFunctions;
 
-		wfProfileIn( __METHOD__ );
+		/*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 		$render = ( $this->mOutputType == OT_HTML );
 
 		$uniq_prefix = $this->mUniqPrefix;
@@ -589,7 +589,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 			list( $element, $content, $params, $tag ) = $data;
 			if( $render ) {
 				$tagName = strtolower( $element );
-				wfProfileIn( __METHOD__ . "-render-$tagName" );
+				/*wfProfileIn( __METHOD__ . "-render-$tagName" ); *21.06.18 RL*/
 				switch( $tagName ) {
 					case 'pre':
 						// Keep original data, replace all inner tags to avoid further interpretation
@@ -701,7 +701,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 						}
 					******/	
 				}
-				wfProfileOut( __METHOD__ . "-render-$tagName" );
+				/*wfProfileOut( __METHOD__ . "-render-$tagName" ); *21.06.18 RL*/
 			} else {
 				// Just stripping tags; keep the source
 				$output = $tag;
@@ -732,7 +732,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 		}
 
 		$this->fck_matches = $matches;
-		wfProfileOut( __METHOD__ );
+		/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 		return $text;
 	}
 
@@ -744,7 +744,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 * @return string
 	 */
 	private function fck_replaceHTMLcomments( $text ) {
-		wfProfileIn( __METHOD__ );
+		/*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 		while( ( $start = strpos( $text, '<!--' ) ) !== false ) {
 			$end = strpos( $text, '-->', $start + 4 );
 			if( $end === false ) {
@@ -775,7 +775,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 				$text = substr_replace( $text, $replacement, $start, $end - $start );
 			}
 		}
-		wfProfileOut( __METHOD__ );
+		/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 
 		return $text;
 	}
@@ -1665,7 +1665,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 	 */
 	// 14.01.17 RL MW1.28 Copied from includes/parser/BlockLevelPass.php and customized based on earlier version of wysiwyg
 	function doBlockLevels( $text, $lineStart ) {
-		wfProfileIn( __METHOD__ );
+		/*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 		
 		//$text = $this->text;  // 14.01.17 RL MW1.28
 		
@@ -1779,7 +1779,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 
 			# If we have no prefixes, go to paragraph mode.
 			if ( 0 == $prefixLength ) {
-				wfProfileIn( __METHOD__ .  '-paragraph' );
+				/*wfProfileIn( __METHOD__ .  '-paragraph' ); *21.06.18 RL*/
 				# No prefix (not in list)--go to paragraph mode
 				# @todo consider using a stack for nestable elements like span, table and div
 				$openMatch = preg_match(
@@ -1853,7 +1853,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 						}
 					}
 				}
-				wfProfileOut( __METHOD__ . '-paragraph' );
+				/*wfProfileOut( __METHOD__ . '-paragraph' ); *21.06.18 RL*/
 			}
 			# somewhere above we forget to get out of pre block (bug 785)
 			if ( $preCloseMatch && $this->inPre ) {
@@ -1878,7 +1878,7 @@ class CKeditorParser extends CKeditorParserWrapper {
 			$this->lastSection = '';
 		}
 
-		wfProfileOut( __METHOD__ );
+		/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 		
 		//error_log(sprintf("DEBUG doBlocklevels END output:%s",$output));
 		

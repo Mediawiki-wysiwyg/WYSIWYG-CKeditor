@@ -318,11 +318,11 @@ class CKeditorLinker {
       }
 
       function makeKnownLinkObj( $nt, $text = '', $query = '', $trail = '', $prefix = '' , $aprops = '', $style = '' ) {
-              wfProfileIn( __METHOD__ );
+              /*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 
               $args = '';
               if ( !is_object( $nt ) ) {
-                      wfProfileOut( __METHOD__ );
+                      /*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
                       return $text;
               }
 
@@ -365,7 +365,7 @@ class CKeditorLinker {
               }
 
               $r = "<a {$args}href=\"{$u}\">{$title}</a>{$trail}";
-              wfProfileOut( __METHOD__ );
+              /*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
               return $r;
       }
 
@@ -377,7 +377,7 @@ class CKeditorLinker {
               }
               $args = '';
 
-              wfProfileIn( __METHOD__ );
+              /*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 
               $u = $nt->getFullText();
               $u = rawurlencode($u);  // Fix for links containing "
@@ -403,7 +403,7 @@ class CKeditorLinker {
               }
               $s = "<a {$args}href=\"{$u}\">{$title}</a>{$trail}";
 
-              wfProfileOut( __METHOD__ );
+              /*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
               return $s;
       }
 
@@ -476,7 +476,7 @@ class CKeditorLinker {
                       }
                       $t = "<a {$args}href=\"{$u}\"{$style}>{$text}</a>";
 
-                      wfProfileOut( __METHOD__ );
+                      /*wfProfileOut( __METHOD__ );  *21.06.18 RL*/
                       $ret = $t;
                       return false;
               }
@@ -489,7 +489,7 @@ class CKeditorLinker {
               if ( in_array('known', $options) ) {
                       $args = '';
                       if ( !is_object( $target ) ) {
-                              wfProfileOut( __METHOD__ );
+                              /*wfProfileOut( __METHOD__ );  *21.06.18 RL*/
                               return $text;
                       }
 
@@ -528,7 +528,7 @@ class CKeditorLinker {
                       }
 
                       $r = "<a {$args}href=\"{$u}\">{$text}</a>";
-                      wfProfileOut( __METHOD__ );
+                      /*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 
                       $ret = $r;
 
@@ -543,7 +543,7 @@ class CKeditorLinker {
                       }
                       $args = '';
 
-                      wfProfileIn( __METHOD__ );
+                      /*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 
                       $u = $target->getFullText();
                       $u = rawurlencode($u);  // Fix for links containing "
@@ -565,7 +565,7 @@ class CKeditorLinker {
                       }
                       $s = "<a {$args}href=\"{$u}\">{$text}</a>";
 
-                      wfProfileOut( __METHOD__ );
+                      /*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
                       $ret = $s;
                       return false;
               }

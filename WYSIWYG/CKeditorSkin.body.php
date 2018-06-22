@@ -214,7 +214,7 @@ class CKeditorSkin {
 	}
 
 	function makeLinkObj( $nt, $text= '', $query = '', $trail = '', $prefix = '' ) {
-		wfProfileIn( __METHOD__ );
+		/*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 		if ( $nt->isExternal() ) {
 			$args = '';
 			$u = $nt->getFullURL();
@@ -238,7 +238,7 @@ class CKeditorSkin {
 			}
 			$t = "<a {$args}href=\"{$u}\"{$style}>{$text}{$inside}</a>";
 
-			wfProfileOut( __METHOD__ );
+			/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 			return $t;
 		}
 
@@ -253,11 +253,11 @@ class CKeditorSkin {
 	}
 
 	function makeKnownLinkObj( $nt, $text = '', $query = '', $trail = '', $prefix = '' , $aprops = '', $style = '' ) {
-		wfProfileIn( __METHOD__ );
+		/*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 
 		$args = '';
 		if ( !is_object( $nt ) ) {
-			wfProfileOut( __METHOD__ );
+			/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 			return $text;
 		}
 
@@ -299,7 +299,7 @@ class CKeditorSkin {
 		}
 
 		$r = "<a {$args}href=\"{$u}\">{$title}</a>{$trail}";
-		wfProfileOut( __METHOD__ );
+		/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 		return $r;
 	}
 
@@ -311,7 +311,7 @@ class CKeditorSkin {
 		}
 		$args = '';
 
-		wfProfileIn( __METHOD__ );
+		/*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 
 		$u = $nt->getFullText();
 		//#Updating links tables -> #Updating_links_tables
@@ -335,7 +335,7 @@ class CKeditorSkin {
 		}
 		$s = "<a {$args}href=\"{$u}\">{$title}</a>{$trail}";
 
-		wfProfileOut( __METHOD__ );
+		/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 		return $s;
 	}
 

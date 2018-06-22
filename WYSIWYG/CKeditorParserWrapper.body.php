@@ -38,7 +38,7 @@ class CKeditorParserWrapper extends Parser {
 	 *	'max' => 3,	 # Maximum parenthesis count in cb
 	 */
 	/*private*/ function replace_callback( $text, $callbacks ) {
-		wfProfileIn( __METHOD__ );
+		/*wfProfileIn( __METHOD__ ); *21.06.18 RL*/
 		$openingBraceStack = array();	# this array will hold a stack of parentheses which are not closed yet
 		$lastOpeningBrace = -1;			# last not closed parentheses
 
@@ -196,7 +196,7 @@ class CKeditorParserWrapper extends Parser {
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
+		/*wfProfileOut( __METHOD__ ); *21.06.18 RL*/
 		return $text;
 	}
 }
