@@ -44,7 +44,7 @@ if ( function_exists( 'wfLoadExtension' ) ) { // MW>=1.25 // 02.07.16 RL->
 
 	# Version of WYSIWYG and CKeditor:
 	# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-	define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+19.05.2018]');
+	define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+22.06.2018]');
 	define('CKEDITOR_VERSION',       'CKEditor 4.6.2 (revision 20af917)');
 
 	define('INSTALL_MSG', 'To install WYSIWYG extension, put the following line in LocalSettings.php: require_once( "\$IP/extensions/WYSIWYG/WYSIWYG.php"');
@@ -163,7 +163,7 @@ if ( function_exists( 'wfLoadExtension' ) ) { // MW>=1.25 // 02.07.16 RL->
 	$wgDefaultUserOptions['riched_use_popup'] = 0; // 06.03.15 Varlin 1=>0. Popup is unsupported/untested and will most likely fail with this branch of wysiwyg.
 	$wgDefaultUserOptions['riched_toggle_remember_state'] = 1;
 	$wgDefaultUserOptions['riched_link_paste_text'] = 1; // 08.09.14 RL
-	
+
 	// when SMWHalo is used then the QueryInterface opens in an Iframe
 	// also add setting that the Semantic toobar is loaded by default
 	if (defined('SMW_HALO_VERSION')) {

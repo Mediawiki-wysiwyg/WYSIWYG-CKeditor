@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 22.06.18  Issue 3/3 of MW1.31+ (one to go): Changed return value from $out to true in onBeforePageDisplay. Version 1.5.6_0 [B551+22.06.2018].
+
 - 21.06.18  Issue 2/3 of MW1.31+ (two to go): The global functions wfProfileIn and wfProfileOut, deprecated in 1.25, have been removed. Use StartProfiler.php if needed. Version 1.5.6_0 [B551+21.06.2018].
 
 - 19.05.18  For MW1.30+ skip div- tag with class mw-parser-output (T37247: Output from Parser::parse()). Updated WikiEditor 0.5.1 from MW1.30. Version 1.5.6_0 [B551+19.05.2018].

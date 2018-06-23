@@ -56,7 +56,7 @@ class CKeditor_MediaWiki {
 
 		# Version of WYSIWYG and CKeditor:
 		# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+19.05.2018]');
+		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+22.06.2018]');
 		define('CKEDITOR_VERSION',       'CKEditor 4.6.2 (revision 20af917)');
 		
 		$dir = dirname( __FILE__ ) . '/';
@@ -240,7 +240,7 @@ class CKeditor_MediaWiki {
 
         //var_dump($out->styles);
         $action = $wgRequest->getText( 'action' );
-        if (! in_array($action, array('edit', 'submit'))) return $out;
+        if (! in_array($action, array('edit', 'submit'))) return true; /*Was $out; <=MW1.30 *22.06.18 RL*/
         $inlineStyles = array();
 
         if(!empty($out->styles) and is_array($out->styles)) { //01.09.15 RL (by fullduplex1)
@@ -277,7 +277,7 @@ class CKeditor_MediaWiki {
 		//             This will produce string: <meta http-equiv="X-UA-Compatible" content="IE=9" />
         //$out->addMeta( 'http:X-UA-Compatible', 'IE=9' ); //04.11.14 RL
 
-        return $out;
+        return true; /*Was $out; <=MW1.30 *22.06.18 RL*/
     }
 
 	public function onCustomEditor( $article, $user ) {
