@@ -44,7 +44,7 @@ if ( function_exists( 'wfLoadExtension' ) ) { // MW>=1.25 // 02.07.16 RL->
 
 	# Version of WYSIWYG and CKeditor:
 	# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-	define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551+22.06.2018]');
+	define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551++23.06.2018]');
 	define('CKEDITOR_VERSION',       'CKEditor 4.6.2 (revision 20af917)');
 
 	define('INSTALL_MSG', 'To install WYSIWYG extension, put the following line in LocalSettings.php: require_once( "\$IP/extensions/WYSIWYG/WYSIWYG.php"');
@@ -157,13 +157,25 @@ if ( function_exists( 'wfLoadExtension' ) ) { // MW>=1.25 // 02.07.16 RL->
 	$wgHooks['EditPageBeforeEditButtons'][]         = 'CKeditor_MediaWiki::onEditPageBeforeEditButtons'; // 13.04.14 RL
 	
 	// Defaults for new preferences options
+	/***** >=MV1.30 complains that extension may not set up $wgDefaultUserOptions, 
+					it looks lke it has to be done only in LocalSettings.php
+					so also following in extension.json may not be used either:
+					"DefaultUserOptions" : {
+						"riched_use_toggle"            : 1,
+						"riched_start_disabled"        : 0,
+						"riched_use_popup"             : 0,
+						"riched_toggle_remember_state" : 1,
+						"riched_link_paste_text"       : 1
+					}
+	 *****
 	global $wgDefaultUserOptions;
-	$wgDefaultUserOptions['riched_use_toggle'] = 1;
-	$wgDefaultUserOptions['riched_start_disabled'] = 0;
-	$wgDefaultUserOptions['riched_use_popup'] = 0; // 06.03.15 Varlin 1=>0. Popup is unsupported/untested and will most likely fail with this branch of wysiwyg.
+	$wgDefaultUserOptions['riched_use_toggle']            = 1;
+	$wgDefaultUserOptions['riched_start_disabled']        = 0;
+	$wgDefaultUserOptions['riched_use_popup']             = 0; // 06.03.15 Varlin 1=>0. Popup is unsupported/untested and will most likely fail with this branch of wysiwyg.
 	$wgDefaultUserOptions['riched_toggle_remember_state'] = 1;
-	$wgDefaultUserOptions['riched_link_paste_text'] = 1; // 08.09.14 RL
-
+	$wgDefaultUserOptions['riched_link_paste_text']       = 1; // 08.09.14 RL
+    ******/
+	
 	// when SMWHalo is used then the QueryInterface opens in an Iframe
 	// also add setting that the Semantic toobar is loaded by default
 	if (defined('SMW_HALO_VERSION')) {

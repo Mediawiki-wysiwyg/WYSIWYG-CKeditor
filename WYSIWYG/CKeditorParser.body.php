@@ -1050,7 +1050,7 @@ class CKeditorParser extends CKeditorParserWrapper {
      */
     function fck_replaceCkmarkupInLink( $matches ) { //26.11.14 RL With external links
 
-		//error_log(sprintf("DEBUG fck_replaceCkmarkupInLink: Matches01 matches:%s",print_r($matches,true)));
+		// error_log(sprintf("DEBUG fck_replaceCkmarkupInLink: Matches01 matches:%s",print_r($matches,true)));
 
 		// $matches:
 		// [text] => [http://www.mediawiki.org This is | external link]
@@ -1061,25 +1061,27 @@ class CKeditorParser extends CKeditorParserWrapper {
 		//     )
 		// [lineStart] => 1
 		
-		$title = $part = '';                                   // 30.04.16 RL
-		$part = '';                                            // 15.08.16 RL
+		$title = $part = '';                                       // 30.04.16 RL
+		$part = '';                                                // 15.08.16 RL
         $p = strpos($matches['title'], ' ');
         if ($p === false) return $matches['text'];
         $target = substr($matches['title'], 0, $p);
         $title = substr($matches['title'], $p + 1);
 
-		for ($i= 0; $i<count($matches['parts']); $i++) {       // 30.04.16 RL->
-			$part = $matches['parts'][$i];                     // 15.08.16 RL->
-			
-			// Escape possible link characters [[, ]], [ and ] inside captions of images, this makes
-			// links invisible to MW, caption may still contain html or wikitext formats
-			if ( (substr($target, 0, 5) === 'File:') && (strpos($part, '[') !== false) ) {
-				$part = $this->EscapeIntExtLinkChars($part);   // For RestoreIntExtLinkChars
-			}   		                                       // 15.08.16 RL<-
-			
-			if (strlen( $title ) > 0) $title = $title . '|';
-			$title = $title . $part; // $matches['parts'][$i]; // 15.08.16 RL
-		}                                                      // 30.04.16 RL<-
+		if ( $matches['parts'] != null ) {                         // 23.06.18 RL
+			for ($i= 0; $i<count($matches['parts']); $i++) {       // 30.04.16 RL->
+				$part = $matches['parts'][$i];                     // 15.08.16 RL->
+				
+				// Escape possible link characters [[, ]], [ and ] inside captions of images, this makes
+				// links invisible to MW, caption may still contain html or wikitext formats
+				if ( (substr($target, 0, 5) === 'File:') && (strpos($part, '[') !== false) ) {
+					$part = $this->EscapeIntExtLinkChars($part);   // For RestoreIntExtLinkChars
+				}   		                                       // 15.08.16 RL<-
+				
+				if (strlen( $title ) > 0) $title = $title . '|';
+				$title = $title . $part; // $matches['parts'][$i]; // 15.08.16 RL
+			}                                                      // 30.04.16 RL<-
+		}
 		
         if (!preg_match('/Fckmw\d+fckmw/', $title) &&
             !preg_match('/Fckmw\d+fckmw/', $target)) {
@@ -1098,7 +1100,7 @@ class CKeditorParser extends CKeditorParserWrapper {
      */	
     function fck_replaceCkmarkupInInternalLink( $matches ) { //26.11.14 RL With internal links
 
-		//error_log(sprintf("DEBUG fck_replaceCkmarkupInInternalLink Matches01 matches:%s", print_r($matches,true)));
+		// error_log(sprintf("DEBUG fck_replaceCkmarkupInInternalLink Matches01 matches:%s", print_r($matches,true)));
 
 		// $matches:
 		// [text] => [[Testpage3| This is link to | test page 3]]
@@ -1113,18 +1115,22 @@ class CKeditorParser extends CKeditorParserWrapper {
 		// Get link details...
 		$target = $matches['title'];		
 		$title = '';
-		$part = '';                                            // 15.08.16 RL
-		for ($i= 0; $i<count($matches['parts']); $i++) {
-			$part = $matches['parts'][$i];                     // 15.08.16 RL->
-
-			// Escape possible link characters [[, ]], [ and ] inside captions of images, this makes
-			// links invisible to MW, caption may still contain html or wikitext formats			
-			if ( (substr($target, 0, 5) === 'File:') && (strpos($part, '[') !== false) ) {
-				$part = $this->EscapeIntExtLinkChars($part);   // For RestoreIntExtLinkChars
-			}                                                  // 15.08.16 RL<-
-
-			if (strlen( $title ) > 0) $title = $title . '|';
-			$title = $title . $part; // $matches['parts'][$i]; // 15.08.16 RL			
+		$part = '';                                                // 15.08.16 RL
+		if ( $matches['parts'] != null ) {                         // 23.06.18 RL
+			for ($i= 0; $i<count($matches['parts']); $i++) {
+				$part = $matches['parts'][$i];                     // 15.08.16 RL->
+				
+				// error_log(sprintf("DEBUG fck_replaceCkmarkupInInternalLink Matches02 part:%s", print_r($part,true)));
+				
+				// Escape possible link characters [[, ]], [ and ] inside captions of images, this makes
+				// links invisible to MW, caption may still contain html or wikitext formats			
+				if ( (substr($target, 0, 5) === 'File:') && (strpos($part, '[') !== false) ) {
+					$part = $this->EscapeIntExtLinkChars($part);   // For RestoreIntExtLinkChars
+				}                                                  // 15.08.16 RL<-
+	
+				if (strlen( $title ) > 0) $title = $title . '|';
+				$title = $title . $part; // $matches['parts'][$i]; // 15.08.16 RL			
+			}
 		}
 		
 		//if ( !preg_match('/Fckmw\d+fckmw/', $title) &&       // Link does not contain encoded FckmwXXfckmw elements..

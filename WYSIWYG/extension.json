@@ -2,7 +2,7 @@
 	"@note"  : "---                                                                 ",
 	"@note"  : "--- Registering Wysiwyg- extension using wfLoadExtension.           ",
 	"@note"  : "---                                                                 ",
-	"version": "Wysiwyg 1.5.6_0 [B551+22.06.2018], CKEditor 4.6.2 (revision 20af917)",
+	"version": "Wysiwyg 1.5.6_0 [B551++23.06.2018], CKEditor 4.6.2 (revision 20af917)",
 
 	"@note"  : "---                                                                 ",
 	"name"   : "WYSIWYG editor",
@@ -67,16 +67,7 @@
 		"CKEditorUrlparamMode"        : false,
 		
 		"@note": "--- Hide toolbar buttons when some extensions are not installed (default show buttons).",
-		"CKEditorHideDisabledTbutton" : false,
-		
-		"@note": "--- Set default values of some user variables.",
-		"DefaultUserOptions" : {
-			"riched_use_toggle"            : 1,
-			"riched_start_disabled"        : 0,
-			"riched_use_popup"             : 0,
-			"riched_toggle_remember_state" : 1,
-			"riched_link_paste_text"       : 1
-		}
+		"CKEditorHideDisabledTbutton" : false
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "",

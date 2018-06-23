@@ -35,6 +35,10 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 23.06.18  Fixed error which occurred with external or internal links whithout title. Version 1.5.6_0 [B551++23.06.2018].
+
+- 23.06.18  Issue 1/3 of MW1.31+ (all fixed): Parameters of $wgDefaultUserOptions must be set up in LocalSettings.php. Version 1.5.6_0 [B551+23.06.2018].
+
 - 22.06.18  Issue 3/3 of MW1.31+ (one to go): Changed return value from $out to true in onBeforePageDisplay. Version 1.5.6_0 [B551+22.06.2018].
 
 - 21.06.18  Issue 2/3 of MW1.31+ (two to go): The global functions wfProfileIn and wfProfileOut, deprecated in 1.25, have been removed. Use StartProfiler.php if needed. Version 1.5.6_0 [B551+21.06.2018].
