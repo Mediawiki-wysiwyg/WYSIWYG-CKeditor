@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 23.06.18  All value of wgDefaultUserOptions must be defined in LocalSetting.php. Updated example of settings for LocalSetting.php in readme.md. Version 1.5.6_0 [B551++23.06.2018]
+
 - 23.06.18  Fixed error which occurred with external or internal links whithout title. Version 1.5.6_0 [B551++23.06.2018].
 
 - 23.06.18  Issue 1/3 of MW1.31+ (all fixed): Parameters of $wgDefaultUserOptions must be set up in LocalSettings.php. Version 1.5.6_0 [B551+23.06.2018].
@@ -409,11 +411,12 @@ More translations are wellcomed (files mediawiki/plugin.js, mwtemplate/plugin.js
 ----------------
 **Compatible MediaWiki environment:**
 
-- MediaWiki: 1.21, 1.22, 1.23, 1.24, 1.25, 1.26, 1.27.
+- MediaWiki: 1.21 - 1.31.
 - SemanticForms: 2.7
 - SyntaxHighlight GeSHi: version must be >= rev:50696
-- PHP 5.5.6,  MySQL 5.6.14, Apache 2.4.7  (=XAMPP for Linux 1.8.3-2)
-- PHP 5.5.15, MySQL 5.6.20, Apache 2.4.10 (=XAMPP for Linux 1.8.3-5)
+- PHP 5.5.6,  MySQL   5.6.14,  Apache 2.4.7  (=XAMPP for Linux 1.8.3-2)
+- PHP 5.5.15, MySQL   5.6.20,  Apache 2.4.10 (=XAMPP for Linux 1.8.3-5)
+- PHP 7.2.5,  MariaDB 10.1.32, Apache 2.4.33 (=XAMPP for Linux 7.2.6-0)
 
 -----------------
 **File: LocalSettings.php**
@@ -447,11 +450,13 @@ Make sure your LocalSettings.php has been set up properly, certain name spaces s
     # $wgGroupPermissions['*']['wysiwyg'] = true;    //Everyone is allowed to use wysiwyg
     $wgGroupPermissions['*']['wysiwyg'] = true;
 
-    $wgDefaultUserOptions['cke_show'] = 'richeditor';    //Enable CKEditor
-    $wgDefaultUserOptions['riched_use_toggle'] = false;  //Editor can toggle CKEditor/WikiText
-    $wgDefaultUserOptions['riched_start_disabled'] = false; //Important!!! else bug...
-    $wgDefaultUserOptions['riched_toggle_remember_state'] = true; //working/bug?
-    $wgDefaultUserOptions['riched_use_popup'] = false;   //Deprecated
+    #Default settings
+    $wgDefaultUserOptions['riched_disable']               = false;         //true = editor disabled
+    $wgDefaultUserOptions['riched_start_disabled']        = false;         //Important!!! else bug...
+    $wgDefaultUserOptions['riched_use_toggle']            = true;          //Editor can toggle CKEditor/WikiText
+    $wgDefaultUserOptions['riched_use_popup']             = false;         //Deprecated
+    $wgDefaultUserOptions['riched_toggle_remember_state'] = true;
+    $wgDefaultUserOptions['riched_link_paste_text']       = true;
 
     ##These are not compatible with WYSIWYG
     $wgFCKEditorExcludedNamespaces[] = NS_MEDIAWIKI;
@@ -555,15 +560,13 @@ Make sure that settings in your Preferences=>Editing are valid.
 About browser compatibility
 ===
 
-**About versions of IE:**
-- IE versions 8 or below may not fully work with this bundle.
-
-- With IE9, IE10, IE11 browsers, DO NOT ENABLE browsers compatibility settings for your wiki site, if you do have them enabled then wysiwyg will not work.
-
 **Browser versions known to work with this bundle of WYSIWYG:**
 - IE11
-- FireFox (26.x - 48.x)
-- Chrome  (v.32.x, v.52.x)
+- FireFox (26.x - 60.x)
+- Chrome  (32.x - 67.x)
 
-- Recommended browser: FireFox
+
+**About versions of IE:**
+- IE versions 8 or below may not fully work with this bundle.
+- With IE9, IE10, IE11 browsers, DO NOT ENABLE browsers compatibility settings for your wiki site, if you do have them enabled then wysiwyg will not work.
 
