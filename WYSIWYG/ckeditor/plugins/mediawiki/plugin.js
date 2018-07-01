@@ -380,7 +380,7 @@ CKEDITOR.plugins.add( 'mediawiki',
         };
         //28.03.14 RL<-
 
-        //03.01.14 RL->For references (citation)
+        //03.01.14 RL->For references
 		var referencesCommand =
     	{
         	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
@@ -413,7 +413,7 @@ CKEDITOR.plugins.add( 'mediawiki',
         };
         //03.01.14 RL<-
 
-        //08.07.16 RL->For references (citation)
+        //08.07.16 RL->For references
 		var referencesUpdCommand =
     	{
         	canUndo : false,    // The undo snapshot will be handled by 'insertElement'.
@@ -452,8 +452,19 @@ CKEDITOR.plugins.add( 'mediawiki',
                         style.apply( editor.document ); 
 				}		
             },
-			startDisabled: true // 06.03.15 Varlin
+			startDisabled: true     //06.03.15 Varlin
         }; 
+		
+		var anglequotesCommand =    //01.07.18 Varlin: Added formatting "italic + angle quotation marks + space" to selected text
+		{
+			exec : function( editor ) {
+				var selection;
+				selection = editor.getSelection().getSelectedText();
+				if ( selection && selection != '' ) { 
+					editor.insertHtml( "<i>&laquo;&nbsp;" + selection + "&nbsp;&raquo;</i>" );  //01.07.18 RL: «=&laquo; »=&raquo; space=&nbsp;
+				} 
+			}
+		};
 		
         // language logic for additional messages
         var MWpluginLang = []
@@ -513,7 +524,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			defineTargetTitle  : 'Link target',
             chooseTarget       : 'Choose an existing wikipage for the link target:',
 			chooseTargetTitle  : 'Page list',
-			// references (citation)
+			// references
 			referenceTitle 	   : 'Add/edit reference (citation)',                //03.01.14 RL
 			refDefTxt  		   : 'Reference text',                               //03.01.14 RL
 			refDefName         : 'Name of reference (if same text is referenced at multible places on page, if not, leave empty):',
@@ -535,7 +546,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			speSpecialTexts    : 'Special Texts',                                //Special Texts 
 			speOperation       : 'Select type / operation',                      //Select type / operation
 			speRemoveTag       : 'Remove tag',                                   //Remove tag
-			speAttrValue       : 'Value of attribute'                            //Value of attribute 
+			speAttrValue       : 'Value of attribute',                           //Value of attribute
+			formAngleQuotes    : 'Add angle quotation marks'					 //01.07.18 Varlin: Added angle quotation marks
 		}
 
         MWpluginLang['fi'] = {  //07.01.14 RL->
@@ -594,29 +606,30 @@ CKEDITOR.plugins.add( 'mediawiki',
 			defineTargetTitle  : 'Linkin kohde',                               //'Link target'
             chooseTarget       : 'Valitse wikin sivu linkin kohteeksi',          //Choose an existing wikipage for the link target:',
 			chooseTargetTitle  : 'Sivut',                                      //'Page list'
-			// references (citation)
+			// references
 			referenceTitle 	   : 'Lisää viite / muuta viitettä',                 //'Add/edit reference (citation)',
 			refDefTxt  		   : 'Viitteen teksti',                              //'Reference text',
 			refDefName         : 'Viitteen nimi (anna nimi vain jos samaan viitetekstiin viitataan useasta paikasta):', //'Name of reference'
 			ref				   : 'Viite',                                        //'Add a reference' for button of menu
 			references		   : 'Lista viitteistä',                             //'Add references block' for button of menu
-            references_upd	   : 'Päivitä viitteet',                            //08.07.16 RL
+            references_upd	   : 'Päivitä viitteet',                             //08.07.16 RL
 			references_noedit  : 'Älä muuta viitteitä tässä kohdassa.',          //08.07.16 RL
 			// category
 			categorybtn    	   : 'Luo uusi luokka',                           //'Create new category' //20.01.15 RL
-			categoryTitle      : 'Sivun luokkien määritys',                 //'Add/edit categories' //20.01.15 RL 
+			categoryTitle      : 'Sivun luokkien määritys',                   //'Add/edit categories' //20.01.15 RL 
 			category           : 'Etsi / luo uusi luokka (tyhjä kenttä listaa kaikki luokat):', //'Type text to search for or create a new category' //20.01.15 RL
-            categorySelected   : 'Sivu lisätään luokkiin:',                //'Selected categories for the page:'  //20.01.15 RL
+            categorySelected   : 'Sivu lisätään luokkiin:',                   //'Selected categories for the page:'  //20.01.15 RL
             selfromCategoryList: 'Valitse luokka listalta:',                  //'Select category for the page //20.01.15 RL
-			categorySort       : 'Lajitteluavain luokan sisällä:',          //'Sortkey within category'
-			noCategoryFound    : 'Luokkaa ei löydy, se on uusi',             //'no category found'			     //09.01.14 RL
-            oneCategoryFound   : 'Yksi luokka löytyi',                       //'one category found',            //09.01.14 RL
+			categorySort       : 'Lajitteluavain luokan sisällä:',            //'Sortkey within category'
+			noCategoryFound    : 'Luokkaa ei löydy, se on uusi',              //'no category found'			     //09.01.14 RL
+            oneCategoryFound   : 'Yksi luokka löytyi',                        //'one category found',            //09.01.14 RL
             manyCategoryFound  : ' kpl',                                      //' categories found',			 //09.01.14 RL
 			mouseOverUnknownObj: 'Tuplaklikkaa editoidaksesi arvoa',          //'Double-click to edit the value' //31.01.15 RL
 			speSpecialTexts    : 'Tekstin tyyppi',                            //Special Texts 
 			speOperation       : 'Valitse tyyppi / toiminta',                 //Select type / operation
 			speRemoveTag       : 'Poista ohjaus',                             //Remove tag
-			speAttrValue       : 'Atribuutin arvo'                            //Value of attribute   
+			speAttrValue       : 'Atribuutin arvo',                           //Value of attribute
+			formAngleQuotes    : 'Lisää kulmalainausmerkit'                   //01.07.18 Varlin: Added angle quotation marks
 		} //07.01.14 RL<-
 
 	    MWpluginLang['fr'] = {
@@ -675,7 +688,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 			defineTargetTitle  : 'Cible du lien',
             chooseTarget       : 'Choisissez la page :',
 			chooseTargetTitle  : 'Liste de page',
-			// references (citation)
+			// references
 			referenceTitle 	   : 'Ajouter/modifier une référence',
 			refDefTxt    	   : 'Texte de la référence',
 			refDefName         : 'Nom de la référence :',
@@ -697,7 +710,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             speSpecialTexts    : 'Textes spéciaux',
 			speOperation       : 'Sélectionnez le type / opération',               //Select type / operation
 			speRemoveTag       : 'Retirer la commande',                            //Remove tag
-			speAttrValue       : 'Valeur des attributs'                     //Value of attribute 
+			speAttrValue       : 'Valeur des attributs',                           //Value of attribute
+			formAngleQuotes    : 'Ajouter des guillemets'                          //01.07.18 Varlin: Added angle quotation marks
 	    }
 
         MWpluginLang['de'] = {
@@ -756,14 +770,14 @@ CKEDITOR.plugins.add( 'mediawiki',
             defineTargetTitle   : 'Link-Ziel',
             chooseTarget        : 'Wähle eine existierende Wikiseite als Linkziel:',
             chooseTargetTitle   : 'Seitenliste',
-            // references (citation)
+            // references
             referenceTitle      : 'Referenz hinzufügen/bearbeiten',
             refDefTxt           : 'Text für Referenz',
             refDefName          : 'Name der Referenz',
             ref                 : 'Referenz hinzufügen',
             references          : 'Referenzblock hinzufügen',
 			references_upd	    : 'Referenz aktualisierung',                         //08.07.16 RL
-			references_noedit   : 'Ändern Sie nicht hier Referenzen.',                //08.07.16 RL
+			references_noedit   : 'Ändern Sie nicht hier Referenzen.',               //08.07.16 RL
             // category
             categorybtn         : 'Neue Kategorie erstellen',
             categoryTitle       : 'Kategorie hinzufügen/bearbeiten',
@@ -778,7 +792,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 			speSpecialTexts     : 'Spezialtexte',                                    //Special Texts 
 			speOperation        : 'Wählen die Art oder Tätigkeit',                   //Select type / operation
 			speRemoveTag        : 'Entfernen die Kontrolle',                         //Remove tag
-			speAttrValue        : 'Attribute, den Wert'                              //Value of attribute  			
+			speAttrValue        : 'Attribute, den Wert',                             //Value of attribute
+			formAngleQuotes     : 'Fügen Sie Winkelanfûhrungszeichen hinzu'	         //01.07.18 Varlin: Added angle quotation marks
         }
 
         // Define language for wysiwyg, editor.langCode is eq. to language of ckeditor
@@ -815,7 +830,7 @@ CKEDITOR.plugins.add( 'mediawiki',
         CKEDITOR.dialog.add( 'MWSpecialTags', this.path + 'dialogs/special.js' );
 
 		/*14.07.16 RL** Replaces by widgets refmarker and referencesmarker 
-		editor.addCommand(   'MWRef', new CKEDITOR.dialogCommand( 'MWRef' ) ); //03.01.14 RL-> For references (citation)
+		editor.addCommand(   'MWRef', new CKEDITOR.dialogCommand( 'MWRef' ) ); //03.01.14 RL-> For references
         CKEDITOR.dialog.add( 'MWRef', this.path + 'dialogs/ref.js' );
 		editor.ui.addButton( 'MWRef',
 			{
@@ -941,6 +956,8 @@ CKEDITOR.plugins.add( 'mediawiki',
 
 		editor.addCommand( 'MWSimpleLink', simplelinkCommand);    //05.09.14 RL
 
+		editor.addCommand( 'MWAngleQuotes', anglequotesCommand);  //01.07.18 Varlin: Added angle quotation marks
+
 		if ( ! mw.config.get('is_special_elem_with_text_tags') ) {                                //Syntaxhighlight-Nowiki-Pre->       
 			editor.addCommand( 'MWTextTags', new CKEDITOR.dialogCommand( 'MWTextTagsD' ) ); 
 			CKEDITOR.dialog.add( 'MWTextTagsD', this.path + 'dialogs/texttags.js' ); 
@@ -1012,6 +1029,13 @@ CKEDITOR.plugins.add( 'mediawiki',
                     command : 'MWSimpleLink', 
                     icon: this.path + 'images/tb_icon_simplelink.gif' 
                 }); 
+
+			editor.ui.addButton( 'MWAngleQuotes', //01.07.18 Varlin. Added angle quotation marks
+				{
+					label : editor.lang.mwplugin.formAngleQuotes,
+					command : 'MWAngleQuotes',
+					icon: this.path + 'images/tb_icon_quotes.png'
+				});
 		}
 		
         // context menu

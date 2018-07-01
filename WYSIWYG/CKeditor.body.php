@@ -56,7 +56,7 @@ class CKeditor_MediaWiki {
 
 		# Version of WYSIWYG and CKeditor:
 		# -defined in files:  WYSIWYG.php, CKeditor.body.php, extension.json
-		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551--01.07.2018]');
+		define('WYSIWYG_EDITOR_VERSION', '1.5.6_0 [B551-01.07.2018]');
 		define('CKEDITOR_VERSION',       'CKEditor 4.6.2 (revision 20af917)');
 		
 		$dir = dirname( __FILE__ ) . '/';

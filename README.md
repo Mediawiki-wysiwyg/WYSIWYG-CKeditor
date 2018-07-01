@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 01.07.18  Added button to set format "italic + angle quotation marks + space" around selected text (by Varlin). Version 1.5.6_0 [B551-01.07.2018]
+
 - 01.07.18  Edit content of ref- and references- tags by double clicking it (by Varlin). Version 1.5.6_0 [B551--01.07.2018]
 
 - 23.06.18  All value of wgDefaultUserOptions must be defined in LocalSetting.php. Updated example of settings for LocalSetting.php in readme.md. Version 1.5.6_0 [B551++23.06.2018]
