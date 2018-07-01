@@ -8,6 +8,7 @@
  *		mode, which displays the raw data being edited in the editor.
  */
 
+CKEDITOR.dtd.$editable['references'] = 1;  //01.07.18 Varlin For double click footnote
 	
 CKEDITOR.plugins.add( 'mediawiki',
 {
@@ -234,6 +235,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				//'background-color: #ffffcc;' +  //light yellow  //light blue: rgba(0, 127, 255, 0.133)
 				//'border: 1px solid rgb(224,224,224);' +
 				'font-size: 100%;' +
+                'text-align: left;' +       //01.07.18 Varlin For double click footnote
 				//'display: inline-block;' +
 			'}\n';
 			/****
@@ -1058,11 +1060,20 @@ CKEDITOR.plugins.add( 'mediawiki',
 		
         editor.on( 'doubleclick', function( evt )
 			{					
+				CKEDITOR.plugins.mwreferencesmarkerref = null;       //01.07.18 Varlin For double click footnote
 			    var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
 
 				if ( element == null ) {
 					element = selection.getStartElement();           //For <ref> as text based element, img element is not used
 				}
+
+				if (element.hasClass("ref-string-o-row")) {          //01.07.18 Varlin -> For double click footnote
+					var className = element.getAttribute('class'), match;
+					if (match = className.match(/ref-string-o-(\d+)/)) {
+						CKEDITOR.plugins.mwreferencesmarkerref = match[1];
+					}
+				}
+
 				/****
 				if ( element.hasAscendant( 'ref', true ) == true ) { //For <ref> as text based element, img element is not used
 					evt.data.dialog = 'MWRef';	
@@ -1092,8 +1103,11 @@ CKEDITOR.plugins.add( 'mediawiki',
 						  element.getAttribute( 'class' ) == 'FCK__MWTemplate' ) {
 							evt.data.dialog = 'MWTemplate';
 				} //03.02.14 RL<-
+				else if (element.is("span") && element.hasClass("ref-string-o-row")) {   //01.07.18 Varlin -> For double click footnote
+					evt.data.dialog = 'MWRefmarker';
+				}
 				else
-				{                                                        //07.01.14 RL<-
+				{                                                                        //07.01.14 RL<-
 					if ( element.is( 'a' ) || ( element.is( 'img' ) && element.getAttribute( '_cke_real_element_type' ) == 'anchor' ) )
 						evt.data.dialog = 'MWLink';
 					else if ( element.getAttribute( 'class' ) == 'fck_mw_category' )     //01.09.2015 RL For categories (28.07.2015)
@@ -1109,7 +1123,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 							evt.data.dialog = 'MWRef';                                   //04.01.2014 RL
 						else 
 						*****/	
-						if ( element.getAttribute( 'class' ) &&                     //07.01.14 RL This was earlier one step below
+						if ( element.getAttribute( 'class' ) &&                          //07.01.14 RL This was earlier one step below
 							element.getAttribute( 'class' ).InArray( [
 								'FCK__MWSpecial',
 								'FCK__MWMagicWord',
@@ -1297,6 +1311,9 @@ function printObject(o) { //For debug purposes
 
 
 function reference_disable_sel( evt, editor ) { // 08.07.16 RL
+
+    return;  //01.07.18 Varlin For double click footnote: allowed for <ref> or <references> tags
+
 	// Try to disable editing of <ref> and <references> elements, img elements are not used.
 	// NOTE! Attr. contenteditable="false" would work ok with IE but not with FF or Chrome
 
@@ -1305,7 +1322,7 @@ function reference_disable_sel( evt, editor ) { // 08.07.16 RL
 		
 	if ( typeof(sel) != 'undefined' ) {
 		element = sel.getStartElement();	
-		if ( typeof element != 'undefined' && element.hasAscendant( 'ref', true ) == true || element.hasAscendant( 'references', true ) == true ) {
+        if ( typeof element != 'undefined' && element.hasAscendant( 'ref', true ) == true || element.hasAscendant( 'references', true ) == true ) {
 			sel.scrollIntoView();
 		}
 	}
@@ -1481,7 +1498,7 @@ function references_build_list( editor ) { // 08.07.16 RL
 					// NOTE! For some reason href- links between reference number and reference text on list did not work inside CKeditor window
 					// <span id="cite_note-1">1. <a href="#cite_ref-1">↑</a> xxxxxxxxxx</span><br/>
 					// arr[i].innerHTML += '<span id="cite_note-' + (h + k + 1) + '">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ( k + 1 ) + '. <a href="#cite_ref-' + (h + k + 1) + '">&uarr;</a> ' + refs[k] + '</span>';
-					arr[i].innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ( k + 1 ) + '. <font color="blue">↑</font> ' + sstr + refs[k]['reftxt']; //&uarr;
+                    arr[i].innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ref-string-o-row ref-string-o-' + ( k + 1 ) + '">' + ( k + 1 ) + '. <font color="blue">↑</font> ' + sstr + refs[k]['reftxt'] + '</span>'; //01.07.18 Varlin For double click footnote (<span class=...>)
 				}
 				/***/
 			}
@@ -2721,6 +2738,7 @@ CKEDITOR.customprocessor.prototype =
 
 									var nodeChild = htmlNode.firstChild;             //08.07.16 RL <ref>
 									var nodeChild2 = nodeChild.firstChild;           //08.07.16 RL <ref>
+									if ( nodeChild2 === null ||  typeof nodeChild2.getAttribute === 'undefined') return; //01.07.18 Varlin For double click footnote
 								
 									var refName = nodeChild2.getAttribute( 'name' ); //08.07.16 RL <ref> htmlNode.
 

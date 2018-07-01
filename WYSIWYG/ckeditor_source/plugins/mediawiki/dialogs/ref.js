@@ -39,6 +39,31 @@ CKEDITOR.dialog.add( 'MWRefmarker', function( editor ) {
 			label : editor.lang.mwplugin.referenceTitle, //'Add reference (citation)'      //10.01.14 RL
 			title : 'Add reference',
 			elements : [
+				/***
+				{						// 01.07.18 Varlin -> For double click footnote
+                  id: 'MIAref',
+                  type: 'button',
+                  label: 'Import link',
+                  title: 'Copy the link to the page and click', // 'Copier le lien vers la page et cliquer'
+                  onClick: function()
+					{
+						dialog = this._.dialog;
+						var url = dialog.getContentElement('info','footnote').getValue();
+						// alert("url:" + url);
+						$.get("https://xxxxxxx/nowiki/readurl.php?url="+url, function(response) {
+					
+							var h1 = (response.match(/<h1>(.*?)<\/h1>/i)) ? response.match(/<h1>(.*?)<\/h1>/i)[1] : '';
+							var h2 = (response.match(/<h2>(.*?)<\/h2>/i)) ? response.match(/<h2>(.*?)<\/h2>/i)[1] : '';
+							var titre = (response.match(/<p class="titre">(.*?)<\/p>/i)) ? response.match(/<p class="titre">(.*?)<\/p>/i)[1] : '';
+							var date = (response.match(/<p class="an">(.*?)<\/p>/i)) ? ', '+response.match(/<p class="an">(.*?)<\/p>/i)[1] : '';
+							if (titre == '') var ref =  h1 + ", ''[" + url + " " + h2 + "]''" + date;
+							else var ref = h1 + h2 + ", ''[" + url + " " + titre + "]''" + date;
+							
+							dialog.getContentElement('info','footnote').setValue(ref);	 
+						});
+					}	
+                },
+				***/				
 				{
 					id   : 'footnote',
 					type : 'textarea',
@@ -129,6 +154,19 @@ CKEDITOR.dialog.add( 'MWRefmarker', function( editor ) {
 					if ( span1.getName() == 'span' && span1.hasClass('fck_mw_ref')  && span1.getAttribute('data-widget') == 'mwrefmarker' &&
 						sup1.getName() == 'sup' && ref1.getName() == 'ref' ) { 		
 						element = ref1;
+                    } else if (span1 != null && sup1 != null && sup1.getName() == "references") { // 01.07.18 Varlin  -> For double click footnote
+						var ref = CKEDITOR.plugins.mwreferencesmarkerref;
+						if (ref != null) {
+                            var elements = editor.document.find('ref.fck_mw_ref');
+                            for (var i = 0; i < elements.count(); i++) {
+                                var refel = elements.getItem(i);
+                                if (refel.getText() === "[" + ref + "]") {
+                                    element = refel;
+                                    break;
+                                }
+                            }
+                            CKEDITOR.plugins.mwreferencesmarkerref = null;
+                        }
 					}
 				}
 			}
