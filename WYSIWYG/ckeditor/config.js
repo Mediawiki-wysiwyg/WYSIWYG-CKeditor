@@ -37,21 +37,20 @@ CKEDITOR.editorConfig = function( config )
 		['Source'],['Print','SpellChecker','Scayt'],
         ['PasteText','PasteFromWord', '-','Find','Replace'],
         ['SelectAll','RemoveFormat'],
-        ['Subscript','Superscript'],
         ['Link','MWSimpleLink','Unlink'], //05.09.14 RL
         ['Undo','Redo'],
         ['Image', 'Table', 'HorizontalRule', 'SpecialChar','Templates'],  //20.07.16 RL
-        ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature'],  //20.07.16 RL ,'qiButton', 'wsButton', 'rmButton', 'stbButton' 
-        ['MWCategory'],                   //07.01.14 RL  
-        ['MWRefmarker', 'MWReferencesmarker', 'MWReferencesUpd'], //'MWRef','MWReferences'  //For references (citation)   //14.07.16 RL 
+        ['MWTextTags', 'MWSpecialTags', 'MWTemplate', 'MWSignature'],     //20.07.16 RL ,'qiButton', 'wsButton', 'rmButton', 'stbButton' 
+        ['MWCategory'],                                                   //07.01.14 RL  
+        ['MWRefmarker', 'MWReferencesmarker', 'MWReferencesUpd'], //'MWRef','MWReferences'  //For references              //14.07.16 RL 
+		['Maximize', 'ShowBlocks'],
         '/',
         ['Styles','Format','Font','FontSize'],
-        ['Bold','Italic','Underline','Strike','TransformTextSwitcher'],                                                   //08.09.14 RL
+        ['Bold','Italic','Underline','Strike','-','Subscript','Superscript','-','TransformTextSwitcher'],                                        
         //[ 'TransformTextToUppercase', 'TransformTextToLowercase', 'TransformTextCapitalize', 'TransformTextSwitcher' ], //08.09.14 RL
-        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-        ['NumberedList','BulletedList', '-', 'Outdent','Indent', 'Blockquote'],
+        ['NumberedList','BulletedList', '-', 'Outdent','Indent', '-','MWAngleQuotes','Blockquote'],  //01.07.18 Varlin: Added angle quotation marks
+        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],		
         ['TextColor','BGColor'],
-        ['Maximize', 'ShowBlocks'],
 		['About']
     ];
     config.extraPlugins = extraPlugins;

@@ -1,0 +1,12 @@
+AddType image/svg+xml svg svgz
+AddEncoding gzip svgz
+
+# If the request ends in .jpg, .bmp, .png...
+#RewriteCond %{REQUEST_URI} \.(jpe?g|bmp|gif|png)$
+#RewriteRule ^folder/(.*)$ folder/index.php?url=$1 [L,QSA]
+
+order allow,deny
+<Files ~ "\.(svg|jpg|jpeg|png|gif|pdf|txt|bmp)$">
+   allow from all
+</Files>
+

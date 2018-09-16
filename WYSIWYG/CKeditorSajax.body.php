@@ -261,20 +261,30 @@ function wfSajaxSearchCategoryCKeditor(){
 		"AND tmpSelectCatPage.page_namespace =$ns ) ".
 		"LEFT JOIN ".$dbr->tableName('categorylinks')." AS tmpSelectCat2 ON tmpSelectCatPage.page_id = tmpSelectCat2.cl_from ".
 		"WHERE tmpSelectCat2.cl_from IS NULL ".
-		"GROUP BY tmpSelectCat1.cl_to COLLATE utf8_unicode_ci";       //16.11.2017 Varlin added COLLATE...
-
+		"GROUP BY tmpSelectCat1.cl_to";  // COLLATE utf8_unicode_ci";       //16.11.2017 Varlin added COLLATE...
+                                         // 16.09.2018 RL: MW1.31 ERROR 1253 (42000): COLLATION 'utf8_unicode_ci' is not valid for CHARACTER SET 'binary'
+                                         // Should this be taken care on server side by my.cnf?
+										 
+	//error_log(sprintf("DEBUG wfSajaxSearchCategoryCKeditor START m_sql:%s ns:%d dbr:%s", $m_sql, $ns, $dbr ));			
+	
 	$res = $dbr->query( $m_sql, __METHOD__ );
-
+	
 	$ret = '';
 	$i = 0;
+
+	//error_log(sprintf("DEBUG wfSajaxSearchCategoryCKeditor AFTER dbr-query")); 
+
 	while ( ( $row = $dbr->fetchObject( $res ) ) ) {
-		$ret .= $row->title . "\n";
+		//error_log(sprintf("DEBUG wfSajaxSearchCategoryCKeditor chk.child for %s", $row->title)); 
+		$ret .= $row->title . "\n";                                      //here title is eq. to name of category
 		$sub = explode( "\n", wfSajaxSearchCategoryChildrenCKeditor( $row->title ) );
 		foreach( $sub as $subrow )
 			if( strlen( $subrow ) > 0 )
 				$ret.= ' ' . $subrow . "\n";
 	}
 
+	//error_log(sprintf("DEBUG wfSajaxSearchCategoryCKeditor END ret:%s",  $ret ));	
+	
 	return $ret;
 }
 
@@ -287,10 +297,13 @@ function wfSajaxSearchCategoryChildrenCKeditor( $m_root ){
 			"LEFT JOIN ".$dbr->tableName('page')." AS tmpSelectCatPage ON tmpSelectCat.cl_from = tmpSelectCatPage.page_id ".
 			"WHERE tmpSelectCat.cl_to LIKE ".$dbr->addQuotes($m_root)." AND tmpSelectCatPage.page_namespace = $ns"; 
 
+	//error_log(sprintf("DEBUG wfSajaxSearchCategoryChildrenCKeditor START for m_root:%s", $m_root ));
+			
 	$res = $dbr->query( $sql, __METHOD__ );
 	$ret = '';
-	$i = 0;
-	while ( ( $row = $dbr->fetchObject( $res ) ) ) {
+	$i = 0;                // $i: workaround when category is also a subcategory of one of its own subcategories, expand max $limit times
+	while ( ( $row = $dbr->fetchObject( $res ) ) && ( $i <= $limit ) ) {  //16.09.2018 RL  ($i by HellToupee1)
+		$i++;                                                             //16.09.2018 RL  ($i by HellToupee1)
 		$ret .= $row->title . "\n";
 		$sub = explode( "\n", wfSajaxSearchCategoryChildrenCKeditor( $row->title ) );
 		foreach( $sub as $subrow )
@@ -298,6 +311,8 @@ function wfSajaxSearchCategoryChildrenCKeditor( $m_root ){
 				$ret.= ' ' . $subrow . "\n";
 	}
 
+	//error_log(sprintf("DEBUG wfSajaxSearchCategoryChildrenCKeditor END for m_root:%s => ret:%s", $m_root, $ret ));		
+	
 	return $ret;
 }
 
