@@ -35,6 +35,8 @@ More information about MediaWiki extension WYSIWYG can be found here:
 History of modifications:
 ===
 
+- 18.09.18  Modified sql query for categories. Prevent nested categories to create infinite loop (by HellToupee1). Version 1.5.6_0 [B551+18.09.2018]
+
 - 16.09.18  Fixed sql query for categories (MW1.31, removed COLLATE). Prevent nested categories to create infinite loop (by HellToupee1). Reorganized buttons in menu.  Version 1.5.6_0 [B551-16.09.2018]
 
 - 01.07.18  Added button to set format "italic + angle quotation marks + space" around selected text (by Varlin). Version 1.5.6_0 [B551-01.07.2018]
