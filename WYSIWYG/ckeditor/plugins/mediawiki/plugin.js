@@ -2726,7 +2726,7 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( 'px' );
 							}
 
-							if ( imgCaption.length > 0 ) {
+							if ( imgCaption.length > 0 && imgName != imgCaption ) {
 								//stringBuilder.push( '|' + imgCaption ); //15.08.16 RL
 								
 								// imgCaption is text string and may contain html formats like bold, italic etc.
